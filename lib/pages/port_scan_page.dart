@@ -15,7 +15,6 @@ class _PortScanPageState extends State<PortScanPage> {
   TextEditingController _textEditingController = TextEditingController();
   StreamSubscription<OpenPort>? _streamSubscription;
   bool _completed = true;
-  //TODO: add in settings port scan max value
   _startScanning() {
     setState(() {
       _completed = false;

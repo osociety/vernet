@@ -25,7 +25,6 @@ class _HostScanPageState extends State<HostScanPage>
     final String? ip = await (NetworkInfo().getWifiIP());
     if (ip != null && ip.isNotEmpty) {
       final String subnet = ip.substring(0, ip.lastIndexOf('.'));
-      //TODO: Add in settings for maxnetworksize
       final stream = HostScanner.discover(subnet,
           maxHost: appSettings.maxNetworkSize, progressCallback: (progress) {
         print('Progress : $progress');
