@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.vernet.vernet">
+    package="org.fsociety.vernet">
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="vernet"
+        android:label="Vernet"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

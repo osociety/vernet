@@ -1,4 +1,4 @@
-package org.vernet.vernet
+package org.fsociety.vernet
 
 import io.flutter.embedding.android.FlutterActivity
 
