@@ -14,6 +14,7 @@
 *.ipr
 *.iws
 .idea/
+app/.idea
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
@@ -31,8 +32,16 @@
 .pub/
 /build/
 
+/app/.dart_tool/
+/app/.flutter-plugins
+/app/.flutter-plugins-dependencies
+/app/.packages
+/app/.pub-cache/
+/app/.pub/
+/app/build/
+
 # Web related
-lib/generated_plugin_registrant.dart
+app/lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -41,6 +50,6 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+/app/android/app/debug
+/app/android/app/profile
+/app/android/app/release
