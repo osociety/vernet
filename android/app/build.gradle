@@ -69,8 +69,6 @@ android {
         fdroid {
             dimension "deploy"
             signingConfig null
-            applicationIdSuffix ".fdroid"
-            versionNameSuffix "-fdroid"
         }
 
         store {
