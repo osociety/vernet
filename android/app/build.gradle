@@ -57,23 +57,24 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            
         }
     }
+
     flavorDimensions "deploy"
 
     productFlavors {
         fdroid {
             dimension "deploy"
             signingConfig null
+            applicationIdSuffix ".fdroid"
+            versionNameSuffix "-fdroid"
         }
-    }
 
-    android.applicationVariants.all { variant ->
-        if (variant.flavorName == "fdroid") {
-            variant.outputs.all { output ->
-                output.outputFileName = "app-fdroid-release.apk"
-            }
+        store {
+            dimension "deploy"
+            signingConfig signingConfigs.release
+            applicationIdSuffix ".store"
+            versionNameSuffix "-store"
         }
     }
 }
