@@ -74,7 +74,7 @@ class _SettingsPageState extends State<SettingsPage> {
         SizedBox(height: 10),
         Text("Made with ❤️ in India"),
         SizedBox(height: 10),
-        Text('Version : 1.0.0+1'),
+        Text('Version : 1.0.0+2'),
       ],
     );
   }
