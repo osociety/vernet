@@ -65,7 +65,7 @@ android {
 
     flavorDimensions "deploy"
 
-    productFlavors {
+    productFlavors { 
         fdroid {
             dimension "deploy"
             signingConfig signingConfigs.release

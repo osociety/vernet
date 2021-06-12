@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/dark_theme_provider.dart';
@@ -74,7 +75,16 @@ class _SettingsPageState extends State<SettingsPage> {
         SizedBox(height: 10),
         Text("Made with ❤️ in India"),
         SizedBox(height: 10),
-        Text('Version : 1.0.0+2'),
+        FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder:
+                (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
+              if (snapshot.hasData) {
+                return Text(
+                    'Version : ${snapshot.data?.version}+${snapshot.data?.buildNumber}');
+              }
+              return SizedBox();
+            }),
       ],
     );
   }
