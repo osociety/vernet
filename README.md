@@ -3,6 +3,7 @@
 Vernet is a host and port scanner
 
 ## Features
+
 1. Shows wifi details
 2. Scans for devices(or hosts) on network
 3. Scans for open ports of target IP
