@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,17 +20,21 @@ class _WifiDetailState extends State<WifiDetail> {
   bool _location = false;
 
   _getWifiInfo() async {
-    await Permission.location.request();
-    var wifiIP = await (NetworkInfo().getWifiIP());
+    if (Platform.isAndroid || Platform.isIOS) {
+      await Permission.location.request();
+    }
 
+    var wifiIP = await (NetworkInfo().getWifiIP());
     var wifiBSSID = await (NetworkInfo().getWifiBSSID());
     var wifiName = await (NetworkInfo().getWifiName());
     setState(() {
       _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null);
     });
-    Permission.location.serviceStatus.isEnabled.then((value) => setState(() {
-          _location = value;
-        }));
+    if (Platform.isAndroid || Platform.isIOS) {
+      Permission.location.serviceStatus.isEnabled.then((value) => setState(() {
+            _location = value;
+          }));
+    }
   }
 
   @override
