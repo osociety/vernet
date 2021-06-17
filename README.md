@@ -8,6 +8,11 @@ Vernet is a host and port scanner
 2. Scans for devices(or hosts) on network
 3. Scans for open ports of target IP
 
+[![alt Get it on F-droid][image-fdroid]][hyperlink-fdroid]
+
+[hyperlink-fdroid]:  https://f-droid.org/packages/org.fsociety.vernet
+  [image-fdroid]: https://fdroid.gitlab.io/artwork/badge/get-it-on.png (Get it on F-droid)
+
 [![alt Get it on Google Play][image]][hyperlink]
 
 [hyperlink]: https://play.google.com/store/apps/details?id=org.fsociety.vernet.store

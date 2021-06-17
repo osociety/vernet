@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/pages/location_consent_page.dart';
@@ -12,9 +10,7 @@ late AppSettings appSettings;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool allowed = await Consent.isConsentPageShown();
-  if (Platform.isMacOS) {
-    allowed = true;
-  }
+
   appSettings = AppSettings.instance..load();
   runApp(MyApp(allowed));
 }
