@@ -136,16 +136,16 @@ class _WifiDetailState extends State<WifiDetail> {
             ),
           ),
         ),
-        FutureBuilder<InternetProvider?>(
-          future: ISPLoader().load(),
-          builder: (BuildContext context,
-              AsyncSnapshot<InternetProvider?> snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return Card(
-                child: ListTile(
-                  leading: Icon(Icons.signal_cellular_alt),
-                  title: Text('Internet Service Provider (ISP)'),
-                  subtitle: Column(
+        Card(
+          child: ListTile(
+            leading: Icon(Icons.signal_cellular_alt),
+            title: Text('Internet Service Provider (ISP)'),
+            subtitle: FutureBuilder<InternetProvider?>(
+              future: ISPLoader().load(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<InternetProvider?> snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 4),
@@ -172,12 +172,15 @@ class _WifiDetailState extends State<WifiDetail> {
                       //   label: Text('Test Speed'),
                       // )
                     ],
-                  ),
-                ),
-              );
-            }
-            return SizedBox();
-          },
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Text("Unable to fetch ISP details");
+                }
+                return Text("Loading ISP details..");
+              },
+            ),
+          ),
         ),
       ],
     );
