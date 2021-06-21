@@ -14,6 +14,26 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
-        }
+        },
+        {
+            "name": "F-droid",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+              "--flavor",
+              "fdroid"
+            ]
+          },
+          {
+            "name": "Store",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+              "--flavor",
+              "store"
+            ]
+          },
     ]
 }

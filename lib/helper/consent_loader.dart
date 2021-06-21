@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Consent {
+class ConsentLoader {
   static const String CONSENT_KEY = 'ContinueWithoutPermission';
 
   static Future<bool> isConsentPageShown() async {

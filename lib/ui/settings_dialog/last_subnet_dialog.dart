@@ -4,22 +4,22 @@ import 'package:vernet/values/strings.dart';
 
 import '../../ui/base_settings_dialog.dart';
 
-class MaxHostDialog extends StatefulWidget {
-  const MaxHostDialog({Key? key}) : super(key: key);
+class LastSubnetDialog extends StatefulWidget {
+  const LastSubnetDialog({Key? key}) : super(key: key);
 
   @override
-  _MaxHostDialogState createState() => _MaxHostDialogState();
+  _LastSubnetDialogState createState() => _LastSubnetDialogState();
 }
 
-class _MaxHostDialogState extends BaseSettingsDialog<MaxHostDialog> {
+class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.MAX_HOST_SIZE;
+    return StringValue.LAST_SUBNET;
   }
 
   @override
   String getHintText() {
-    return StringValue.MAX_HOST_SIZE_DESC;
+    return StringValue.LAST_SUBNET_DESC;
   }
 
   @override
@@ -30,9 +30,9 @@ class _MaxHostDialogState extends BaseSettingsDialog<MaxHostDialog> {
   @override
   void onSubmit(String value) {
     int val = int.parse(value);
-    if (val != appSettings.maxNetworkSize) {
+    if (val != appSettings.lastSubnet) {
       print('saving value');
-      appSettings.setMaxNetworkSize(val);
+      appSettings.setLastSubnet(val);
     }
   }
 
@@ -42,7 +42,10 @@ class _MaxHostDialogState extends BaseSettingsDialog<MaxHostDialog> {
     try {
       int val = int.parse(value);
       if (val < 1) {
-        return 'Should be a natural number';
+        return 'Value must be a natural number';
+      }
+      if (val < appSettings.firstSubnet) {
+        return 'Value must be greater than first subnet';
       }
     } catch (e) {
       return 'Must be a number';
@@ -51,6 +54,6 @@ class _MaxHostDialogState extends BaseSettingsDialog<MaxHostDialog> {
 
   @override
   String getInitialValue() {
-    return appSettings.maxNetworkSize.toString();
+    return appSettings.lastSubnet.toString();
   }
 }

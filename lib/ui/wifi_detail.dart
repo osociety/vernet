@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:vernet/api/isp_loader.dart';
+import 'package:vernet/models/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/host_scan_page.dart';
 import 'package:vernet/pages/ping_page.dart';
@@ -20,13 +22,14 @@ class _WifiDetailState extends State<WifiDetail> {
   bool _location = false;
 
   _getWifiInfo() async {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid) {
       await Permission.location.request();
     }
 
     var wifiIP = await (NetworkInfo().getWifiIP());
     var wifiBSSID = await (NetworkInfo().getWifiBSSID());
     var wifiName = await (NetworkInfo().getWifiName());
+
     setState(() {
       _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null);
     });
@@ -52,6 +55,7 @@ class _WifiDetailState extends State<WifiDetail> {
               ? CircularProgressIndicator.adaptive()
               : ListTile(
                   minVerticalPadding: 10,
+                  leading: Icon(Icons.router),
                   title: Text('${_wifiInfo!.name}'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,6 +97,7 @@ class _WifiDetailState extends State<WifiDetail> {
         ),
         Card(
           child: ListTile(
+            leading: Icon(Icons.network_check),
             title: Text('Network Troubleshooting'),
             minVerticalPadding: 10,
             subtitle: Column(
@@ -130,6 +135,49 @@ class _WifiDetailState extends State<WifiDetail> {
               ],
             ),
           ),
+        ),
+        FutureBuilder<InternetProvider?>(
+          future: ISPLoader().load(),
+          builder: (BuildContext context,
+              AsyncSnapshot<InternetProvider?> snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              return Card(
+                child: ListTile(
+                  leading: Icon(Icons.signal_cellular_alt),
+                  title: Text('Internet Service Provider (ISP)'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.public),
+                          SizedBox(width: 8),
+                          Text(snapshot.data!.isp),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on),
+                          SizedBox(width: 8),
+                          Text(snapshot.data!.location.address),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      // SizedBox(height: 8),
+                      // ElevatedButton.icon(
+                      //   onPressed: () {},
+                      //   icon: Icon(Icons.speed),
+                      //   label: Text('Test Speed'),
+                      // )
+                    ],
+                  ),
+                ),
+              );
+            }
+            return SizedBox();
+          },
         ),
       ],
     );

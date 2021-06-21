@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/dark_theme_provider.dart';
-import 'package:vernet/ui/settings_dialog/max_host_dialog.dart';
+import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
+import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/values/strings.dart';
@@ -34,12 +36,37 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         Card(
           child: ListTile(
-            title: Text(StringValue.MAX_HOST_SIZE),
-            subtitle: Text(StringValue.MAX_HOST_SIZE_DESC),
-            trailing: Text('${appSettings.maxNetworkSize} hosts'),
+            title: Text(StringValue.FIRST_SUBNET),
+            subtitle: Text(StringValue.FIRST_SUBNET_DESC),
+            trailing: Text(
+              '${appSettings.firstSubnet}',
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle2
+                  ?.copyWith(color: Theme.of(context).accentColor),
+            ),
             onTap: () async {
               await showDialog(
-                  context: context, builder: (context) => MaxHostDialog());
+                  context: context, builder: (context) => FirstSubnetDialog());
+              await appSettings.load();
+              setState(() {});
+            },
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: Text(StringValue.LAST_SUBNET),
+            subtitle: Text(StringValue.LAST_SUBNET_DESC),
+            trailing: Text(
+              '${appSettings.lastSubnet}',
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle2
+                  ?.copyWith(color: Theme.of(context).accentColor),
+            ),
+            onTap: () async {
+              await showDialog(
+                  context: context, builder: (context) => LastSubnetDialog());
               await appSettings.load();
               setState(() {});
             },
@@ -49,7 +76,13 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListTile(
             title: Text(StringValue.SOCKET_TIMEOUT),
             subtitle: Text(StringValue.SOCKET_TIMEOUT_DESC),
-            trailing: Text('${appSettings.socketTimeout} ms'),
+            trailing: Text(
+              '${appSettings.socketTimeout} ms',
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle2
+                  ?.copyWith(color: Theme.of(context).accentColor),
+            ),
             onTap: () async {
               await showDialog(
                   context: context,
@@ -63,7 +96,13 @@ class _SettingsPageState extends State<SettingsPage> {
           child: ListTile(
             title: Text(StringValue.PING_COUNT),
             subtitle: Text(StringValue.PING_COUNT_DESC),
-            trailing: Text('${appSettings.pingCount}'),
+            trailing: Text(
+              '${appSettings.pingCount}',
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle2
+                  ?.copyWith(color: Theme.of(context).accentColor),
+            ),
             onTap: () async {
               await showDialog(
                   context: context, builder: (context) => PingCountDialog());
@@ -72,20 +111,33 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
         ),
+        Card(
+          child: ListTile(
+            title: Text('Report Issues'),
+            subtitle: Text(_url),
+            onTap: _launchURL,
+          ),
+        ),
         SizedBox(height: 10),
         Text("Made with ❤️ in India"),
         SizedBox(height: 10),
         FutureBuilder<PackageInfo>(
-            future: PackageInfo.fromPlatform(),
-            builder:
-                (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                    'Version : ${snapshot.data?.version}+${snapshot.data?.buildNumber}');
-              }
-              return SizedBox();
-            }),
+          future: PackageInfo.fromPlatform(),
+          builder: (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
+            if (snapshot.hasData) {
+              return Text(
+                  'Version : ${snapshot.data?.version}+${snapshot.data?.buildNumber}');
+            }
+            return SizedBox();
+          },
+        ),
       ],
     );
   }
+
+  String _url = 'https://github.com/git-elliot/vernet/issues';
+
+  void _launchURL() async => await canLaunch(_url)
+      ? await launch(_url)
+      : throw 'Could not launch $_url';
 }

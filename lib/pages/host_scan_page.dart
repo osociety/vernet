@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools/network_tools.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -26,7 +27,8 @@ class _HostScanPageState extends State<HostScanPage>
     if (ip != null && ip.isNotEmpty) {
       final String subnet = ip.substring(0, ip.lastIndexOf('.'));
       final stream = HostScanner.discover(subnet,
-          maxHost: appSettings.maxNetworkSize, progressCallback: (progress) {
+          firstSubnet: appSettings.firstSubnet,
+          lastSubnet: appSettings.lastSubnet, progressCallback: (progress) {
         print('Progress : $progress');
         if (this.mounted) {
           setState(() {
@@ -85,26 +87,44 @@ class _HostScanPageState extends State<HostScanPage>
         ],
       ),
       body: Center(
-        child: _devices.isEmpty
-            ? CircularProgressIndicator.adaptive()
-            : Column(
-                children: [
-                  Expanded(
-                      child: ListView.builder(
-                    itemCount: _devices.length,
-                    itemBuilder: (context, index) {
-                      ActiveHost device =
-                          SplayTreeSet.from(_devices).toList()[index];
-
-                      return ListTile(
-                        title: Text(device.make),
-                        subtitle: Text(device.ip),
-                      );
-                    },
-                  ))
-                ],
-              ),
+        child: buildListView(context),
       ),
+    );
+  }
+
+  Widget buildListView(BuildContext context) {
+    if (_progress >= 100 && _devices.isEmpty) {
+      return Text(
+        'No device found.\nTry changing first and last subnet in settings',
+        textAlign: TextAlign.center,
+      );
+    } else if (HostScanner.isScanning && _devices.isEmpty) {
+      return CircularProgressIndicator.adaptive();
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: _devices.length,
+            itemBuilder: (context, index) {
+              ActiveHost device = SplayTreeSet.from(_devices).toList()[index];
+              return ListTile(
+                title: Text(device.make),
+                subtitle: Text(device.ip),
+                onLongPress: () {
+                  Clipboard.setData(ClipboardData(text: device.ip));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("IP copied to clipboard"),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        )
+      ],
     );
   }
 }

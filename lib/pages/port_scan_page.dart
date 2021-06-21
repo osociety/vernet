@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:network_tools/network_tools.dart';
+import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/models/port.dart';
 
 class PortScanPage extends StatefulWidget {
   const PortScanPage({Key? key}) : super(key: key);
@@ -12,6 +15,7 @@ class PortScanPage extends StatefulWidget {
 
 class _PortScanPageState extends State<PortScanPage> {
   Set<OpenPort> _openPorts = {};
+  Map<String, Port> _allPorts = {};
   TextEditingController _textEditingController = TextEditingController();
   StreamSubscription<OpenPort>? _streamSubscription;
   bool _completed = true;
@@ -22,10 +26,8 @@ class _PortScanPageState extends State<PortScanPage> {
     });
 
     _streamSubscription = PortScanner.discover(_textEditingController.text,
-        timeout: Duration(milliseconds: appSettings.socketTimeout),
-        progressCallback: (progress) {
-      print('Progrees : $progress');
-    }).listen((event) {
+            timeout: Duration(milliseconds: appSettings.socketTimeout))
+        .listen((event) {
       if (event.isOpen) {
         setState(() {
           _openPorts.add(event);
@@ -34,6 +36,18 @@ class _PortScanPageState extends State<PortScanPage> {
     }, onDone: () {
       setState(() {
         _completed = true;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    PortDescLoader("assets/ports_lists.json").load().then((value) {
+      print("Fetched ports : ${value.length}");
+      setState(() {
+        _allPorts.addAll(value);
       });
     });
   }
@@ -96,8 +110,34 @@ class _PortScanPageState extends State<PortScanPage> {
                             dense: true,
                             contentPadding:
                                 EdgeInsets.only(left: 10.0, right: 10.0),
-                            leading: Text('${_openPort.port}'),
-                            title: Text('${_openPort.ip}'),
+                            leading: Text(
+                              '${_openPort.port}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1!
+                                  .copyWith(
+                                      color: Theme.of(context).accentColor),
+                            ),
+                            title: _allPorts.isEmpty
+                                ? SizedBox()
+                                : Text(
+                                    _allPorts[_openPort.port.toString()]!.desc),
+                            subtitle: _allPorts.isEmpty
+                                ? SizedBox()
+                                : Row(
+                                    children: [
+                                      _allPorts[_openPort.port.toString()]!
+                                              .isTCP
+                                          ? Text('TCP   ')
+                                          : SizedBox(),
+                                      _allPorts[_openPort.port.toString()]!
+                                              .isUDP
+                                          ? Text('UDP   ')
+                                          : SizedBox(),
+                                      Text(_allPorts[_openPort.port.toString()]!
+                                          .status),
+                                    ],
+                                  ),
                           ),
                           Divider(height: 4),
                         ],

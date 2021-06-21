@@ -1,7 +1,11 @@
 class StringValue {
-  static const String MAX_HOST_SIZE = 'Maximum Network Size';
-  static const String MAX_HOST_SIZE_DESC =
-      'Used to discover hosts on the network';
+  static const String FIRST_SUBNET = 'First Subnet';
+  static const String FIRST_SUBNET_DESC =
+      'Scanning for hosts on the network will start from this value';
+
+  static const String LAST_SUBNET = 'Last Subnet';
+  static const String LAST_SUBNET_DESC =
+      'Scanning for hosts on the network will end at this value';
 
   static const String SOCKET_TIMEOUT = 'Socket Timeout';
   static const String SOCKET_TIMEOUT_DESC =

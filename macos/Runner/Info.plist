@@ -28,5 +28,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app requires accessing your location information when the app is in foreground to get wi-fi information.</string>
 </dict>
 </plist>
