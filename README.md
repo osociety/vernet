@@ -15,5 +15,5 @@ Vernet - Network Analyzer and monitoring tool.
 
 Buy me a coffee
 
-<img src="donation/bhim_upi_qr.jpeg" style ="margin-right: 10px" width = "100">
+<img src="donation/bhim_upi_qr.png" style ="margin-right: 10px" width = "100">
 <img src="donation/bitcoin_qr.png" style ="margin-left: 10px" width = "100">
