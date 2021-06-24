@@ -17,4 +17,4 @@ Buy me a coffee
 
 <a href='bitcoin:bc1qx5ut0sf2tngkwtwyjglgsu0xrf6d852shzxjye?amount=0.0000401'><img alt='Donate via bitcoin' src='https://bitcoin.org/img/icons/logotop.svg' width="100" /></a>
 
-<a href='upi://pay?pa=fs0c13ty@upi&pn=&cu=INR&mode=02&purpose=00&orgid=189999&sign=MEUCIEoP30F/ZPNOETHIYldw7p1U52Lm6FLxQ01B/VFRFIi2AiEAo8XtzJAGnHx6CgonnE8CcQCEsh/P5GtcbJ6araI/1ws=' ><img alt='Donate via UPI' src='https://www.npci.org.in/images/npci/upi/upi-logo.png' style='margin-top: 10px;' width="100"/></a>
+<a href='upi://pay?pa=fs0c13ty@upi&pn=&cu=INR&mode=02&purpose=00&orgid=189999&sign=MEUCIEoP30F/ZPNOETHIYldw7p1U52Lm6FLxQ01B/VFRFIi2AiEAo8XtzJAGnHx6CgonnE8CcQCEsh/P5GtcbJ6araI/1ws=' ><img alt='Donate via UPI' src='https://www.searchpng.com/wp-content/uploads/2019/01/UPI-Logo-PNG.png' style='margin-top: 10px;' width="100"/></a>
