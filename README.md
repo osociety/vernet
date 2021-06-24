@@ -2,10 +2,6 @@
 
 Vernet - Network Analyzer and monitoring tool.
 
-|   Android |   Android |
-|-----------|-----------|
-|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="150" /></a>|<a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="150" /></a>|
-
 ## Features
 
 1. Shows Wi-Fi details
@@ -13,9 +9,29 @@ Vernet - Network Analyzer and monitoring tool.
 3. Scans for open ports of target IP
 4. Shows ISP details
 
+## Mobile Apps
+
+|   Android |   Android | iOS |
+|-----------|-----------|-----|
+|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="150" /></a>|<a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="150" /></a>| Build Ready |
+
+## Desktop
+
+| macOS | Linux | Windows |
+|-------|-------|---------|
+|Build Ready  | Need contributor | Need contributor |
+
+## Contributors Required
+
+1. Linux Builder & Tester
+2. Windows Builder & Tester
+
+Drop mail at fs0c19ty@protonmail.com
+
 ## Donate
 
-Buy me a coffee
+Support this project. Buy me a coffee.
+
 |   Bitcoin |   UPI |
 |-----------|-------|
 |<img src="donation/bitcoin_qr.png" width = "100">|<img src="donation/bhim_upi_qr.png" width = "100">|
