@@ -35,6 +35,11 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      if config.build_settings['MACOSX_DEPLOYMENT_TARGET'].to_f < 10.9
+        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '11.3'
+      end
+   end
     flutter_additional_macos_build_settings(target)
   end
 end
