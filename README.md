@@ -19,7 +19,18 @@ Vernet - Network Analyzer and monitoring tool.
 
 | macOS | Linux | Windows |
 |-------|-------|---------|
-|Build Ready  | Need contributor | Need contributor |
+|[Github Releases](https://github.com/git-elliot/vernet/releases)| Need contributor | Need contributor |
+
+## How to install
+
+### macOS
+
+macOS build is not notarized as of now.
+
+1. Copy app file to the Applications folder
+2. Go to Applications folder.
+3. Press down cmd + left click.
+4. In context menu, click on open.
 
 ## Contributors Required
 
