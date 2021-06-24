@@ -34,8 +34,10 @@ macOS build is not notarized as of now.
 
 ## Contributors Required
 
-1. Linux Builder & Tester
-2. Windows Builder & Tester
+1. Linux Packager & Tester
+2. Windows Packager & Tester
+3. Documenter
+4. Blogger
 
 Drop mail at fs0c19ty@protonmail.com
 
