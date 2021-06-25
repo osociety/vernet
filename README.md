@@ -39,6 +39,11 @@ macOS build is not notarized as of now.
 3. Documenter
 4. Blogger
 
+## How to Contribute
+
+1. Found bug? Create an [issue](https://github.com/git-elliot/vernet/issues)
+2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/git-elliot/vernet/pulls)
+
 Drop mail at fs0c19ty@protonmail.com
 
 ## Donate
