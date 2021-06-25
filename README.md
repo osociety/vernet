@@ -9,13 +9,22 @@ Vernet - Network Analyzer and monitoring tool.
 3. Scans for open ports of target IP
 4. Shows ISP details
 
-## Mobile Apps
+## Screenshots
+
+||||
+|---|---|---|
+|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "100">|
+|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "100">|
+
+## Download
+
+### For Mobile
 
 |   Android |   Android | iOS |
 |-----------|-----------|-----|
 |<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="150" /></a>|<a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="150" /></a>| Build Ready |
 
-## Desktop
+### For Desktop
 
 | macOS | Linux | Windows |
 |-------|-------|---------|
@@ -23,7 +32,7 @@ Vernet - Network Analyzer and monitoring tool.
 
 ## How to install
 
-### macOS
+### Instructions for macOS
 
 macOS build is not notarized as of now.
 
