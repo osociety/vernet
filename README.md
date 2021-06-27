@@ -23,9 +23,9 @@ Vernet - Network Analyzer and Monitoring Tool
 
 ## Download
 
-|   Android || iOS | macOS | Linux | Windows |
-|-----------|------------|-----|-------|-------|---------|
-|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="150" /></a>|<a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="150" /></a>| Build Ready |<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="150" />| Need contributor | Need contributor |
+|   Android | iOS | macOS | Linux | Windows |
+|-----------|-----|-------|-------|---------|
+|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="150" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="150" /></a>| Build Ready |<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="150" />| Need contributor | Need contributor |
 
 ## How to install
 
