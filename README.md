@@ -2,6 +2,11 @@
 
 Vernet - Network Analyzer and Monitoring Tool
 
+[![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
+![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/git-elliot/vernet?include_prereleases)
+![GitHub all releases](https://img.shields.io/github/downloads/git-elliot/vernet/total)
+![GitHub repo size](https://img.shields.io/github/repo-size/git-elliot/vernet)
+
 ## Features
 
 1. Shows Wi-Fi details
@@ -28,7 +33,7 @@ Vernet - Network Analyzer and Monitoring Tool
 
 | macOS | Linux | Windows |
 |-------|-------|---------|
-|[Github Releases](https://github.com/git-elliot/vernet/releases)| Need contributor | Need contributor |
+|<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="150" />| Need contributor | Need contributor |
 
 ## How to install
 
@@ -46,14 +51,13 @@ macOS build is not notarized as of now.
 1. Linux Packager & Tester
 2. Windows Packager & Tester
 3. Documenter
-4. Blogger
+
+Drop mail at fs0c19ty@protonmail.com
 
 ## How to Contribute
 
 1. Found bug? Create an [issue](https://github.com/git-elliot/vernet/issues)
 2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/git-elliot/vernet/pulls)
-
-Drop mail at fs0c19ty@protonmail.com
 
 ## Donate
 
