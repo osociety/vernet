@@ -16,7 +16,7 @@ Vernet - Network Analyzer and Monitoring Tool
 
 ## Screenshots
 
-|||||||
+|Vernet|Home|Devices|Open Ports|Dark Home|Settings|
 |-|-|-|-|-|-|
 |<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "100">|
 
@@ -32,10 +32,11 @@ Vernet - Network Analyzer and Monitoring Tool
 
 macOS build is not notarized as of now.
 
-1. Copy app file to the Applications folder
-2. Go to Applications folder.
-3. Press down cmd + left click.
-4. In context menu, click on open.
+1. Star this repository.
+2. Copy app file to the Applications folder.
+3. Go to Applications folder.
+4. Press down cmd + left click.
+5. In context menu, click on open.
 
 ## Contributors Required
 
@@ -47,13 +48,18 @@ Drop mail at fs0c19ty@protonmail.com
 
 ## How to Contribute
 
-1. Found bug? Create an [issue](https://github.com/git-elliot/vernet/issues)
+1. Found bug? Open an [issue](https://github.com/git-elliot/vernet/issues)
 2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/git-elliot/vernet/pulls)
 
-## Donate
+## Support and Donate
 
-Support this project. Buy me a coffee.
+1. Support this project by becoming stargazer of this project.
+2. Buy me a coffee.
 
-|   Bitcoin |   UPI |
-|-----------|-------|
-|<img src="donation/bitcoin_qr.png" width = "100">|<img src="donation/bhim_upi_qr.png" width = "100">|
+    |   Bitcoin |   UPI |
+    |-----------|-------|
+    |<img src="donation/bitcoin_qr.png" width = "100">|<img src="donation/bhim_upi_qr.png" width = "100">
+
+3. Support me on Ko-Fi
+
+    [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
