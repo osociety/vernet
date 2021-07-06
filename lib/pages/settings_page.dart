@@ -114,8 +114,19 @@ class _SettingsPageState extends State<SettingsPage> {
         Card(
           child: ListTile(
             title: Text('Report Issues'),
-            subtitle: Text(_url),
-            onTap: _launchURL,
+            subtitle: Text(_issueUrl),
+            onTap: () {
+              _launchURL(_issueUrl);
+            },
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: Text('Donate'),
+            subtitle: Text(_donateUrl),
+            onTap: () {
+              _launchURL(_donateUrl);
+            },
           ),
         ),
         SizedBox(height: 10),
@@ -135,9 +146,9 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  String _url = 'https://github.com/git-elliot/vernet/issues';
+  String _issueUrl = 'https://github.com/git-elliot/vernet/issues';
+  String _donateUrl = 'https://github.com/git-elliot/vernet#support-and-donate';
 
-  void _launchURL() async => await canLaunch(_url)
-      ? await launch(_url)
-      : throw 'Could not launch $_url';
+  void _launchURL(String url) async =>
+      await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }

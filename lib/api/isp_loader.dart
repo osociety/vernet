@@ -4,9 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vernet/helper/secret_loader.dart';
 import 'package:vernet/models/internet_provider.dart';
-import 'package:vernet/models/secret.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 class ISPLoader {
@@ -20,8 +18,8 @@ class ISPLoader {
   }
 
   Future<InternetProvider> _mimicLoad() async {
-    return rootBundle.loadStructuredData<InternetProvider>('assets/ipify.json',
-        (json) async {
+    return rootBundle.loadStructuredData<InternetProvider>(
+        'assets/ipwhois.json', (json) async {
       return InternetProvider.fromMap(jsonDecode(json));
     });
   }
@@ -39,14 +37,12 @@ class ISPLoader {
       }
     }
 
-    Secret secret = await SecretLoader('assets/secrets.json').load();
-    String uri = 'https://geo.ipify.org/api/v1?apiKey=' +
-        secret.ipifyKey +
-        '&ipAddress=' +
-        _ip;
+    // Secret secret = await SecretLoader('assets/secrets.json').load();
+    String uri =
+        'http://ipwhois.app/json/$_ip?objects=isp,country,region,city,latitude,longitude,country_flag,ip,type';
     var response = await http.get(Uri.parse(uri));
     if (response.statusCode == HttpStatus.ok) {
-      // print('Response fetched from ipify.org ${response.body}');
+      // print('Response fetched from api ${response.body}');
       sp.setString(_ip, response.body);
       return InternetProvider.fromMap(jsonDecode(response.body));
     }

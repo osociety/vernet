@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/models/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
@@ -148,29 +150,38 @@ class _WifiDetailState extends State<WifiDetail> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.public),
-                          SizedBox(width: 8),
-                          Text(snapshot.data!.isp),
-                        ],
+                      CustomTile(
+                        leading: Icon(Icons.public,
+                            color: Theme.of(context).accentColor),
+                        child: Text(
+                            '${snapshot.data!.ip} - ${snapshot.data!.isp}'),
                       ),
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on),
-                          SizedBox(width: 8),
-                          Text(snapshot.data!.location.address),
-                        ],
+                      CustomTile(
+                        leading: SvgPicture.network(
+                          snapshot.data!.location.flagUrl,
+                          height: 18.0,
+                          semanticsLabel: 'Country Flag',
+                          placeholderBuilder: (BuildContext context) =>
+                              Container(
+                            height: 18.0,
+                            width: 18.0,
+                            padding: const EdgeInsets.all(3.0),
+                            child:
+                                const CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                        child: Text(snapshot.data!.location.address),
                       ),
-                      SizedBox(height: 4),
-                      // SizedBox(height: 8),
-                      // ElevatedButton.icon(
-                      //   onPressed: () {},
-                      //   icon: Icon(Icons.speed),
-                      //   label: Text('Test Speed'),
-                      // )
+                      SizedBox(height: 5),
+                      Divider(height: 3),
+                      SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          _launchURL('https://fast.com');
+                        },
+                        icon: Icon(Icons.speed),
+                        label: Text('Speed Test'),
+                      )
                     ],
                   );
                 }
@@ -181,6 +192,29 @@ class _WifiDetailState extends State<WifiDetail> {
               },
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  void _launchURL(String url) async =>
+      await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
+}
+
+class CustomTile extends StatelessWidget {
+  const CustomTile({Key? key, required this.leading, required this.child})
+      : super(key: key);
+
+  final Widget leading;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(height: 4),
+        Row(
+          children: [leading, SizedBox(width: 8), Expanded(child: child)],
         ),
       ],
     );

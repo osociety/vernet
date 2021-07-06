@@ -3,6 +3,7 @@ import 'dart:convert' show json;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:vernet/models/secret.dart';
 
+//TODO: remove this class, not required now.
 class SecretLoader {
   final String secretPath;
 
