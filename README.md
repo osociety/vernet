@@ -43,7 +43,7 @@ macOS build is not notarized as of now.
 ### Instructions for Linux
 
 1. Star this repository.
-2. Download vernet-macos.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+2. Download vernet-linux.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
 3. Extract downloaded zip file.
 4. Go to bundle folder and double click vernet file.
 
