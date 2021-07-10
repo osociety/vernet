@@ -33,10 +33,19 @@ Vernet - Network Analyzer and Monitoring Tool
 macOS build is not notarized as of now.
 
 1. Star this repository.
-2. Copy app file to the Applications folder.
-3. Go to Applications folder.
-4. Press down cmd + left click.
-5. In context menu, click on open.
+2. Download vernet-macos.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+3. Extract downloaded zip file.
+4. Copy app file to the Applications folder.
+5. Go to Applications folder.
+6. Press down cmd + left click.
+7. In context menu, click on open.
+
+### Instructions for Linux
+
+1. Star this repository.
+2. Download vernet-macos.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+3. Extract downloaded zip file.
+4. Go to bundle folder and double click vernet file.
 
 ## Contributors Required
 
