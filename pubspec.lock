@@ -194,10 +194,10 @@ packages:
   network_tools:
     dependency: "direct main"
     description:
-      path: "../network_tools"
-      relative: true
-    source: path
-    version: "0.0.3"
+      name: network_tools
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   package_info_plus:
     dependency: "direct main"
     description:

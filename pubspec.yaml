@@ -29,9 +29,9 @@ dependencies:
   percent_indicator: ^3.3.0-nullsafety.1
   shared_preferences: ^2.0.6
   provider: ^5.0.0
-  # network_tools: ^0.0.3
-  network_tools: 
-    path: ../network_tools
+  network_tools: ^0.0.4
+  # network_tools: 
+  #   path: ../network_tools
   package_info_plus: ^1.0.2
   http: ^0.13.3
   url_launcher: ^6.0.6
