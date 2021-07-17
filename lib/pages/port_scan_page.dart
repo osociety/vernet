@@ -207,7 +207,6 @@ class _PortScanPageState extends State<PortScanPage>
     return null;
   }
 
-  //TODO: add progress bar
   @override
   Widget build(BuildContext context) {
     return Scaffold(

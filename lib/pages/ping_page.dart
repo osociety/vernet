@@ -71,7 +71,6 @@ class _PingPageState extends State<PingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Card(
-            //TODO: ip validation and domain validation
             child: Container(
               margin: EdgeInsets.all(5.0),
               child: Column(
