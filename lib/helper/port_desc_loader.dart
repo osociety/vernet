@@ -5,7 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 /// Do not put this method inside any class, be it top level function
 /// Because this method runs inside isolate.
-Future<Map<String, Port>> parsePortDesc(String json) async {
+Future<Map<String, Port>> _parsePortDesc(String json) async {
   Map<String, dynamic> ports = jsonDecode(json);
   Map<String, Port> mPorts = {};
   for (String key in ports.keys) {
@@ -25,7 +25,7 @@ class PortDescLoader {
   Future<Map<String, Port>> load() async {
     return rootBundle.loadStructuredData<Map<String, Port>>(this.assetPath,
         (jsonStr) async {
-      return compute(parsePortDesc, jsonStr);
+      return compute(_parsePortDesc, jsonStr);
     });
   }
 }

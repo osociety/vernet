@@ -32,7 +32,6 @@ class _SocketTimeoutDialogState
   void onSubmit(String value) {
     int val = int.parse(value);
     if (val != appSettings.socketTimeout) {
-      print('saving value');
       appSettings.setSocketTimeout(val);
     }
   }

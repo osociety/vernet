@@ -4,7 +4,6 @@ Vernet - Network Analyzer and Monitoring Tool
 
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/git-elliot/vernet?include_prereleases)](https://github.com/git-elliot/vernet/releases/latest)
-![GitHub all releases](https://img.shields.io/github/downloads/git-elliot/vernet/total)
 ![GitHub repo size](https://img.shields.io/github/repo-size/git-elliot/vernet)
 
 ## Features
@@ -30,14 +29,14 @@ Vernet - Network Analyzer and Monitoring Tool
 
 ### Instructions for macOS
 
-macOS build is not notarized as of now.
+Note: macOS build hasn't been notarized yet.
 
 1. Star this repository.
 2. Download vernet-macos.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
 3. Extract downloaded zip file.
 4. Copy app file to the Applications folder.
 5. Go to Applications folder.
-6. Press down cmd + left click.
+6. Press down cmd + left click on vernet.
 7. In context menu, click on open.
 
 ### Instructions for Linux

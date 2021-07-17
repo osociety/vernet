@@ -8,6 +8,8 @@ import 'package:network_tools/network_tools.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/main.dart';
 
+import 'port_scan_page.dart';
+
 class HostScanPage extends StatefulWidget {
   const HostScanPage({Key? key}) : super(key: key);
 
@@ -29,7 +31,7 @@ class _HostScanPageState extends State<HostScanPage>
       final stream = HostScanner.discover(subnet,
           firstSubnet: appSettings.firstSubnet,
           lastSubnet: appSettings.lastSubnet, progressCallback: (progress) {
-        print('Progress : $progress');
+        debugPrint('Progress : $progress');
         if (this.mounted) {
           setState(() {
             _progress = progress;
@@ -38,12 +40,12 @@ class _HostScanPageState extends State<HostScanPage>
       });
 
       _streamSubscription = stream.listen((ActiveHost device) {
-        print('Found device: ${device.ip}');
+        debugPrint('Found device: ${device.ip}');
         setState(() {
           _devices.add(device);
         });
       }, onDone: () {
-        print('Scan completed');
+        debugPrint('Scan completed');
         if (this.mounted) {
           setState(() {});
         }
@@ -112,6 +114,18 @@ class _HostScanPageState extends State<HostScanPage>
               return ListTile(
                 title: Text(device.make),
                 subtitle: Text(device.ip),
+                trailing: IconButton(
+                  tooltip: 'Scan open ports for this target',
+                  icon: Icon(Icons.radar),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PortScanPage(target: device.ip),
+                      ),
+                    );
+                  },
+                ),
                 onLongPress: () {
                   Clipboard.setData(ClipboardData(text: device.ip));
                   ScaffoldMessenger.of(context).showSnackBar(

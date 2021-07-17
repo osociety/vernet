@@ -31,7 +31,6 @@ class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
   void onSubmit(String value) {
     int val = int.parse(value);
     if (val != appSettings.lastSubnet) {
-      print('saving value');
       appSettings.setLastSubnet(val);
     }
   }

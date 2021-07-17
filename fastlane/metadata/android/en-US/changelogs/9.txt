@@ -1,0 +1,6 @@
+1. Check for updates added.
+2. Now ping works even when not connected to internet.
+3. Now you can select ports to scan in different types(top, range, popular).
+4. Open ports window can take domain as a input.
+
+Other bug fixes and major improvements

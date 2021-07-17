@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/pages/settings_page.dart';
 import '../ui/wifi_detail.dart';
 
@@ -14,6 +15,12 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkForUpdates(context);
   }
 
   @override

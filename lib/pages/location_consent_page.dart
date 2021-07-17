@@ -23,6 +23,8 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
             padding: MediaQuery.of(context).padding,
             child: Column(
               children: [
+                Text("Made with ❤️ in India"),
+                SizedBox(height: 15),
                 Text(
                   "Vernet",
                   style: Theme.of(context).textTheme.headline1,

@@ -27,7 +27,8 @@ class _PingPageState extends State<PingPage> {
       );
     });
     _streamSubscription = _ping?.stream.listen((event) {
-      print('Running command: ${_ping?.command}');
+      // debugPrint('Running command: ${_ping?.command}');
+      // print(event);
       if (event.response != null) {
         setState(() {
           _pingPackets.add(event);
@@ -82,8 +83,9 @@ class _PingPageState extends State<PingPage> {
                         child: TextField(
                           controller: _textEditingController,
                           decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              hintText: 'Enter a domain or IP'),
+                            filled: true,
+                            hintText: 'Enter a domain or IP',
+                          ),
                         ),
                       ),
                       Padding(
@@ -109,6 +111,13 @@ class _PingPageState extends State<PingPage> {
                     itemCount: _pingPackets.length,
                     itemBuilder: (context, index) {
                       PingResponse? _response = _pingPackets[index].response;
+                      String? title = _response?.ip ?? '';
+                      String trailing = _getTime(_response?.time);
+
+                      if (_pingPackets[index].error != null) {
+                        title = _pingPackets[index].error.toString();
+                        debugPrint('error is $title');
+                      }
                       return Column(
                         children: [
                           ListTile(
@@ -116,8 +125,8 @@ class _PingPageState extends State<PingPage> {
                             contentPadding:
                                 EdgeInsets.only(left: 10.0, right: 10.0),
                             leading: Text('${_response?.seq}'),
-                            title: Text('${_response?.ip}'),
-                            trailing: Text('${_getTime(_response?.time)}'),
+                            title: Text(title),
+                            trailing: Text(trailing),
                           ),
                           Divider(height: 4),
                         ],

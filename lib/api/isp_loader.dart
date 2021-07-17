@@ -8,8 +8,7 @@ import 'package:vernet/models/internet_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 class ISPLoader {
-  Future<String> loadIP() async {
-    String url = 'https://api.ipify.org';
+  static Future<String> loadIP(String url) async {
     var response = await http.get(Uri.parse(url));
     if (response.statusCode == HttpStatus.ok) {
       return response.body;
@@ -24,10 +23,18 @@ class ISPLoader {
     });
   }
 
+  static Future<String> loadISP(String url) async {
+    var response = await http.get(Uri.parse(url));
+    if (response.statusCode == HttpStatus.ok) {
+      return response.body;
+    }
+    return '';
+  }
+
   Future<InternetProvider?> load() async {
     if (kDebugMode) return await _mimicLoad();
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String _ip = await loadIP();
+    String _ip = await compute(loadIP, 'https://api.ipify.org');
     if (_ip.isNotEmpty) {
       //Fetch internet provider data
       String? json = sp.getString(_ip);
@@ -38,13 +45,13 @@ class ISPLoader {
     }
 
     // Secret secret = await SecretLoader('assets/secrets.json').load();
-    String uri =
+    String url =
         'http://ipwhois.app/json/$_ip?objects=isp,country,region,city,latitude,longitude,country_flag,ip,type';
-    var response = await http.get(Uri.parse(uri));
-    if (response.statusCode == HttpStatus.ok) {
-      // print('Response fetched from api ${response.body}');
-      sp.setString(_ip, response.body);
-      return InternetProvider.fromMap(jsonDecode(response.body));
+
+    String body = await compute(loadISP, url);
+    if (body.isNotEmpty) {
+      sp.setString(_ip, body);
+      return InternetProvider.fromMap(jsonDecode(body));
     }
     return null;
   }

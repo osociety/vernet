@@ -31,7 +31,6 @@ class _PingCountDialogState extends BaseSettingsDialog<PingCountDialog> {
   void onSubmit(String value) {
     int val = int.parse(value);
     if (val != appSettings.pingCount) {
-      print('saving value');
       appSettings.setPingCount(val);
     }
   }
