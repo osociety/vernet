@@ -4,6 +4,8 @@ import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 
+import '../base_page.dart';
+
 class PingPage extends StatefulWidget {
   const PingPage({Key? key}) : super(key: key);
 
@@ -11,24 +13,41 @@ class PingPage extends StatefulWidget {
   _PingPageState createState() => _PingPageState();
 }
 
-class _PingPageState extends State<PingPage> {
+class _PingPageState extends BasePage<PingPage> {
   List<PingData> _pingPackets = [];
   Ping? _ping;
   PingSummary? _pingSummary;
   StreamSubscription<PingData>? _streamSubscription;
-  TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  String fieldLabel() {
+    return 'Enter a domain or IP';
+  }
+
+  @override
+  String title() {
+    return 'Ping';
+  }
+
+  @override
+  String buttonLabel() {
+    return _ping == null ? 'Ping' : 'Stop';
+  }
+
+  @override
+  void onPressed() async {
+    _ping == null ? _startPinging() : _stop();
+  }
 
   _startPinging() {
     setState(() {
       _pingPackets.clear();
       _ping = Ping(
-        _textEditingController.text.toString(),
+        textEditingController.text.toString(),
         count: appSettings.pingCount,
       );
     });
     _streamSubscription = _ping?.stream.listen((event) {
-      // debugPrint('Running command: ${_ping?.command}');
-      // print(event);
       if (event.response != null) {
         setState(() {
           _pingPackets.add(event);
@@ -55,58 +74,17 @@ class _PingPageState extends State<PingPage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    _textEditingController.dispose();
-    _streamSubscription?.cancel();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Ping'),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget buildResults(BuildContext context) {
+    return Container(
+      child: Column(
         children: [
-          Card(
-            child: Container(
-              margin: EdgeInsets.all(5.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _textEditingController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            hintText: 'Enter a domain or IP',
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10.0),
-                        child: ElevatedButton(
-                          onPressed: _ping == null ? _startPinging : _stop,
-                          child: Text(_ping == null ? 'Ping' : 'Stop'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  ListTile(subtitle: _getPingSummary()),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: _pingPackets.isEmpty
-                ? Center(
-                    child: Text('Ping results will appear here'),
-                  )
-                : ListView.builder(
+          ListTile(title: _getPingSummary()),
+          _pingPackets.isEmpty
+              ? Center(
+                  child: Text('Ping results will appear here'),
+                )
+              : Expanded(
+                  child: ListView.builder(
                     itemCount: _pingPackets.length,
                     itemBuilder: (context, index) {
                       PingResponse? _response = _pingPackets[index].response;
@@ -132,7 +110,7 @@ class _PingPageState extends State<PingPage> {
                       );
                     },
                   ),
-          ),
+                ),
         ],
       ),
     );
@@ -155,5 +133,11 @@ class _PingPageState extends State<PingPage> {
       return '$ms ms';
     }
     return '--';
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _streamSubscription?.cancel();
   }
 }

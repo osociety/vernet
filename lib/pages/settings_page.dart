@@ -116,24 +116,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text('Report Issues'),
-              subtitle: Text(_issueUrl),
-              onTap: () {
-                _launchURL(_issueUrl);
-              },
-            ),
-          ),
-          Card(
-            child: ListTile(
-              title: Text('Donate'),
-              subtitle: Text(_donateUrl),
-              onTap: () {
-                _launchURL(_donateUrl);
-              },
-            ),
-          ),
-          Card(
-            child: ListTile(
               title: Text('Check for Updates'),
               trailing: IconButton(
                 icon: Icon(Icons.refresh),
@@ -143,27 +125,75 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          SizedBox(height: 10),
-          Text("Made with ❤️ in India"),
-          SizedBox(height: 10),
-          FutureBuilder<PackageInfo>(
-            future: PackageInfo.fromPlatform(),
-            builder:
-                (BuildContext context, AsyncSnapshot<PackageInfo> snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                    'Version : ${snapshot.data?.version}+${snapshot.data?.buildNumber}');
-              }
-              return SizedBox();
-            },
+          Card(
+            child: ListTile(
+              title: Text('About'),
+              onTap: () async {
+                var info = await PackageInfo.fromPlatform();
+                showAboutDialog(
+                  context: context,
+                  applicationName: 'Vernet',
+                  applicationVersion: '${info.version}+${info.buildNumber}',
+                  applicationIcon: Icon(Icons.radar),
+                  children: [
+                    Card(
+                      child: ListTile(
+                        leading: Icon(Icons.bug_report),
+                        title: Text('Report Issues'),
+                        subtitle: Text(_issueUrl),
+                        trailing: IconButton(
+                          icon: Icon(Icons.open_in_new),
+                          onPressed: () {
+                            _launchURL(_issueUrl);
+                          },
+                        ),
+                      ),
+                    ),
+                    Card(
+                      child: ListTile(
+                        leading: Icon(Icons.favorite),
+                        title: Text('Donate'),
+                        subtitle: Text(_donateUrl),
+                        trailing: IconButton(
+                          icon: Icon(Icons.open_in_new),
+                          onPressed: () {
+                            _launchURL(_donateUrl);
+                          },
+                        ),
+                      ),
+                    ),
+                    Card(
+                      child: ListTile(
+                        leading: Icon(Icons.code),
+                        title: Text('Source Code'),
+                        subtitle: Text(_srcUrl),
+                        trailing: IconButton(
+                          icon: Icon(Icons.open_in_new),
+                          onPressed: () {
+                            _launchURL(_srcUrl);
+                          },
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      title: Text(
+                        "Made with ❤️ in India",
+                        textAlign: TextAlign.end,
+                      ),
+                    )
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  String _issueUrl = 'https://github.com/git-elliot/vernet/issues';
-  String _donateUrl = 'https://github.com/git-elliot/vernet#support-and-donate';
+  static const String _srcUrl = 'https://github.com/git-elliot/vernet';
+  String _issueUrl = '$_srcUrl/issues';
+  String _donateUrl = '$_srcUrl#support-and-donate';
   void _launchURL(String url) async =>
       await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }

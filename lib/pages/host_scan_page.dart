@@ -8,7 +8,7 @@ import 'package:network_tools/network_tools.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/main.dart';
 
-import 'port_scan_page.dart';
+import 'network_troubleshoot/port_scan_page.dart';
 
 class HostScanPage extends StatefulWidget {
   const HostScanPage({Key? key}) : super(key: key);

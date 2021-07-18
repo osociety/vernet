@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/pages/settings_page.dart';
-import '../ui/wifi_detail.dart';
+import 'wifi_detail.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);

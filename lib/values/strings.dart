@@ -5,7 +5,7 @@ class StringValue {
 
   static const String LAST_SUBNET = 'Last Subnet';
   static const String LAST_SUBNET_DESC =
-      'Scanning for hosts on the network will end at this value';
+      'Scanning for hosts on the network will end on this value';
 
   static const String SOCKET_TIMEOUT = 'Socket Timeout';
   static const String SOCKET_TIMEOUT_DESC =
@@ -13,5 +13,5 @@ class StringValue {
 
   static const String PING_COUNT = 'Ping Count';
   static const String PING_COUNT_DESC =
-      'Number of time a ping request should be sent';
+      'Number of times ping request should be sent';
 }

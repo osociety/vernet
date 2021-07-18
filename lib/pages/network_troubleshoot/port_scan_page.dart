@@ -231,154 +231,164 @@ class _PortScanPageState extends State<PortScanPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Card(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Row(
+            child: Container(
+              padding: EdgeInsets.all(5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: TextFormField(
+                          validator: validateIP,
+                          controller: _targetIPEditingController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            hintText: 'Enter a domain or IP',
+                          ),
+                        )),
+                        SizedBox(width: 3),
+                        _type != ScanType.top
+                            ? Expanded(child: _getFields())
+                            : SizedBox(),
+                      ],
+                    ),
+                  ),
+                  Row(
                     children: [
                       Expanded(
-                          child: TextFormField(
-                        validator: validateIP,
-                        controller: _targetIPEditingController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          hintText: 'Enter a domain or IP',
+                        child: CustomTile(
+                          child: const Text('Top'),
+                          leading: Radio<ScanType>(
+                            value: ScanType.top,
+                            groupValue: _type,
+                            onChanged: (ScanType? value) {
+                              _tabController.index = 0;
+                              setState(() {
+                                _type = value;
+                              });
+                            },
+                          ),
                         ),
-                      )),
-                      SizedBox(width: 3),
-                      _type != ScanType.top
-                          ? Expanded(child: _getFields())
-                          : SizedBox(),
+                      ),
+                      Expanded(
+                        child: CustomTile(
+                          child: const Text(
+                            'Range',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          leading: Radio<ScanType>(
+                            value: ScanType.range,
+                            groupValue: _type,
+                            onChanged: (ScanType? value) {
+                              _tabController.index = 1;
+                              setState(() {
+                                _type = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: CustomTile(
+                          child: const Text('Single'),
+                          leading: Radio<ScanType>(
+                            value: ScanType.single,
+                            groupValue: _type,
+                            onChanged: (ScanType? value) {
+                              _tabController.index = 2;
+                              setState(() {
+                                _type = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: ElevatedButton(
+                          onPressed: _completed
+                              ? () {
+                                  if (_formKey.currentState!.validate())
+                                    _startScanning();
+                                }
+                              : null,
+                          child: Text(_completed ? 'Scan' : 'Scanning'),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTile(
-                        child: const Text('Top'),
-                        leading: Radio<ScanType>(
-                          value: ScanType.top,
-                          groupValue: _type,
-                          onChanged: (ScanType? value) {
-                            _tabController.index = 0;
-                            setState(() {
-                              _type = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: CustomTile(
-                        child: const Text('Range'),
-                        leading: Radio<ScanType>(
-                          value: ScanType.range,
-                          groupValue: _type,
-                          onChanged: (ScanType? value) {
-                            _tabController.index = 1;
-                            setState(() {
-                              _type = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: CustomTile(
-                        child: const Text('Single'),
-                        leading: Radio<ScanType>(
-                          value: ScanType.single,
-                          groupValue: _type,
-                          onChanged: (ScanType? value) {
-                            _tabController.index = 2;
-                            setState(() {
-                              _type = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(3.0),
-                      child: ElevatedButton(
-                        onPressed: _completed
-                            ? () {
-                                if (_formKey.currentState!.validate())
-                                  _startScanning();
-                              }
-                            : null,
-                        child: Text(_completed ? 'Scan' : 'Scanning'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Expanded(
             flex: 1,
             child: Card(
-              child: DefaultTabController(
-                length: _tabs.length,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      child: TabBar(
-                          controller: _tabController,
-                          tabs: _tabs,
-                          labelColor: Theme.of(context).accentColor),
-                    ),
-                    Flexible(
-                      child: Container(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            Container(
-                              child: Wrap(
-                                children: [
-                                  _getDomainChip('192.168.1.1'),
-                                  _getDomainChip('google.com'),
-                                  _getDomainChip('youtube.com'),
-                                  _getDomainChip('apple.com'),
-                                  _getDomainChip('microsoft.com'),
-                                  _getDomainChip('cloudflare.com')
-                                ],
+              child: Container(
+                padding: EdgeInsets.all(5.0),
+                child: DefaultTabController(
+                  length: _tabs.length,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        child: TabBar(
+                            controller: _tabController,
+                            tabs: _tabs,
+                            labelColor: Theme.of(context).accentColor),
+                      ),
+                      Flexible(
+                        child: Container(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              Container(
+                                child: Wrap(
+                                  children: [
+                                    _getDomainChip('192.168.1.1'),
+                                    _getDomainChip('google.com'),
+                                    _getDomainChip('youtube.com'),
+                                    _getDomainChip('apple.com'),
+                                    _getDomainChip('amazon.com'),
+                                    _getDomainChip('cloudflare.com')
+                                  ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              child: Wrap(
-                                children: [
-                                  _getCustomRangeChip(
-                                      '0-1024 (known)', '0', '1024'),
-                                  _getCustomRangeChip(
-                                      '0-100 (short)', '0', '100'),
-                                  _getCustomRangeChip(
-                                      '0-10 (very short)', '0', '10'),
-                                  _getCustomRangeChip(
-                                      '0-65535 (Full)', '0', '65535'),
-                                ],
+                              Container(
+                                child: Wrap(
+                                  children: [
+                                    _getCustomRangeChip(
+                                        '0-1024 (known)', '0', '1024'),
+                                    _getCustomRangeChip(
+                                        '0-100 (short)', '0', '100'),
+                                    _getCustomRangeChip(
+                                        '0-10 (very short)', '0', '10'),
+                                    _getCustomRangeChip(
+                                        '0-65535 (Full)', '0', '65535'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            Container(
-                              child: Wrap(
-                                children: [
-                                  _getSinglePortChip('20 (FTP Data)', '20'),
-                                  _getSinglePortChip('21 (FTP Control)', '21'),
-                                  _getSinglePortChip('22 (SSH)', '22'),
-                                  _getSinglePortChip('80 (HTTP)', '80'),
-                                  _getSinglePortChip('443 (HTTPS)', '443'),
-                                ],
+                              Container(
+                                child: Wrap(
+                                  children: [
+                                    _getSinglePortChip('20 (FTP Data)', '20'),
+                                    _getSinglePortChip(
+                                        '21 (FTP Control)', '21'),
+                                    _getSinglePortChip('22 (SSH)', '22'),
+                                    _getSinglePortChip('80 (HTTP)', '80'),
+                                    _getSinglePortChip('443 (HTTPS)', '443'),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -403,6 +413,10 @@ class _PortScanPageState extends State<PortScanPage>
                             contentPadding:
                                 EdgeInsets.only(left: 10.0, right: 10.0),
                             leading: Text(
+                              '${index + 1}',
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
+                            trailing: Text(
                               '${_openPort.port}',
                               style: Theme.of(context)
                                   .textTheme

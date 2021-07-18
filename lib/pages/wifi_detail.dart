@@ -7,11 +7,13 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/models/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
+import 'package:vernet/pages/dns/dns_page.dart';
+import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page.dart';
-import 'package:vernet/pages/ping_page.dart';
-import 'package:vernet/pages/port_scan_page.dart';
+import 'package:vernet/pages/network_troubleshoot/ping_page.dart';
+import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 
-import 'custom_tile.dart';
+import '../ui/custom_tile.dart';
 
 class WifiDetail extends StatefulWidget {
   const WifiDetail({Key? key}) : super(key: key);
@@ -186,6 +188,47 @@ class _WifiDetailState extends State<WifiDetail> {
                   }
                   return Text("Loading ISP details..");
                 },
+              ),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.dns),
+              title: Text('Domain Name System (DNS)'),
+              minVerticalPadding: 10,
+              subtitle: Column(
+                children: [
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DNSPage(),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.search),
+                        label: Text('Lookup'),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReverseDNSPage(),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.find_replace),
+                        label: Text('Reverse Lookup'),
+                      )
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
