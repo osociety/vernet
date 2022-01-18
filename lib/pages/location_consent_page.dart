@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/helper/consent_loader.dart';
-import 'package:vernet/pages/home_page.dart';
+import '../main.dart';
 
 class LocationConsentPage extends StatefulWidget {
   const LocationConsentPage({Key? key}) : super(key: key);
@@ -43,7 +43,9 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 TextButton(
                   onPressed: () async {
                     NetworkInfo _networkInfo = NetworkInfo();
-                    if (Platform.isMacOS) {
+                    if (Platform.isMacOS ||
+                        Platform.isLinux ||
+                        Platform.isWindows) {
                       _navigate(context);
                     } else if (Platform.isIOS) {
                       LocationAuthorizationStatus status =
@@ -56,7 +58,7 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                           LocationAuthorizationStatus.authorizedWhenInUse) {
                         _navigate(context);
                       }
-                    } else {
+                    } else if (Platform.isAndroid) {
                       Permission.location.request().isGranted.then((value) {
                         if (value) _navigate(context);
                       });
@@ -84,7 +86,7 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => HomePage(),
+        builder: (context) => TabBarPage(),
       ),
     );
   }

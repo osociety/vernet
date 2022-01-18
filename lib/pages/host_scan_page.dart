@@ -21,44 +21,48 @@ class _HostScanPageState extends State<HostScanPage>
     with TickerProviderStateMixin {
   Set<ActiveHost> _devices = {};
   double _progress = 0;
+  bool _isScanning = false;
   StreamSubscription<ActiveHost>? _streamSubscription;
-
-  bool isScanning = true;
 
   void _getDevices() async {
     _devices.clear();
     final String? ip = await (NetworkInfo().getWifiIP());
     if (ip != null && ip.isNotEmpty) {
       final String subnet = ip.substring(0, ip.lastIndexOf('.'));
-      final stream = HostScanner.discover(
-        subnet,
-        firstSubnet: appSettings.firstSubnet,
-        lastSubnet: appSettings.lastSubnet,
-        progressCallback: (progress) {
-          debugPrint('Progress : $progress');
-          if (this.mounted) {
-            setState(() {
-              _progress = progress;
-            });
-          }
-        },
-      );
+      setState(() {
+        _isScanning = true;
+      });
 
-      _streamSubscription = stream.listen(
-        (ActiveHost device) {
-          debugPrint('Found device: ${device.ip}');
+      final stream = HostScanner.discover(subnet,
+          firstSubnet: appSettings.firstSubnet,
+          lastSubnet: appSettings.lastSubnet, progressCallback: (progress) {
+        debugPrint('Progress : $progress');
+        if (this.mounted) {
           setState(() {
-            _devices.add(device);
+            _progress = progress;
           });
-        },
-        onDone: () {
-          debugPrint('Scan completed');
-          if (this.mounted) {
-            setState(() {});
-          }
-          isScanning = false;
-        },
-      );
+        }
+      });
+
+      _streamSubscription = stream.listen((ActiveHost device) {
+        debugPrint('Found device: ${device.ip}');
+        setState(() {
+          _devices.add(device);
+        });
+      }, onDone: () {
+        debugPrint('Scan completed');
+        if (this.mounted) {
+          setState(() {
+            _isScanning = false;
+          });
+        }
+      }, onError: (error) {
+        if (this.mounted) {
+          setState(() {
+            _isScanning = false;
+          });
+        }
+      });
     }
   }
 
@@ -80,7 +84,7 @@ class _HostScanPageState extends State<HostScanPage>
       appBar: AppBar(
         title: Text('Scan for Devices'),
         actions: [
-          isScanning
+          _isScanning
               ? Container(
                   margin: EdgeInsets.only(right: 20.0),
                   child: new CircularPercentIndicator(
@@ -109,7 +113,7 @@ class _HostScanPageState extends State<HostScanPage>
         'No device found.\nTry changing first and last subnet in settings',
         textAlign: TextAlign.center,
       );
-    } else if (isScanning && _devices.isEmpty) {
+    } else if (_isScanning && _devices.isEmpty) {
       return CircularProgressIndicator.adaptive();
     }
 
@@ -119,8 +123,7 @@ class _HostScanPageState extends State<HostScanPage>
           child: ListView.builder(
             itemCount: _devices.length,
             itemBuilder: (context, index) {
-              ActiveHost device =
-                  SplayTreeSet.from(_devices).toList()[index] as ActiveHost;
+              ActiveHost device = SplayTreeSet.from(_devices).toList()[index];
               return ListTile(
                 title: Text(device.make),
                 subtitle: Text(device.ip),
