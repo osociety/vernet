@@ -27,7 +27,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
   Widget buildPopularChips() {
     return Card(
       child: ListTile(
-        title: Text('Popular targets'),
+        title: const Text('Popular targets'),
         subtitle: Wrap(
           children: [
             _getDomainChip('google.com'),
@@ -50,7 +50,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
   Widget buildResults(BuildContext context);
 
   String buttonLabel();
-  void onPressed();
+  Future<void> onPressed();
 
   @override
   Widget build(BuildContext context) {
@@ -59,38 +59,39 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
         title: Text(title()),
       ),
       body: Container(
-        margin: EdgeInsets.all(5.0),
+        margin: const EdgeInsets.all(5.0),
         child: Column(
           children: [
             Form(
               key: _formKey,
               child: Container(
-                  padding: EdgeInsets.all(5.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          validator: validateIP,
-                          controller: textEditingController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            hintText: fieldLabel(),
-                          ),
+                padding: const EdgeInsets.all(5.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        validator: validateIP,
+                        controller: textEditingController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          hintText: fieldLabel(),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) onPressed();
-                          },
-                          child: Text(buttonLabel()),
-                        ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) onPressed();
+                        },
+                        child: Text(buttonLabel()),
                       ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             buildPopularChips(),
             Expanded(
               child: buildResults(context),

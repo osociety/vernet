@@ -15,13 +15,13 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
   InternetAddress? _address;
   @override
   Widget buildPopularChips() {
-    return SizedBox();
+    return const SizedBox();
   }
 
   @override
   Widget buildResults(BuildContext context) {
     if (_address == null) {
-      return Center(
+      return const Center(
         child: Text(
           'Host name not found yet.\nHost name will appear here.',
           textAlign: TextAlign.center,
@@ -30,21 +30,19 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
     }
 
     return Center(
-      child: Container(
-        child: GestureDetector(
-          child: Text(
-            '${_address!.host}',
-            style: Theme.of(context).textTheme.headline5,
-          ),
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: _address!.host));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Name copied to clipboard"),
-              ),
-            );
-          },
+      child: GestureDetector(
+        child: Text(
+          _address!.host,
+          style: Theme.of(context).textTheme.headline5,
         ),
+        onTap: () {
+          Clipboard.setData(ClipboardData(text: _address!.host));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Name copied to clipboard'),
+            ),
+          );
+        },
       ),
     );
   }
@@ -59,7 +57,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
     return 'Enter IPv4 or IPv6 address';
   }
 
-  _showMessage(String message) {
+  void _showMessage(String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -70,17 +68,17 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
     setState(() {
       _address = null;
     });
-    String input = textEditingController.text;
-    InternetAddress? lookupAddress = InternetAddress.tryParse(input);
+    final String input = textEditingController.text;
+    final InternetAddress? lookupAddress = InternetAddress.tryParse(input);
     if (lookupAddress != null) {
       try {
-        InternetAddress address = await lookupAddress.reverse();
+        final InternetAddress address = await lookupAddress.reverse();
         setState(() {
           _address = address;
         });
       } catch (e) {
         if (e is SocketException) {
-          _showMessage('${e.message}');
+          _showMessage(e.message);
         } else {
           _showMessage('Unable to lookup');
         }

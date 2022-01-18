@@ -8,65 +8,72 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<bool> _checkUpdates(String v) async {
-  var url = Uri.parse(
-      'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1');
-  var response = await http.get(url);
+  final Uri url = Uri.parse(
+    'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1',
+  );
+  final response = await http.get(url);
   if (response.statusCode == HttpStatus.ok) {
-    List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
+    final List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
     debugPrint(res.toString());
-    if (res.length > 0) {
-      String tag = res[0]["name"] as String;
+    if (res.isNotEmpty) {
+      String tag = res[0]['name'] as String;
       if (tag.contains('v')) {
         tag = tag.substring(1);
       }
       String tempV = v;
       if (tempV.contains('-store')) {
-        List<String> sp = tempV.split('-store');
+        final List<String> sp = tempV.split('-store');
         tempV = sp[0] + sp[1];
       }
-      debugPrint("tag: $tag , v: $tempV");
+      debugPrint('tag: $tag , v: $tempV');
       return tempV.compareTo(tag) < 0;
     }
   }
   return false;
 }
 
-void _launchURL(String url) async =>
-    await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
+Future<void> _launchURL(String url) async {
+  await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
+}
 
-Future<void> checkForUpdates(BuildContext context,
-    {bool showIfNoUpdate = false}) async {
+Future<void> checkForUpdates(
+  BuildContext context, {
+  bool showIfNoUpdate = false,
+}) async {
   try {
-    var info = await PackageInfo.fromPlatform();
-    String v = info.version + '+' + info.buildNumber;
-    bool available = await compute(_checkUpdates, v);
+    final info = await PackageInfo.fromPlatform();
+    final String v = '${info.version}+${info.buildNumber}';
+    final bool available = await compute(_checkUpdates, v);
     ScaffoldMessenger.of(context).clearSnackBars();
     Widget? content;
     SnackBarAction? action;
     if (available) {
-      content = Text('There is an update available');
+      content = const Text('There is an update available');
       action = SnackBarAction(
-          label: 'Update',
-          onPressed: () {
-            _navigateToStore();
-          });
+        label: 'Update',
+        onPressed: () {
+          _navigateToStore();
+        },
+      );
     } else {
       if (showIfNoUpdate) {
-        content = Text('No updates found');
+        content = const Text('No updates found');
       }
     }
     if (ScaffoldMessenger.of(context).mounted && content != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: content,
-        action: action,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: content,
+          action: action,
+        ),
+      );
     }
   } catch (e) {
     debugPrint('unable to check for updates');
   }
 }
 
-_navigateToStore() async {
+Future<void> _navigateToStore() async {
   String url = 'https://github.com/git-elliot/vernet/releases/latest';
   if (Platform.isAndroid) {
     if ((await PackageInfo.fromPlatform()).version.contains('store')) {

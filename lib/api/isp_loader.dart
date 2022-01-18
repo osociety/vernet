@@ -9,7 +9,7 @@ import 'package:vernet/models/internet_provider.dart';
 
 class ISPLoader {
   static Future<String> loadIP(String url) async {
-    var response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url));
     if (response.statusCode == HttpStatus.ok) {
       return response.body;
     }
@@ -24,7 +24,7 @@ class ISPLoader {
   }
 
   static Future<String> loadISP(String url) async {
-    var response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url));
     if (response.statusCode == HttpStatus.ok) {
       return response.body;
     }
@@ -32,24 +32,27 @@ class ISPLoader {
   }
 
   Future<InternetProvider?> load() async {
-    if (kDebugMode) return await _mimicLoad();
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    String _ip = await compute(loadIP, 'https://api.ipify.org');
+    if (kDebugMode) {
+      return _mimicLoad();
+    }
+    final SharedPreferences sp = await SharedPreferences.getInstance();
+    final String _ip = await compute(loadIP, 'https://api.ipify.org');
     if (_ip.isNotEmpty) {
       //Fetch internet provider data
-      String? json = sp.getString(_ip);
+      final String? json = sp.getString(_ip);
       if (json != null && json.isNotEmpty) {
         // print('Response fetched from local $json');
         return InternetProvider.fromMap(
-            jsonDecode(json) as Map<String, dynamic>);
+          jsonDecode(json) as Map<String, dynamic>,
+        );
       }
     }
 
     // Secret secret = await SecretLoader('assets/secrets.json').load();
-    String url =
+    final String url =
         'http://ipwhois.app/json/$_ip?objects=isp,country,region,city,latitude,longitude,country_flag,ip,type';
 
-    String body = await compute(loadISP, url);
+    final String body = await compute(loadISP, url);
     if (body.isNotEmpty) {
       sp.setString(_ip, body);
       return InternetProvider.fromMap(jsonDecode(body) as Map<String, dynamic>);

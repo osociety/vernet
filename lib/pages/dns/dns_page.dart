@@ -17,7 +17,7 @@ class _DNSPageState extends BasePage<DNSPage> {
   @override
   Widget buildResults(BuildContext context) {
     return _addresses.isEmpty
-        ? Center(
+        ? const Center(
             child: Text(
               'No addresses found yet.\nAll addresses will appear here.',
               textAlign: TextAlign.center,
@@ -29,14 +29,15 @@ class _DNSPageState extends BasePage<DNSPage> {
               return ListTile(
                 onTap: () {
                   Clipboard.setData(
-                      ClipboardData(text: _addresses[index].address));
+                    ClipboardData(text: _addresses[index].address),
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("IP copied to clipboard"),
+                    const SnackBar(
+                      content: Text('IP copied to clipboard'),
                     ),
                   );
                 },
-                title: Text('${_addresses[index].address}'),
+                title: Text(_addresses[index].address),
                 subtitle: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -67,11 +68,11 @@ class _DNSPageState extends BasePage<DNSPage> {
   }
 
   @override
-  void onPressed() async {
+  Future<void> onPressed() async {
     setState(() {
       _addresses.clear();
     });
-    List<InternetAddress> addresses =
+    final List<InternetAddress> addresses =
         await InternetAddress.lookup(textEditingController.text);
 
     setState(() {

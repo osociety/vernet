@@ -27,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Card(
             child: ListTile(
-              title: Text("Dark Theme"),
+              title: const Text('Dark Theme'),
               trailing: Switch(
                 value: themeChange.darkTheme,
                 onChanged: (bool? value) {
@@ -38,19 +38,20 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text(StringValue.FIRST_SUBNET),
-              subtitle: Text(StringValue.FIRST_SUBNET_DESC),
+              title: const Text(StringValue.firstSubnet),
+              subtitle: const Text(StringValue.firstSubnetDesc),
               trailing: Text(
                 '${appSettings.firstSubnet}',
                 style: Theme.of(context)
                     .textTheme
                     .subtitle2
-                    ?.copyWith(color: Theme.of(context).accentColor),
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
                 await showDialog(
-                    context: context,
-                    builder: (context) => FirstSubnetDialog());
+                  context: context,
+                  builder: (context) => const FirstSubnetDialog(),
+                );
                 await appSettings.load();
                 setState(() {});
               },
@@ -58,18 +59,20 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text(StringValue.LAST_SUBNET),
-              subtitle: Text(StringValue.LAST_SUBNET_DESC),
+              title: const Text(StringValue.lastSubnet),
+              subtitle: const Text(StringValue.lastSubnetDesc),
               trailing: Text(
                 '${appSettings.lastSubnet}',
                 style: Theme.of(context)
                     .textTheme
                     .subtitle2
-                    ?.copyWith(color: Theme.of(context).accentColor),
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
                 await showDialog(
-                    context: context, builder: (context) => LastSubnetDialog());
+                  context: context,
+                  builder: (context) => const LastSubnetDialog(),
+                );
                 await appSettings.load();
                 setState(() {});
               },
@@ -77,19 +80,20 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text(StringValue.SOCKET_TIMEOUT),
-              subtitle: Text(StringValue.SOCKET_TIMEOUT_DESC),
+              title: const Text(StringValue.socketTimeout),
+              subtitle: const Text(StringValue.socketTimeoutdesc),
               trailing: Text(
                 '${appSettings.socketTimeout} ms',
                 style: Theme.of(context)
                     .textTheme
                     .subtitle2
-                    ?.copyWith(color: Theme.of(context).accentColor),
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
                 await showDialog(
-                    context: context,
-                    builder: (context) => SocketTimeoutDialog());
+                  context: context,
+                  builder: (context) => const SocketTimeoutDialog(),
+                );
                 await appSettings.load();
                 setState(() {});
               },
@@ -97,18 +101,20 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text(StringValue.PING_COUNT),
-              subtitle: Text(StringValue.PING_COUNT_DESC),
+              title: const Text(StringValue.pingCount),
+              subtitle: const Text(StringValue.pingCountDesc),
               trailing: Text(
                 '${appSettings.pingCount}',
                 style: Theme.of(context)
                     .textTheme
                     .subtitle2
-                    ?.copyWith(color: Theme.of(context).accentColor),
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
                 await showDialog(
-                    context: context, builder: (context) => PingCountDialog());
+                  context: context,
+                  builder: (context) => const PingCountDialog(),
+                );
                 await appSettings.load();
                 setState(() {});
               },
@@ -116,9 +122,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text('Check for Updates'),
+              title: const Text('Check for Updates'),
               trailing: IconButton(
-                icon: Icon(Icons.refresh),
+                icon: const Icon(Icons.refresh),
                 onPressed: () {
                   checkForUpdates(context, showIfNoUpdate: true);
                 },
@@ -127,18 +133,18 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: Text('About'),
+              title: const Text('About'),
               onTap: () async {
-                var info = await PackageInfo.fromPlatform();
+                final info = await PackageInfo.fromPlatform();
                 showAboutDialog(
                   context: context,
                   applicationName: 'Vernet',
                   applicationVersion: '${info.version}+${info.buildNumber}',
-                  applicationIcon: Icon(Icons.radar),
+                  applicationIcon: const Icon(Icons.radar),
                   children: [
                     ListTile(
-                      leading: Icon(Icons.bug_report),
-                      title: Text('Report Issues'),
+                      leading: const Icon(Icons.bug_report),
+                      title: const Text('Report Issues'),
                       // subtitle: Text(_issueUrl),
                       // trailing: IconButton(
                       //   icon: Icon(Icons.open_in_new),
@@ -151,8 +157,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.favorite),
-                      title: Text('Donate'),
+                      leading: const Icon(Icons.favorite),
+                      title: const Text('Donate'),
                       // subtitle: Text(_donateUrl),
                       // trailing: IconButton(
                       //   icon: Icon(Icons.open_in_new),
@@ -165,8 +171,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     ListTile(
-                      leading: Icon(Icons.code),
-                      title: Text('Source Code'),
+                      leading: const Icon(Icons.code),
+                      title: const Text('Source Code'),
                       // subtitle: Text(_srcUrl),
                       onTap: () {
                         _launchURL(_srcUrl);
@@ -179,9 +185,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       //   },
                       // ),
                     ),
-                    ListTile(
+                    const ListTile(
                       title: Text(
-                        "Made with ❤️ in India",
+                        'Made with ❤️ in India',
                         textAlign: TextAlign.center,
                       ),
                     )
@@ -196,8 +202,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   static const String _srcUrl = 'https://github.com/git-elliot/vernet';
-  String _issueUrl = '$_srcUrl/issues';
-  String _donateUrl = '$_srcUrl#support-and-donate';
-  void _launchURL(String url) async =>
+  final String _issueUrl = '$_srcUrl/issues';
+  final String _donateUrl = '$_srcUrl#support-and-donate';
+  Future<void> _launchURL(String url) async =>
       await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }
