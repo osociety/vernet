@@ -12,8 +12,7 @@ import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page.dart';
 import 'package:vernet/pages/network_troubleshoot/ping_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
-
-import '../ui/custom_tile.dart';
+import 'package:vernet/ui/custom_tile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -26,22 +25,24 @@ class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
   bool _location = false;
 
-  _getWifiInfo() async {
+  Future<void> _getWifiInfo() async {
     if (Platform.isAndroid) {
       await Permission.location.request();
     }
 
-    var wifiIP = await (NetworkInfo().getWifiIP());
-    var wifiBSSID = await (NetworkInfo().getWifiBSSID());
-    var wifiName = await (NetworkInfo().getWifiName());
+    final wifiIP = await NetworkInfo().getWifiIP();
+    final wifiBSSID = await NetworkInfo().getWifiBSSID();
+    final wifiName = await NetworkInfo().getWifiName();
 
     setState(() {
       _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null);
     });
     if (Platform.isAndroid || Platform.isIOS) {
-      Permission.location.serviceStatus.isEnabled.then((value) => setState(() {
-            _location = value;
-          }));
+      Permission.location.serviceStatus.isEnabled.then(
+        (value) => setState(() {
+          _location = value;
+        }),
+      );
     }
   }
 
@@ -58,43 +59,46 @@ class _WifiDetailState extends State<HomePage> {
         children: [
           Card(
             child: _wifiInfo == null
-                ? CircularProgressIndicator.adaptive()
+                ? const CircularProgressIndicator.adaptive()
                 : ListTile(
                     minVerticalPadding: 10,
-                    leading: Icon(Icons.router),
-                    title: Text('${_wifiInfo!.name}'),
+                    leading: const Icon(Icons.router),
+                    title: Text(_wifiInfo!.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Connected to ${_wifiInfo!.bssid}'),
-                        SizedBox(height: 5),
-                        _location
-                            ? SizedBox()
-                            : Text(
-                                'Location should be on to display Wifi name',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption!
-                                    .copyWith(
-                                        color: Theme.of(context).accentColor),
-                              ),
-                        Divider(height: 3),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 5),
+                        if (_location)
+                          const SizedBox()
+                        else
+                          Text(
+                            'Location should be on to display Wifi name',
+                            style: Theme.of(context)
+                                .textTheme
+                                .caption!
+                                .copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                          ),
+                        const Divider(height: 3),
+                        const SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HostScanPage(),
+                                builder: (context) => const HostScanPage(),
                               ),
                             );
                           },
-                          child: Text('Scan for devices'),
+                          child: const Text('Scan for devices'),
                         ),
                       ],
                     ),
                     trailing: IconButton(
-                      icon: Icon(Icons.refresh),
+                      icon: const Icon(Icons.refresh),
                       onPressed: () {
                         _getWifiInfo();
                       },
@@ -103,12 +107,12 @@ class _WifiDetailState extends State<HomePage> {
           ),
           Card(
             child: ListTile(
-              leading: Icon(Icons.network_check),
-              title: Text('Network Troubleshooting'),
+              leading: const Icon(Icons.network_check),
+              title: const Text('Network Troubleshooting'),
               minVerticalPadding: 10,
               subtitle: Column(
                 children: [
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       ElevatedButton.icon(
@@ -116,25 +120,25 @@ class _WifiDetailState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PingPage(),
+                              builder: (context) => const PingPage(),
                             ),
                           );
                         },
-                        icon: Icon(Icons.trending_up),
-                        label: Text('Ping'),
+                        icon: const Icon(Icons.trending_up),
+                        label: const Text('Ping'),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       ElevatedButton.icon(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PortScanPage(),
+                              builder: (context) => const PortScanPage(),
                             ),
                           );
                         },
-                        icon: Icon(Icons.radar),
-                        label: Text('Scan open ports'),
+                        icon: const Icon(Icons.radar),
+                        label: const Text('Scan open ports'),
                       )
                     ],
                   ),
@@ -144,12 +148,12 @@ class _WifiDetailState extends State<HomePage> {
           ),
           Card(
             child: ListTile(
-              leading: Icon(Icons.dns),
-              title: Text('Domain Name System (DNS)'),
+              leading: const Icon(Icons.dns),
+              title: const Text('Domain Name System (DNS)'),
               minVerticalPadding: 10,
               subtitle: Column(
                 children: [
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       ElevatedButton.icon(
@@ -157,25 +161,25 @@ class _WifiDetailState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DNSPage(),
+                              builder: (context) => const DNSPage(),
                             ),
                           );
                         },
-                        icon: Icon(Icons.search),
-                        label: Text('Lookup'),
+                        icon: const Icon(Icons.search),
+                        label: const Text('Lookup'),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       ElevatedButton.icon(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ReverseDNSPage(),
+                              builder: (context) => const ReverseDNSPage(),
                             ),
                           );
                         },
-                        icon: Icon(Icons.find_replace),
-                        label: Text('Reverse Lookup'),
+                        icon: const Icon(Icons.find_replace),
+                        label: const Text('Reverse Lookup'),
                       )
                     ],
                   ),
@@ -185,15 +189,17 @@ class _WifiDetailState extends State<HomePage> {
           ),
           Card(
             child: ListTile(
-              leading: Icon(Icons.signal_cellular_alt),
-              title: Text('Internet Service Provider (ISP)'),
+              leading: const Icon(Icons.signal_cellular_alt),
+              title: const Text('Internet Service Provider (ISP)'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   FutureBuilder<InternetProvider?>(
                     future: ISPLoader().load(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<InternetProvider?> snapshot) {
+                    builder: (
+                      BuildContext context,
+                      AsyncSnapshot<InternetProvider?> snapshot,
+                    ) {
                       if (snapshot.hasData && snapshot.data != null) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,39 +207,44 @@ class _WifiDetailState extends State<HomePage> {
                             CustomTile(
                               leading: Icon(
                                 Icons.public,
-                                color: Theme.of(context).accentColor,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
-                              child: Text('${snapshot.data!.ip}'),
+                              child: Text(snapshot.data!.ip),
                             ),
                             CustomTile(
-                                leading: Icon(Icons.dns,
-                                    color: Theme.of(context).accentColor),
-                                child: Text('${snapshot.data!.isp}')),
+                              leading: Icon(
+                                Icons.dns,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              child: Text(snapshot.data!.isp),
+                            ),
                             CustomTile(
-                              leading: Icon(Icons.location_on,
-                                  color: Theme.of(context).accentColor),
+                              leading: Icon(
+                                Icons.location_on,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                               child: Text(snapshot.data!.location.address),
                             ),
-                            SizedBox(height: 5),
-                            Divider(height: 3)
+                            const SizedBox(height: 5),
+                            const Divider(height: 3)
                           ],
                         );
                       }
                       if (snapshot.hasError) {
-                        return Text("Unable to fetch ISP details");
+                        return const Text('Unable to fetch ISP details');
                       }
-                      return Text("Loading ISP details..");
+                      return const Text('Loading ISP details..');
                     },
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () {
                       _launchURL('https://fast.com');
                     },
-                    icon: Icon(Icons.speed),
-                    label: Text('Speed Test'),
+                    icon: const Icon(Icons.speed),
+                    label: const Text('Speed Test'),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                 ],
               ),
             ),
@@ -243,6 +254,6 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
-  void _launchURL(String url) async =>
+  Future<void> _launchURL(String url) async =>
       await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }

@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vernet/pages/location_consent_page.dart';
-import 'helper/app_settings.dart';
-import 'helper/consent_loader.dart';
-import 'models/dark_theme_provider.dart';
 import 'package:vernet/api/update_checker.dart';
+import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/helper/consent_loader.dart';
+import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/pages/home_page.dart';
+import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
-
-import 'pages/home_page.dart';
 
 late AppSettings appSettings;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  bool allowed = await ConsentLoader.isConsentPageShown();
+  final bool allowed = await ConsentLoader.isConsentPageShown();
 
   appSettings = AppSettings.instance..load();
   runApp(MyApp(allowed));
 }
 
 class MyApp extends StatefulWidget {
-  final bool allowed;
   const MyApp(this.allowed, {Key? key}) : super(key: key);
+
+  final bool allowed;
 
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  DarkThemeProvider themeChangeProvider = new DarkThemeProvider();
+  DarkThemeProvider themeChangeProvider = DarkThemeProvider();
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> {
     getCurrentAppTheme();
   }
 
-  void getCurrentAppTheme() async {
+  Future<void> getCurrentAppTheme() async {
     themeChangeProvider.darkTheme =
         await themeChangeProvider.darkThemePreference.getTheme();
   }
@@ -53,7 +53,9 @@ class _MyAppState extends State<MyApp> {
             theme: themeChangeProvider.darkTheme
                 ? ThemeData.dark()
                 : ThemeData.light(),
-            home: widget.allowed ? TabBarPage() : LocationConsentPage(),
+            home: widget.allowed
+                ? const TabBarPage()
+                : const LocationConsentPage(),
           );
         },
       ),
@@ -62,7 +64,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class TabBarPage extends StatefulWidget {
-  TabBarPage({Key? key}) : super(key: key);
+  const TabBarPage({Key? key}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -83,7 +85,7 @@ class _HomePageState extends State<TabBarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _children = [HomePage(), SettingsPage()];
+    final List<Widget> _children = [const HomePage(), const SettingsPage()];
     return Scaffold(
       body: Container(
         padding: MediaQuery.of(context).padding,
@@ -92,12 +94,12 @@ class _HomePageState extends State<TabBarPage> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped, // new
         currentIndex: _currentIndex, // new
-        items: [
-          new BottomNavigationBarItem(
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          new BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
           ),

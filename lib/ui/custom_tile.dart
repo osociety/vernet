@@ -11,9 +11,9 @@ class CustomTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Row(
-          children: [leading, SizedBox(width: 8), Expanded(child: child)],
+          children: [leading, const SizedBox(width: 8), Expanded(child: child)],
         ),
       ],
     );

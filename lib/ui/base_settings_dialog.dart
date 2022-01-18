@@ -37,7 +37,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
           validator: validate,
           keyboardType: getKeyBoardType(),
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             hintText: getHintText(),
           ),
         ),
@@ -50,7 +50,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
               Navigator.pop(context);
             }
           },
-          child: Text('Submit'),
+          child: const Text('Submit'),
         ),
       ],
     );

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/ui/base_settings_dialog.dart';
 import 'package:vernet/values/strings.dart';
-
-import '../../ui/base_settings_dialog.dart';
 
 class LastSubnetDialog extends StatefulWidget {
   const LastSubnetDialog({Key? key}) : super(key: key);
@@ -14,12 +13,12 @@ class LastSubnetDialog extends StatefulWidget {
 class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.LAST_SUBNET;
+    return StringValue.lastSubnet;
   }
 
   @override
   String getHintText() {
-    return StringValue.LAST_SUBNET_DESC;
+    return StringValue.lastSubnetDesc;
   }
 
   @override
@@ -29,7 +28,7 @@ class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
 
   @override
   void onSubmit(String value) {
-    int val = int.parse(value);
+    final int val = int.parse(value);
     if (val != appSettings.lastSubnet) {
       appSettings.setLastSubnet(val);
     }
@@ -39,7 +38,7 @@ class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
   String? validate(String? value) {
     if (value == null) return 'Value required';
     try {
-      int val = int.parse(value);
+      final int val = int.parse(value);
       if (val < 1) {
         return 'Value must be a natural number';
       }
