@@ -1,0 +1,34 @@
+# lint analysis
+include: package:lint/analysis_options.yaml
+
+analyzer:
+  errors:
+    missing_required_param: error
+    missing_return: error
+    must_be_immutable: error
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.pb.dart"
+    - "**/*.pbenum.dart"
+    - "**/*.pbgrpc.dart"
+    - "**/*.pbjson.dart"
+    - "**/*.gr.dart"
+    - "**/*.config.dart"
+
+
+linter:
+  rules:
+    # Use parameter order as in json response
+    #    always_put_required_named_parameters_first: false
+
+    avoid_classes_with_only_static_members: false
+
+    sort_constructors_first: true
+
+    prefer_single_quotes: true
+
+    # Good packages document everything
+    public_member_api_docs: true
+
+    lines_longer_than_80_chars: true

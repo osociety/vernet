@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/helper/consent_loader.dart';
-import '../main.dart';
+import 'package:vernet/main.dart';
 
 class LocationConsentPage extends StatefulWidget {
   const LocationConsentPage({Key? key}) : super(key: key);
@@ -23,26 +23,28 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
             padding: MediaQuery.of(context).padding,
             child: Column(
               children: [
-                Text("Made with ❤️ in India"),
-                SizedBox(height: 15),
+                const Text('Made with ❤️ in India'),
+                const SizedBox(height: 15),
                 Text(
-                  "Vernet",
+                  'Vernet',
                   style: Theme.of(context).textTheme.headline1,
                   textAlign: TextAlign.center,
                 ),
-                Icon(Icons.radar, size: 100),
-                SizedBox(height: 10),
-                Padding(
+                const Icon(Icons.radar, size: 100),
+                const SizedBox(height: 10),
+                const Padding(
                   padding: EdgeInsets.only(left: 50, right: 50),
                   child: Text(
-                    'This app needs location in order to retrieve wifi name only and does not share your location information outside the app.',
+                    'This app needs location in order to retrieve wifi name '
+                    'only and does not share your location information '
+                    'outside the app.',
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextButton(
                   onPressed: () async {
-                    NetworkInfo _networkInfo = NetworkInfo();
+                    final NetworkInfo _networkInfo = NetworkInfo();
                     if (Platform.isMacOS ||
                         Platform.isLinux ||
                         Platform.isWindows) {
@@ -64,14 +66,14 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                       });
                     }
                   },
-                  child: Text('Grant Location Permission'),
+                  child: const Text('Grant Location Permission'),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
                     _navigate(context);
                   },
-                  child: Text('Continue without permission'),
+                  child: const Text('Continue without permission'),
                 ),
               ],
             ),
@@ -81,12 +83,12 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
     );
   }
 
-  _navigate(BuildContext context) {
+  void _navigate(BuildContext context) {
     ConsentLoader.setConsentPageShown(true);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => TabBarPage(),
+        builder: (context) => const TabBarPage(),
       ),
     );
   }

@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
-
-import '../base_page.dart';
+import 'package:vernet/pages/base_page.dart';
 
 class PingPage extends StatefulWidget {
   const PingPage({Key? key}) : super(key: key);
@@ -14,7 +13,7 @@ class PingPage extends StatefulWidget {
 }
 
 class _PingPageState extends BasePage<PingPage> {
-  List<PingData> _pingPackets = [];
+  final List<PingData> _pingPackets = [];
   Ping? _ping;
   PingSummary? _pingSummary;
   StreamSubscription<PingData>? _streamSubscription;
@@ -35,34 +34,37 @@ class _PingPageState extends BasePage<PingPage> {
   }
 
   @override
-  void onPressed() async {
+  Future<void> onPressed() async {
     _ping == null ? _startPinging() : _stop();
   }
 
-  _startPinging() {
+  void _startPinging() {
     setState(() {
       _pingPackets.clear();
       _ping = Ping(
-        textEditingController.text.toString(),
+        textEditingController.text,
         count: appSettings.pingCount,
       );
     });
-    _streamSubscription = _ping?.stream.listen((event) {
-      if (event.response != null) {
-        setState(() {
-          _pingPackets.add(event);
-        });
-      }
+    _streamSubscription = _ping?.stream.listen(
+      (event) {
+        if (event.response != null) {
+          setState(() {
+            _pingPackets.add(event);
+          });
+        }
 
-      if (event.summary != null) {
-        setState(() {
-          _pingSummary = event.summary;
-        });
-      }
-    }, onDone: _stop);
+        if (event.summary != null) {
+          setState(() {
+            _pingSummary = event.summary;
+          });
+        }
+      },
+      onDone: _stop,
+    );
   }
 
-  _stop() {
+  void _stop() {
     try {
       _ping?.stop();
     } catch (e) {
@@ -75,44 +77,43 @@ class _PingPageState extends BasePage<PingPage> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          ListTile(title: _getPingSummary()),
-          _pingPackets.isEmpty
-              ? Center(
-                  child: Text('Ping results will appear here'),
-                )
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: _pingPackets.length,
-                    itemBuilder: (context, index) {
-                      PingResponse? _response = _pingPackets[index].response;
-                      String? title = _response?.ip ?? '';
-                      String trailing = _getTime(_response?.time);
+    return Column(
+      children: [
+        ListTile(title: _getPingSummary()),
+        if (_pingPackets.isEmpty)
+          const Center(
+            child: Text('Ping results will appear here'),
+          )
+        else
+          Expanded(
+            child: ListView.builder(
+              itemCount: _pingPackets.length,
+              itemBuilder: (context, index) {
+                final PingResponse? _response = _pingPackets[index].response;
+                String? title = _response?.ip ?? '';
+                final String trailing = _getTime(_response?.time);
 
-                      if (_pingPackets[index].error != null) {
-                        title = _pingPackets[index].error.toString();
-                        debugPrint('error is $title');
-                      }
-                      return Column(
-                        children: [
-                          ListTile(
-                            dense: true,
-                            contentPadding:
-                                EdgeInsets.only(left: 10.0, right: 10.0),
-                            leading: Text('${_response?.seq}'),
-                            title: Text(title),
-                            trailing: Text(trailing),
-                          ),
-                          Divider(height: 4),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-        ],
-      ),
+                if (_pingPackets[index].error != null) {
+                  title = _pingPackets[index].error.toString();
+                  debugPrint('error is $title');
+                }
+                return Column(
+                  children: [
+                    ListTile(
+                      dense: true,
+                      contentPadding:
+                          const EdgeInsets.only(left: 10.0, right: 10.0),
+                      leading: Text('${_response?.seq}'),
+                      title: Text(title),
+                      trailing: Text(trailing),
+                    ),
+                    const Divider(height: 4),
+                  ],
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 
@@ -127,7 +128,7 @@ class _PingPageState extends BasePage<PingPage> {
     );
   }
 
-  _getTime(Duration? time) {
+  String _getTime(Duration? time) {
     if (time != null) {
       final ms = time.inMicroseconds / Duration.millisecondsPerSecond;
       return '$ms ms';
