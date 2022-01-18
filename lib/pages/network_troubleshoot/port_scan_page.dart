@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:network_tools/network_tools.dart';
@@ -123,7 +124,7 @@ class _PortScanPageState extends State<PortScanPage>
     _streamSubscription?.cancel();
   }
 
-  _getCustomRangeChip(String label, String start, String end) {
+  Widget _getCustomRangeChip(String label, String start, String end) {
     return PopularChip(
       label: label,
       onPressed: () {
@@ -133,7 +134,7 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 
-  _getSinglePortChip(String label, String port) {
+  Widget _getSinglePortChip(String label, String port) {
     return PopularChip(
       label: label,
       onPressed: () {
@@ -142,7 +143,7 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 
-  _getDomainChip(String label) {
+  Widget _getDomainChip(String label) {
     return PopularChip(
       label: label,
       onPressed: () {
@@ -151,7 +152,7 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 
-  _getFields() {
+  Widget _getFields() {
     if (_type == ScanType.single) {
       return TextFormField(
         keyboardType: TextInputType.number,
@@ -185,6 +186,7 @@ class _PortScanPageState extends State<PortScanPage>
         ],
       );
     }
+    return const Text('');
   }
 
   String? validatePorts(String? value) {

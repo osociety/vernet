@@ -12,19 +12,20 @@ Future<bool> _checkUpdates(String v) async {
       'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1');
   var response = await http.get(url);
   if (response.statusCode == HttpStatus.ok) {
-    List<dynamic> res = jsonDecode(response.body);
+    List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
     debugPrint(res.toString());
     if (res.length > 0) {
-      String tag = res[0]["name"];
+      String tag = res[0]["name"] as String;
       if (tag.contains('v')) {
         tag = tag.substring(1);
       }
-      if (v.contains('-store')) {
-        List<String> sp = v.split('-store');
-        v = sp[0] + sp[1];
+      String tempV = v;
+      if (tempV.contains('-store')) {
+        List<String> sp = tempV.split('-store');
+        tempV = sp[0] + sp[1];
       }
-      debugPrint("tag: $tag , v: $v");
-      return v.compareTo(tag) < 0;
+      debugPrint("tag: $tag , v: $tempV");
+      return tempV.compareTo(tag) < 0;
     }
   }
   return false;

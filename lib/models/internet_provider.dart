@@ -10,9 +10,9 @@ class InternetProvider {
   String get ipType => _ipType;
 
   InternetProvider.fromMap(Map<String, dynamic> json)
-      : _isp = json['isp'],
-        _ip = json['ip'],
-        _ipType = json['type'],
+      : _isp = json['isp'] as String,
+        _ip = json['ip'] as String,
+        _ipType = json['type'] as String,
         _location = Location.fromMap(json);
 }
 
@@ -30,10 +30,10 @@ class Location {
   String get flagUrl => _flagUrl;
 
   Location.fromMap(Map<String, dynamic> json)
-      : _country = json['country'],
-        _region = json['region'],
-        _city = json['city'],
-        _lat = json['latitude'],
-        _lng = json['longitude'],
-        _flagUrl = json['country_flag'];
+      : _country = json['country'] as String,
+        _region = json['region'] as String,
+        _city = json['city'] as String,
+        _lat = json['latitude'] as String,
+        _lng = json['longitude'] as String,
+        _flagUrl = json['country_flag'] as String;
 }

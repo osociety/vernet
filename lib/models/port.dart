@@ -12,9 +12,9 @@ class Port {
   String get status => _status;
 
   Port.fromJson(dynamic map)
-      : _desc = map['description'],
-        _tcp = map['tcp'],
-        _udp = map['udp'],
-        _port = map['port'],
-        _status = map['status'];
+      : _desc = map['description'] as String,
+        _tcp = map['tcp'] as bool,
+        _udp = map['udp'] as bool,
+        _port = map['port'] as String,
+        _status = map['status'] as String;
 }

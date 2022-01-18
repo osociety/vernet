@@ -127,7 +127,7 @@ class _PingPageState extends BasePage<PingPage> {
     );
   }
 
-  _getTime(Duration? time) {
+  String _getTime(Duration? time) {
     if (time != null) {
       final ms = time.inMicroseconds / Duration.millisecondsPerSecond;
       return '$ms ms';

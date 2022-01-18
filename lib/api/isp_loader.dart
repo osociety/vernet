@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/models/internet_provider.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class ISPLoader {
   static Future<String> loadIP(String url) async {
@@ -19,7 +19,7 @@ class ISPLoader {
   Future<InternetProvider> _mimicLoad() async {
     return rootBundle.loadStructuredData<InternetProvider>(
         'assets/ipwhois.json', (json) async {
-      return InternetProvider.fromMap(jsonDecode(json));
+      return InternetProvider.fromMap(jsonDecode(json) as Map<String, dynamic>);
     });
   }
 
@@ -40,7 +40,8 @@ class ISPLoader {
       String? json = sp.getString(_ip);
       if (json != null && json.isNotEmpty) {
         // print('Response fetched from local $json');
-        return InternetProvider.fromMap(jsonDecode(json));
+        return InternetProvider.fromMap(
+            jsonDecode(json) as Map<String, dynamic>);
       }
     }
 
@@ -51,7 +52,7 @@ class ISPLoader {
     String body = await compute(loadISP, url);
     if (body.isNotEmpty) {
       sp.setString(_ip, body);
-      return InternetProvider.fromMap(jsonDecode(body));
+      return InternetProvider.fromMap(jsonDecode(body) as Map<String, dynamic>);
     }
     return null;
   }

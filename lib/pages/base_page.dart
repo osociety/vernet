@@ -8,7 +8,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
   String title();
   String fieldLabel();
 
-  _getDomainChip(String label) {
+  Widget _getDomainChip(String label) {
     return PopularChip(
       label: label,
       onPressed: () {
