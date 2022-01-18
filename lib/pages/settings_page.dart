@@ -136,49 +136,53 @@ class _SettingsPageState extends State<SettingsPage> {
                   applicationVersion: '${info.version}+${info.buildNumber}',
                   applicationIcon: Icon(Icons.radar),
                   children: [
-                    Card(
-                      child: ListTile(
-                        leading: Icon(Icons.bug_report),
-                        title: Text('Report Issues'),
-                        subtitle: Text(_issueUrl),
-                        trailing: IconButton(
-                          icon: Icon(Icons.open_in_new),
-                          onPressed: () {
-                            _launchURL(_issueUrl);
-                          },
-                        ),
-                      ),
+                    ListTile(
+                      leading: Icon(Icons.bug_report),
+                      title: Text('Report Issues'),
+                      // subtitle: Text(_issueUrl),
+                      // trailing: IconButton(
+                      //   icon: Icon(Icons.open_in_new),
+                      //   onPressed: () {
+                      //     _launchURL(_issueUrl);
+                      //   },
+                      // ),
+                      onTap: () {
+                        _launchURL(_issueUrl);
+                      },
                     ),
-                    Card(
-                      child: ListTile(
-                        leading: Icon(Icons.favorite),
-                        title: Text('Donate'),
-                        subtitle: Text(_donateUrl),
-                        trailing: IconButton(
-                          icon: Icon(Icons.open_in_new),
-                          onPressed: () {
-                            _launchURL(_donateUrl);
-                          },
-                        ),
-                      ),
+                    ListTile(
+                      leading: Icon(Icons.favorite),
+                      title: Text('Donate'),
+                      // subtitle: Text(_donateUrl),
+                      // trailing: IconButton(
+                      //   icon: Icon(Icons.open_in_new),
+                      //   onPressed: () {
+                      //     _launchURL(_donateUrl);
+                      //   },
+                      // ),
+                      onTap: () {
+                        _launchURL(_donateUrl);
+                      },
                     ),
-                    Card(
-                      child: ListTile(
-                        leading: Icon(Icons.code),
-                        title: Text('Source Code'),
-                        subtitle: Text(_srcUrl),
-                        trailing: IconButton(
-                          icon: Icon(Icons.open_in_new),
-                          onPressed: () {
-                            _launchURL(_srcUrl);
-                          },
-                        ),
-                      ),
+                    ListTile(
+                      leading: Icon(Icons.code),
+                      title: Text('Source Code'),
+                      // subtitle: Text(_srcUrl),
+                      onTap: () {
+                        _launchURL(_srcUrl);
+                      },
+
+                      // trailing: IconButton(
+                      //   icon: Icon(Icons.open_in_new),
+                      //   onPressed: () {
+                      //     _launchURL(_srcUrl);
+                      //   },
+                      // ),
                     ),
                     ListTile(
                       title: Text(
                         "Made with ❤️ in India",
-                        textAlign: TextAlign.end,
+                        textAlign: TextAlign.center,
                       ),
                     )
                   ],

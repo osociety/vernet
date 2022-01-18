@@ -21,6 +21,7 @@ class _HostScanPageState extends State<HostScanPage>
     with TickerProviderStateMixin {
   Set<ActiveHost> _devices = {};
   double _progress = 0;
+  bool _isScanning = false;
   StreamSubscription<ActiveHost>? _streamSubscription;
 
   void _getDevices() async {
@@ -28,6 +29,10 @@ class _HostScanPageState extends State<HostScanPage>
     final String? ip = await (NetworkInfo().getWifiIP());
     if (ip != null && ip.isNotEmpty) {
       final String subnet = ip.substring(0, ip.lastIndexOf('.'));
+      setState(() {
+        _isScanning = true;
+      });
+
       final stream = HostScanner.discover(subnet,
           firstSubnet: appSettings.firstSubnet,
           lastSubnet: appSettings.lastSubnet, progressCallback: (progress) {
@@ -47,7 +52,15 @@ class _HostScanPageState extends State<HostScanPage>
       }, onDone: () {
         debugPrint('Scan completed');
         if (this.mounted) {
-          setState(() {});
+          setState(() {
+            _isScanning = false;
+          });
+        }
+      }, onError: (error) {
+        if (this.mounted) {
+          setState(() {
+            _isScanning = false;
+          });
         }
       });
     }
@@ -71,7 +84,7 @@ class _HostScanPageState extends State<HostScanPage>
       appBar: AppBar(
         title: Text('Scan for Devices'),
         actions: [
-          HostScanner.isScanning
+          _isScanning
               ? Container(
                   margin: EdgeInsets.only(right: 20.0),
                   child: new CircularPercentIndicator(
@@ -100,7 +113,7 @@ class _HostScanPageState extends State<HostScanPage>
         'No device found.\nTry changing first and last subnet in settings',
         textAlign: TextAlign.center,
       );
-    } else if (HostScanner.isScanning && _devices.isEmpty) {
+    } else if (_isScanning && _devices.isEmpty) {
       return CircularProgressIndicator.adaptive();
     }
 
