@@ -3279,7 +3279,7 @@
     ],
     "1972": [
         {
-            "description": "InterSystems Cach ",
+            "description": "InterSystems Cach",
             "udp": true,
             "status": "Official",
             "port": "1972",
@@ -8998,7 +8998,7 @@
             "tcp": true
         },
         {
-            "description": "The Palace \"The Palace\" Virtual Reality Chat software. 5",
+            "description": "The Palace \"The Palace\" Virtual Reality Chat software.",
             "udp": true,
             "status": "Official",
             "port": "9996",
@@ -9007,7 +9007,7 @@
     ],
     "9998": [
         {
-            "description": "The Palace \"The Palace\" Virtual Reality Chat software. 5",
+            "description": "The Palace \"The Palace\" Virtual Reality Chat software.",
             "udp": true,
             "status": "Official",
             "port": "9998",
@@ -9506,7 +9506,7 @@
     ],
     "13337": [
         {
-            "description": " therNet peer-to-peer networking[citation needed]",
+            "description": "therNet peer-to-peer networking[citation needed]",
             "udp": true,
             "status": "Unofficial",
             "port": "13337-13340",
@@ -10670,7 +10670,7 @@
     ],
     "30000": [
         {
-            "description": "Pok  mon Netbattle",
+            "description": "Pok mon Netbattle",
             "udp": false,
             "status": "Unofficial",
             "port": "30000",

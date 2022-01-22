@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,19 +23,16 @@ class _HostScanPageState extends State<HostScanPage>
   double _progress = 0;
   bool _isScanning = false;
   StreamSubscription<ActiveHost>? _streamSubscription;
-  late String? ip;
-  late String? gatewayIp;
+  late String? _ip;
+  late String? _gatewayIP;
 
   Future<void> _getDevices() async {
     _hosts.clear();
-    ip = await NetworkInfo().getWifiIP();
-    gatewayIp = await NetworkInfo().getWifiGatewayIP();
+    _ip = await NetworkInfo().getWifiIP();
+    _gatewayIP = await NetworkInfo().getWifiGatewayIP();
 
-    debugPrint('wifi ip : $ip');
-    debugPrint('gateway ip : $gatewayIp');
-
-    if (ip != null && ip!.isNotEmpty) {
-      final String subnet = ip!.substring(0, ip!.lastIndexOf('.'));
+    if (_ip != null && _ip!.isNotEmpty) {
+      final String subnet = _ip!.substring(0, _ip!.lastIndexOf('.'));
       setState(() {
         _isScanning = true;
       });
@@ -44,7 +42,6 @@ class _HostScanPageState extends State<HostScanPage>
         firstSubnet: appSettings.firstSubnet,
         lastSubnet: appSettings.lastSubnet,
         progressCallback: (progress) {
-          // debugPrint('Progress : $progress');
           if (mounted) {
             setState(() {
               _progress = progress;
@@ -172,18 +169,21 @@ class _HostScanPageState extends State<HostScanPage>
   }
 
   String _getDeviceMake(ActiveHost host) {
-    if (ip == host.ip) {
+    if (_ip == host.ip) {
       return 'This device';
-    } else if (gatewayIp == host.ip) {
+    } else if (_gatewayIP == host.ip) {
       return 'Router/Gateway';
     }
     return host.make;
   }
 
   Icon _getHostIcon(String hostIp) {
-    if (hostIp == ip) {
+    if (hostIp == _ip) {
+      if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+        return Icon(Icons.computer);
+      }
       return Icon(Icons.smartphone);
-    } else if (hostIp == gatewayIp) {
+    } else if (hostIp == _gatewayIP) {
       return Icon(Icons.router);
     }
     return Icon(Icons.devices);
