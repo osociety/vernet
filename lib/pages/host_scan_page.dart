@@ -18,16 +18,23 @@ class HostScanPage extends StatefulWidget {
 
 class _HostScanPageState extends State<HostScanPage>
     with TickerProviderStateMixin {
-  final Set<ActiveHost> _devices = {};
+  final Set<ActiveHost> _hosts = {};
   double _progress = 0;
   bool _isScanning = false;
   StreamSubscription<ActiveHost>? _streamSubscription;
+  late String? ip;
+  late String? gatewayIp;
 
   Future<void> _getDevices() async {
-    _devices.clear();
-    final String? ip = await NetworkInfo().getWifiIP();
-    if (ip != null && ip.isNotEmpty) {
-      final String subnet = ip.substring(0, ip.lastIndexOf('.'));
+    _hosts.clear();
+    ip = await NetworkInfo().getWifiIP();
+    gatewayIp = await NetworkInfo().getWifiGatewayIP();
+
+    debugPrint('wifi ip : $ip');
+    debugPrint('gateway ip : $gatewayIp');
+
+    if (ip != null && ip!.isNotEmpty) {
+      final String subnet = ip!.substring(0, ip!.lastIndexOf('.'));
       setState(() {
         _isScanning = true;
       });
@@ -37,7 +44,7 @@ class _HostScanPageState extends State<HostScanPage>
         firstSubnet: appSettings.firstSubnet,
         lastSubnet: appSettings.lastSubnet,
         progressCallback: (progress) {
-          debugPrint('Progress : $progress');
+          // debugPrint('Progress : $progress');
           if (mounted) {
             setState(() {
               _progress = progress;
@@ -47,10 +54,10 @@ class _HostScanPageState extends State<HostScanPage>
       );
 
       _streamSubscription = stream.listen(
-        (ActiveHost device) {
-          debugPrint('Found device: ${device.ip}');
+        (ActiveHost host) {
+          debugPrint('Found host: ${host.ip}');
           setState(() {
-            _devices.add(device);
+            _hosts.add(host);
           });
         },
         onDone: () {
@@ -115,12 +122,12 @@ class _HostScanPageState extends State<HostScanPage>
   }
 
   Widget buildListView(BuildContext context) {
-    if (_progress >= 100 && _devices.isEmpty) {
+    if (_progress >= 100 && _hosts.isEmpty) {
       return const Text(
-        'No device found.\nTry changing first and last subnet in settings',
+        'No host found.\nTry changing first and last subnet in settings',
         textAlign: TextAlign.center,
       );
-    } else if (_isScanning && _devices.isEmpty) {
+    } else if (_isScanning && _hosts.isEmpty) {
       return const CircularProgressIndicator.adaptive();
     }
 
@@ -128,13 +135,14 @@ class _HostScanPageState extends State<HostScanPage>
       children: [
         Expanded(
           child: ListView.builder(
-            itemCount: _devices.length,
+            itemCount: _hosts.length,
             itemBuilder: (context, index) {
-              final ActiveHost device =
-                  SplayTreeSet.from(_devices).toList()[index] as ActiveHost;
+              final ActiveHost host =
+                  SplayTreeSet.from(_hosts).toList()[index] as ActiveHost;
               return ListTile(
-                title: Text(device.make),
-                subtitle: Text(device.ip),
+                leading: _getHostIcon(host.ip),
+                title: Text(_getDeviceMake(host)),
+                subtitle: Text(host.ip),
                 trailing: IconButton(
                   tooltip: 'Scan open ports for this target',
                   icon: const Icon(Icons.radar),
@@ -142,13 +150,13 @@ class _HostScanPageState extends State<HostScanPage>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PortScanPage(target: device.ip),
+                        builder: (context) => PortScanPage(target: host.ip),
                       ),
                     );
                   },
                 ),
                 onLongPress: () {
-                  Clipboard.setData(ClipboardData(text: device.ip));
+                  Clipboard.setData(ClipboardData(text: host.ip));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('IP copied to clipboard'),
@@ -161,5 +169,23 @@ class _HostScanPageState extends State<HostScanPage>
         )
       ],
     );
+  }
+
+  String _getDeviceMake(ActiveHost host) {
+    if (ip == host.ip) {
+      return 'This device';
+    } else if (gatewayIp == host.ip) {
+      return 'Router/Gateway';
+    }
+    return host.make;
+  }
+
+  Icon _getHostIcon(String hostIp) {
+    if (hostIp == ip) {
+      return Icon(Icons.smartphone);
+    } else if (hostIp == gatewayIp) {
+      return Icon(Icons.router);
+    }
+    return Icon(Icons.devices);
   }
 }
