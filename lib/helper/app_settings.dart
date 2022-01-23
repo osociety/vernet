@@ -8,7 +8,7 @@ class AppSettings {
   static const String _socketTimeoutKey = 'AppSettings-SOCKET_TIMEOUT';
   static const String _pingCountKey = 'AppSettings-PING_COUNT';
   int _firstSubnet = 1;
-  int _lastSubnet = 30;
+  int _lastSubnet = 254;
   int _socketTimeout = 500;
   int _pingCount = 5;
 
