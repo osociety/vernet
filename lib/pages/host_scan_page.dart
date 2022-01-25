@@ -52,13 +52,11 @@ class _HostScanPageState extends State<HostScanPage>
 
       _streamSubscription = stream.listen(
         (ActiveHost host) {
-          debugPrint('Found host: ${host.ip}');
           setState(() {
             _hosts.add(host);
           });
         },
         onDone: () {
-          debugPrint('Scan completed');
           if (mounted) {
             setState(() {
               _isScanning = false;

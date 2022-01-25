@@ -14,7 +14,6 @@ Future<bool> _checkUpdates(String v) async {
   final response = await http.get(url);
   if (response.statusCode == HttpStatus.ok) {
     final List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
-    debugPrint(res.toString());
     if (res.isNotEmpty) {
       String tag = res[0]['name'] as String;
       if (tag.contains('v')) {
@@ -25,7 +24,6 @@ Future<bool> _checkUpdates(String v) async {
         final List<String> sp = tempV.split('-store');
         tempV = sp[0] + sp[1];
       }
-      debugPrint('tag: $tag , v: $tempV');
       return tempV.compareTo(tag) < 0;
     }
   }

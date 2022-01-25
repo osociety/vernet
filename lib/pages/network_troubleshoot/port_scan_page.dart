@@ -48,7 +48,6 @@ class _PortScanPageState extends State<PortScanPage>
   }
 
   void _handleProgress(double progress) {
-    debugPrint('Progress : $progress');
     if (mounted) {
       setState(() {
         _progress = progress;
@@ -109,7 +108,6 @@ class _PortScanPageState extends State<PortScanPage>
     _tabController = TabController(length: _tabs.length, vsync: this);
     _targetIPEditingController.text = widget.target;
     PortDescLoader('assets/ports_lists.json').load().then((value) {
-      debugPrint('Fetched ports : ${value.length}');
       setState(() {
         _allPorts.addAll(value);
       });

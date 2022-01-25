@@ -95,7 +95,6 @@ class _PingPageState extends BasePage<PingPage> {
 
                 if (_pingPackets[index].error != null) {
                   title = _pingPackets[index].error.toString();
-                  debugPrint('error is $title');
                 }
                 return Column(
                   children: [
