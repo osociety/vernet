@@ -197,7 +197,7 @@
     ],
     "22": [
         {
-            "description": "Secure Shell (SSH) \u00e2\u20ac\u201d used for secure logins, file transfers (scp, sftp) and port forwarding",
+            "description": "Secure Shell (SSH) used for secure logins, file transfers (scp, sftp) and port forwarding",
             "udp": true,
             "status": "Official",
             "port": "22",
@@ -206,7 +206,7 @@
     ],
     "23": [
         {
-            "description": "Telnet protocol\u00e2\u20ac\u201dunencrypted text communications",
+            "description": "Telnet protocol unencrypted text communications",
             "udp": true,
             "status": "Official",
             "port": "23",
@@ -215,7 +215,7 @@
     ],
     "24": [
         {
-            "description": "Priv-mail\u00c2\u00a0: any private mail system.",
+            "description": "Priv-mail: any private mail system.",
             "udp": true,
             "status": "Official",
             "port": "24",
@@ -224,7 +224,7 @@
     ],
     "25": [
         {
-            "description": "Simple Mail Transfer Protocol (SMTP)\u00e2\u20ac\u201dused for e-mail routing between mail servers",
+            "description": "Simple Mail Transfer Protocol (SMTP) used for e-mail routing between mail servers",
             "udp": false,
             "status": "Official",
             "port": "25",
@@ -287,7 +287,7 @@
     ],
     "39": [
         {
-            "description": "Resource Location Protocol[7] (RLP)\u00e2\u20ac\u201dused for determining the location of higher level services from hosts on a network",
+            "description": "Resource Location Protocol[7] (RLP) used for determining the location of higher level services from hosts on a network",
             "udp": true,
             "status": "Official",
             "port": "39",
@@ -544,7 +544,7 @@
     ],
     "81": [
         {
-            "description": "Torpark\u00e2\u20ac\u201dOnion routing",
+            "description": "Torpark Onion routing",
             "udp": false,
             "status": "Unofficial",
             "port": "81",
@@ -553,7 +553,7 @@
     ],
     "82": [
         {
-            "description": "Torpark\u00e2\u20ac\u201dControl",
+            "description": "Torpark Control",
             "udp": true,
             "status": "Unofficial",
             "port": "82",
@@ -562,7 +562,7 @@
     ],
     "88": [
         {
-            "description": "Kerberos\u00e2\u20ac\u201dauthentication system",
+            "description": "Kerberos authentication system",
             "udp": true,
             "status": "Official",
             "port": "88",
@@ -686,7 +686,7 @@
     ],
     "113": [
         {
-            "description": "Ident\u00e2\u20ac\u201dAuthentication Service/Identification Protocol,[14] used by IRC servers to identify users",
+            "description": "Ident Authentication Service/Identification Protocol,[14] used by IRC servers to identify users",
             "udp": false,
             "status": "Official",
             "port": "113",
@@ -729,7 +729,7 @@
     ],
     "119": [
         {
-            "description": "Network News Transfer Protocol (NNTP)\u00e2\u20ac\u201dretrieval of newsgroup messages",
+            "description": "Network News Transfer Protocol (NNTP) retrieval of newsgroup messages",
             "udp": false,
             "status": "Official",
             "port": "119",
@@ -738,7 +738,7 @@
     ],
     "123": [
         {
-            "description": "Network Time Protocol (NTP)\u00e2\u20ac\u201dused for time synchronization",
+            "description": "Network Time Protocol (NTP) used for time synchronization",
             "udp": true,
             "status": "Official",
             "port": "123",
@@ -799,7 +799,7 @@
     ],
     "143": [
         {
-            "description": "Internet Message Access Protocol (IMAP)\u00e2\u20ac\u201dmanagement of email messages",
+            "description": "Internet Message Access Protocol (IMAP) management of email messages",
             "udp": false,
             "status": "Official",
             "port": "143",
@@ -1087,21 +1087,21 @@
     ],
     "370": [
         {
-            "description": "codaauth2\u00e2\u20ac\u201dCoda authentication server",
+            "description": "codaauth2 Coda authentication server",
             "udp": false,
             "status": "Official",
             "port": "370",
             "tcp": true
         },
         {
-            "description": "codaauth2\u00e2\u20ac\u201dCoda authentication server",
+            "description": "codaauth2 Coda authentication server",
             "udp": true,
             "status": "Official",
             "port": "370",
             "tcp": false
         },
         {
-            "description": "securecast1\u00e2\u20ac\u201dOutgoing packets to NAI's servers [19][dead link]",
+            "description": "securecast1 Outgoing packets to NAI's servers [19][dead link]",
             "udp": true,
             "status": "Unofficial",
             "port": "370",
@@ -1279,7 +1279,7 @@
     ],
     "504": [
         {
-            "description": "Citadel\u00e2\u20ac\u201dmultiservice protocol for dedicated clients for the Citadel groupware system",
+            "description": "Citadel multiservice protocol for dedicated clients for the Citadel groupware system",
             "udp": true,
             "status": "Official",
             "port": "504",
@@ -1320,14 +1320,14 @@
     ],
     "514": [
         {
-            "description": "Shell\u00e2\u20ac\u201dused to execute non-interactive commands on a remote system (Remote Shell, rsh, remsh)",
+            "description": "Shell used to execute non-interactive commands on a remote system (Remote Shell, rsh, remsh)",
             "udp": false,
             "status": "Official",
             "port": "514",
             "tcp": true
         },
         {
-            "description": "Syslog\u00e2\u20ac\u201dused for system logging",
+            "description": "Syslog used for system logging",
             "udp": true,
             "status": "Official",
             "port": "514",
@@ -1336,7 +1336,7 @@
     ],
     "515": [
         {
-            "description": "Line Printer Daemon\u00e2\u20ac\u201dprint service",
+            "description": "Line Printer Daemon print service",
             "udp": false,
             "status": "Official",
             "port": "515",
@@ -1834,7 +1834,7 @@
     ],
     "711": [
         {
-            "description": "Cisco Tag Distribution Protocol[33][34][35]\u00e2\u20ac\u201dbeing replaced by the MPLS Label Distribution Protocol[36]",
+            "description": "Cisco Tag Distribution Protocol[33][34][35] being replaced by the MPLS Label Distribution Protocol[36]",
             "udp": false,
             "status": "Official",
             "port": "711",
@@ -2149,7 +2149,7 @@
     ],
     "911": [
         {
-            "description": "Network Console on Acid (NCA)\u00e2\u20ac\u201dlocal tty redirection over OpenSSH",
+            "description": "Network Console on Acid (NCA) local tty redirection over OpenSSH",
             "udp": false,
             "status": "Unofficial",
             "port": "911",
@@ -2891,7 +2891,7 @@
     ],
     "1533": [
         {
-            "description": "IBM Sametime IM\u00e2\u20ac\u201dVirtual Places Chat Microsoft SQL Server",
+            "description": "IBM Sametime IM Virtual Places Chat Microsoft SQL Server",
             "udp": false,
             "status": "Official",
             "port": "1533",
@@ -3138,7 +3138,7 @@
             "description": "cft-1 to cft-7",
             "udp": true,
             "status": "Official",
-            "port": "1762\u00e2\u20ac\u201c1768",
+            "port": "1762-1768",
             "tcp": true
         }
     ],
@@ -3279,7 +3279,7 @@
     ],
     "1972": [
         {
-            "description": "InterSystems Cach\u00c3\u00a9",
+            "description": "InterSystems Cach",
             "udp": true,
             "status": "Official",
             "port": "1972",
@@ -3291,7 +3291,7 @@
             "description": "Cisco TCO (Documentation)",
             "udp": true,
             "status": "Official",
-            "port": "1975\u00e2\u20ac\u201c1977",
+            "port": "1975-1977",
             "tcp": false
         }
     ],
@@ -3315,7 +3315,7 @@
     ],
     "1994": [
         {
-            "description": "Cisco STUN-SDLC (Serial Tunneling\u00e2\u20ac\u201dSynchronous Data Link Control) protocol",
+            "description": "Cisco STUN-SDLC (Serial Tunneling Synchronous Data Link Control) protocol",
             "udp": true,
             "status": "Official",
             "port": "1994",
@@ -3892,7 +3892,7 @@
     ],
     "2369": [
         {
-            "description": "Default for BMC Software Control-M/Server\u00e2\u20ac\u201dConfiguration Agent, though often changed during installation",
+            "description": "Default for BMC Software Control-M/Server Configuration Agent, though often changed during installation",
             "udp": false,
             "status": "Official",
             "port": "2369",
@@ -3901,7 +3901,7 @@
     ],
     "2370": [
         {
-            "description": "Default for BMC Software Control-M/Server\u00e2\u20ac\u201dto allow the Control-M/Enterprise Manager to connect to the Control-M/Server, though often changed during installation",
+            "description": "Default for BMC Software Control-M/Server to allow the Control-M/Enterprise Manager to connect to the Control-M/Server, though often changed during installation",
             "udp": false,
             "status": "Official",
             "port": "2370",
@@ -3982,7 +3982,7 @@
     ],
     "2447": [
         {
-            "description": "ovwdb\u00e2\u20ac\u201dOpenView Network Node Manager (NNM) daemon",
+            "description": "ovwdb OpenView Network Node Manager (NNM) daemon",
             "udp": true,
             "status": "Official",
             "port": "2447",
@@ -4027,7 +4027,7 @@
     ],
     "2500": [
         {
-            "description": "THE\u00c3\u2019SMESSENGER listening for The\u00c3\u00b2sMessenger client connections",
+            "description": "THE SMESSENGER listening for The sMessenger client connections",
             "udp": false,
             "status": "Official",
             "port": "2500",
@@ -4036,7 +4036,7 @@
     ],
     "2501": [
         {
-            "description": "TheosNet-Admin listening for The\u00c3\u00b2sMessenger client connections",
+            "description": "TheosNet-Admin listening for The sMessenger client connections",
             "udp": false,
             "status": "Official",
             "port": "2501",
@@ -4081,7 +4081,7 @@
     ],
     "2593": [
         {
-            "description": "RunUO\u00e2\u20ac\u201dUltima Online server",
+            "description": "RunUO Ultima Online server",
             "udp": true,
             "status": "Unofficial",
             "port": "2593",
@@ -4090,7 +4090,7 @@
     ],
     "2598": [
         {
-            "description": "new ICA (Citrix) \u00e2\u20ac\u201dwhen Session Reliability is enabled, TCP port 2598 replaces port 1494[46]",
+            "description": "new ICA (Citrix)  when Session Reliability is enabled, TCP port 2598 replaces port 1494[46]",
             "udp": false,
             "status": "Unofficial",
             "port": "2598",
@@ -4174,7 +4174,7 @@
             "description": "KnowShowGo P2P",
             "udp": false,
             "status": "Official",
-            "port": "2700\u00e2\u20ac\u201c2800",
+            "port": "2700-2800",
             "tcp": true
         }
     ],
@@ -4867,7 +4867,7 @@
     ],
     "3689": [
         {
-            "description": "Digital Audio Access Protocol (DAAP)\u00e2\u20ac\u201dused by Apple\u00e2\u20ac\u2122s iTunes and AirPort Express",
+            "description": "Digital Audio Access Protocol (DAAP) used by Apple iTunes and AirPort Express",
             "udp": false,
             "status": "Official",
             "port": "3689",
@@ -5350,7 +5350,7 @@
             "description": "QualiSystems TestShell Suite Services",
             "udp": false,
             "status": "Unofficial",
-            "port": "4610\u00e2\u20ac\u201c4640",
+            "port": "4610-4640",
             "tcp": true
         }
     ],
@@ -5582,14 +5582,14 @@
             "tcp": true
         },
         {
-            "description": "UPnP\u00e2\u20ac\u201dWindows network device interoperability",
+            "description": "UPnP Windows network device interoperability",
             "udp": false,
             "status": "Unofficial",
             "port": "5000",
             "tcp": true
         },
         {
-            "description": "VTun\u00e2\u20ac\u201dVPN Software",
+            "description": "VTun VPN Software",
             "udp": true,
             "status": "Unofficial",
             "port": "5000",
@@ -5724,7 +5724,7 @@
     ],
     "5029": [
         {
-            "description": "Sonic Robo Blast 2\u00c2\u00a0: Multiplayer[66]",
+            "description": "Sonic Robo Blast 2: Multiplayer[66]",
             "udp": false,
             "status": "Unofficial",
             "port": "5029",
@@ -6110,7 +6110,7 @@
     ],
     "5351": [
         {
-            "description": "NAT Port Mapping Protocol\u00e2\u20ac\u201dclient-requested configuration for inbound connections through network address translators",
+            "description": "NAT Port Mapping Protocol client-requested configuration for inbound connections through network address translators",
             "udp": true,
             "status": "Official",
             "port": "5351",
@@ -6128,7 +6128,7 @@
     ],
     "5355": [
         {
-            "description": "LLMNR\u00e2\u20ac\u201dLink-Local Multicast Name Resolution, allows hosts to perform name resolution for hosts on the same local link (only provided by Windows Vista and Server 2008)",
+            "description": "LLMNR Link-Local Multicast Name Resolution, allows hosts to perform name resolution for hosts on the same local link (only provided by Windows Vista and Server 2008)",
             "udp": true,
             "status": "Official",
             "port": "5355",
@@ -6290,7 +6290,7 @@
     ],
     "5500": [
         {
-            "description": "VNC remote desktop protocol\u00e2\u20ac\u201dfor incoming listening viewer, Hotline control connection",
+            "description": "VNC remote desktop protocol for incoming listening viewer, Hotline control connection",
             "udp": false,
             "status": "Unofficial",
             "port": "5500",
@@ -6452,7 +6452,7 @@
     ],
     "5800": [
         {
-            "description": "VNC remote desktop protocol\u00e2\u20ac\u201dfor use over HTTP",
+            "description": "VNC remote desktop protocol for use over HTTP",
             "udp": false,
             "status": "Unofficial",
             "port": "5800",
@@ -6533,7 +6533,7 @@
     ],
     "6000": [
         {
-            "description": "X11\u00e2\u20ac\u201dused between an X client and server over the network",
+            "description": "X11 used between an X client and server over the network",
             "udp": false,
             "status": "Official",
             "port": "6000",
@@ -6542,7 +6542,7 @@
     ],
     "6001": [
         {
-            "description": "X11\u00e2\u20ac\u201dused between an X client and server over the network",
+            "description": "X11 used between an X client and server over the network",
             "udp": true,
             "status": "Official",
             "port": "6001",
@@ -6551,7 +6551,7 @@
     ],
     "6005": [
         {
-            "description": "Default for BMC Software Control-M/Server\u00e2\u20ac\u201dSocket used for communication between Control-M processes\u00e2\u20ac\u201dthough often changed during installation",
+            "description": "Default for BMC Software Control-M/Server Socket used for communication between Control-M processes though often changed during installation",
             "udp": false,
             "status": "Official",
             "port": "6005",
@@ -6610,7 +6610,7 @@
     ],
     "6086": [
         {
-            "description": "PDTP\u00e2\u20ac\u201dFTP like file server in a P2P network",
+            "description": "PDTP FTP like file server in a P2P network",
             "udp": false,
             "status": "Official",
             "port": "6086",
@@ -6662,14 +6662,14 @@
     ],
     "6112": [
         {
-            "description": "\"dtspcd\"\u00e2\u20ac\u201da network daemon that accepts requests from clients to execute commands and launch applications remotely",
+            "description": "\"dtspcd\" a network daemon that accepts requests from clients to execute commands and launch applications remotely",
             "udp": true,
             "status": "Official",
             "port": "6112",
             "tcp": false
         },
         {
-            "description": "\"dtspcd\"\u00e2\u20ac\u201da network daemon that accepts requests from clients to execute commands and launch applications remotely",
+            "description": "\"dtspcd\" a network daemon that accepts requests from clients to execute commands and launch applications remotely",
             "udp": false,
             "status": "Official",
             "port": "6112",
@@ -6800,7 +6800,7 @@
     ],
     "6444": [
         {
-            "description": "Sun Grid Engine\u00e2\u20ac\u201dQmaster Service",
+            "description": "Sun Grid Engine Qmaster Service",
             "udp": true,
             "status": "Official",
             "port": "6444",
@@ -6809,7 +6809,7 @@
     ],
     "6445": [
         {
-            "description": "Sun Grid Engine\u00e2\u20ac\u201dExecution Service",
+            "description": "Sun Grid Engine Execution Service",
             "udp": true,
             "status": "Official",
             "port": "6445",
@@ -6890,7 +6890,7 @@
     ],
     "6566": [
         {
-            "description": "SANE (Scanner Access Now Easy)\u00e2\u20ac\u201dSANE network scanner daemon",
+            "description": "SANE (Scanner Access Now Easy) SANE network scanner daemon",
             "udp": false,
             "status": "Unofficial",
             "port": "6566",
@@ -6938,7 +6938,7 @@
             "description": "Internet Relay Chat (IRC)",
             "udp": false,
             "status": "Unofficial",
-            "port": "6660\u00e2\u20ac\u201c6664",
+            "port": "6660-6664",
             "tcp": true
         }
     ],
@@ -6947,7 +6947,7 @@
             "description": "Internet Relay Chat (IRC)",
             "udp": false,
             "status": "Official",
-            "port": "6665\u00e2\u20ac\u201c6669",
+            "port": "6665-6669",
             "tcp": true
         }
     ],
@@ -6960,7 +6960,7 @@
             "tcp": true
         },
         {
-            "description": "IRC SSL (Secure Internet Relay Chat)\u00e2\u20ac\u201doften used",
+            "description": "IRC SSL (Secure Internet Relay Chat) often used",
             "udp": false,
             "status": "Unofficial",
             "port": "6679",
@@ -6969,7 +6969,7 @@
     ],
     "6697": [
         {
-            "description": "IRC SSL (Secure Internet Relay Chat)\u00e2\u20ac\u201doften used",
+            "description": "IRC SSL (Secure Internet Relay Chat) often used",
             "udp": false,
             "status": "Unofficial",
             "port": "6697",
@@ -7033,7 +7033,7 @@
             "description": "BitTorrent part of full range of ports used most often",
             "udp": true,
             "status": "Unofficial",
-            "port": "6881\u00e2\u20ac\u201c6887",
+            "port": "6881-6887",
             "tcp": true
         }
     ],
@@ -7058,7 +7058,7 @@
             "description": "BitTorrent part of full range of ports used most often",
             "udp": true,
             "status": "Unofficial",
-            "port": "6889\u00e2\u20ac\u201c6890",
+            "port": "6889-6890",
             "tcp": true
         }
     ],
@@ -7067,14 +7067,14 @@
             "description": "BitTorrent part of full range of ports used most often",
             "udp": true,
             "status": "Unofficial",
-            "port": "6891\u00e2\u20ac\u201c6900",
+            "port": "6891-6900",
             "tcp": true
         },
         {
             "description": "Windows Live Messenger (File transfer)",
             "udp": true,
             "status": "Unofficial",
-            "port": "6891\u00e2\u20ac\u201c6900",
+            "port": "6891-6900",
             "tcp": true
         }
     ],
@@ -7099,7 +7099,7 @@
             "description": "BitTorrent part of full range of ports used most often",
             "udp": true,
             "status": "Unofficial",
-            "port": "6902\u00e2\u20ac\u201c6968",
+            "port": "6902-6968",
             "tcp": true
         }
     ],
@@ -7124,7 +7124,7 @@
             "description": "BitTorrent part of full range of ports used most often",
             "udp": true,
             "status": "Unofficial",
-            "port": "6970\u00e2\u20ac\u201c6999",
+            "port": "6970-6999",
             "tcp": true
         }
     ],
@@ -7216,7 +7216,7 @@
     ],
     "7025": [
         {
-            "description": "Zimbra LMTP [mailbox]\u00e2\u20ac\u201dlocal mail delivery",
+            "description": "Zimbra LMTP [mailbox] local mail delivery",
             "udp": false,
             "status": "Unofficial",
             "port": "7025",
@@ -7598,14 +7598,14 @@
     ],
     "8000": [
         {
-            "description": "iRDMI (Intel Remote Desktop Management Interface)[92]\u00e2\u20ac\u201dsometimes erroneously used instead of port 8080",
+            "description": "iRDMI (Intel Remote Desktop Management Interface)[92] sometimes erroneously used instead of port 8080",
             "udp": true,
             "status": "Official",
             "port": "8000",
             "tcp": false
         },
         {
-            "description": "iRDMI (Intel Remote Desktop Management Interface)[92]\u00e2\u20ac\u201dsometimes erroneously used instead of port 8080",
+            "description": "iRDMI (Intel Remote Desktop Management Interface)[92] sometimes erroneously used instead of port 8080",
             "udp": false,
             "status": "Official",
             "port": "8000",
@@ -7669,7 +7669,7 @@
     ],
     "8009": [
         {
-            "description": "ajp13\u00e2\u20ac\u201dApache JServ Protocol AJP Connector",
+            "description": "ajp13 Apache JServ Protocol AJP Connector",
             "udp": false,
             "status": "Unofficial",
             "port": "8009",
@@ -7775,7 +7775,7 @@
     ],
     "8080": [
         {
-            "description": "HTTP alternate (http_alt)\u00e2\u20ac\u201dcommonly used for Web proxy and caching server, or for running a Web server as a non-root user",
+            "description": "HTTP alternate (http_alt) commonly used for Web proxy and caching server, or for running a Web server as a non-root user",
             "udp": false,
             "status": "Official",
             "port": "8080",
@@ -7871,7 +7871,7 @@
     ],
     "8090": [
         {
-            "description": "HTTP Alternate (http_alt_alt)\u00e2\u20ac\u201dused as an alternative to port 8080[citation needed]",
+            "description": "HTTP Alternate (http_alt_alt) used as an alternative to port 8080[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "8090",
@@ -7907,7 +7907,7 @@
     ],
     "8118": [
         {
-            "description": "Privoxy\u00e2\u20ac\u201dadvertisement-filtering Web proxy",
+            "description": "Privoxy advertisement-filtering Web proxy",
             "udp": false,
             "status": "Official",
             "port": "8118",
@@ -8011,7 +8011,7 @@
     ],
     "8291": [
         {
-            "description": "Winbox\u00e2\u20ac\u201dDefault on a MikroTik RouterOS for a Windows application used to administer MikroTik RouterOS[citation needed]",
+            "description": "Winbox Default on a MikroTik RouterOS for a Windows application used to administer MikroTik RouterOS[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "8291",
@@ -8099,7 +8099,7 @@
     ],
     "8500": [
         {
-            "description": "ColdFusion Macromedia/Adobe ColdFusion default and Duke Nukem 3D\u00e2\u20ac\u201ddefault",
+            "description": "ColdFusion Macromedia/Adobe ColdFusion default and Duke Nukem 3D default",
             "udp": true,
             "status": "Unofficial",
             "port": "8500",
@@ -8108,7 +8108,7 @@
     ],
     "8501": [
         {
-            "description": "[9] DukesterX \u00e2\u20ac\u201ddefault[citation needed]",
+            "description": "[9] DukesterX  default[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "8501",
@@ -8216,7 +8216,7 @@
     ],
     "8767": [
         {
-            "description": "TeamSpeak\u00e2\u20ac\u201ddefault",
+            "description": "TeamSpeak default",
             "udp": true,
             "status": "Unofficial",
             "port": "8767",
@@ -8225,7 +8225,7 @@
     ],
     "8768": [
         {
-            "description": "TeamSpeak\u00e2\u20ac\u201dalternate",
+            "description": "TeamSpeak alternate",
             "udp": true,
             "status": "Unofficial",
             "port": "8768",
@@ -8541,7 +8541,7 @@
     ],
     "9009": [
         {
-            "description": "Pichat Server\u00e2\u20ac\u201dPeer to peer chat software",
+            "description": "Pichat Server Peer to peer chat software",
             "udp": true,
             "status": "Official",
             "port": "9009",
@@ -8853,7 +8853,7 @@
     ],
     "9420": [
         {
-            "description": "MooseFS distributed file system\u00e2\u20ac\u201dmaster server to chunk servers",
+            "description": "MooseFS distributed file system master server to chunk servers",
             "udp": false,
             "status": "Unofficial",
             "port": "9420",
@@ -8862,7 +8862,7 @@
     ],
     "9421": [
         {
-            "description": "MooseFS distributed file system\u00e2\u20ac\u201dmaster server to clients",
+            "description": "MooseFS distributed file system master server to clients",
             "udp": false,
             "status": "Unofficial",
             "port": "9421",
@@ -8871,7 +8871,7 @@
     ],
     "9422": [
         {
-            "description": "MooseFS distributed file system\u00e2\u20ac\u201dchunk servers to clients",
+            "description": "MooseFS distributed file system chunk servers to clients",
             "udp": false,
             "status": "Unofficial",
             "port": "9422",
@@ -8973,7 +8973,7 @@
             "tcp": true
         },
         {
-            "description": "Tripwire\u00e2\u20ac\u201dFile Integrity Monitoring Software[citation needed]",
+            "description": "Tripwire File Integrity Monitoring Software[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "9898",
@@ -8998,7 +8998,7 @@
             "tcp": true
         },
         {
-            "description": "The Palace \"The Palace\" Virtual Reality Chat software.\u00e2\u20ac\u201d5",
+            "description": "The Palace \"The Palace\" Virtual Reality Chat software.",
             "udp": true,
             "status": "Official",
             "port": "9996",
@@ -9007,7 +9007,7 @@
     ],
     "9998": [
         {
-            "description": "The Palace \"The Palace\" Virtual Reality Chat software.\u00e2\u20ac\u201d5",
+            "description": "The Palace \"The Palace\" Virtual Reality Chat software.",
             "udp": true,
             "status": "Official",
             "port": "9998",
@@ -9016,7 +9016,7 @@
     ],
     "9999": [
         {
-            "description": "Hydranode\u00e2\u20ac\u201dedonkey2000 TELNET control",
+            "description": "Hydranode edonkey2000 TELNET control",
             "udp": false,
             "status": "Unofficial",
             "port": "9999",
@@ -9039,7 +9039,7 @@
     ],
     "10000": [
         {
-            "description": "Webmin\u00e2\u20ac\u201dWeb-based administration tool for Unix-like systems",
+            "description": "Webmin Web-based administration tool for Unix-like systems",
             "udp": false,
             "status": "Unofficial",
             "port": "10000",
@@ -9098,7 +9098,7 @@
     ],
     "10017": [
         {
-            "description": "AIX,NeXT, HPUX\u00e2\u20ac\u201drexd daemon control[citation needed]",
+            "description": "AIX,NeXT, HPUX rexd daemon control[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "10017",
@@ -9107,7 +9107,7 @@
     ],
     "10024": [
         {
-            "description": "Zimbra smtp [mta]\u00e2\u20ac\u201dto amavis from postfix[citation needed]",
+            "description": "Zimbra smtp [mta] to amavis from postfix[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "10024",
@@ -9116,7 +9116,7 @@
     ],
     "10025": [
         {
-            "description": "Zimbra smtp [mta]\u00e2\u20ac\u201dback to postfix from amavis[citation needed]",
+            "description": "Zimbra smtp [mta] back to postfix from amavis[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "10025",
@@ -9216,7 +9216,7 @@
             "description": "FRISK Software International's f-protd virus scanning daemon for Unix platforms [108]",
             "udp": false,
             "status": "Unofficial",
-            "port": "10201\u00e2\u20ac\u201c10204",
+            "port": "10201-10204",
             "tcp": true
         }
     ],
@@ -9373,14 +9373,14 @@
             "tcp": true
         },
         {
-            "description": "Audition Online Dance Battle, Korea Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle, Korea Server Status/Version Check",
             "udp": false,
             "status": "Unofficial",
             "port": "12012",
             "tcp": true
         },
         {
-            "description": "Audition Online Dance Battle, Korea Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle, Korea Server Status/Version Check",
             "udp": true,
             "status": "Unofficial",
             "port": "12012",
@@ -9434,7 +9434,7 @@
     ],
     "12345": [
         {
-            "description": "NetBus\u00e2\u20ac\u201dremote administration tool (often Trojan horse). Also used by NetBuster. Little Fighter 2 (TCP).",
+            "description": "NetBus remote administration tool (often Trojan horse). Also used by NetBuster. Little Fighter 2 (TCP).",
             "udp": false,
             "status": "Unofficial",
             "port": "12345",
@@ -9452,7 +9452,7 @@
     ],
     "12975": [
         {
-            "description": "LogMeIn Hamachi (VPN tunnel software; also port 32976)\u00e2\u20ac\u201dused to connect to Mediation Server (bibi.hamachi.cc); will attempt to use SSL (TCP port 443) if both 12975 & 32976 fail to connect",
+            "description": "LogMeIn Hamachi (VPN tunnel software; also port 32976) used to connect to Mediation Server (bibi.hamachi.cc); will attempt to use SSL (TCP port 443) if both 12975 & 32976 fail to connect",
             "udp": false,
             "status": "Unofficial",
             "port": "12975",
@@ -9464,7 +9464,7 @@
             "description": "Takenaka RDI Mirror World on SecondLife[citation needed]",
             "udp": true,
             "status": "Unofficial",
-            "port": "12998\u00e2\u20ac\u201c12999",
+            "port": "12998-12999",
             "tcp": false
         }
     ],
@@ -9473,7 +9473,7 @@
             "description": "Linden Lab viewer to sim on SecondLife[citation needed]",
             "udp": true,
             "status": "Unofficial",
-            "port": "13000\u00e2\u20ac\u201c13050",
+            "port": "13000-13050",
             "tcp": false
         }
     ],
@@ -9506,7 +9506,7 @@
     ],
     "13337": [
         {
-            "description": "\u00c3\u2020therNet peer-to-peer networking[citation needed]",
+            "description": "therNet peer-to-peer networking[citation needed]",
             "udp": true,
             "status": "Unofficial",
             "port": "13337-13340",
@@ -9515,7 +9515,7 @@
     ],
     "13720": [
         {
-            "description": "Symantec NetBackup\u00e2\u20ac\u201dbprd (formerly VERITAS)",
+            "description": "Symantec NetBackup bprd (formerly VERITAS)",
             "udp": true,
             "status": "Official",
             "port": "13720",
@@ -9524,7 +9524,7 @@
     ],
     "13721": [
         {
-            "description": "Symantec NetBackup\u00e2\u20ac\u201dbpdbm (formerly VERITAS)",
+            "description": "Symantec NetBackup bpdbm (formerly VERITAS)",
             "udp": true,
             "status": "Official",
             "port": "13721",
@@ -9533,7 +9533,7 @@
     ],
     "13724": [
         {
-            "description": "Symantec Network Utility\u00e2\u20ac\u201dvnetd (formerly VERITAS)",
+            "description": "Symantec Network Utility vnetd (formerly VERITAS)",
             "udp": true,
             "status": "Official",
             "port": "13724",
@@ -9542,7 +9542,7 @@
     ],
     "13782": [
         {
-            "description": "Symantec NetBackup\u00e2\u20ac\u201dbpcd (formerly VERITAS)",
+            "description": "Symantec NetBackup bpcd (formerly VERITAS)",
             "udp": true,
             "status": "Official",
             "port": "13782",
@@ -9560,7 +9560,7 @@
     ],
     "13785": [
         {
-            "description": "Symantec NetBackup Database\u00e2\u20ac\u201dnbdb (formerly VERITAS)",
+            "description": "Symantec NetBackup Database nbdb (formerly VERITAS)",
             "udp": true,
             "status": "Official",
             "port": "13785",
@@ -9732,7 +9732,7 @@
     ],
     "18010": [
         {
-            "description": "Super Dancer Online Extreme(SDO-X)\u00e2\u20ac\u201dCiB Net Station Malaysia Server[citation needed]",
+            "description": "Super Dancer Online Extreme(SDO-X) CiB Net Station Malaysia Server[citation needed]",
             "udp": false,
             "status": "Unofficial",
             "port": "18010",
@@ -9759,7 +9759,7 @@
     ],
     "18200": [
         {
-            "description": "Audition Online Dance Battle, AsiaSoft Thailand Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle, AsiaSoft Thailand Server Status/Version Check",
             "udp": true,
             "status": "Unofficial",
             "port": "18200",
@@ -9777,7 +9777,7 @@
     ],
     "18206": [
         {
-            "description": "Audition Online Dance Battle, AsiaSoft Thailand Server\u00e2\u20ac\u201dFAM Database",
+            "description": "Audition Online Dance Battle, AsiaSoft Thailand Server FAM Database",
             "udp": true,
             "status": "Unofficial",
             "port": "18206",
@@ -9786,7 +9786,7 @@
     ],
     "18300": [
         {
-            "description": "Audition Online Dance Battle, AsiaSoft SEA Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle, AsiaSoft SEA Server Status/Version Check",
             "udp": true,
             "status": "Unofficial",
             "port": "18300",
@@ -9804,7 +9804,7 @@
     ],
     "18306": [
         {
-            "description": "Audition Online Dance Battle, AsiaSoft SEA Server\u00e2\u20ac\u201dFAM Database",
+            "description": "Audition Online Dance Battle, AsiaSoft SEA Server FAM Database",
             "udp": true,
             "status": "Unofficial",
             "port": "18306",
@@ -9822,7 +9822,7 @@
     ],
     "18400": [
         {
-            "description": "Audition Online Dance Battle, KAIZEN Brazil Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle, KAIZEN Brazil Server Status/Version Check",
             "udp": true,
             "status": "Unofficial",
             "port": "18400",
@@ -9840,7 +9840,7 @@
     ],
     "18505": [
         {
-            "description": "Audition Online Dance Battle R4p3 Server, Nexon Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle R4p3 Server, Nexon Server Status/Version Check",
             "udp": true,
             "status": "Unofficial R4p3 Server",
             "port": "18505",
@@ -9858,7 +9858,7 @@
     ],
     "18605": [
         {
-            "description": "X-BEAT\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "X-BEAT Status/Version Check",
             "udp": true,
             "status": "Unofficial",
             "port": "18605",
@@ -9876,7 +9876,7 @@
     ],
     "19000": [
         {
-            "description": "Audition Online Dance Battle, G10/alaplaya Server\u00e2\u20ac\u201dStatus/Version Check",
+            "description": "Audition Online Dance Battle, G10/alaplaya Server Status/Version Check",
             "udp": true,
             "status": "Unofficial",
             "port": "19000",
@@ -10670,7 +10670,7 @@
     ],
     "30000": [
         {
-            "description": "Pok\u00c3\u00a9mon Netbattle",
+            "description": "Pok mon Netbattle",
             "udp": false,
             "status": "Unofficial",
             "port": "30000",
@@ -10724,7 +10724,7 @@
     ],
     "31337": [
         {
-            "description": "Back Orifice\u00e2\u20ac\u201dremote administration tool (often Trojan horse)",
+            "description": "Back Orifice remote administration tool (often Trojan horse)",
             "udp": false,
             "status": "Unofficial",
             "port": "31337",
@@ -10733,7 +10733,7 @@
     ],
     "31415": [
         {
-            "description": "ThoughtSignal\u00e2\u20ac\u201dServer Communication Service (often Informational)",
+            "description": "ThoughtSignal Server Communication Service (often Informational)",
             "udp": false,
             "status": "Unofficial",
             "port": "31415",
@@ -10823,7 +10823,7 @@
     ],
     "32976": [
         {
-            "description": "LogMeIn Hamachi (VPN tunnel software; also port 12975)\u00e2\u20ac\u201dused to connect to Mediation Server (bibi.hamachi.cc); will attempt to use SSL (TCP port 443) if both 12975 & 32976 fail to connect",
+            "description": "LogMeIn Hamachi (VPN tunnel software; also port 12975) used to connect to Mediation Server (bibi.hamachi.cc); will attempt to use SSL (TCP port 443) if both 12975 & 32976 fail to connect",
             "udp": false,
             "status": "Unofficial",
             "port": "32976",
@@ -10958,7 +10958,7 @@
     ],
     "43034": [
         {
-            "description": "LarmX.com\u00e2\u201e\u00a2 database update mtr port[citation needed]",
+            "description": "LarmX.com database update mtr port[citation needed]",
             "udp": true,
             "status": "Unofficial",
             "port": "43034",
@@ -10967,7 +10967,7 @@
     ],
     "43047": [
         {
-            "description": "The\u00c3\u00b2sMessenger second port for service The\u00c3\u00b2sMessenger[citation needed]",
+            "description": "The sMessenger second port for service The sMessenger[citation needed]",
             "udp": false,
             "status": "Official",
             "port": "43047",
@@ -10976,7 +10976,7 @@
     ],
     "43048": [
         {
-            "description": "The\u00c3\u00b2sMessenger third port for service The\u00c3\u00b2sMessenger[citation needed]",
+            "description": "The sMessenger third port for service The sMessenger[citation needed]",
             "udp": false,
             "status": "Official",
             "port": "43048",
