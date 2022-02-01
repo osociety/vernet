@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -17,15 +18,13 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     on<StartNewScan>(_startNewScan);
   }
 
-  /// Will contain all the hosts that got discovered in the network, will be use
-  /// inorder to cancel on dispose of the page.
-  Stream<ActiveHost>? hostsDiscoveredInNetwork;
-
   /// IP of the device in the local network.
   String? ip;
 
   /// Gateway IP of the current network
   late String? gatewayIp;
+
+  String? subnet;
 
   /// List of all ActiveHost devices that got found in the current scan
   List<DeviceInTheNetwork> activeHostList = [];
@@ -36,6 +35,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   ) async {
     emit(const HostScanState.loadInProgress());
     ip = await NetworkInfo().getWifiIP();
+    subnet = ip!.substring(0, ip!.lastIndexOf('.'));
     gatewayIp = await NetworkInfo().getWifiGatewayIP();
 
     add(const HostScanEvent.startNewScan());
@@ -45,29 +45,61 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    final String subnet = ip!.substring(0, ip!.lastIndexOf('.'));
-    activeHostList = [];
+    activeHostList = await startSearchingDevices();
+    emit(HostScanState.foundNewDevice(activeHostList));
 
-    hostsDiscoveredInNetwork = HostScanner.discover(
-      subnet,
-      firstSubnet: appSettings.firstSubnet,
-      lastSubnet: appSettings.lastSubnet,
-      resultsInIpAscendingOrder: false,
-    );
-
-    await for (final ActiveHost activeHostFound in hostsDiscoveredInNetwork!) {
-      final DeviceInTheNetwork tempDeviceInTheNetwork =
-          DeviceInTheNetwork.createWithAllNecessaryFields(
-        ip: activeHostFound.ip,
-        hostId: activeHostFound.hostId,
-        make: activeHostFound.make,
-        pingData: activeHostFound.pingData,
-        currentDeviceIp: ip!,
-        gatewayIp: gatewayIp!,
-      );
-      activeHostList.add(tempDeviceInTheNetwork);
-      emit(HostScanState.foundNewDevice(activeHostList));
-    }
     // emit(HostScanState.loadSuccess(activeHostList));
+  }
+
+  // TODO: can be improved by returning results from the isolate with a stream
+  // TODO: and displaying them immediately for each new result.
+  /// Will search devices in the network inside new isolate
+  Future<List<DeviceInTheNetwork>> startSearchingDevices() async {
+    return compute<List<String>, List<DeviceInTheNetwork>>(
+      (params) async {
+        final String subnetIsolate = params[0];
+        final int firstSubnetIsolate = int.parse(params[1]);
+        final int lastSubnetIsolate = int.parse(params[2]);
+        final String currentDeviceIpIsolate = params[3];
+        final String gatewayIpIsolate = params[4];
+
+        final List<DeviceInTheNetwork> listOfDevicesTemp = [];
+
+        /// Will contain all the hosts that got discovered in the network, will
+        /// be use inorder to cancel on dispose of the page.
+        final Stream<ActiveHost> hostsDiscoveredInNetwork =
+            HostScanner.discover(
+          subnetIsolate,
+          firstSubnet: firstSubnetIsolate,
+          lastSubnet: lastSubnetIsolate,
+        );
+
+        try {
+          await for (final ActiveHost activeHostFound
+              in hostsDiscoveredInNetwork) {
+            final DeviceInTheNetwork tempDeviceInTheNetwork =
+                DeviceInTheNetwork.createWithAllNecessaryFields(
+              ip: activeHostFound.ip,
+              hostId: activeHostFound.hostId,
+              make: activeHostFound.make,
+              pingData: activeHostFound.pingData,
+              currentDeviceIp: currentDeviceIpIsolate,
+              gatewayIp: gatewayIpIsolate,
+            );
+            listOfDevicesTemp.add(tempDeviceInTheNetwork);
+          }
+        } catch (e) {
+          print('Error\n$e');
+        }
+        return listOfDevicesTemp;
+      },
+      [
+        subnet!,
+        appSettings.firstSubnet.toString(),
+        appSettings.lastSubnet.toString(),
+        ip!,
+        gatewayIp!,
+      ],
+    );
   }
 }

@@ -464,7 +464,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     ],
                                   ),
                           ),
-                          Divider(height: 4),
+                          const Divider(height: 4),
                         ],
                       );
                     },
