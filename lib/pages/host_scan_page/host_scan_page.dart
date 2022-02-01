@@ -4,10 +4,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools/network_tools.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/host_scan_page/host_scna_bloc/host_scan_bloc.dart';
+import 'package:vernet/pages/host_scan_page/widgets/host_scan_widget.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 
 class HostScanPage extends StatefulWidget {
@@ -111,7 +115,16 @@ class _HostScanPageState extends State<HostScanPage>
         ],
       ),
       body: Center(
-        child: buildListView(context),
+        child: Column(
+          children: [
+            BlocProvider(
+              create: (context) =>
+                  getIt<HostScanBloc>()..add(const HostScanEvent.initialized()),
+              child: ConfigureNewCbjCompWidgets(),
+            ),
+            buildListView(context),
+          ],
+        ),
       ),
     );
   }
@@ -178,12 +191,12 @@ class _HostScanPageState extends State<HostScanPage>
   Icon _getHostIcon(String hostIp) {
     if (hostIp == _ip) {
       if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-        return Icon(Icons.computer);
+        return const Icon(Icons.computer);
       }
-      return Icon(Icons.smartphone);
+      return const Icon(Icons.smartphone);
     } else if (hostIp == _gatewayIP) {
-      return Icon(Icons.router);
+      return const Icon(Icons.router);
     }
-    return Icon(Icons.devices);
+    return const Icon(Icons.devices);
   }
 }

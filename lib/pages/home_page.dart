@@ -9,7 +9,7 @@ import 'package:vernet/models/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
-import 'package:vernet/pages/host_scan_page.dart';
+import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_troubleshoot/ping_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/custom_tile.dart';
