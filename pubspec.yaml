@@ -44,7 +44,7 @@ dependencies:
   # Discover network info and configure themselves accordingly
   network_info_plus: ^2.1.2
   # Helps you discover open ports, devices on subnet and more.
-  network_tools: ^1.0.7
+  network_tools: ^1.0.8
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^1.3.0
   # Allows you to display progress widgets based on percentage.

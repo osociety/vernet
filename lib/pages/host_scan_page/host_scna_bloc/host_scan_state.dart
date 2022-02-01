@@ -6,7 +6,13 @@ class HostScanState with _$HostScanState {
 
   const factory HostScanState.loadInProgress() = _LoadInProgress;
 
-  const factory HostScanState.loadSuccess(String securityBearIp) = _LoadSuccess;
+  const factory HostScanState.foundNewDevice(
+    List<DeviceInTheNetwork> activeHostList,
+  ) = FoundNewDevice;
+
+  const factory HostScanState.loadSuccess(
+    List<DeviceInTheNetwork> activeHostList,
+  ) = LoadSuccess;
 
   const factory HostScanState.loadFailure() = _loadFailure;
 

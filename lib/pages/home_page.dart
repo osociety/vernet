@@ -89,7 +89,7 @@ class _WifiDetailState extends State<HomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HostScanPage(),
+                                builder: (context) => HostScanPage(),
                               ),
                             );
                           },
