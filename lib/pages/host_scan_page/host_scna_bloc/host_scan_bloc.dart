@@ -77,6 +77,14 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
           );
 
           activeHostList.add(tempDeviceInTheNetwork);
+          activeHostList.sort((a, b) {
+            final int aIp =
+                int.parse(a.ip.substring(a.ip.lastIndexOf('.') + 1));
+            final int bIp =
+                int.parse(b.ip.substring(b.ip.lastIndexOf('.') + 1));
+            return aIp.compareTo(bIp);
+          });
+
           emit(const HostScanState.loadInProgress());
           emit(HostScanState.foundNewDevice(activeHostList));
         }
@@ -108,14 +116,11 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         subnetIsolate,
         firstSubnet: firstSubnetIsolate,
         lastSubnet: lastSubnetIsolate,
-        // TODO: check why the results returned in ascending order although I
-        // TODO: have added "false" here.
         resultsInIpAscendingOrder: false,
       );
 
       try {
-        await for (final ActiveHost activeHostFound
-            in hostsDiscoveredInNetwork) {
+        hostsDiscoveredInNetwork.listen((activeHostFound) {
           channel.sendResult(
             [
               activeHostFound.ip,
@@ -124,7 +129,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
               activeHostFound.pingData,
             ],
           );
-        }
+        });
       } catch (e) {
         print('Error\n$e');
       }
