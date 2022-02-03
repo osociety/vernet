@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
+import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:isolate_contactor/isolate_contactor.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools/network_tools.dart';
 import 'package:vernet/main.dart';
@@ -45,61 +47,87 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    activeHostList = await startSearchingDevices();
-    emit(HostScanState.foundNewDevice(activeHostList));
+    final List<String> paramsTemp = [
+      subnet!,
+      appSettings.firstSubnet.toString(),
+      appSettings.lastSubnet.toString(),
+    ];
 
+    final IsolateContactor isolateContactor =
+        await IsolateContactor.createOwnIsolate(startSearchingDevices);
+
+    isolateContactor.sendMessage(paramsTemp);
+
+    await for (final dynamic message in isolateContactor.onMessage) {
+      try {
+        if (message is List) {
+          final String activeHostFoundIp = message[0] as String;
+          final int activeHostFoundId = message[1] as int;
+          final String activeHostFoundMake = message[2] as String;
+          final PingData activeHostFoundPingData = message[3] as PingData;
+
+          final DeviceInTheNetwork tempDeviceInTheNetwork =
+              DeviceInTheNetwork.createWithAllNecessaryFields(
+            ip: activeHostFoundIp,
+            hostId: activeHostFoundId,
+            make: activeHostFoundMake,
+            pingData: activeHostFoundPingData,
+            currentDeviceIp: ip!,
+            gatewayIp: gatewayIp!,
+          );
+
+          activeHostList.add(tempDeviceInTheNetwork);
+          emit(const HostScanState.loadInProgress());
+          emit(HostScanState.foundNewDevice(activeHostList));
+        }
+      } catch (e) {
+        emit(const HostScanState.error());
+      }
+    }
     // emit(HostScanState.loadSuccess(activeHostList));
   }
 
-  // TODO: can be improved by returning results from the isolate with a stream
-  // TODO: and displaying them immediately for each new result.
   /// Will search devices in the network inside new isolate
-  Future<List<DeviceInTheNetwork>> startSearchingDevices() async {
-    return compute<List<String>, List<DeviceInTheNetwork>>(
-      (params) async {
-        final String subnetIsolate = params[0];
-        final int firstSubnetIsolate = int.parse(params[1]);
-        final int lastSubnetIsolate = int.parse(params[2]);
-        final String currentDeviceIpIsolate = params[3];
-        final String gatewayIpIsolate = params[4];
+  static Future<void> startSearchingDevices(dynamic params) async {
+    final channel = IsolateContactorController(params);
+    channel.onIsolateMessage.listen((message) async {
+      List<String> paramsListString = [];
+      if (message is List<String>) {
+        paramsListString = message;
+      } else {
+        return;
+      }
 
-        final List<DeviceInTheNetwork> listOfDevicesTemp = [];
+      final String subnetIsolate = paramsListString[0];
+      final int firstSubnetIsolate = int.parse(paramsListString[1]);
+      final int lastSubnetIsolate = int.parse(paramsListString[2]);
 
-        /// Will contain all the hosts that got discovered in the network, will
-        /// be use inorder to cancel on dispose of the page.
-        final Stream<ActiveHost> hostsDiscoveredInNetwork =
-            HostScanner.discover(
-          subnetIsolate,
-          firstSubnet: firstSubnetIsolate,
-          lastSubnet: lastSubnetIsolate,
-        );
+      /// Will contain all the hosts that got discovered in the network, will
+      /// be use inorder to cancel on dispose of the page.
+      final Stream<ActiveHost> hostsDiscoveredInNetwork = HostScanner.discover(
+        subnetIsolate,
+        firstSubnet: firstSubnetIsolate,
+        lastSubnet: lastSubnetIsolate,
+        // TODO: check why the results returned in ascending order although I
+        // TODO: have added "false" here.
+        resultsInIpAscendingOrder: false,
+      );
 
-        try {
-          await for (final ActiveHost activeHostFound
-              in hostsDiscoveredInNetwork) {
-            final DeviceInTheNetwork tempDeviceInTheNetwork =
-                DeviceInTheNetwork.createWithAllNecessaryFields(
-              ip: activeHostFound.ip,
-              hostId: activeHostFound.hostId,
-              make: activeHostFound.make,
-              pingData: activeHostFound.pingData,
-              currentDeviceIp: currentDeviceIpIsolate,
-              gatewayIp: gatewayIpIsolate,
-            );
-            listOfDevicesTemp.add(tempDeviceInTheNetwork);
-          }
-        } catch (e) {
-          print('Error\n$e');
+      try {
+        await for (final ActiveHost activeHostFound
+            in hostsDiscoveredInNetwork) {
+          channel.sendResult(
+            [
+              activeHostFound.ip,
+              activeHostFound.hostId,
+              activeHostFound.make,
+              activeHostFound.pingData,
+            ],
+          );
         }
-        return listOfDevicesTemp;
-      },
-      [
-        subnet!,
-        appSettings.firstSubnet.toString(),
-        appSettings.lastSubnet.toString(),
-        ip!,
-        gatewayIp!,
-      ],
-    );
+      } catch (e) {
+        print('Error\n$e');
+      }
+    });
   }
 }
