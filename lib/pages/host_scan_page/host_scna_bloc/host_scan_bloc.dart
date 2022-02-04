@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
-import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -47,51 +48,47 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    final List<String> paramsTemp = [
-      subnet!,
-      appSettings.firstSubnet.toString(),
-      appSettings.lastSubnet.toString(),
-    ];
+    const int scanRangeForIsolate = 10;
 
-    final IsolateContactor isolateContactor =
-        await IsolateContactor.createOwnIsolate(startSearchingDevices);
+    for (int i = appSettings.firstSubnet; i <= 100; i += scanRangeForIsolate) {
+      final IsolateContactor isolateContactor =
+          await IsolateContactor.createOwnIsolate(startSearchingDevices);
 
-    isolateContactor.sendMessage(paramsTemp);
+      isolateContactor.sendMessage(<String>[
+        subnet!,
+        i.toString(),
+        (i + scanRangeForIsolate).toString(),
+      ]);
+      await for (final dynamic message in isolateContactor.onMessage) {
+        try {
+          if (message is ActiveHost) {
+            final DeviceInTheNetwork tempDeviceInTheNetwork =
+                DeviceInTheNetwork.createFromActiveHost(
+              activeHost: message,
+              currentDeviceIp: ip!,
+              gatewayIp: gatewayIp!,
+            );
 
-    await for (final dynamic message in isolateContactor.onMessage) {
-      try {
-        if (message is List) {
-          final String activeHostFoundIp = message[0] as String;
-          final int activeHostFoundId = message[1] as int;
-          final String activeHostFoundMake = message[2] as String;
-          final PingData activeHostFoundPingData = message[3] as PingData;
-
-          final DeviceInTheNetwork tempDeviceInTheNetwork =
-              DeviceInTheNetwork.createWithAllNecessaryFields(
-            ip: activeHostFoundIp,
-            hostId: activeHostFoundId,
-            make: activeHostFoundMake,
-            pingData: activeHostFoundPingData,
-            currentDeviceIp: ip!,
-            gatewayIp: gatewayIp!,
-          );
-
-          activeHostList.add(tempDeviceInTheNetwork);
-          activeHostList.sort((a, b) {
-            final int aIp =
-                int.parse(a.ip.substring(a.ip.lastIndexOf('.') + 1));
-            final int bIp =
-                int.parse(b.ip.substring(b.ip.lastIndexOf('.') + 1));
-            return aIp.compareTo(bIp);
-          });
-
-          emit(const HostScanState.loadInProgress());
-          emit(HostScanState.foundNewDevice(activeHostList));
+            activeHostList.add(tempDeviceInTheNetwork);
+            activeHostList.sort((a, b) {
+              final int aIp =
+                  int.parse(a.ip.substring(a.ip.lastIndexOf('.') + 1));
+              final int bIp =
+                  int.parse(b.ip.substring(b.ip.lastIndexOf('.') + 1));
+              return aIp.compareTo(bIp);
+            });
+            emit(const HostScanState.loadInProgress());
+            emit(HostScanState.foundNewDevice(activeHostList));
+          } else if (message is String && message == 'Done') {
+            isolateContactor.dispose();
+          }
+        } catch (e) {
+          emit(const HostScanState.error());
         }
-      } catch (e) {
-        emit(const HostScanState.error());
       }
     }
+    print('The end of the scan');
+
     // emit(HostScanState.loadSuccess(activeHostList));
   }
 
@@ -116,23 +113,12 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         subnetIsolate,
         firstSubnet: firstSubnetIsolate,
         lastSubnet: lastSubnetIsolate,
-        resultsInIpAscendingOrder: false,
       );
 
-      try {
-        hostsDiscoveredInNetwork.listen((activeHostFound) {
-          channel.sendResult(
-            [
-              activeHostFound.ip,
-              activeHostFound.hostId,
-              activeHostFound.make,
-              activeHostFound.pingData,
-            ],
-          );
-        });
-      } catch (e) {
-        print('Error\n$e');
+      await for (final ActiveHost activeHostFound in hostsDiscoveredInNetwork) {
+        channel.sendResult(activeHostFound);
       }
+      channel.sendResult('Done');
     });
   }
 }

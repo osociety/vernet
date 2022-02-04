@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
+import 'package:network_tools/network_tools.dart';
 
 /// Contains all the information of a device in the network including
 /// icon, open ports and in the future host name and mDNS name
@@ -14,6 +15,22 @@ class DeviceInTheNetwork {
     this.iconData = Icons.devices,
     this.hostId,
   });
+
+  /// Create the object from active host with the correct field and icon
+  factory DeviceInTheNetwork.createFromActiveHost({
+    required ActiveHost activeHost,
+    required String currentDeviceIp,
+    required String gatewayIp,
+  }) {
+    return DeviceInTheNetwork.createWithAllNecessaryFields(
+      ip: activeHost.ip,
+      hostId: activeHost.hostId,
+      make: activeHost.make,
+      pingData: activeHost.pingData,
+      currentDeviceIp: currentDeviceIp,
+      gatewayIp: gatewayIp,
+    );
+  }
 
   /// Create the object with the correct field and icon
   factory DeviceInTheNetwork.createWithAllNecessaryFields({
