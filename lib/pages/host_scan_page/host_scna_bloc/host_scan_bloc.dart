@@ -48,16 +48,20 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    const int scanRangeForIsolate = 10;
-
-    for (int i = appSettings.firstSubnet; i <= 100; i += scanRangeForIsolate) {
+    const int scanRangeForIsolate = 51;
+    for (int i = appSettings.firstSubnet;
+        i <= appSettings.lastSubnet;
+        i += scanRangeForIsolate) {
       final IsolateContactor isolateContactor =
           await IsolateContactor.createOwnIsolate(startSearchingDevices);
-
+      int limit = i + scanRangeForIsolate;
+      if (limit >= 254) {
+        limit = 254;
+      }
       isolateContactor.sendMessage(<String>[
         subnet!,
         i.toString(),
-        (i + scanRangeForIsolate).toString(),
+        limit.toString(),
       ]);
       await for (final dynamic message in isolateContactor.onMessage) {
         try {
@@ -106,6 +110,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       final String subnetIsolate = paramsListString[0];
       final int firstSubnetIsolate = int.parse(paramsListString[1]);
       final int lastSubnetIsolate = int.parse(paramsListString[2]);
+      print('scanning from $firstSubnetIsolate to $lastSubnetIsolate');
 
       /// Will contain all the hosts that got discovered in the network, will
       /// be use inorder to cancel on dispose of the page.
