@@ -50,15 +50,15 @@ dependencies:
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^1.3.0
   # Allows you to display progress widgets based on percentage.
-  percent_indicator: ^3.4.0
+  percent_indicator: ^4.0.0
   # Popup that ask for the requested permission
   permission_handler: ^8.3.0
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.0.2
   # Reading and writing simple key-value pairs
-  shared_preferences: ^2.0.12
+  shared_preferences: ^2.0.13
   # Plugin for launching a URL
-  url_launcher: ^6.0.18
+  url_launcher: ^6.0.20
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
@@ -71,7 +71,7 @@ dev_dependencies:
   # Convenient code generator for get_it.
   injectable_generator: ^1.5.3
   # Collection of lint rules for Dart and Flutter projects.
-  lint: ^1.8.1
+  lint: ^1.8.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
