@@ -51,12 +51,12 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     const int scanRangeForIsolate = 51;
     for (int i = appSettings.firstSubnet;
         i <= appSettings.lastSubnet;
-        i += scanRangeForIsolate) {
+        i += scanRangeForIsolate + 1) {
       final IsolateContactor isolateContactor =
           await IsolateContactor.createOwnIsolate(startSearchingDevices);
       int limit = i + scanRangeForIsolate;
-      if (limit >= 254) {
-        limit = 254;
+      if (limit >= appSettings.lastSubnet) {
+        limit = appSettings.lastSubnet;
       }
       isolateContactor.sendMessage(<String>[
         subnet!,
