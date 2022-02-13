@@ -15,7 +15,7 @@ class HostScanPage extends StatelessWidget {
         //     Container(
         //       margin: const EdgeInsets.only(right: 20.0),
         //       child: CircularPercentIndicator(
-        //         radius: 20.0,
+        //         radius: 10.0,
         //         lineWidth: 2.5,
         //         percent: _progress / 100,
         //         backgroundColor: Colors.grey,
