@@ -26,9 +26,5 @@ linter:
 
     sort_constructors_first: true
 
-    prefer_single_quotes: true
-
     # Good packages document everything
     public_member_api_docs: true
-
-    lines_longer_than_80_chars: true
