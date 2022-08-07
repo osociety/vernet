@@ -114,7 +114,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
       /// Will contain all the hosts that got discovered in the network, will
       /// be use inorder to cancel on dispose of the page.
-      final Stream<ActiveHost> hostsDiscoveredInNetwork = HostScanner.discover(
+      final Stream<ActiveHost> hostsDiscoveredInNetwork =
+          HostScanner.getAllPingableDevices(
         subnetIsolate,
         firstSubnet: firstSubnetIsolate,
         lastSubnet: lastSubnetIsolate,
