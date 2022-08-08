@@ -46,29 +46,42 @@ class HostScanWidget extends StatelessWidget {
                     itemCount: activeHostList.length,
                     itemBuilder: (context, index) {
                       final DeviceInTheNetwork host = activeHostList[index];
-                      return ListTile(
-                        leading: Icon(host.iconData),
-                        title: Text(host.make),
-                        subtitle: Text(host.ip),
-                        trailing: IconButton(
-                          tooltip: 'Scan open ports for this target',
-                          icon: const Icon(Icons.radar),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    PortScanPage(target: host.ip),
-                              ),
-                            );
-                          },
-                        ),
-                        onLongPress: () {
-                          Clipboard.setData(ClipboardData(text: host.ip));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('IP copied to clipboard'),
+                      return FutureBuilder(
+                        future: host.make,
+                        builder: (context, snapshot) {
+                          /// TODO: Change back to comment when https://github.com/dart-lang/sdk/issues/49608 is fixed
+                          // String deviceName = 'Searching Device Name';
+                          String deviceName = 'Generic Device';
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.data != null) {
+                            deviceName = snapshot.data.toString();
+                          }
+                          return ListTile(
+                            leading: Icon(host.iconData),
+                            title: Text(deviceName),
+                            subtitle: Text(host.ip),
+                            trailing: IconButton(
+                              tooltip: 'Scan open ports for this target',
+                              icon: const Icon(Icons.radar),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PortScanPage(target: host.ip),
+                                  ),
+                                );
+                              },
                             ),
+                            onLongPress: () {
+                              Clipboard.setData(ClipboardData(text: host.ip));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('IP copied to clipboard'),
+                                ),
+                              );
+                            },
                           );
                         },
                       );

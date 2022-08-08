@@ -55,11 +55,16 @@ class _PortScanPageState extends State<PortScanPage>
     }
   }
 
-  void _handleEvent(OpenPort port) {
-    if (port.isOpen) {
-      setState(() {
-        _openPorts.add(port);
-      });
+  void _handleEvent(ActiveHost? activeHost) {
+    if (activeHost != null) {
+      final List<OpenPort> openPorts = activeHost.openPort;
+      if (openPorts.isNotEmpty) {
+        for (final OpenPort openPort in openPorts) {
+          setState(() {
+            _openPorts.add(openPort);
+          });
+        }
+      }
     }
   }
 
@@ -70,7 +75,7 @@ class _PortScanPageState extends State<PortScanPage>
     if (_completed && _openPorts.isEmpty) _showSnackBar('No open ports found');
   }
 
-  StreamSubscription<OpenPort>? _streamSubscription;
+  StreamSubscription<ActiveHost>? _streamSubscription;
   bool _completed = true;
   void _startScanning() {
     setState(() {
@@ -92,7 +97,7 @@ class _PortScanPageState extends State<PortScanPage>
         progressCallback: _handleProgress,
       ).listen(_handleEvent, onDone: _handleOnDone);
     } else {
-      _streamSubscription = PortScanner.discover(
+      _streamSubscription = PortScanner.scanPortsForSingleDevice(
         _targetIPEditingController.text,
         startPort: int.parse(_startPortEditingController.text),
         endPort: int.parse(_endPortEditingController.text),

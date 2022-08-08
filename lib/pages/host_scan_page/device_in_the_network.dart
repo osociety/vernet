@@ -23,9 +23,9 @@ class DeviceInTheNetwork {
     required String gatewayIp,
   }) {
     return DeviceInTheNetwork.createWithAllNecessaryFields(
-      ip: activeHost.ip,
+      ip: activeHost.address,
       hostId: activeHost.hostId,
-      make: activeHost.make,
+      make: activeHost.deviceName,
       pingData: activeHost.pingData,
       currentDeviceIp: currentDeviceIp,
       gatewayIp: gatewayIp,
@@ -35,8 +35,8 @@ class DeviceInTheNetwork {
   /// Create the object with the correct field and icon
   factory DeviceInTheNetwork.createWithAllNecessaryFields({
     required String ip,
-    required int hostId,
-    required String make,
+    required String hostId,
+    required Future<String> make,
     required PingData pingData,
     required String currentDeviceIp,
     required String gatewayIp,
@@ -47,7 +47,7 @@ class DeviceInTheNetwork {
       gatewayIp: gatewayIp,
     );
 
-    final String deviceMake = getDeviceMake(
+    final Future<String> deviceMake = getDeviceMake(
       currentDeviceIp: currentDeviceIp,
       hostIp: ip,
       gatewayIp: gatewayIp,
@@ -65,17 +65,17 @@ class DeviceInTheNetwork {
 
   /// Ip of the device
   final String ip;
-  final String make;
+  final Future<String> make;
   final PingData pingData;
   final IconData iconData;
-  int? hostId;
+  String? hostId;
 
-  static String getDeviceMake({
+  static Future<String> getDeviceMake({
     required String currentDeviceIp,
     required String hostIp,
     required String gatewayIp,
-    required String hostMake,
-  }) {
+    required Future<String> hostMake,
+  }) async {
     if (currentDeviceIp == hostIp) {
       return 'This device';
     } else if (gatewayIp == hostIp) {
