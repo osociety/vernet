@@ -10,8 +10,8 @@ import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
-import 'package:vernet/pages/network_troubleshoot/ping_page.dart';
-import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+import 'package:vernet/pages/ping_page/ping_page.dart';
+import 'package:vernet/pages/port_scan_page/port_scan_page.dart';
 import 'package:vernet/ui/custom_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -133,7 +133,7 @@ class _WifiDetailState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PortScanPage(),
+                              builder: (context) => PortScanPage(),
                             ),
                           );
                         },

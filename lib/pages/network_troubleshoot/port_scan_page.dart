@@ -9,8 +9,8 @@ import 'package:vernet/models/port.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
-class PortScanPage extends StatefulWidget {
-  const PortScanPage({Key? key, this.target = ''}) : super(key: key);
+class _PortScanPage extends StatefulWidget {
+  const _PortScanPage({Key? key, this.target = ''}) : super(key: key);
 
   final String target;
 
@@ -20,11 +20,12 @@ class PortScanPage extends StatefulWidget {
 
 enum ScanType { single, top, range }
 
-class _PortScanPageState extends State<PortScanPage>
+class _PortScanPageState extends State<_PortScanPage>
     with SingleTickerProviderStateMixin {
   final Set<OpenPort> _openPorts = {};
   final Map<String, Port> _allPorts = {};
   double _progress = 0;
+
   final TextEditingController _targetIPEditingController =
       TextEditingController();
   final TextEditingController _singlePortEditingController =
@@ -55,12 +56,10 @@ class _PortScanPageState extends State<PortScanPage>
     }
   }
 
-  void _handleEvent(OpenPort port) {
-    if (port.isOpen) {
-      setState(() {
-        _openPorts.add(port);
-      });
-    }
+  void _handleEvent(ActiveHost? host) {
+    setState(() {
+      _openPorts.addAll(host!.openPort);
+    });
   }
 
   void _handleOnDone() {
@@ -70,7 +69,7 @@ class _PortScanPageState extends State<PortScanPage>
     if (_completed && _openPorts.isEmpty) _showSnackBar('No open ports found');
   }
 
-  StreamSubscription<OpenPort>? _streamSubscription;
+  StreamSubscription<ActiveHost>? _streamSubscription;
   bool _completed = true;
   void _startScanning() {
     setState(() {
@@ -92,7 +91,8 @@ class _PortScanPageState extends State<PortScanPage>
         progressCallback: _handleProgress,
       ).listen(_handleEvent, onDone: _handleOnDone);
     } else {
-      _streamSubscription = PortScanner.discover(
+      //TODO: uncomment
+      _streamSubscription = PortScanner.scanPortsForSingleDevice(
         _targetIPEditingController.text,
         startPort: int.parse(_startPortEditingController.text),
         endPort: int.parse(_endPortEditingController.text),

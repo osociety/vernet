@@ -9,7 +9,7 @@ import 'package:network_tools/network_tools.dart';
 class DeviceInTheNetwork {
   /// Create basic device with default (not the correct) icon
   DeviceInTheNetwork({
-    required this.ip,
+    required this.internetAddress,
     required this.make,
     required this.pingData,
     this.iconData = Icons.devices,
@@ -23,9 +23,9 @@ class DeviceInTheNetwork {
     required String gatewayIp,
   }) {
     return DeviceInTheNetwork.createWithAllNecessaryFields(
-      ip: activeHost.ip,
+      internetAddress: activeHost.internetAddress,
       hostId: activeHost.hostId,
-      make: activeHost.make,
+      make: activeHost.hostName,
       pingData: activeHost.pingData,
       currentDeviceIp: currentDeviceIp,
       gatewayIp: gatewayIp,
@@ -34,28 +34,28 @@ class DeviceInTheNetwork {
 
   /// Create the object with the correct field and icon
   factory DeviceInTheNetwork.createWithAllNecessaryFields({
-    required String ip,
-    required int hostId,
-    required String make,
+    required InternetAddress internetAddress,
+    required String hostId,
+    required Future<String?> make,
     required PingData pingData,
     required String currentDeviceIp,
     required String gatewayIp,
   }) {
     final IconData iconData = getHostIcon(
       currentDeviceIp: currentDeviceIp,
-      hostIp: ip,
+      hostIp: internetAddress.address,
       gatewayIp: gatewayIp,
     );
 
-    final String deviceMake = getDeviceMake(
+    final Future<String?> deviceMake = getDeviceMake(
       currentDeviceIp: currentDeviceIp,
-      hostIp: ip,
+      hostIp: internetAddress.address,
       gatewayIp: gatewayIp,
       hostMake: make,
     );
 
     return DeviceInTheNetwork(
-      ip: ip,
+      internetAddress: internetAddress,
       make: deviceMake,
       pingData: pingData,
       hostId: hostId,
@@ -64,22 +64,22 @@ class DeviceInTheNetwork {
   }
 
   /// Ip of the device
-  final String ip;
-  final String make;
+  final InternetAddress internetAddress;
+  final Future<String?> make;
   final PingData pingData;
   final IconData iconData;
-  int? hostId;
+  String? hostId;
 
-  static String getDeviceMake({
+  static Future<String?> getDeviceMake({
     required String currentDeviceIp,
     required String hostIp,
     required String gatewayIp,
-    required String hostMake,
+    required Future<String?> hostMake,
   }) {
     if (currentDeviceIp == hostIp) {
-      return 'This device';
+      return Future.value('This device');
     } else if (gatewayIp == hostIp) {
-      return 'Router/Gateway';
+      return Future.value('Router/Gateway');
     }
     return hostMake;
   }

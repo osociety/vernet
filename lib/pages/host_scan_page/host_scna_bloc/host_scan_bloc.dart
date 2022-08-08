@@ -75,10 +75,10 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
             activeHostList.add(tempDeviceInTheNetwork);
             activeHostList.sort((a, b) {
-              final int aIp =
-                  int.parse(a.ip.substring(a.ip.lastIndexOf('.') + 1));
-              final int bIp =
-                  int.parse(b.ip.substring(b.ip.lastIndexOf('.') + 1));
+              final int aIp = int.parse(a.internetAddress.address
+                  .substring(a.internetAddress.address.lastIndexOf('.') + 1));
+              final int bIp = int.parse(b.internetAddress.address
+                  .substring(b.internetAddress.address.lastIndexOf('.') + 1));
               return aIp.compareTo(bIp);
             });
             emit(const HostScanState.loadInProgress());
@@ -114,7 +114,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
       /// Will contain all the hosts that got discovered in the network, will
       /// be use inorder to cancel on dispose of the page.
-      final Stream<ActiveHost> hostsDiscoveredInNetwork = HostScanner.discover(
+      final Stream<ActiveHost> hostsDiscoveredInNetwork =
+          HostScanner.getAllPingableDevices(
         subnetIsolate,
         firstSubnet: firstSubnetIsolate,
         lastSubnet: lastSubnetIsolate,
