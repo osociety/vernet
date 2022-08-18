@@ -26,7 +26,7 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-         - name: Cache pub dependencies
+      - name: Cache pub dependencies
         uses: actions/cache@v3.0.7
         with:
           path: ${{ env.FLUTTER_HOME }}/.pub-cache
