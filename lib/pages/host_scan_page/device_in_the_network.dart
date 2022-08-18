@@ -10,13 +10,13 @@ class DeviceInTheNetwork {
   /// Create basic device with default (not the correct) icon
   DeviceInTheNetwork({
     required this.hostDeviceIp,
-    required Future<String?> name,
     required this.pingData,
     this.hostId,
     this.mac,
-  }) {
-    _name = name;
-  }
+    this.hostName,
+    this.mdnsInfo,
+    this.vendor,
+  });
 
   /// Create the object from active host with the correct field and icon
   factory DeviceInTheNetwork.createFromActiveHost({
@@ -25,20 +25,23 @@ class DeviceInTheNetwork {
     return DeviceInTheNetwork(
       hostDeviceIp: activeHost.address,
       hostId: activeHost.hostId,
-      name: activeHost.deviceName,
       pingData: activeHost.pingData,
+      hostName: activeHost.hostName,
+      mdnsInfo: activeHost.mdnsInfo,
     );
   }
 
   /// Ip of the device in that object
   final String hostDeviceIp;
-  late Future<String?> _name;
   static const String defaultName = 'Generic Device';
 
   /// Mac address of the device
   String? mac;
   final PingData pingData;
   String? hostId;
+  Future<String?>? hostName;
+  Future<MdnsInfo?>? mdnsInfo;
+  Future<String?>? vendor;
 
   Future<String> getDeviceName({
     String? hostIp,
@@ -49,15 +52,20 @@ class DeviceInTheNetwork {
     } else if (gatewayIp == hostDeviceIp) {
       return 'Router/Gateway';
     }
-    if (await _name == null) {
-      return defaultName;
-    }
-    return (await _name)!;
-  }
 
-  /// Setting the device saved name
-  void setDeviceName(String deviceName) {
-    _name = Future.value(deviceName);
+    if (hostName != null && await hostName != null) {
+      return (await hostName!)!;
+    }
+
+    if (mdnsInfo != null && await mdnsInfo != null) {
+      return (await mdnsInfo!)!.getOnlyTheStartOfMdnsName();
+    }
+
+    if (vendor != null && await vendor != null) {
+      return (await vendor!)!;
+    }
+
+    return defaultName;
   }
 
   /// Getting the host icon, will choose between saved icon based on os,

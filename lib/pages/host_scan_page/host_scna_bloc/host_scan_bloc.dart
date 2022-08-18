@@ -26,6 +26,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     on<AddNewScanResult>(_addNewScanResult);
     on<StartNewScan>(_startNewScan);
     on<StartLocalArpScan>(_startLocalArpScan);
+    on<StartLocalMdnsScan>(_startLocalMdnsScan);
     on<StartNewPingScan>(_startNewPingScan);
   }
 
@@ -102,6 +103,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   ) async {
     add(const HostScanEvent.startLocalArpScan());
     add(const HostScanEvent.startNewPingScan());
+    add(const HostScanEvent.startLocalMdnsScan());
   }
 
   Future<void> _startLocalArpScan(
@@ -109,13 +111,15 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Emitter<HostScanState> emit,
   ) async {
     if (Platform.isAndroid) {
-      String result = '';
-
       ArpScanner.onScanning.listen((Device device) {
         if (device.ip != null) {
+          String? deviceHostName;
+          if (device.hostname != null && device.hostname != device.ip) {
+            deviceHostName = deviceHostName;
+          }
           final DeviceInTheNetwork tempDeviceInTheNetwork = DeviceInTheNetwork(
             hostDeviceIp: device.ip!,
-            name: Future.value(device.hostname),
+            hostName: Future.value(deviceHostName),
             pingData: PingData(
               response: PingResponse(
                 time: Duration(
@@ -128,15 +132,27 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
           );
 
           add(HostScanEvent.addNewScanResult(tempDeviceInTheNetwork));
-          result =
-              "${result}Mac:${device.mac} ip:${device.ip} hostname:${device.hostname} time:${device.time} vendor:${device.vendor} \n";
         }
       });
-      ArpScanner.onScanFinished.listen((List<Device> devices) {
-        result = "${result}total: ${devices.length}";
-      });
+      ArpScanner.onScanFinished.listen((List<Device> devices) {});
 
       await ArpScanner.scan();
+    }
+  }
+
+  Future<void> _startLocalMdnsScan(
+    StartLocalMdnsScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    for (final ActiveHost activeHost in await MdnsScanner.searchMdnsDevices(
+      forceUseOfSavedSrvRecordList: true,
+    )) {
+      final DeviceInTheNetwork tempDeviceInTheNetwork =
+          DeviceInTheNetwork.createFromActiveHost(
+        activeHost: activeHost,
+      );
+
+      add(HostScanEvent.addNewScanResult(tempDeviceInTheNetwork));
     }
   }
 
@@ -221,12 +237,20 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         newDeviceInTheNetwork.mac != null) {
       currentDeviceInTheNetwork.mac = newDeviceInTheNetwork.mac;
     }
-    if (await currentDeviceInTheNetwork.getDeviceName() ==
-            DeviceInTheNetwork.defaultName &&
-        await newDeviceInTheNetwork.getDeviceName() !=
-            DeviceInTheNetwork.defaultName) {
-      currentDeviceInTheNetwork
-          .setDeviceName(await newDeviceInTheNetwork.getDeviceName());
+
+    if (await currentDeviceInTheNetwork.hostName == null &&
+        await newDeviceInTheNetwork.hostName != null) {
+      currentDeviceInTheNetwork.hostName = newDeviceInTheNetwork.hostName;
+    }
+
+    if (await currentDeviceInTheNetwork.mdnsInfo == null &&
+        await newDeviceInTheNetwork.mdnsInfo != null) {
+      currentDeviceInTheNetwork.mdnsInfo = newDeviceInTheNetwork.mdnsInfo;
+    }
+
+    if (await currentDeviceInTheNetwork.vendor == null &&
+        await newDeviceInTheNetwork.vendor != null) {
+      currentDeviceInTheNetwork.vendor = newDeviceInTheNetwork.vendor;
     }
 
     return currentDeviceInTheNetwork;
