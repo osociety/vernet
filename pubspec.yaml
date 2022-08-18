@@ -17,6 +17,8 @@ flutter:
     - ipwhois.json
 
 dependencies:
+  # Discovers devices on local network.
+  arp_scanner: ^1.2.7
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
