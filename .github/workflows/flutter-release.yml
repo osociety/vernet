@@ -1,4 +1,5 @@
 name: Flutter release
+
 on:
   release:
     types: [published]
