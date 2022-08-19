@@ -34,10 +34,10 @@ jobs:
         run: flutter pub get
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
-      - name: Run analyzer
-        run: flutter analyze
-      - name: Run tests
-        run: flutter test
+      # - name: Run analyzer
+      #   run: flutter analyze
+      # - name: Run tests
+      #   run: flutter test
       - name: Download Android keystore
         id: android_keystore
         uses: timheuer/base64-to-file@v1.1
