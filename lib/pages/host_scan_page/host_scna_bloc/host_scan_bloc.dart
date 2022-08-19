@@ -1,6 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
+import 'dart:io';
 
+import 'package:arp_scanner/arp_scanner.dart';
+import 'package:arp_scanner/device.dart';
 import 'package:bloc/bloc.dart';
+import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -18,34 +23,141 @@ part 'host_scan_state.dart';
 class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   HostScanBloc() : super(HostScanState.initial()) {
     on<Initialized>(_initialized);
+    on<AddNewScanResult>(_addNewScanResult);
     on<StartNewScan>(_startNewScan);
+    on<StartLocalArpScan>(_startLocalArpScan);
+    on<StartLocalMdnsScan>(_startLocalMdnsScan);
+    on<StartNewPingScan>(_startNewPingScan);
   }
 
   /// IP of the device in the local network.
-  String? ip;
+  String? currentDeviceIp;
 
   /// Gateway IP of the current network
   late String? gatewayIp;
 
   String? subnet;
 
-  /// List of all ActiveHost devices that got found in the current scan
-  List<DeviceInTheNetwork> activeHostList = [];
+  /// IP and DeviceInTheNetwork of that IP
+  HashMap<String, DeviceInTheNetwork> activeHostHashMap =
+      HashMap<String, DeviceInTheNetwork>();
 
   Future<void> _initialized(
     Initialized event,
     Emitter<HostScanState> emit,
   ) async {
     emit(const HostScanState.loadInProgress());
-    ip = await NetworkInfo().getWifiIP();
-    subnet = ip!.substring(0, ip!.lastIndexOf('.'));
+    currentDeviceIp = await NetworkInfo().getWifiIP();
+    subnet = currentDeviceIp!.substring(0, currentDeviceIp!.lastIndexOf('.'));
     gatewayIp = await NetworkInfo().getWifiGatewayIP();
 
     add(const HostScanEvent.startNewScan());
   }
 
+  Future<void> _addNewScanResult(
+    AddNewScanResult event,
+    Emitter<HostScanState> emit,
+  ) async {
+    final DeviceInTheNetwork newDeviceInTheNetwork = event.deviceInTheNetwork;
+
+    if (!activeHostHashMap.containsKey(newDeviceInTheNetwork.hostDeviceIp)) {
+      activeHostHashMap.addEntries([
+        MapEntry(newDeviceInTheNetwork.hostDeviceIp, newDeviceInTheNetwork)
+      ]);
+    } else {
+      final DeviceInTheNetwork currentDeviceInTheNetwork =
+          activeHostHashMap[newDeviceInTheNetwork.hostDeviceIp]!;
+      activeHostHashMap[newDeviceInTheNetwork.hostDeviceIp] =
+          await combineDevicesInTheNetwork(
+        currentDeviceInTheNetwork,
+        newDeviceInTheNetwork,
+      );
+    }
+    // /// List of all ActiveHost devices that got found in the current scan
+    final List<DeviceInTheNetwork> activeHostList =
+        activeHostHashMap.values.toList();
+
+    activeHostList.sort((a, b) {
+      final int aIp = int.parse(
+        a.hostDeviceIp.substring(a.hostDeviceIp.lastIndexOf('.') + 1),
+      );
+      final int bIp = int.parse(
+        b.hostDeviceIp.substring(b.hostDeviceIp.lastIndexOf('.') + 1),
+      );
+      return aIp.compareTo(bIp);
+    });
+
+    emit(const HostScanState.loadInProgress());
+    emit(
+      HostScanState.foundNewDevice(
+        activeHostList: activeHostList,
+        currentDeviceIp: currentDeviceIp,
+        gatewayIp: gatewayIp,
+      ),
+    );
+  }
+
   Future<void> _startNewScan(
     StartNewScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    add(const HostScanEvent.startLocalArpScan());
+    add(const HostScanEvent.startNewPingScan());
+    add(const HostScanEvent.startLocalMdnsScan());
+  }
+
+  Future<void> _startLocalArpScan(
+    StartLocalArpScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    if (Platform.isAndroid) {
+      ArpScanner.onScanning.listen((Device device) {
+        if (device.ip != null) {
+          String? deviceHostName;
+          if (device.hostname != null && device.hostname != device.ip) {
+            deviceHostName = deviceHostName;
+          }
+          final DeviceInTheNetwork tempDeviceInTheNetwork = DeviceInTheNetwork(
+            hostDeviceIp: device.ip!,
+            hostName: Future.value(deviceHostName),
+            pingData: PingData(
+              response: PingResponse(
+                time: Duration(
+                  milliseconds:
+                      // TODO: check if time is in milliseconds
+                      device.time.toInt(),
+                ),
+              ),
+            ),
+          );
+
+          add(HostScanEvent.addNewScanResult(tempDeviceInTheNetwork));
+        }
+      });
+      ArpScanner.onScanFinished.listen((List<Device> devices) {});
+
+      await ArpScanner.scan();
+    }
+  }
+
+  Future<void> _startLocalMdnsScan(
+    StartLocalMdnsScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    for (final ActiveHost activeHost in await MdnsScanner.searchMdnsDevices(
+      forceUseOfSavedSrvRecordList: true,
+    )) {
+      final DeviceInTheNetwork tempDeviceInTheNetwork =
+          DeviceInTheNetwork.createFromActiveHost(
+        activeHost: activeHost,
+      );
+
+      add(HostScanEvent.addNewScanResult(tempDeviceInTheNetwork));
+    }
+  }
+
+  Future<void> _startNewPingScan(
+    StartNewPingScan event,
     Emitter<HostScanState> emit,
   ) async {
     const int scanRangeForIsolate = 51;
@@ -69,20 +181,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
             final DeviceInTheNetwork tempDeviceInTheNetwork =
                 DeviceInTheNetwork.createFromActiveHost(
               activeHost: message,
-              currentDeviceIp: ip!,
-              gatewayIp: gatewayIp!,
             );
 
-            activeHostList.add(tempDeviceInTheNetwork);
-            activeHostList.sort((a, b) {
-              final int aIp =
-                  int.parse(a.ip.substring(a.ip.lastIndexOf('.') + 1));
-              final int bIp =
-                  int.parse(b.ip.substring(b.ip.lastIndexOf('.') + 1));
-              return aIp.compareTo(bIp);
-            });
-            emit(const HostScanState.loadInProgress());
-            emit(HostScanState.foundNewDevice(activeHostList));
+            add(HostScanEvent.addNewScanResult(tempDeviceInTheNetwork));
           } else if (message is String && message == 'Done') {
             isolateContactor.dispose();
           }
@@ -126,5 +227,32 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       }
       channel.sendResult('Done');
     });
+  }
+
+  Future<DeviceInTheNetwork> combineDevicesInTheNetwork(
+    DeviceInTheNetwork currentDeviceInTheNetwork,
+    DeviceInTheNetwork newDeviceInTheNetwork,
+  ) async {
+    if (currentDeviceInTheNetwork.mac == null &&
+        newDeviceInTheNetwork.mac != null) {
+      currentDeviceInTheNetwork.mac = newDeviceInTheNetwork.mac;
+    }
+
+    if (await currentDeviceInTheNetwork.hostName == null &&
+        await newDeviceInTheNetwork.hostName != null) {
+      currentDeviceInTheNetwork.hostName = newDeviceInTheNetwork.hostName;
+    }
+
+    if (await currentDeviceInTheNetwork.mdnsInfo == null &&
+        await newDeviceInTheNetwork.mdnsInfo != null) {
+      currentDeviceInTheNetwork.mdnsInfo = newDeviceInTheNetwork.mdnsInfo;
+    }
+
+    if (await currentDeviceInTheNetwork.vendor == null &&
+        await newDeviceInTheNetwork.vendor != null) {
+      currentDeviceInTheNetwork.vendor = newDeviceInTheNetwork.vendor;
+    }
+
+    return currentDeviceInTheNetwork;
   }
 }
