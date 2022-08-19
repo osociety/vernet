@@ -1,8 +1,11 @@
 name: Flutter release
-'on':
+
+on:
   release:
     types:
-      - published
+      - [published]
+  workflow_dispatch:
+  
 jobs:
   release:
     name: 'Test, build and release'
