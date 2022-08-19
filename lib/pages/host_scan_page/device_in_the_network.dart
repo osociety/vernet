@@ -9,92 +9,77 @@ import 'package:network_tools/network_tools.dart';
 class DeviceInTheNetwork {
   /// Create basic device with default (not the correct) icon
   DeviceInTheNetwork({
-    required this.ip,
-    required this.make,
+    required this.hostDeviceIp,
     required this.pingData,
-    this.iconData = Icons.devices,
     this.hostId,
+    this.mac,
+    this.hostName,
+    this.mdnsInfo,
+    this.vendor,
   });
 
   /// Create the object from active host with the correct field and icon
   factory DeviceInTheNetwork.createFromActiveHost({
     required ActiveHost activeHost,
-    required String currentDeviceIp,
-    required String gatewayIp,
   }) {
-    return DeviceInTheNetwork.createWithAllNecessaryFields(
-      ip: activeHost.address,
-      hostId: activeHost.hostId,
-      make: activeHost.deviceName,
-      pingData: activeHost.pingData,
-      currentDeviceIp: currentDeviceIp,
-      gatewayIp: gatewayIp,
-    );
-  }
-
-  /// Create the object with the correct field and icon
-  factory DeviceInTheNetwork.createWithAllNecessaryFields({
-    required String ip,
-    required String hostId,
-    required Future<String> make,
-    required PingData pingData,
-    required String currentDeviceIp,
-    required String gatewayIp,
-  }) {
-    final IconData iconData = getHostIcon(
-      currentDeviceIp: currentDeviceIp,
-      hostIp: ip,
-      gatewayIp: gatewayIp,
-    );
-
-    final Future<String> deviceMake = getDeviceMake(
-      currentDeviceIp: currentDeviceIp,
-      hostIp: ip,
-      gatewayIp: gatewayIp,
-      hostMake: make,
-    );
-
     return DeviceInTheNetwork(
-      ip: ip,
-      make: deviceMake,
-      pingData: pingData,
-      hostId: hostId,
-      iconData: iconData,
+      hostDeviceIp: activeHost.address,
+      hostId: activeHost.hostId,
+      pingData: activeHost.pingData,
+      hostName: activeHost.hostName,
+      mdnsInfo: activeHost.mdnsInfo,
     );
   }
 
-  /// Ip of the device
-  final String ip;
-  final Future<String> make;
-  final PingData pingData;
-  final IconData iconData;
-  String? hostId;
+  /// Ip of the device in that object
+  final String hostDeviceIp;
+  static const String defaultName = 'Generic Device';
 
-  static Future<String> getDeviceMake({
-    required String currentDeviceIp,
-    required String hostIp,
-    required String gatewayIp,
-    required Future<String> hostMake,
+  /// Mac address of the device
+  String? mac;
+  final PingData pingData;
+  String? hostId;
+  Future<String?>? hostName;
+  Future<MdnsInfo?>? mdnsInfo;
+  Future<String?>? vendor;
+
+  Future<String> getDeviceName({
+    String? hostIp,
+    String? gatewayIp,
   }) async {
-    if (currentDeviceIp == hostIp) {
+    if (hostIp == hostDeviceIp) {
       return 'This device';
-    } else if (gatewayIp == hostIp) {
+    } else if (gatewayIp == hostDeviceIp) {
       return 'Router/Gateway';
     }
-    return hostMake;
+
+    if (hostName != null && await hostName != null) {
+      return (await hostName!)!;
+    }
+
+    if (mdnsInfo != null && await mdnsInfo != null) {
+      return (await mdnsInfo!)!.getOnlyTheStartOfMdnsName();
+    }
+
+    if (vendor != null && await vendor != null) {
+      return (await vendor!)!;
+    }
+
+    return defaultName;
   }
 
-  static IconData getHostIcon({
-    required String currentDeviceIp,
-    required String hostIp,
-    required String gatewayIp,
+  /// Getting the host icon, will choose between saved icon based on os,
+  /// current device, is gateway IP and more.
+  IconData getHostIcon({
+    String? hostIp,
+    String? gatewayIp,
   }) {
-    if (hostIp == currentDeviceIp) {
+    if (hostIp == hostDeviceIp) {
       if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
         return Icons.computer;
       }
       return Icons.smartphone;
-    } else if (hostIp == gatewayIp) {
+    } else if (gatewayIp == hostDeviceIp) {
       return Icons.router;
     }
     return Icons.devices;
