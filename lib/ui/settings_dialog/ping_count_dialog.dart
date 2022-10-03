@@ -4,7 +4,7 @@ import 'package:vernet/ui/base_settings_dialog.dart';
 import 'package:vernet/values/strings.dart';
 
 class PingCountDialog extends StatefulWidget {
-  const PingCountDialog({Key? key}) : super(key: key);
+  const PingCountDialog({super.key});
 
   @override
   _PingCountDialogState createState() => _PingCountDialogState();
@@ -45,6 +45,7 @@ class _PingCountDialogState extends BaseSettingsDialog<PingCountDialog> {
     } catch (e) {
       return 'Must be a number';
     }
+    return null;
   }
 
   @override

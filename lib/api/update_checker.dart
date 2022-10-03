@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:vernet/helper/utils_helper.dart';
 
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
@@ -28,10 +28,6 @@ Future<bool> _checkUpdates(String v) async {
     }
   }
   return false;
-}
-
-Future<void> _launchURL(String url) async {
-  await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }
 
 Future<void> checkForUpdates(
@@ -80,5 +76,5 @@ Future<void> _navigateToStore() async {
           'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
     }
   }
-  _launchURL(url);
+  launchURL(url);
 }

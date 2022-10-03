@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';
 import 'package:vernet/pages/host_scan_page/host_scna_bloc/host_scan_bloc.dart';
-import 'package:vernet/pages/port_scan_page/port_scan_page.dart';
+import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+// import 'package:vernet/pages/port_scan_page/port_scan_page.dart';
 
 class HostScanWidget extends StatelessWidget {
   @override
@@ -63,14 +64,18 @@ class HostScanWidget extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => PortScanPage(
-                                    target: host.internetAddress.address),
+                                  target: host.internetAddress.address,
+                                ),
                               ),
                             );
                           },
                         ),
                         onLongPress: () {
-                          Clipboard.setData(ClipboardData(
-                              text: host.internetAddress.address));
+                          Clipboard.setData(
+                            ClipboardData(
+                              text: host.internetAddress.address,
+                            ),
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('IP copied to clipboard'),

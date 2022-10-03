@@ -17,14 +17,14 @@ class PortScanBloc extends Bloc<PortScanEvent, PortScanState> {
 
   Future<void> _initialized(Initialized event, Emitter<PortScanState> emit) {
     emit(const PortScanState.loadInProgress());
-    return Future.delayed(Duration(microseconds: 1));
+    return Future.delayed(const Duration(microseconds: 1));
   }
 
   Future<void> _startNewScan(StartNewScan event, Emitter<PortScanState> emit) {
-    return Future.delayed(Duration(microseconds: 1));
+    return Future.delayed(const Duration(microseconds: 1));
   }
 
   Future<void> _stopScan(StopScan event, Emitter<PortScanState> emit) {
-    return Future.delayed(Duration(microseconds: 1));
+    return Future.delayed(const Duration(microseconds: 1));
   }
 }

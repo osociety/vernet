@@ -1,23 +1,23 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
-class PortScanPage extends StatefulWidget {
-  final String target;
-  const PortScanPage({Key? key, this.target = ''}) : super(key: key);
+// class PortScanPage extends StatefulWidget {
+//   const PortScanPage({super.key, this.target = ''});
+//   final String target;
 
-  @override
-  State<PortScanPage> createState() => _PortScanPageState();
-}
+//   @override
+//   State<PortScanPage> createState() => _PortScanPageState();
+// }
 
-class _PortScanPageState extends State<PortScanPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Open Port Scanner'),
-      ),
-      body: Center(
-        child: Text('Hi'),
-      ),
-    );
-  }
-}
+// class _PortScanPageState extends State<PortScanPage> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Open Port Scanner'),
+//       ),
+//       body: const Center(
+//         child: Text('Hi'),
+//       ),
+//     );
+//   }
+// }

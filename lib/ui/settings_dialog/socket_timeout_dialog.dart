@@ -4,7 +4,7 @@ import 'package:vernet/ui/base_settings_dialog.dart';
 import 'package:vernet/values/strings.dart';
 
 class SocketTimeoutDialog extends StatefulWidget {
-  const SocketTimeoutDialog({Key? key}) : super(key: key);
+  const SocketTimeoutDialog({super.key});
 
   @override
   _SocketTimeoutDialogState createState() => _SocketTimeoutDialogState();
@@ -46,6 +46,7 @@ class _SocketTimeoutDialogState
     } catch (e) {
       return 'Must be a number';
     }
+    return null;
   }
 
   @override

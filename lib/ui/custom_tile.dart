@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomTile extends StatelessWidget {
-  const CustomTile({Key? key, required this.leading, required this.child})
-      : super(key: key);
+  const CustomTile({super.key, required this.leading, required this.child});
 
   final Widget leading;
   final Widget child;

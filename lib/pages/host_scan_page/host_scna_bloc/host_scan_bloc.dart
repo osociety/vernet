@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:isolate_contactor/isolate_contactor.dart';
@@ -75,10 +75,14 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
             activeHostList.add(tempDeviceInTheNetwork);
             activeHostList.sort((a, b) {
-              final int aIp = int.parse(a.internetAddress.address
-                  .substring(a.internetAddress.address.lastIndexOf('.') + 1));
-              final int bIp = int.parse(b.internetAddress.address
-                  .substring(b.internetAddress.address.lastIndexOf('.') + 1));
+              final int aIp = int.parse(
+                a.internetAddress.address
+                    .substring(a.internetAddress.address.lastIndexOf('.') + 1),
+              );
+              final int bIp = int.parse(
+                b.internetAddress.address
+                    .substring(b.internetAddress.address.lastIndexOf('.') + 1),
+              );
               return aIp.compareTo(bIp);
             });
             emit(const HostScanState.loadInProgress());
@@ -91,7 +95,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         }
       }
     }
-    print('The end of the scan');
+    debugPrint('The end of the scan');
 
     // emit(HostScanState.loadSuccess(activeHostList));
   }
@@ -110,7 +114,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       final String subnetIsolate = paramsListString[0];
       final int firstSubnetIsolate = int.parse(paramsListString[1]);
       final int lastSubnetIsolate = int.parse(paramsListString[2]);
-      print('scanning from $firstSubnetIsolate to $lastSubnetIsolate');
+      debugPrint('scanning from $firstSubnetIsolate to $lastSubnetIsolate');
 
       /// Will contain all the hosts that got discovered in the network, will
       /// be use inorder to cancel on dispose of the page.

@@ -9,8 +9,8 @@ import 'package:vernet/models/port.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
-class _PortScanPage extends StatefulWidget {
-  const _PortScanPage({Key? key, this.target = ''}) : super(key: key);
+class PortScanPage extends StatefulWidget {
+  const PortScanPage({this.target = ''});
 
   final String target;
 
@@ -20,7 +20,7 @@ class _PortScanPage extends StatefulWidget {
 
 enum ScanType { single, top, range }
 
-class _PortScanPageState extends State<_PortScanPage>
+class _PortScanPageState extends State<PortScanPage>
     with SingleTickerProviderStateMixin {
   final Set<OpenPort> _openPorts = {};
   final Map<String, Port> _allPorts = {};
@@ -417,7 +417,7 @@ class _PortScanPageState extends State<_PortScanPage>
                 : ListView.builder(
                     itemCount: _openPorts.length,
                     itemBuilder: (context, index) {
-                      final OpenPort _openPort = _openPorts.toList()[index];
+                      final OpenPort openPort = _openPorts.toList()[index];
                       return Column(
                         children: [
                           ListTile(
@@ -429,7 +429,7 @@ class _PortScanPageState extends State<_PortScanPage>
                               style: Theme.of(context).textTheme.subtitle1,
                             ),
                             trailing: Text(
-                              '${_openPort.port}',
+                              '${openPort.port}',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline6!
@@ -441,24 +441,24 @@ class _PortScanPageState extends State<_PortScanPage>
                             title: _allPorts.isEmpty
                                 ? const SizedBox()
                                 : Text(
-                                    _allPorts[_openPort.port.toString()]!.desc,
+                                    _allPorts[openPort.port.toString()]!.desc,
                                   ),
                             subtitle: _allPorts.isEmpty
                                 ? const SizedBox()
                                 : Row(
                                     children: [
-                                      if (_allPorts[_openPort.port.toString()]!
+                                      if (_allPorts[openPort.port.toString()]!
                                           .isTCP)
                                         const Text('TCP   ')
                                       else
                                         const SizedBox(),
-                                      if (_allPorts[_openPort.port.toString()]!
+                                      if (_allPorts[openPort.port.toString()]!
                                           .isUDP)
                                         const Text('UDP   ')
                                       else
                                         const SizedBox(),
                                       Text(
-                                        _allPorts[_openPort.port.toString()]!
+                                        _allPorts[openPort.port.toString()]!
                                             .status,
                                       ),
                                     ],
