@@ -1,0 +1,79 @@
+name: Flutter build
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    name: 'Test and build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.6.1
+        with:
+          channel: stable
+      - name: Flutter version
+        run: flutter --version
+      - name: Cache pubspec dependencies
+        uses: actions/cache@v3.0.7
+        with:
+          path: |
+            ${{ env.FLUTTER_HOME }}/.pub-cache
+            **/.packages
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            build-pubspec-
+      - name: Cache build runner
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/.dart_tool
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+          restore-keys: |
+            build-runner-
+      - name: Download pub dependencies
+        run: flutter pub get
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Run analyzer
+        run: flutter analyze
+      - name: Run tests
+        run: flutter test
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.1
+        with:
+          fileName: key.jks
+          encodedString: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
+      - name: Create key.properties
+        run: >
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" >
+          android/key.properties
+
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >>
+          android/key.properties
+
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >>
+          android/key.properties
+          
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
+          android/key.properties
+      - name: Build Android App Bundle
+        run: flutter build appbundle --flavor store
+      
