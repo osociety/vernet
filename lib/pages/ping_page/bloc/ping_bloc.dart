@@ -6,12 +6,12 @@ part 'ping_state.dart';
 part 'ping_bloc.freezed.dart';
 
 class PingBloc extends Bloc<PingEvent, PingState> {
-  PingBloc() : super(PingState.initial()) {
+  PingBloc() : super(const PingState.initial()) {
     on<StartPing>(_startPing);
     on<StopPing>(_stopPing);
   }
 
-  _startPing(StartPing event, Emitter<PingState> emit) {}
+  void _startPing(StartPing event, Emitter<PingState> emit) {}
 
-  _stopPing(StopPing event, Emitter<PingState> emit) {}
+  void _stopPing(StopPing event, Emitter<PingState> emit) {}
 }

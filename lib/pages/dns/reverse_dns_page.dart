@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
 
 class ReverseDNSPage extends StatefulWidget {
-  const ReverseDNSPage({Key? key}) : super(key: key);
+  const ReverseDNSPage({super.key});
 
   @override
   _ReverseDNSPageState createState() => _ReverseDNSPageState();

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PopularChip extends StatelessWidget {
-  const PopularChip({Key? key, required this.label, required this.onPressed})
-      : super(key: key);
+  const PopularChip({super.key, required this.label, required this.onPressed});
 
   final String label;
   final VoidCallback onPressed;

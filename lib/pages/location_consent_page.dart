@@ -7,7 +7,7 @@ import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/main.dart';
 
 class LocationConsentPage extends StatefulWidget {
-  const LocationConsentPage({Key? key}) : super(key: key);
+  const LocationConsentPage({super.key});
 
   @override
   _LocationConsentPageState createState() => _LocationConsentPageState();
@@ -44,16 +44,16 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () async {
-                    final NetworkInfo _networkInfo = NetworkInfo();
+                    final NetworkInfo networkInfo = NetworkInfo();
                     if (Platform.isMacOS ||
                         Platform.isLinux ||
                         Platform.isWindows) {
                       _navigate(context);
                     } else if (Platform.isIOS) {
                       LocationAuthorizationStatus status =
-                          await _networkInfo.getLocationServiceAuthorization();
+                          await networkInfo.getLocationServiceAuthorization();
                       if (status == LocationAuthorizationStatus.notDetermined) {
-                        status = await _networkInfo
+                        status = await networkInfo
                             .requestLocationServiceAuthorization();
                       }
                       if (status ==
