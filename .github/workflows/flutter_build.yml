@@ -24,12 +24,29 @@ jobs:
           channel: stable
       - name: Flutter version
         run: flutter --version
-      - name: Cache pub dependencies
+      - name: Cache pubspec dependencies
         uses: actions/cache@v3.0.7
         with:
-          path: '${{ env.FLUTTER_HOME }}/.pub-cache'
-          key: '${{ runner.os }}-pub-${{ hashFiles(''**/pubspec.lock'') }}'
-          restore-keys: '${{ runner.os }}-pub-'
+          path: |
+            ${{ env.FLUTTER_HOME }}/.pub-cache
+            **/.packages
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            build-pubspec-
+      - name: Cache build runner
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/.dart_tool
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+          restore-keys: |
+            build-runner-
       - name: Download pub dependencies
         run: flutter pub get
       - name: Run build_runner
