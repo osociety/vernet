@@ -1,0 +1,44 @@
+name: Flutter build
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    name: 'Test and build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.6.1
+        with:
+          flutter-version: 3.0.5
+          channel: stable
+      - name: Flutter version
+        run: flutter --version
+      - name: Cache pub dependencies
+        uses: actions/cache@v3.0.7
+        with:
+          path: '${{ env.FLUTTER_HOME }}/.pub-cache'
+          key: '${{ runner.os }}-pub-${{ hashFiles(''**/pubspec.lock'') }}'
+          restore-keys: '${{ runner.os }}-pub-'
+      - name: Download pub dependencies
+        run: flutter pub get
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Run analyzer
+        run: flutter analyze
+      - name: Run tests
+        run: flutter test
+      - name: Build Android App Bundle
+        run: flutter build appbundle --flavor fdroid
+      
