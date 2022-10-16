@@ -36,10 +36,10 @@ class ISPLoader {
       return _mimicLoad();
     }
     final SharedPreferences sp = await SharedPreferences.getInstance();
-    final String _ip = await compute(loadIP, 'https://api.ipify.org');
-    if (_ip.isNotEmpty) {
+    final String ip = await compute(loadIP, 'https://api.ipify.org');
+    if (ip.isNotEmpty) {
       //Fetch internet provider data
-      final String? json = sp.getString(_ip);
+      final String? json = sp.getString(ip);
       if (json != null && json.isNotEmpty) {
         // print('Response fetched from local $json');
         return InternetProvider.fromMap(
@@ -50,11 +50,11 @@ class ISPLoader {
 
     // Secret secret = await SecretLoader('assets/secrets.json').load();
     final String url =
-        'http://ipwhois.app/json/$_ip?objects=isp,country,region,city,latitude,longitude,country_flag,ip,type';
+        'http://ipwhois.app/json/$ip?objects=isp,country,region,city,latitude,longitude,country_flag,ip,type';
 
     final String body = await compute(loadISP, url);
     if (body.isNotEmpty) {
-      sp.setString(_ip, body);
+      sp.setString(ip, body);
       return InternetProvider.fromMap(jsonDecode(body) as Map<String, dynamic>);
     }
     return null;

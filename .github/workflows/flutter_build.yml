@@ -1,13 +1,14 @@
-name: Flutter release
+name: Flutter build
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
 
 jobs:
-  release:
-    name: 'Test, build and release'
+  build:
+    name: 'Test and build'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,24 +21,40 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v2.6.1
         with:
-          flutter-version: 3.0.5
           channel: stable
       - name: Flutter version
         run: flutter --version
-      - name: Cache pub dependencies
+      - name: Cache pubspec dependencies
         uses: actions/cache@v3.0.7
         with:
-          path: '${{ env.FLUTTER_HOME }}/.pub-cache'
-          key: '${{ runner.os }}-pub-${{ hashFiles(''**/pubspec.lock'') }}'
-          restore-keys: '${{ runner.os }}-pub-'
+          path: |
+            ${{ env.FLUTTER_HOME }}/.pub-cache
+            **/.packages
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            build-pubspec-
+      - name: Cache build runner
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/.dart_tool
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+          restore-keys: |
+            build-runner-
       - name: Download pub dependencies
         run: flutter pub get
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
-      # - name: Run analyzer
-      #   run: flutter analyze
-      # - name: Run tests
-      #   run: flutter test
+      - name: Run analyzer
+        run: flutter analyze
+      - name: Run tests
+        run: flutter test
       - name: Download Android keystore
         id: android_keystore
         uses: timheuer/base64-to-file@v1.1
@@ -54,31 +71,9 @@ jobs:
 
           echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >>
           android/key.properties
-
+          
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
           android/key.properties
       - name: Build Android App Bundle
         run: flutter build appbundle --flavor store
-      - name: 'Setup Ruby, JRuby and TruffleRuby'
-        uses: ruby/setup-ruby@v1.115.0
-        with:
-          ruby-version: 3.1.2
-      - name: Cache bundle dependencies
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
-          restore-keys: '${{ runner.os }}-gems-'
-      - name: Download bundle dependencies
-        run: |
-          gem install bundler:2.3.20
-          bundle config path vendor/bundle
-          bundle install
-      - name: Release to Google Play (beta)
-        env:
-          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
-          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
-        run: |
-          bundle exec fastlane supply \
-          --aab build/app/outputs/bundle/storeRelease/app-store-release.aab \
-          --track beta
+      

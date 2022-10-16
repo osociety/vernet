@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
 
 class DNSPage extends StatefulWidget {
-  const DNSPage({Key? key}) : super(key: key);
+  const DNSPage({super.key});
 
   @override
   _DNSPageState createState() => _DNSPageState();

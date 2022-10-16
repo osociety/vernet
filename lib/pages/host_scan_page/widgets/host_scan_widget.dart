@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';
 import 'package:vernet/pages/host_scan_page/host_scna_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+// import 'package:vernet/pages/port_scan_page/port_scan_page.dart';
 
 class HostScanWidget extends StatelessWidget {
   @override
@@ -46,52 +47,39 @@ class HostScanWidget extends StatelessWidget {
                     itemCount: activeHostList.length,
                     itemBuilder: (context, index) {
                       final DeviceInTheNetwork host = activeHostList[index];
-                      return FutureBuilder(
-                        future: host.getDeviceName(
-                          hostIp: value.currentDeviceIp,
-                          gatewayIp: value.gatewayIp,
+                      return ListTile(
+                        leading: Icon(host.iconData),
+                        title: FutureBuilder(
+                          future: host.make,
+                          builder: (context, AsyncSnapshot<String?> snapshot) {
+                            return Text(snapshot.data ?? '');
+                          },
                         ),
-                        builder: (context, snapshot) {
-                          String deviceName = 'Generic Device';
-                          if (snapshot.connectionState ==
-                                  ConnectionState.done &&
-                              snapshot.data != null) {
-                            deviceName = snapshot.data.toString();
-                          }
-
-                          return ListTile(
-                            leading: Icon(
-                              host.getHostIcon(
-                                hostIp: value.currentDeviceIp,
-                                gatewayIp: value.gatewayIp,
-                              ),
-                            ),
-                            title: Text(deviceName),
-                            subtitle: Text(host.hostDeviceIp),
-                            trailing: IconButton(
-                              tooltip: 'Scan open ports for this target',
-                              icon: const Icon(Icons.radar),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PortScanPage(
-                                      target: host.hostDeviceIp,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            onLongPress: () {
-                              Clipboard.setData(
-                                ClipboardData(text: host.hostDeviceIp),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('IP copied to clipboard'),
+                        subtitle: Text(host.internetAddress.address),
+                        trailing: IconButton(
+                          tooltip: 'Scan open ports for this target',
+                          icon: const Icon(Icons.radar),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PortScanPage(
+                                  target: host.internetAddress.address,
                                 ),
-                              );
-                            },
+                              ),
+                            );
+                          },
+                        ),
+                        onLongPress: () {
+                          Clipboard.setData(
+                            ClipboardData(
+                              text: host.internetAddress.address,
+                            ),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('IP copied to clipboard'),
+                            ),
                           );
                         },
                       );

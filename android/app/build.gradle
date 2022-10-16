@@ -41,7 +41,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "org.fsociety.vernet"
         minSdkVersion 16
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -57,12 +57,18 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
     flavorDimensions "deploy"
 
     productFlavors { 
+        dev {
+            dimension "deploy"
+            signingConfig signingConfigs.debug
+        }
         fdroid {
             dimension "deploy"
             signingConfig signingConfigs.release

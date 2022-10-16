@@ -20,7 +20,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp(this.allowed, {Key? key}) : super(key: key);
+  const MyApp(this.allowed, {super.key});
 
   final bool allowed;
 
@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class TabBarPage extends StatefulWidget {
-  const TabBarPage({Key? key}) : super(key: key);
+  const TabBarPage({super.key});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -87,11 +87,11 @@ class _HomePageState extends State<TabBarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _children = [const HomePage(), const SettingsPage()];
+    final List<Widget> children = [const HomePage(), const SettingsPage()];
     return Scaffold(
       body: Container(
         padding: MediaQuery.of(context).padding,
-        child: _children[_currentIndex],
+        child: children[_currentIndex],
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped, // new
