@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/main.dart';
@@ -43,28 +42,8 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 ),
                 const SizedBox(height: 10),
                 TextButton(
-                  onPressed: () async {
-                    final NetworkInfo networkInfo = NetworkInfo();
-                    if (Platform.isMacOS ||
-                        Platform.isLinux ||
-                        Platform.isWindows) {
-                      _navigate(context);
-                    } else if (Platform.isIOS) {
-                      LocationAuthorizationStatus status =
-                          await networkInfo.getLocationServiceAuthorization();
-                      if (status == LocationAuthorizationStatus.notDetermined) {
-                        status = await networkInfo
-                            .requestLocationServiceAuthorization();
-                      }
-                      if (status ==
-                          LocationAuthorizationStatus.authorizedWhenInUse) {
-                        _navigate(context);
-                      }
-                    } else if (Platform.isAndroid) {
-                      Permission.location.request().isGranted.then((value) {
-                        if (value) _navigate(context);
-                      });
-                    }
+                  onPressed: () {
+                    _grantLocationPermission(context);
                   },
                   child: const Text('Grant Location Permission'),
                 ),
@@ -81,6 +60,18 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _grantLocationPermission(BuildContext context) async {
+    if (Platform.isAndroid || Platform.isIOS || Platform.isWindows) {
+      final value = await Permission.location.request().isGranted;
+      if (value) {
+        _navigate(context);
+      } else {
+        return;
+      }
+    }
+    _navigate(context);
   }
 
   void _navigate(BuildContext context) {
