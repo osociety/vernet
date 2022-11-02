@@ -25,7 +25,7 @@ class DeviceInTheNetwork {
     return DeviceInTheNetwork.createWithAllNecessaryFields(
       internetAddress: activeHost.internetAddress,
       hostId: activeHost.hostId,
-      make: activeHost.hostName,
+      make: activeHost.deviceName,
       pingData: activeHost.pingData,
       currentDeviceIp: currentDeviceIp,
       gatewayIp: gatewayIp,

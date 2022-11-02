@@ -114,7 +114,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       final String subnetIsolate = paramsListString[0];
       final int firstSubnetIsolate = int.parse(paramsListString[1]);
       final int lastSubnetIsolate = int.parse(paramsListString[2]);
-      debugPrint('scanning from $firstSubnetIsolate to $lastSubnetIsolate');
+      debugPrint('Scanning from $firstSubnetIsolate to $lastSubnetIsolate');
 
       /// Will contain all the hosts that got discovered in the network, will
       /// be use inorder to cancel on dispose of the page.
@@ -126,7 +126,13 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       );
 
       await for (final ActiveHost activeHostFound in hostsDiscoveredInNetwork) {
-        channel.sendResult(activeHostFound);
+        activeHostFound.deviceName.then((value) {
+          activeHostFound.mdnsInfo.then((value) {
+            activeHostFound.hostName.then((value) {
+              channel.sendResult(activeHostFound);
+            });
+          });
+        });
       }
       channel.sendResult('Done');
     });

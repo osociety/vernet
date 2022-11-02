@@ -54,6 +54,7 @@ class HostScanWidget extends StatelessWidget {
                           builder: (context, AsyncSnapshot<String?> snapshot) {
                             return Text(snapshot.data ?? '');
                           },
+                          initialData: 'Generic Device',
                         ),
                         subtitle: Text(host.internetAddress.address),
                         trailing: IconButton(
