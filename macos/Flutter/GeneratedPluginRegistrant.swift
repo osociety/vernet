@@ -5,8 +5,8 @@
 import FlutterMacOS
 import Foundation
 
-import network_info_plus_macos
-import package_info_plus_macos
+import network_info_plus
+import package_info_plus
 import shared_preferences_macos
 import url_launcher_macos
 
