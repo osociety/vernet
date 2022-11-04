@@ -75,5 +75,5 @@ jobs:
       #     echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
       #     android/key.properties
       - name: Build Android App Bundle
-        run: flutter build appbundle --flavor dev
+        run: flutter build apk --debug --flavor dev
       
