@@ -121,8 +121,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       final Stream<ActiveHost> hostsDiscoveredInNetwork =
           HostScanner.getAllPingableDevices(
         subnetIsolate,
-        firstSubnet: firstSubnetIsolate,
-        lastSubnet: lastSubnetIsolate,
+        firstHostId: firstSubnetIsolate,
+        lastHostId: lastSubnetIsolate,
       );
 
       await for (final ActiveHost activeHostFound in hostsDiscoveredInNetwork) {
