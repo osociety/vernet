@@ -36,7 +36,7 @@ dependencies:
   # Discover network info and configure themselves accordingly
   network_info_plus: ^2.2.0
   # Helps you discover open ports, devices on subnet and more.
-  network_tools: ^3.0.0+2
+  network_tools: ^3.0.0+3
   # network_tools: 
   #   git: https://github.com/git-elliot/network_tools.git
   # Querying information about the application package, such as CFBundleVersion
