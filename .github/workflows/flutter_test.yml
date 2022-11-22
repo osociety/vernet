@@ -1,4 +1,4 @@
-name: Android Test and Build
+name: Flutter Test
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   build:
-    name: 'Test and build'
+    name: 'Flutter Test'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
