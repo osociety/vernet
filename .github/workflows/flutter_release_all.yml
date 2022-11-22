@@ -6,6 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
+  flutter-test:
+    uses: ./.github/workflows/flutter_test.yml
+    secrets: inherit
   android-build:
+    needs: flutter-test
     uses: ./.github/workflows/android_build.yml
     secrets: inherit
