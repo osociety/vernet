@@ -59,7 +59,7 @@ dev_dependencies:
   # Convenient code generator for get_it.
   injectable_generator: ^1.5.4
   # Collection of lint rules for Dart and Flutter projects.
-  lint: ^1.10.0
+  lint: ^2.0.1
 
 
 flutter:
