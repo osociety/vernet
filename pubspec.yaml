@@ -1,73 +1,76 @@
 name: vernet
 description: A Network Analyzer
 
-publish_to: 'none'
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.1+13
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
 
-flutter:
-  uses-material-design: true
-
-  assets:
-    - ports_lists.json
-    - secrets.json
-    - ipwhois.json
-
 dependencies:
-  # Discovers devices on local network.
-  arp_scanner: ^1.2.7
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
   bloc: ^8.1.0
-  # Default icons asset for Cupertino.
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
-  # Multi-platform network ping utility.
-  dart_ping: ^7.0.1
+  dart_ping: ^7.0.2
   flutter:
     sdk: flutter
-  # Bloc for state management, replace StatefulWidget.
+  # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^8.1.1
-  # Annotations for freezed.
-  freezed_annotation: ^2.1.0
-  # Service locator.
+  # Annotations for freezed
+  freezed_annotation: ^2.2.0
+  # Service locator
   get_it: ^7.2.0
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^0.13.5
-  # Convenient code generator for get_it.
-  injectable: ^1.5.3
+  # Convenient code generator for get_it
+  injectable: ^1.5.4
   # An easy way to create a new isolate, keep it running and communicate with it.
-  isolate_contactor: ^2.0.0
-  # Discover network info and configure themselves accordingly.
-  network_info_plus: ^2.1.4+1
-  # Helps you discover open ports, devices on subnet and more.
-  network_tools: ^3.0.0+2
-  # Querying information about the application package, such as CFBundleVersion.
-  package_info_plus: ^1.4.3+1
+  isolate_contactor: ^2.0.0+1
+  # Discover network info and configure themselves accordingly
+  network_info_plus: ^3.0.1
+# Helps you discover open ports, devices on subnet and more.
+  network_tools: ^3.0.0+3
+  # Querying information about the application package, such as CFBundleVersion
+  package_info_plus: ^3.0.1
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.2
-  # Popup that ask for the requested permission.
-  permission_handler: ^10.0.0
+  # Popup that ask for the requested permission
+  permission_handler: ^10.2.0
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
-  provider: ^6.0.3
-  # Reading and writing simple key-value pairs.
+  provider: ^6.0.4
+  # Reading and writing simple key-value pairs
   shared_preferences: ^2.0.15
-  # Plugin for launching a URL.
-  url_launcher: ^6.1.5
+  # Plugin for launching a URL
+  url_launcher: ^6.1.6
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner:
 
-  # Testing library for flutter.
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^2.1.0+1
+  freezed: ^2.2.0
   # Convenient code generator for get_it.
   injectable_generator: ^1.5.4
   # Collection of lint rules for Dart and Flutter projects.
   lint: ^1.10.0
+
+
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - ports_lists.json
+    - secrets.json
+    - ipwhois.json

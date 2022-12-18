@@ -27,4 +27,7 @@ linter:
     sort_constructors_first: true
 
     # Good packages document everything
-    public_member_api_docs: true
+    public_member_api_docs: false
+    avoid_dynamic_calls: false
+    use_build_context_synchronously: false
+    avoid_positional_boolean_parameters: false

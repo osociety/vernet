@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/api/update_checker.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/dark_theme_provider.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
@@ -12,7 +12,7 @@ import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/values/strings.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -153,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       //   },
                       // ),
                       onTap: () {
-                        _launchURL(_issueUrl);
+                        launchURL(_issueUrl);
                       },
                     ),
                     ListTile(
@@ -167,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       //   },
                       // ),
                       onTap: () {
-                        _launchURL(_donateUrl);
+                        launchURL(_donateUrl);
                       },
                     ),
                     ListTile(
@@ -175,7 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: const Text('Source Code'),
                       // subtitle: Text(_srcUrl),
                       onTap: () {
-                        _launchURL(_srcUrl);
+                        launchURL(_srcUrl);
                       },
 
                       // trailing: IconButton(
@@ -204,6 +204,4 @@ class _SettingsPageState extends State<SettingsPage> {
   static const String _srcUrl = 'https://github.com/git-elliot/vernet';
   final String _issueUrl = '$_srcUrl/issues';
   final String _donateUrl = '$_srcUrl#support-and-donate';
-  Future<void> _launchURL(String url) async =>
-      await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }

@@ -10,7 +10,7 @@ import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
 class PortScanPage extends StatefulWidget {
-  const PortScanPage({Key? key, this.target = ''}) : super(key: key);
+  const PortScanPage({this.target = ''});
 
   final String target;
 
@@ -25,6 +25,7 @@ class _PortScanPageState extends State<PortScanPage>
   final Set<OpenPort> _openPorts = {};
   final Map<String, Port> _allPorts = {};
   double _progress = 0;
+
   final TextEditingController _targetIPEditingController =
       TextEditingController();
   final TextEditingController _singlePortEditingController =
@@ -55,17 +56,10 @@ class _PortScanPageState extends State<PortScanPage>
     }
   }
 
-  void _handleEvent(ActiveHost? activeHost) {
-    if (activeHost != null) {
-      final List<OpenPort> openPorts = activeHost.openPort;
-      if (openPorts.isNotEmpty) {
-        for (final OpenPort openPort in openPorts) {
-          setState(() {
-            _openPorts.add(openPort);
-          });
-        }
-      }
-    }
+  void _handleEvent(ActiveHost? host) {
+    setState(() {
+      _openPorts.addAll(host!.openPort);
+    });
   }
 
   void _handleOnDone() {
@@ -97,6 +91,7 @@ class _PortScanPageState extends State<PortScanPage>
         progressCallback: _handleProgress,
       ).listen(_handleEvent, onDone: _handleOnDone);
     } else {
+      //TODO: uncomment
       _streamSubscription = PortScanner.scanPortsForSingleDevice(
         _targetIPEditingController.text,
         startPort: int.parse(_startPortEditingController.text),
@@ -422,7 +417,7 @@ class _PortScanPageState extends State<PortScanPage>
                 : ListView.builder(
                     itemCount: _openPorts.length,
                     itemBuilder: (context, index) {
-                      final OpenPort _openPort = _openPorts.toList()[index];
+                      final OpenPort openPort = _openPorts.toList()[index];
                       return Column(
                         children: [
                           ListTile(
@@ -434,7 +429,7 @@ class _PortScanPageState extends State<PortScanPage>
                               style: Theme.of(context).textTheme.subtitle1,
                             ),
                             trailing: Text(
-                              '${_openPort.port}',
+                              '${openPort.port}',
                               style: Theme.of(context)
                                   .textTheme
                                   .headline6!
@@ -446,24 +441,24 @@ class _PortScanPageState extends State<PortScanPage>
                             title: _allPorts.isEmpty
                                 ? const SizedBox()
                                 : Text(
-                                    _allPorts[_openPort.port.toString()]!.desc,
+                                    _allPorts[openPort.port.toString()]!.desc,
                                   ),
                             subtitle: _allPorts.isEmpty
                                 ? const SizedBox()
                                 : Row(
                                     children: [
-                                      if (_allPorts[_openPort.port.toString()]!
+                                      if (_allPorts[openPort.port.toString()]!
                                           .isTCP)
                                         const Text('TCP   ')
                                       else
                                         const SizedBox(),
-                                      if (_allPorts[_openPort.port.toString()]!
+                                      if (_allPorts[openPort.port.toString()]!
                                           .isUDP)
                                         const Text('UDP   ')
                                       else
                                         const SizedBox(),
                                       Text(
-                                        _allPorts[_openPort.port.toString()]!
+                                        _allPorts[openPort.port.toString()]!
                                             .status,
                                       ),
                                     ],

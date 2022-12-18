@@ -6,11 +6,9 @@ class HostScanState with _$HostScanState {
 
   const factory HostScanState.loadInProgress() = _LoadInProgress;
 
-  const factory HostScanState.foundNewDevice({
-    required List<DeviceInTheNetwork> activeHostList,
-    required String? currentDeviceIp,
-    required String? gatewayIp,
-  }) = FoundNewDevice;
+  const factory HostScanState.foundNewDevice(
+    List<DeviceInTheNetwork> activeHostList,
+  ) = FoundNewDevice;
 
   const factory HostScanState.loadSuccess(
     List<DeviceInTheNetwork> activeHostList,

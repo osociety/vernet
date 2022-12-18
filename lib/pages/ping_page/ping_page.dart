@@ -6,7 +6,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/pages/base_page.dart';
 
 class PingPage extends StatefulWidget {
-  const PingPage({Key? key}) : super(key: key);
+  const PingPage({super.key});
 
   @override
   _PingPageState createState() => _PingPageState();
@@ -67,8 +67,8 @@ class _PingPageState extends BasePage<PingPage> {
   void _stop() {
     try {
       _ping?.stop();
-    } catch (e) {
-      print(e);
+    } catch (e, stack) {
+      debugPrintStack(stackTrace: stack);
     }
     setState(() {
       _ping = null;
@@ -89,9 +89,9 @@ class _PingPageState extends BasePage<PingPage> {
             child: ListView.builder(
               itemCount: _pingPackets.length,
               itemBuilder: (context, index) {
-                final PingResponse? _response = _pingPackets[index].response;
-                String? title = _response?.ip ?? '';
-                final String trailing = _getTime(_response?.time);
+                final PingResponse? response = _pingPackets[index].response;
+                String? title = response?.ip ?? '';
+                final String trailing = _getTime(response?.time);
 
                 if (_pingPackets[index].error != null) {
                   title = _pingPackets[index].error.toString();
@@ -102,7 +102,7 @@ class _PingPageState extends BasePage<PingPage> {
                       dense: true,
                       contentPadding:
                           const EdgeInsets.only(left: 10.0, right: 10.0),
-                      leading: Text('${_response?.seq}'),
+                      leading: Text('${response?.seq}'),
                       title: Text(title),
                       trailing: Text(trailing),
                     ),

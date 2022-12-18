@@ -3,19 +3,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/api/isp_loader.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/models/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
-import 'package:vernet/pages/network_troubleshoot/ping_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/ui/custom_tile.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   _WifiDetailState createState() => _WifiDetailState();
@@ -239,7 +239,7 @@ class _WifiDetailState extends State<HomePage> {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () {
-                      _launchURL('https://fast.com');
+                      launchURL('https://fast.com');
                     },
                     icon: const Icon(Icons.speed),
                     label: const Text('Speed Test'),
@@ -253,7 +253,4 @@ class _WifiDetailState extends State<HomePage> {
       ),
     );
   }
-
-  Future<void> _launchURL(String url) async =>
-      await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
 }

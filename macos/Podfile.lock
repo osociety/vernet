@@ -2,10 +2,8 @@ PODS:
   - FlutterMacOS (1.0.0)
   - network_info_plus_macos (0.0.1):
     - FlutterMacOS
-    - Reachability
   - package_info_plus_macos (0.0.1):
     - FlutterMacOS
-  - Reachability (3.2)
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
   - url_launcher_macos (0.0.1):
@@ -17,10 +15,6 @@ DEPENDENCIES:
   - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
-
-SPEC REPOS:
-  trunk:
-    - Reachability
 
 EXTERNAL SOURCES:
   FlutterMacOS:
@@ -36,11 +30,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
-  network_info_plus_macos: 38ec4a578ecdfcddab609f61da3026d0b32900e5
+  network_info_plus_macos: d2b9e6c01c291449b91a584217aa53b113847dbd
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
-  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
-  shared_preferences_macos: 480ce071d0666e37cef23fe6c702293a3d21799e
-  url_launcher_macos: 45af3d61de06997666568a7149c1be98b41c95d4
+  shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
+  url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
 
 PODFILE CHECKSUM: 0d699906c996365b631c16e9324c11dbcc3b17e7
 

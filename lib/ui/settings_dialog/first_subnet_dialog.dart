@@ -4,7 +4,7 @@ import 'package:vernet/ui/base_settings_dialog.dart';
 import 'package:vernet/values/strings.dart';
 
 class FirstSubnetDialog extends StatefulWidget {
-  const FirstSubnetDialog({Key? key}) : super(key: key);
+  const FirstSubnetDialog({super.key});
 
   @override
   _FirstSubnetDialogState createState() => _FirstSubnetDialogState();
@@ -48,6 +48,7 @@ class _FirstSubnetDialogState extends BaseSettingsDialog<FirstSubnetDialog> {
     } catch (e) {
       return 'Must be a number';
     }
+    return null;
   }
 
   @override
