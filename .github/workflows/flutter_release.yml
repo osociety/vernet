@@ -1,9 +1,0 @@
-name: Flutter CI
-
-on:
-  workflow_dispatch:
-
-jobs:
-  android-build:
-    uses: ./.github/workflows/android_build.yml
-    secrets: inherit
