@@ -1,14 +1,18 @@
-name: Flutter build
+name: Flutter Test
 
 on:
-  push:
-    branches: [ "main", "dev" ]
   pull_request:
     branches: [ "main", "dev" ]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency: 
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: 'Test and build'
+    name: 'Flutter Test'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,7 +23,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.6.1
+        uses: subosito/flutter-action@v2.8.0
         with:
           channel: stable
       - name: Flutter version
@@ -55,25 +59,3 @@ jobs:
         run: flutter analyze
       - name: Run tests
         run: flutter test
-      # - name: Download Android keystore
-      #   id: android_keystore
-      #   uses: timheuer/base64-to-file@v1.2
-      #   with:
-      #     fileName: key.jks
-      #     encodedString: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
-      # - name: Create key.properties
-      #   run: >
-      #     echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" >
-      #     android/key.properties
-
-      #     echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >>
-      #     android/key.properties
-
-      #     echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >>
-      #     android/key.properties
-          
-      #     echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
-      #     android/key.properties
-      - name: Build Android App Bundle
-        run: flutter build apk --debug --flavor dev
-      
