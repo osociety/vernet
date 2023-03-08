@@ -63,9 +63,9 @@ Drop mail at fs0c19ty@protonmail.com
 1. Support this project by becoming stargazer of this project.
 2. Buy me a coffee.
 
-    |   Bitcoin |   UPI |
-    |-----------|-------|
-    |<img src="donation/bitcoin_qr.png" width = "100">|<img src="donation/bhim_upi_qr.png" width = "100">
+    | Librepay | 
+    |----------|
+    |<noscript><a href="https://liberapay.com/fs0c13ty/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>|
 
 3. Support me on Ko-Fi
 
