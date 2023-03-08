@@ -65,7 +65,7 @@ Drop mail at fs0c19ty@protonmail.com
 
     | Librepay | 
     |----------|
-    |<noscript><a href="https://liberapay.com/fs0c13ty/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>|
+    |<noscript><a href="https://liberapay.com/OpenSociety/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>|
 
 3. Support me on Ko-Fi
 
