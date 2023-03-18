@@ -58,7 +58,7 @@ class _PortScanPageState extends State<PortScanPage>
 
   void _handleEvent(ActiveHost? host) {
     setState(() {
-      _openPorts.addAll(host!.openPort);
+      _openPorts.addAll(host!.openPorts);
     });
   }
 
@@ -426,13 +426,13 @@ class _PortScanPageState extends State<PortScanPage>
                                 const EdgeInsets.only(left: 10.0, right: 10.0),
                             leading: Text(
                               '${index + 1}',
-                              style: Theme.of(context).textTheme.subtitle1,
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
                             trailing: Text(
                               '${openPort.port}',
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline6!
+                                  .titleMedium!
                                   .copyWith(
                                     color:
                                         Theme.of(context).colorScheme.secondary,

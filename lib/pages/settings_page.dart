@@ -44,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 '${appSettings.firstSubnet}',
                 style: Theme.of(context)
                     .textTheme
-                    .subtitle2
+                    .titleSmall
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
@@ -65,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 '${appSettings.lastSubnet}',
                 style: Theme.of(context)
                     .textTheme
-                    .subtitle2
+                    .titleSmall
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
@@ -86,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 '${appSettings.socketTimeout} ms',
                 style: Theme.of(context)
                     .textTheme
-                    .subtitle2
+                    .titleSmall
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
@@ -107,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 '${appSettings.pingCount}',
                 style: Theme.of(context)
                     .textTheme
-                    .subtitle2
+                    .titleSmall
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {

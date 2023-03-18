@@ -45,6 +45,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   }
 
   @Deprecated("Now network_tools support running scan inside isolate")
+  // ignore: unused_element
   Future<void> _startNewScan(
     StartNewScan event,
     Emitter<HostScanState> emit,
