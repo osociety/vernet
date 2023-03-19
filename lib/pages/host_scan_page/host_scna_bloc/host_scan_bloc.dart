@@ -18,7 +18,7 @@ part 'host_scan_state.dart';
 class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   HostScanBloc() : super(HostScanState.initial()) {
     on<Initialized>(_initialized);
-    on<StartNewScan>(_startNewScan);
+    on<StartNewScan>(_startNewScanBuiltInIsolate);
   }
 
   /// IP of the device in the local network.
@@ -44,6 +44,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     add(const HostScanEvent.startNewScan());
   }
 
+  @Deprecated("Now network_tools support running scan inside isolate")
+  // ignore: unused_element
   Future<void> _startNewScan(
     StartNewScan event,
     Emitter<HostScanState> emit,
@@ -99,6 +101,42 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
     // emit(HostScanState.loadSuccess(activeHostList));
   }
+
+  Future<void> _startNewScanBuiltInIsolate(
+    StartNewScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    final streamController = HostScanner.getAllPingableDevicesAsync(
+      subnet!,
+      firstHostId: appSettings.firstSubnet,
+      lastHostId: appSettings.lastSubnet,
+    );
+    await for (final ActiveHost activeHost in streamController) {
+      final DeviceInTheNetwork tempDeviceInTheNetwork =
+          DeviceInTheNetwork.createFromActiveHost(
+        activeHost: activeHost,
+        currentDeviceIp: ip!,
+        gatewayIp: gatewayIp!,
+      );
+
+      activeHostList.add(tempDeviceInTheNetwork);
+      activeHostList.sort((a, b) {
+        final int aIp = int.parse(
+          a.internetAddress.address
+              .substring(a.internetAddress.address.lastIndexOf('.') + 1),
+        );
+        final int bIp = int.parse(
+          b.internetAddress.address
+              .substring(b.internetAddress.address.lastIndexOf('.') + 1),
+        );
+        return aIp.compareTo(bIp);
+      });
+      emit(const HostScanState.loadInProgress());
+      emit(HostScanState.foundNewDevice(activeHostList));
+    }
+  }
+
+  @Deprecated("Now network_tools support running scan inside isolate")
 
   /// Will search devices in the network inside new isolate
   static Future<void> startSearchingDevices(dynamic params) async {

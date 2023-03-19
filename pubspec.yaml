@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.1+13
+version: 1.0.1+14
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -16,7 +16,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
-  dart_ping: ^7.0.2
+  dart_ping: ^8.0.1
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -28,13 +28,15 @@ dependencies:
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^0.13.5
   # Convenient code generator for get_it
-  injectable: ^1.5.4
+  injectable: ^2.1.0
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
   network_info_plus: ^3.0.1
 # Helps you discover open ports, devices on subnet and more.
   network_tools: ^3.0.0+3
+  # network_tools:
+  #   path: ../network_tools/network_tools
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^3.0.1
   # Allows you to display progress widgets based on percentage.
@@ -57,10 +59,9 @@ dev_dependencies:
   # Code generator for unions/pattern-matching/copy.
   freezed: ^2.2.0
   # Convenient code generator for get_it.
-  injectable_generator: ^1.5.4
+  injectable_generator: ^2.1.4
   # Collection of lint rules for Dart and Flutter projects.
   lint: ^2.0.1
-
 
 flutter:
 
@@ -71,6 +72,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - ports_lists.json
-    - secrets.json
-    - ipwhois.json
+    - assets/secrets.json
+    - assets/ipwhois.json
+    - assets/ports_lists.json

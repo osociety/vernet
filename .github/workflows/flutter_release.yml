@@ -1,0 +1,162 @@
+name: Flutter release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  release-android-and-linux: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # setup java because we are building for android too
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: stable
+
+      - name: Download pub dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.1
+        with:
+          fileName: key.jks
+          encodedString: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
+
+      - name: Create key.properties
+        run: >
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" >
+          android/key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >>
+          android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >>
+          android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
+          android/key.properties
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+      
+      - name: Install dependencies
+        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Build Android App and Linux Bundle
+        # Use signing keys for release instead of debug
+        run: |
+          flutter build apk --debug --flavor store 
+          flutter build linux --release
+
+      - name: Android Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: Vernet-${{github.ref_name}}-android.zip
+          directory: build/app/outputs/flutter-apk
+
+      - name: Linux Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: Vernet-${{github.ref_name}}-linux.zip
+          directory: build/linux/x64/release/bundle
+
+      - name: Android Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/app/outputs/flutter-apk/Vernet-${{github.ref_name}}-android.zip
+
+      - name: Linux Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/linux/x64/release/bundle/Vernet-${{github.ref_name}}-linux.zip
+
+  release-macos: 
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: stable
+
+      - name: Download pub dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build macos release
+        run: flutter build macos --release
+
+      - name: Archive macos Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: Vernet-${{github.ref_name}}-macos.zip
+          directory: build/macos/Build/Products/Release/
+
+      - name: macOS Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/macos/Build/Products/Release/Vernet-${{github.ref_name}}-macos.zip
+
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: stable
+
+      - name: Download pub dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build windows release
+        run: flutter build windows --release
+
+      - name: Archive windows Release
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          filename: Vernet-${{github.ref_name}}-windows.zip
+          directory: build/windows/runner/Release
+
+      - name: macOS Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: build/windows/runner/Release/Vernet-${{github.ref_name}}-windows.zip
+

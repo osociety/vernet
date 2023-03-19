@@ -1,40 +1,41 @@
 PODS:
   - FlutterMacOS (1.0.0)
-  - network_info_plus_macos (0.0.1):
+  - network_info_plus (0.0.1):
     - FlutterMacOS
-  - package_info_plus_macos (0.0.1):
+  - package_info_plus (0.0.1):
     - FlutterMacOS
-  - shared_preferences_macos (0.0.1):
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
     - FlutterMacOS
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - network_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/network_info_plus_macos/macos`)
-  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
-  - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
+  - network_info_plus (from `Flutter/ephemeral/.symlinks/plugins/network_info_plus/macos`)
+  - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
+  - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
 
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
-  network_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/network_info_plus_macos/macos
-  package_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
-  shared_preferences_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
+  network_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/network_info_plus/macos
+  package_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
+  shared_preferences_foundation:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
 
 SPEC CHECKSUMS:
-  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
-  network_info_plus_macos: d2b9e6c01c291449b91a584217aa53b113847dbd
-  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
-  shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
-  url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  network_info_plus: f4fbc7877ab7b3294500d9441dfa53cd54972d05
+  package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
+  shared_preferences_foundation: 986fc17f3d3251412d18b0265f9c64113a8c2472
+  url_launcher_macos: 5335912b679c073563f29d89d33d10d459f95451
 
-PODFILE CHECKSUM: 0d699906c996365b631c16e9324c11dbcc3b17e7
+PODFILE CHECKSUM: 4d1ddd58dcd1dc92dd2b397bbacb622f345603ab
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3

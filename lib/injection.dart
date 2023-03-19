@@ -10,7 +10,7 @@ late String currentEnv;
 @injectableInit
 void configureDependencies(String env) {
   currentEnv = env;
-  $initGetIt(getIt, environment: env);
+  GetIt.instance.init(environment: env);
 }
 
 abstract class Env {
