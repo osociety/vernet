@@ -100,7 +100,7 @@ jobs:
           flutter build apk --debug --flavor store 
           zip artifacts/android-app.apk build/app/outputs/flutter-apk/app-store-debug.apk
           flutter build linux --release
-          zip -r artifacts/linux-build.zip build/linux/release/bundle/
+          zip -r artifacts/linux-build.zip build/linux/x64/release/bundle/
       
       - name: Build macOS Bundle
         if: ${{ matrix.os == 'macos-latest' }}
