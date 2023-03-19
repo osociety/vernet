@@ -91,9 +91,10 @@ jobs:
 
       - name: Build Android App and Linux Bundle
         if: ${{ matrix.os == 'ubuntu-latest' }}
+        # Use signing keys for release instead of debug
         run: |
-          flutter build apk --release --flavor store 
-          zip artifacts/android-app.apk build/app/outputs/flutter-apk/app-store-release.apk
+          flutter build apk --debug --flavor store 
+          zip artifacts/android-app.apk build/app/outputs/flutter-apk/app-store-debug.apk
           flutter build linux --release
           zip -q -r artifacts/linux-build.zip build/linux/release/bundle/
       
@@ -103,14 +104,18 @@ jobs:
           flutter build macos  --release
           zip -q artifacts/vernet-macos.zip build/macos/Build/Products/Release/vernet.app
 
-      - name: Upload All artifacts
+      - name: Upload Android and Linux artifacts
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v3
         with:
           path: |
            artifacts/android-app.apk 
            artifacts/linux-build.zip
-           artifacts/vernet-macos.zip
           if-no-files-found: error
-      
-      
+
+      - name: Upload macOS artifacts
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: artifacts/vernet-macos.zip
+          if-no-files-found: error
