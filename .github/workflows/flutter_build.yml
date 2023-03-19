@@ -88,6 +88,10 @@ jobs:
 
       - name: Create artifacts directory
         run: mkdir -p artifacts
+      
+      - name: Install dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
       - name: Build Android App and Linux Bundle
         if: ${{ matrix.os == 'ubuntu-latest' }}
