@@ -33,7 +33,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
       child: GestureDetector(
         child: Text(
           _address!.host,
-          style: Theme.of(context).textTheme.headline5,
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
         onTap: () {
           Clipboard.setData(ClipboardData(text: _address!.host));

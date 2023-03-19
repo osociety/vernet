@@ -26,7 +26,7 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 const SizedBox(height: 15),
                 Text(
                   'Vernet',
-                  style: Theme.of(context).textTheme.headline1,
+                  style: Theme.of(context).textTheme.displayLarge,
                   textAlign: TextAlign.center,
                 ),
                 const Icon(Icons.radar, size: 100),

@@ -76,7 +76,7 @@ class _WifiDetailState extends State<HomePage> {
                             'Location should be on to display Wifi name',
                             style: Theme.of(context)
                                 .textTheme
-                                .caption!
+                                .bodySmall!
                                 .copyWith(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
