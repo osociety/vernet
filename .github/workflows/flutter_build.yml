@@ -1,0 +1,116 @@
+name: Flutter build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 'Flutter build'
+    runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+            # add windows also after testing in local
+            os: [ubuntu-latest, macos-latest] 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: stable
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Cache pubspec dependencies
+        uses: actions/cache@v3.0.7
+        with:
+          path: |
+            ${{ env.FLUTTER_HOME }}/.pub-cache
+            **/.packages
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            build-pubspec-
+
+      - name: Cache build runner
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/.dart_tool
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+          restore-keys: |
+            build-runner-
+
+      - name: Download pub dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Run analyzer
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.1
+        with:
+          fileName: key.jks
+          encodedString: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
+
+      - name: Create key.properties
+        run: >
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" >
+          android/key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >>
+          android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >>
+          android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
+          android/key.properties
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
+      - name: Build Android App and Linux Bundle
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          flutter build apk --release --flavor store 
+          zip artifacts/android-app.apk build/app/outputs/flutter-apk/app-store-release.apk
+          flutter build linux --release
+          zip -q -r artifacts/linux-build.zip build/linux/release/bundle/
+      
+      - name: Build macOS Bundle
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: | 
+          flutter build macos  --release
+          zip -q artifacts/vernet-macos.zip build/macos/Build/Products/Release/vernet.app
+
+      - name: Upload All artifacts
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+           artifacts/android-app.apk 
+           artifacts/linux-build.zip
+           artifacts/vernet-macos.zip
+          if-no-files-found: error
+      
+      
