@@ -61,6 +61,12 @@ Drop mail at fs0c19ty@protonmail.com
 ## Support and Donate
 
 1. Support this project by becoming stargazer of this project.
-2. Support me on Ko-Fi
+2. Buy me a coffee.
+
+    | Librepay | 
+    |----------|
+    |<noscript><a href="https://liberapay.com/OpenSociety/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>|
+
+3. Support me on Ko-Fi
 
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
