@@ -61,12 +61,6 @@ Drop mail at fs0c19ty@protonmail.com
 ## Support and Donate
 
 1. Support this project by becoming stargazer of this project.
-2. Buy me a coffee.
-
-    |   Bitcoin |   UPI |
-    |-----------|-------|
-    |<img src="donation/bitcoin_qr.png" width = "100">|<img src="donation/bhim_upi_qr.png" width = "100">
-
-3. Support me on Ko-Fi
+2. Support me on Ko-Fi
 
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
