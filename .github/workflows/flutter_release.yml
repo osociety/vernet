@@ -65,7 +65,7 @@ jobs:
         with:
           type: 'zip'
           filename: Vernet-${{github.ref_name}}-android.zip
-          directory: build/app/outputs/flutter-apk/app-store-debug.apk
+          directory: build/app/outputs/flutter-apk
 
       - name: Linux Archive Release
         uses: thedoctor0/zip-release@master
