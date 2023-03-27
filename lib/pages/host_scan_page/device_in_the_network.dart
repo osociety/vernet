@@ -10,17 +10,22 @@ class DeviceInTheNetwork {
   /// Create basic device with default (not the correct) icon
   DeviceInTheNetwork({
     required this.internetAddress,
-    required this.make,
+    required Future<String?> makeVar,
     required this.pingData,
+    MdnsInfo? mdnsVar,
     this.iconData = Icons.devices,
     this.hostId,
-  });
+  }) {
+    make = makeVar;
+    _mdns = mdnsVar;
+  }
 
   /// Create the object from active host with the correct field and icon
   factory DeviceInTheNetwork.createFromActiveHost({
     required ActiveHost activeHost,
     required String currentDeviceIp,
     required String gatewayIp,
+    MdnsInfo? mdns,
   }) {
     return DeviceInTheNetwork.createWithAllNecessaryFields(
       internetAddress: activeHost.internetAddress,
@@ -29,6 +34,7 @@ class DeviceInTheNetwork {
       pingData: activeHost.pingData,
       currentDeviceIp: currentDeviceIp,
       gatewayIp: gatewayIp,
+      mdns: mdns,
     );
   }
 
@@ -40,6 +46,7 @@ class DeviceInTheNetwork {
     required PingData pingData,
     required String currentDeviceIp,
     required String gatewayIp,
+    required MdnsInfo? mdns,
   }) {
     final IconData iconData = getHostIcon(
       currentDeviceIp: currentDeviceIp,
@@ -52,22 +59,53 @@ class DeviceInTheNetwork {
       hostIp: internetAddress.address,
       gatewayIp: gatewayIp,
       hostMake: make,
+      mdns: mdns,
     );
 
     return DeviceInTheNetwork(
       internetAddress: internetAddress,
-      make: deviceMake,
+      makeVar: deviceMake,
       pingData: pingData,
       hostId: hostId,
       iconData: iconData,
+      mdnsVar: mdns,
     );
   }
 
   /// Ip of the device
   final InternetAddress internetAddress;
-  final Future<String?> make;
+  late Future<String?> _make;
+
+  set make(Future<String?> makeVar) {
+    _make = makeVar;
+  }
+
+  Future<String?> get make {
+    return _make;
+  }
+
   final PingData pingData;
   final IconData iconData;
+  MdnsInfo? _mdns;
+
+  MdnsInfo? get mdns {
+    return _mdns;
+  }
+
+  set mdns(MdnsInfo? name) {
+    _mdns = name;
+
+    final Future<String?> deviceMake = getDeviceMake(
+      currentDeviceIp: '',
+      hostIp: internetAddress.address,
+      gatewayIp: '',
+      hostMake: make,
+      mdns: _mdns,
+    );
+    make = deviceMake;
+  }
+
+  /// Some name to show the user
   String? hostId;
 
   static Future<String?> getDeviceMake({
@@ -75,11 +113,14 @@ class DeviceInTheNetwork {
     required String hostIp,
     required String gatewayIp,
     required Future<String?> hostMake,
+    required MdnsInfo? mdns,
   }) {
     if (currentDeviceIp == hostIp) {
       return Future.value('This device');
     } else if (gatewayIp == hostIp) {
       return Future.value('Router/Gateway');
+    } else if (mdns != null) {
+      return Future.value(mdns.mdnsDomainName);
     }
     return hostMake;
   }
