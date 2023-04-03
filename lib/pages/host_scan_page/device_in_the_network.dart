@@ -74,15 +74,7 @@ class DeviceInTheNetwork {
 
   /// Ip of the device
   final InternetAddress internetAddress;
-  late Future<String?> _make;
-
-  set make(Future<String?> makeVar) {
-    _make = makeVar;
-  }
-
-  Future<String?> get make {
-    return _make;
-  }
+  late Future<String?> make;
 
   final PingData pingData;
   final IconData iconData;
