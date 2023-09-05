@@ -35,9 +35,7 @@ dependencies:
   network_info_plus: ^3.0.1
   # Helps you discover open ports, devices on subnet and more.
   network_tools: ^3.2.2
-    # path: ../network_tools/network_tools
   network_tools_flutter: ^1.0.1
-    # path: ../network_tools/network_tools_flutter
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^3.0.1
   # Allows you to display progress widgets based on percentage.

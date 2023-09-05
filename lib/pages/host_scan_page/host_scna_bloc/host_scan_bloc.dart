@@ -62,28 +62,18 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         if (index == -1) {
           deviceInTheNetworkList.add(
             DeviceInTheNetwork.createFromActiveHost(
-              activeHost: activeHost,
-              currentDeviceIp: ip!,
-              gatewayIp: gatewayIp!,
-              mdns: mDns,
-            ),
+                activeHost: activeHost,
+                currentDeviceIp: ip!,
+                gatewayIp: gatewayIp!,
+                mdns: mDns,
+                mac: (await activeHost.arpData)?.macAddress),
           );
         } else {
           deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
             ..mdns = mDns;
         }
 
-        deviceInTheNetworkList.sort((a, b) {
-          final int aIp = int.parse(
-            a.internetAddress.address
-                .substring(a.internetAddress.address.lastIndexOf('.') + 1),
-          );
-          final int bIp = int.parse(
-            b.internetAddress.address
-                .substring(b.internetAddress.address.lastIndexOf('.') + 1),
-          );
-          return aIp.compareTo(bIp);
-        });
+        deviceInTheNetworkList.sort(sort);
 
         emit(const HostScanState.loadInProgress());
         emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
@@ -101,31 +91,21 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       if (index == -1) {
         deviceInTheNetworkList.add(
           DeviceInTheNetwork.createFromActiveHost(
-            activeHost: activeHost,
-            currentDeviceIp: ip!,
-            gatewayIp: gatewayIp!,
-          ),
+              activeHost: activeHost,
+              currentDeviceIp: ip!,
+              gatewayIp: gatewayIp!,
+              mac: (await activeHost.arpData)?.macAddress),
         );
       } else {
         deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
-          activeHost: activeHost,
-          currentDeviceIp: ip!,
-          gatewayIp: gatewayIp!,
-          mdns: deviceInTheNetworkList[index].mdns,
-        );
+            activeHost: activeHost,
+            currentDeviceIp: ip!,
+            gatewayIp: gatewayIp!,
+            mdns: deviceInTheNetworkList[index].mdns,
+            mac: (await activeHost.arpData)?.macAddress);
       }
 
-      deviceInTheNetworkList.sort((a, b) {
-        final int aIp = int.parse(
-          a.internetAddress.address
-              .substring(a.internetAddress.address.lastIndexOf('.') + 1),
-        );
-        final int bIp = int.parse(
-          b.internetAddress.address
-              .substring(b.internetAddress.address.lastIndexOf('.') + 1),
-        );
-        return aIp.compareTo(bIp);
-      });
+      deviceInTheNetworkList.sort(sort);
 
       emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
@@ -137,5 +117,25 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   int indexOfActiveHost(String ip) {
     return deviceInTheNetworkList
         .indexWhere((element) => element.internetAddress.address == ip);
+  }
+
+  int sort(DeviceInTheNetwork a, DeviceInTheNetwork b) {
+    final regexA = a.internetAddress.address.contains('.') ? '.' : '::';
+    final regexB = b.internetAddress.address.contains('.') ? '.' : '::';
+    if (regexA.length == 2 || regexB.length == 2) {
+      return regexA.length.compareTo(regexB.length);
+    }
+    final int aIp = int.parse(
+      a.internetAddress.address.substring(
+        a.internetAddress.address.lastIndexOf(regexA) + regexA.length,
+      ),
+    );
+    final int bIp = int.parse(
+      b.internetAddress.address.substring(
+        b.internetAddress.address.lastIndexOf(regexB) + regexB.length,
+      ),
+    );
+
+    return aIp.compareTo(bIp);
   }
 }
