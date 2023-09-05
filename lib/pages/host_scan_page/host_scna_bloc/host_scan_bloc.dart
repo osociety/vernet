@@ -29,7 +29,10 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   String? subnet;
 
   /// List of all ActiveHost devices that got found in the current scan
-  List<DeviceInTheNetwork> activeHostList = [];
+  List<DeviceInTheNetwork> deviceInTheNetworkList = [];
+
+  /// mDNS for each ip
+  Map<String, MdnsInfo> mDnsDevices = {};
 
   Future<void> _initialized(
     Initialized event,
@@ -47,21 +50,72 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
+    MdnsScanner.searchMdnsDevices()
+        .then((List<ActiveHost> activeHostList) async {
+      for (final ActiveHost activeHost in activeHostList) {
+        final int index = indexOfActiveHost(activeHost.address);
+        final MdnsInfo? mDns = await activeHost.mdnsInfo;
+        if (mDns == null) {
+          continue;
+        }
+
+        if (index == -1) {
+          deviceInTheNetworkList.add(
+            DeviceInTheNetwork.createFromActiveHost(
+              activeHost: activeHost,
+              currentDeviceIp: ip!,
+              gatewayIp: gatewayIp!,
+              mdns: mDns,
+            ),
+          );
+        } else {
+          deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
+            ..mdns = mDns;
+        }
+
+        deviceInTheNetworkList.sort((a, b) {
+          final int aIp = int.parse(
+            a.internetAddress.address
+                .substring(a.internetAddress.address.lastIndexOf('.') + 1),
+          );
+          final int bIp = int.parse(
+            b.internetAddress.address
+                .substring(b.internetAddress.address.lastIndexOf('.') + 1),
+          );
+          return aIp.compareTo(bIp);
+        });
+
+        emit(const HostScanState.loadInProgress());
+        emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+      }
+    });
+
     final streamController = HostScannerFlutter.getAllPingableDevices(
       subnet!,
       firstHostId: appSettings.firstSubnet,
       lastHostId: appSettings.lastSubnet,
     );
     await for (final ActiveHost activeHost in streamController) {
-      final DeviceInTheNetwork tempDeviceInTheNetwork =
-          DeviceInTheNetwork.createFromActiveHost(
-        activeHost: activeHost,
-        currentDeviceIp: ip!,
-        gatewayIp: gatewayIp!,
-      );
+      final int index = indexOfActiveHost(activeHost.address);
 
-      activeHostList.add(tempDeviceInTheNetwork);
-      activeHostList.sort((a, b) {
+      if (index == -1) {
+        deviceInTheNetworkList.add(
+          DeviceInTheNetwork.createFromActiveHost(
+            activeHost: activeHost,
+            currentDeviceIp: ip!,
+            gatewayIp: gatewayIp!,
+          ),
+        );
+      } else {
+        deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
+          activeHost: activeHost,
+          currentDeviceIp: ip!,
+          gatewayIp: gatewayIp!,
+          mdns: deviceInTheNetworkList[index].mdns,
+        );
+      }
+
+      deviceInTheNetworkList.sort((a, b) {
         final int aIp = int.parse(
           a.internetAddress.address
               .substring(a.internetAddress.address.lastIndexOf('.') + 1),
@@ -72,8 +126,16 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         );
         return aIp.compareTo(bIp);
       });
+
       emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(activeHostList));
+      emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
     }
+  }
+
+  /// Getting active host IP and finds it's index inside of activeHostList
+  /// Returns -1 if didn't find
+  int indexOfActiveHost(String ip) {
+    return deviceInTheNetworkList
+        .indexWhere((element) => element.internetAddress.address == ip);
   }
 }
