@@ -38,7 +38,7 @@ dependencies:
   # network_tools:
   #   path: ../network_tools/network_tools
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^3.0.1
+  package_info_plus: ^4.1.0
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.2
   # Popup that ask for the requested permission
