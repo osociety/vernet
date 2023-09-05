@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:network_tools/network_tools.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
@@ -38,7 +39,7 @@ class _PortScanPageState extends State<PortScanPage>
   final List<Tab> _tabs = [
     const Tab(text: 'Popular Targets'),
     const Tab(text: 'Custom Ranges'),
-    const Tab(text: 'Popular Ports')
+    const Tab(text: 'Popular Ports'),
   ];
   final _formKey = GlobalKey<FormState>();
 
@@ -77,7 +78,7 @@ class _PortScanPageState extends State<PortScanPage>
       _openPorts.clear();
     });
     if (_type == ScanType.single) {
-      PortScanner.isOpen(
+      PortScannerFlutter.isOpen(
         _targetIPEditingController.text,
         int.parse(_singlePortEditingController.text),
       ).then((value) {
@@ -85,14 +86,14 @@ class _PortScanPageState extends State<PortScanPage>
         _handleOnDone();
       });
     } else if (_type == ScanType.top) {
-      _streamSubscription = PortScanner.customDiscover(
+      _streamSubscription = PortScannerFlutter.customDiscover(
         _targetIPEditingController.text,
         timeout: Duration(milliseconds: appSettings.socketTimeout),
         progressCallback: _handleProgress,
       ).listen(_handleEvent, onDone: _handleOnDone);
     } else {
       //TODO: uncomment
-      _streamSubscription = PortScanner.scanPortsForSingleDevice(
+      _streamSubscription = PortScannerFlutter.scanPortsForSingleDevice(
         _targetIPEditingController.text,
         startPort: int.parse(_startPortEditingController.text),
         endPort: int.parse(_endPortEditingController.text),
@@ -187,7 +188,7 @@ class _PortScanPageState extends State<PortScanPage>
               decoration:
                   const InputDecoration(filled: true, hintText: 'End Port'),
             ),
-          )
+          ),
         ],
       );
     }
@@ -360,7 +361,7 @@ class _PortScanPageState extends State<PortScanPage>
                                 _getDomainChip('youtube.com'),
                                 _getDomainChip('apple.com'),
                                 _getDomainChip('amazon.com'),
-                                _getDomainChip('cloudflare.com')
+                                _getDomainChip('cloudflare.com'),
                               ],
                             ),
                             Wrap(

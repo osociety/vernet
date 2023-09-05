@@ -139,7 +139,7 @@ class _WifiDetailState extends State<HomePage> {
                         },
                         icon: const Icon(Icons.radar),
                         label: const Text('Scan open ports'),
-                      )
+                      ),
                     ],
                   ),
                 ],
@@ -180,7 +180,7 @@ class _WifiDetailState extends State<HomePage> {
                         },
                         icon: const Icon(Icons.find_replace),
                         label: const Text('Reverse Lookup'),
-                      )
+                      ),
                     ],
                   ),
                 ],
@@ -226,7 +226,7 @@ class _WifiDetailState extends State<HomePage> {
                               child: Text(snapshot.data!.location.address),
                             ),
                             const SizedBox(height: 5),
-                            const Divider(height: 3)
+                            const Divider(height: 3),
                           ],
                         );
                       }

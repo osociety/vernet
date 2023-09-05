@@ -19,9 +19,9 @@ class HostScanWidget extends StatelessWidget {
                 return Expanded(
                   child: Container(
                     margin: const EdgeInsets.all(30),
-                    child: Column(
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         CircularProgressIndicator(),
                         SizedBox(
                           height: 30,

@@ -122,7 +122,7 @@ class _PingPageState extends BasePage<PingPage> {
       children: [
         Text('Sent: ${_pingSummary?.transmitted ?? '--'}'),
         Text('Received : ${_pingSummary?.transmitted ?? '--'}'),
-        Text('Total time: ${_getTime(_pingSummary?.time)}')
+        Text('Total time: ${_getTime(_pingSummary?.time)}'),
       ],
     );
   }

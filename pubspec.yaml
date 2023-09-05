@@ -16,7 +16,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
-  dart_ping: ^8.0.1
+  dart_ping: ^9.0.0
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -34,9 +34,10 @@ dependencies:
   # Discover network info and configure themselves accordingly
   network_info_plus: ^3.0.1
   # Helps you discover open ports, devices on subnet and more.
-  network_tools: ^3.2.1
-  # network_tools:
-  #   path: ../network_tools/network_tools
+  network_tools: ^3.2.2
+    # path: ../network_tools/network_tools
+  network_tools_flutter: ^1.0.1
+    # path: ../network_tools/network_tools_flutter
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^3.0.1
   # Allows you to display progress widgets based on percentage.
