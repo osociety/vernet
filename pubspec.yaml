@@ -32,7 +32,7 @@ dependencies:
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
-  network_info_plus: ^3.0.1
+  network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
   network_tools: ^3.2.1
   # network_tools:
