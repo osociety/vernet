@@ -62,11 +62,12 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         if (index == -1) {
           deviceInTheNetworkList.add(
             DeviceInTheNetwork.createFromActiveHost(
-                activeHost: activeHost,
-                currentDeviceIp: ip!,
-                gatewayIp: gatewayIp!,
-                mdns: mDns,
-                mac: (await activeHost.arpData)?.macAddress),
+              activeHost: activeHost,
+              currentDeviceIp: ip!,
+              gatewayIp: gatewayIp!,
+              mdns: mDns,
+              mac: (await activeHost.arpData)?.macAddress,
+            ),
           );
         } else {
           deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
@@ -91,18 +92,20 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       if (index == -1) {
         deviceInTheNetworkList.add(
           DeviceInTheNetwork.createFromActiveHost(
-              activeHost: activeHost,
-              currentDeviceIp: ip!,
-              gatewayIp: gatewayIp!,
-              mac: (await activeHost.arpData)?.macAddress),
-        );
-      } else {
-        deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
             activeHost: activeHost,
             currentDeviceIp: ip!,
             gatewayIp: gatewayIp!,
-            mdns: deviceInTheNetworkList[index].mdns,
-            mac: (await activeHost.arpData)?.macAddress);
+            mac: (await activeHost.arpData)?.macAddress,
+          ),
+        );
+      } else {
+        deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
+          activeHost: activeHost,
+          currentDeviceIp: ip!,
+          gatewayIp: gatewayIp!,
+          mdns: deviceInTheNetworkList[index].mdns,
+          mac: (await activeHost.arpData)?.macAddress,
+        );
       }
 
       deviceInTheNetworkList.sort(sort);
