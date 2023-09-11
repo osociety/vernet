@@ -42,7 +42,7 @@ dependencies:
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.2
   # Popup that ask for the requested permission
-  permission_handler: ^10.2.0
+  permission_handler: ^11.0.0
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.0.4
   # Reading and writing simple key-value pairs
