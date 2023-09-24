@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:network_tools/network_tools.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/helper/port_desc_loader.dart';

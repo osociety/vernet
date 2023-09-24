@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
-import 'package:network_tools/network_tools.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
 
 /// Contains all the information of a device in the network including
 /// icon, open ports and in the future host name and mDNS name

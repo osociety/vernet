@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:network_tools/network_tools.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';

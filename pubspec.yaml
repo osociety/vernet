@@ -26,7 +26,7 @@ dependencies:
   # Service locator
   get_it: ^7.2.0
   # A composable, multi-platform, Future-based API for HTTP requests.
-  http: ^0.13.5
+  http: ^1.1.0
   # Convenient code generator for get_it
   injectable: ^2.1.0
   # An easy way to create a new isolate, keep it running and communicate with it.
@@ -34,10 +34,10 @@ dependencies:
   # Discover network info and configure themselves accordingly
   network_info_plus: ^3.0.1
   # Helps you discover open ports, devices on subnet and more.
-  network_tools: ^3.2.2
-  network_tools_flutter: ^1.0.1
+  network_tools_flutter: ^1.0.4
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^3.0.1
+  package_info_plus: ^4.1.0
+  path_provider: ^2.1.1
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.2
   # Popup that ask for the requested permission
