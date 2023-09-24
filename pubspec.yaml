@@ -32,7 +32,7 @@ dependencies:
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
-  network_info_plus: ^3.0.1
+  network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^1.0.4
   # Querying information about the application package, such as CFBundleVersion
@@ -41,7 +41,7 @@ dependencies:
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.2
   # Popup that ask for the requested permission
-  permission_handler: ^10.2.0
+  permission_handler: ^11.0.0
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.0.4
   # Reading and writing simple key-value pairs
