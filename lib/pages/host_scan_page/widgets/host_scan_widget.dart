@@ -19,9 +19,9 @@ class HostScanWidget extends StatelessWidget {
                 return Expanded(
                   child: Container(
                     margin: const EdgeInsets.all(30),
-                    child: Column(
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         CircularProgressIndicator(),
                         SizedBox(
                           height: 30,
@@ -56,7 +56,9 @@ class HostScanWidget extends StatelessWidget {
                           },
                           initialData: 'Generic Device',
                         ),
-                        subtitle: Text(host.internetAddress.address),
+                        subtitle: Text(
+                          '${host.internetAddress.address} ${host.mac}',
+                        ),
                         trailing: IconButton(
                           tooltip: 'Scan open ports for this target',
                           icon: const Icon(Icons.radar),

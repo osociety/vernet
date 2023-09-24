@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:network_tools/network_tools.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';
 
@@ -65,6 +65,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
               currentDeviceIp: ip!,
               gatewayIp: gatewayIp!,
               mdns: mDns,
+              mac: (await activeHost.arpData)?.macAddress,
             ),
           );
         } else {
@@ -72,24 +73,14 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
             ..mdns = mDns;
         }
 
-        deviceInTheNetworkList.sort((a, b) {
-          final int aIp = int.parse(
-            a.internetAddress.address
-                .substring(a.internetAddress.address.lastIndexOf('.') + 1),
-          );
-          final int bIp = int.parse(
-            b.internetAddress.address
-                .substring(b.internetAddress.address.lastIndexOf('.') + 1),
-          );
-          return aIp.compareTo(bIp);
-        });
+        deviceInTheNetworkList.sort(sort);
 
         emit(const HostScanState.loadInProgress());
         emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
       }
     });
 
-    final streamController = HostScanner.getAllPingableDevicesAsync(
+    final streamController = HostScannerFlutter.getAllPingableDevices(
       subnet!,
       firstHostId: appSettings.firstSubnet,
       lastHostId: appSettings.lastSubnet,
@@ -103,6 +94,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
             activeHost: activeHost,
             currentDeviceIp: ip!,
             gatewayIp: gatewayIp!,
+            mac: (await activeHost.arpData)?.macAddress,
           ),
         );
       } else {
@@ -111,20 +103,11 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
           currentDeviceIp: ip!,
           gatewayIp: gatewayIp!,
           mdns: deviceInTheNetworkList[index].mdns,
+          mac: (await activeHost.arpData)?.macAddress,
         );
       }
 
-      deviceInTheNetworkList.sort((a, b) {
-        final int aIp = int.parse(
-          a.internetAddress.address
-              .substring(a.internetAddress.address.lastIndexOf('.') + 1),
-        );
-        final int bIp = int.parse(
-          b.internetAddress.address
-              .substring(b.internetAddress.address.lastIndexOf('.') + 1),
-        );
-        return aIp.compareTo(bIp);
-      });
+      deviceInTheNetworkList.sort(sort);
 
       emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
@@ -136,5 +119,25 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   int indexOfActiveHost(String ip) {
     return deviceInTheNetworkList
         .indexWhere((element) => element.internetAddress.address == ip);
+  }
+
+  int sort(DeviceInTheNetwork a, DeviceInTheNetwork b) {
+    final regexA = a.internetAddress.address.contains('.') ? '.' : '::';
+    final regexB = b.internetAddress.address.contains('.') ? '.' : '::';
+    if (regexA.length == 2 || regexB.length == 2) {
+      return regexA.length.compareTo(regexB.length);
+    }
+    final int aIp = int.parse(
+      a.internetAddress.address.substring(
+        a.internetAddress.address.lastIndexOf(regexA) + regexA.length,
+      ),
+    );
+    final int bIp = int.parse(
+      b.internetAddress.address.substring(
+        b.internetAddress.address.lastIndexOf(regexB) + regexB.length,
+      ),
+    );
+
+    return aIp.compareTo(bIp);
   }
 }

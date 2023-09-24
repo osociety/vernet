@@ -34,7 +34,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
             _getDomainChip('youtube.com'),
             _getDomainChip('apple.com'),
             _getDomainChip('amazon.com'),
-            _getDomainChip('cloudflare.com')
+            _getDomainChip('cloudflare.com'),
           ],
         ),
       ),
@@ -95,7 +95,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
             buildPopularChips(),
             Expanded(
               child: buildResults(context),
-            )
+            ),
           ],
         ),
       ),

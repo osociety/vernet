@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
-import 'package:network_tools/network_tools.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
 
 /// Contains all the information of a device in the network including
 /// icon, open ports and in the future host name and mDNS name
@@ -13,11 +13,13 @@ class DeviceInTheNetwork {
     required Future<String?> makeVar,
     required this.pingData,
     MdnsInfo? mdnsVar,
+    String? mac,
     this.iconData = Icons.devices,
     this.hostId,
   }) {
     make = makeVar;
     _mdns = mdnsVar;
+    _mac = mac;
   }
 
   /// Create the object from active host with the correct field and icon
@@ -25,6 +27,7 @@ class DeviceInTheNetwork {
     required ActiveHost activeHost,
     required String currentDeviceIp,
     required String gatewayIp,
+    required String? mac,
     MdnsInfo? mdns,
   }) {
     return DeviceInTheNetwork.createWithAllNecessaryFields(
@@ -35,6 +38,7 @@ class DeviceInTheNetwork {
       currentDeviceIp: currentDeviceIp,
       gatewayIp: gatewayIp,
       mdns: mdns,
+      mac: mac,
     );
   }
 
@@ -47,6 +51,7 @@ class DeviceInTheNetwork {
     required String currentDeviceIp,
     required String gatewayIp,
     required MdnsInfo? mdns,
+    required String? mac,
   }) {
     final IconData iconData = getHostIcon(
       currentDeviceIp: currentDeviceIp,
@@ -69,12 +74,14 @@ class DeviceInTheNetwork {
       hostId: hostId,
       iconData: iconData,
       mdnsVar: mdns,
+      mac: mac,
     );
   }
 
   /// Ip of the device
   final InternetAddress internetAddress;
   late Future<String?> make;
+  String? _mac;
 
   final PingData pingData;
   final IconData iconData;
@@ -83,6 +90,8 @@ class DeviceInTheNetwork {
   MdnsInfo? get mdns {
     return _mdns;
   }
+
+  String get mac => _mac == null ? '' : '($_mac)';
 
   set mdns(MdnsInfo? name) {
     _mdns = name;
