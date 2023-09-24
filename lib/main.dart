@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/app_settings.dart';
@@ -13,6 +15,8 @@ late AppSettings appSettings;
 Future<void> main() async {
   configureDependencies(Env.prod);
   WidgetsFlutterBinding.ensureInitialized();
+  final appDocDirectory = await getApplicationDocumentsDirectory();
+  await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
   final bool allowed = await ConsentLoader.isConsentPageShown();
 
   appSettings = AppSettings.instance..load();

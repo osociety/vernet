@@ -52,5 +52,7 @@
 	<false/>
 	<key>com.apple.developer.networking.wifi-info</key>
 	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
