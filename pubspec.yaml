@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.1+15
+version: 1.0.1+16
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -16,7 +16,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
-  dart_ping: ^8.0.1
+  dart_ping: ^9.0.0
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -26,23 +26,22 @@ dependencies:
   # Service locator
   get_it: ^7.2.0
   # A composable, multi-platform, Future-based API for HTTP requests.
-  http: ^0.13.5
+  http: ^1.1.0
   # Convenient code generator for get_it
   injectable: ^2.1.0
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
-  network_info_plus: ^3.0.1
+  network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
-  network_tools: ^3.2.1
-  # network_tools:
-  #   path: ../network_tools/network_tools
+  network_tools_flutter: ^1.0.4
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^3.0.1
+  package_info_plus: ^4.1.0
+  path_provider: ^2.1.1
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.2
   # Popup that ask for the requested permission
-  permission_handler: ^10.2.0
+  permission_handler: ^11.0.0
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.0.4
   # Reading and writing simple key-value pairs

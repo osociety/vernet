@@ -190,7 +190,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         'Made with ❤️ in India',
                         textAlign: TextAlign.center,
                       ),
-                    )
+                    ),
                   ],
                 );
               },
