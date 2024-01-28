@@ -10,10 +10,20 @@
             "type": "dart"
         },
         {
-            "name": "vernet (profile mode)",
+          "name": "Vernet (profile mode)",
+          "request": "launch",
+          "type": "dart",
+          "flutterMode": "profile"
+        },
+        {
+            "name": "Vernet F-droid (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "args": [
+              "--flavor",
+              "fdroid"
+            ]
         },
         {
             "name": "F-droid",

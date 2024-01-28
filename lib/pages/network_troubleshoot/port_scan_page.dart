@@ -98,6 +98,7 @@ class _PortScanPageState extends State<PortScanPage>
         endPort: int.parse(_endPortEditingController.text),
         timeout: Duration(milliseconds: appSettings.socketTimeout),
         progressCallback: _handleProgress,
+        async: true,
       ).listen(_handleEvent, onDone: _handleOnDone);
     }
   }
