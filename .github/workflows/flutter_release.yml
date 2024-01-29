@@ -116,6 +116,7 @@ jobs:
           type: 'zip'
           filename: Vernet-${{github.ref_name}}-macos.zip
           directory: build/macos/Build/Products/Release/
+          path: vernet.app
 
       - name: macOS Release
         uses: softprops/action-gh-release@v1
@@ -150,8 +151,8 @@ jobs:
         with:
           type: 'zip'
           filename: Vernet-${{github.ref_name}}-windows.zip
-          directory: build/windows/runner/Release
-
+          directory: build/windows/x64/runner/Release
+          path: vernet.exe
       - name: macOS Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
