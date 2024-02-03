@@ -5,9 +5,20 @@ on:
     types: [published]
   workflow_dispatch:
 
+env:
+  ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
+  LINUX_BUILD_PATH: ${{ vars.LINUX_BUILD_PATH }}
+  MACOS_BUILD_PATH: ${{ vars.MACOS_BUILD_PATH }}
+  WINDOWS_BUILD_PATH: ${{ vars.WINDOWS_BUILD_PATH }}
+
 jobs:
   release-android-and-linux: 
     runs-on: ubuntu-latest
+    env:
+      LINUX_ZIP: Vernet-${{github.ref_name}}-linux.zip
+      ANDROID_APK: app-store-debug.apk
+      ANDROID_APK_PUB: Vernet-${{github.ref_name}}-Android.apk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,12 +71,15 @@ jobs:
           flutter build apk --debug --flavor store 
           flutter build linux --release
 
+      - name: Rename Android APK
+        run: mv ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK }} ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK_PUB }}
+
       - name: Linux Archive
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: Vernet-${{github.ref_name}}-linux.zip
-          directory: build/linux/x64/release/bundle
+          filename: ${{ env.LINUX_ZIP }}
+          directory: ${{ vars.LINUX_BUILD_PATH }}
 
       - name: Publish Android Release
         uses: softprops/action-gh-release@v1
@@ -73,7 +87,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/app/outputs/flutter-apk/app-store-debug.apk
+          files: ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK_PUB }}
 
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v1
@@ -81,10 +95,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/linux/x64/release/bundle/Vernet-${{github.ref_name}}-linux.zip
+          files: ${{ vars.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
   release-macos: 
     runs-on: macos-latest
+    env:
+      MACOS_ZIP: Vernet-${{github.ref_name}}-macos.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -107,8 +123,8 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: Vernet-${{github.ref_name}}-macos.zip
-          directory: build/macos/Build/Products/Release/
+          filename: ${{ env.MACOS_ZIP }}
+          directory: ${{ vars.MACOS_BUILD_PATH }}
           path: vernet.app
 
       - name: Publish macOS Release
@@ -117,10 +133,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/macos/Build/Products/Release/Vernet-${{github.ref_name}}-macos.zip
+          files: ${{ vars.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
 
   release-windows:
     runs-on: windows-latest
+    env:
+      WINDOWS_ZIP: Vernet-${{github.ref_name}}-windows.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -143,8 +161,8 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: Vernet-${{github.ref_name}}-windows.zip
-          directory: build/windows/x64/runner/Release/
+          filename: ${{ env.WINDOWS_ZIP }}
+          directory: ${{ vars.WINDOWS_BUILD_PATH }}
           path: vernet.exe
 
       - name: Publish Windows Release
@@ -153,5 +171,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/windows/x64/runner/Release/Vernet-${{github.ref_name}}-windows.zip
+          files: ${{ vars.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
 
