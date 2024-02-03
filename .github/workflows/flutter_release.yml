@@ -5,9 +5,20 @@ on:
     types: [published]
   workflow_dispatch:
 
+env:
+  ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
+  LINUX_BUILD_PATH: ${{ vars.LINUX_BUILD_PATH }}
+  MACOS_BUILD_PATH: ${{ vars.MACOS_BUILD_PATH }}
+  WINDOWS_BUILD_PATH: ${{ vars.WINDOWS_BUILD_PATH }}
+
 jobs:
   release-android-and-linux: 
     runs-on: ubuntu-latest
+    env:
+      LINUX_ZIP: Vernet-${{github.ref_name}}-linux.zip
+      ANDROID_APK: app-store-debug.apk
+      ANDROID_APK_PUB: Vernet-${{github.ref_name}}-Android.apk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -60,38 +71,36 @@ jobs:
           flutter build apk --debug --flavor store 
           flutter build linux --release
 
-      - name: Android Archive Release
+      - name: Rename Android APK
+        run: mv ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK }} ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK_PUB }}
+
+      - name: Linux Archive
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: Vernet-${{github.ref_name}}-android.zip
-          directory: build/app/outputs/flutter-apk
+          filename: ${{ env.LINUX_ZIP }}
+          directory: ${{ vars.LINUX_BUILD_PATH }}
 
-      - name: Linux Archive Release
-        uses: thedoctor0/zip-release@master
-        with:
-          type: 'zip'
-          filename: Vernet-${{github.ref_name}}-linux.zip
-          directory: build/linux/x64/release/bundle
-
-      - name: Android Release
+      - name: Publish Android Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/app/outputs/flutter-apk/Vernet-${{github.ref_name}}-android.zip
+          files: ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK_PUB }}
 
-      - name: Linux Release
+      - name: Publish Linux Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/linux/x64/release/bundle/Vernet-${{github.ref_name}}-linux.zip
+          files: ${{ vars.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
   release-macos: 
     runs-on: macos-latest
+    env:
+      MACOS_ZIP: Vernet-${{github.ref_name}}-macos.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -110,24 +119,26 @@ jobs:
       - name: Build macos release
         run: flutter build macos --release
 
-      - name: Archive macos Release
+      - name: Archive macos
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: Vernet-${{github.ref_name}}-macos.zip
-          directory: build/macos/Build/Products/Release/
+          filename: ${{ env.MACOS_ZIP }}
+          directory: ${{ vars.MACOS_BUILD_PATH }}
           path: vernet.app
 
-      - name: macOS Release
+      - name: Publish macOS Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/macos/Build/Products/Release/Vernet-${{github.ref_name}}-macos.zip
+          files: ${{ vars.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
 
   release-windows:
     runs-on: windows-latest
+    env:
+      WINDOWS_ZIP: Vernet-${{github.ref_name}}-windows.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -150,15 +161,15 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
-          filename: Vernet-${{github.ref_name}}-windows.zip
-          directory: build/windows/x64/runner/Release/
+          filename: ${{ env.WINDOWS_ZIP }}
+          directory: ${{ vars.WINDOWS_BUILD_PATH }}
           path: vernet.exe
 
-      - name: Windows Release
+      - name: Publish Windows Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: build/windows/x64/runner/Release/Vernet-${{github.ref_name}}-windows.zip
+          files: ${{ vars.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
 
