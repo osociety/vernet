@@ -92,7 +92,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            ${{vars.ANDROID_BUILD_PATH }/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
+            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
             ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
             ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
