@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LINUX_ZIP: Vernet-${{github.ref_name}}-linux.zip
-      ANDROID_APK: app-store-debug.apk
-      ANDROID_APK_PUB: Vernet-${{github.ref_name}}-Android.apk
+      ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-debug.apk
+      ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-debug.apk
+      ANDROID_APK_x86_64: app-x86_64-dev-debug.apk
 
     steps:
       - name: Checkout
@@ -68,11 +69,14 @@ jobs:
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
         run: |
-          flutter build apk --debug --flavor store 
+          flutter build apk --debug --split-per-abi --flavor dev
           flutter build linux --release
 
-      - name: Rename Android APK
-        run: mv ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK }} ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK_PUB }}
+      - name: Rename ANDROID APKs
+        run: |
+          mv ${{vars.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V7A}} ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
+          mv ${{vars.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V8A}} ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
+          mv ${{vars.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Linux Archive
         uses: thedoctor0/zip-release@master
@@ -87,7 +91,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ vars.ANDROID_BUILD_PATH }}/${{ env.ANDROID_APK_PUB }}
+          files: |
+            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
+            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
+            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v1
