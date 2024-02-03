@@ -3,6 +3,8 @@ name: Flutter Test
 on:
   pull_request:
     branches: [ "main", "dev" ]
+     paths-ignore:
+      - '.github/**'
   workflow_dispatch:
   workflow_call:
 
