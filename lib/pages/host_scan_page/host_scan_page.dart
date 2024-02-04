@@ -29,12 +29,10 @@ class HostScanPage extends StatelessWidget {
         //     ),
         // ],
       ),
-      body: Center(
-        child: BlocProvider(
-          create: (context) =>
-              getIt<HostScanBloc>()..add(const HostScanEvent.initialized()),
-          child: HostScanWidget(),
-        ),
+      body: BlocProvider(
+        create: (context) =>
+            getIt<HostScanBloc>()..add(const HostScanEvent.initialized()),
+        child: HostScanWidget(),
       ),
     );
   }

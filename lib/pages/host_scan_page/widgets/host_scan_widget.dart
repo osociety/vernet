@@ -9,40 +9,45 @@ import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 class HostScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        BlocBuilder<HostScanBloc, HostScanState>(
-          builder: (context, state) {
-            return state.map(
-              initial: (_) => Container(),
-              loadInProgress: (value) {
-                return Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(30),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          'Searching for devices in your local network',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
+    return BlocBuilder<HostScanBloc, HostScanState>(
+      builder: (context, state) {
+        return state.map(
+          initial: (_) => Container(),
+          loadInProgress: (value) {
+            return Center(
+              child: Container(
+                margin: const EdgeInsets.all(30),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      height: 30,
                     ),
-                  ),
-                );
-              },
-              foundNewDevice: (FoundNewDevice value) {
-                final List<DeviceInTheNetwork> activeHostList =
-                    value.activeHostList;
+                    Text(
+                      'Searching for devices in your local network',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+          foundNewDevice: (FoundNewDevice value) {
+            final List<DeviceInTheNetwork> activeHostList =
+                value.activeHostList;
 
-                return Expanded(
+            return Flex(
+              direction: Axis.vertical,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text("Found ${activeHostList.length} devices"),
+                ),
+                Expanded(
                   child: ListView.builder(
                     itemCount: activeHostList.length,
                     itemBuilder: (context, index) {
@@ -88,21 +93,21 @@ class HostScanWidget extends StatelessWidget {
                       );
                     },
                   ),
-                );
-              },
-              loadFailure: (value) {
-                return const Text('Failure');
-              },
-              loadSuccess: (value) {
-                return const Text('Done');
-              },
-              error: (Error value) {
-                return const Text('Error');
-              },
+                ),
+              ],
             );
           },
-        ),
-      ],
+          loadFailure: (value) {
+            return const Text('Failure');
+          },
+          loadSuccess: (value) {
+            return const Text('Done');
+          },
+          error: (Error value) {
+            return const Text('Error');
+          },
+        );
+      },
     );
   }
 }
