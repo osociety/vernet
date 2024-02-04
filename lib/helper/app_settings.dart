@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettings {
@@ -45,20 +46,24 @@ class AppSettings {
   }
 
   Future<void> load() async {
+    debugPrint("Fetching all app settings");
     _firstSubnet =
         (await SharedPreferences.getInstance()).getInt(_firstSubnetKey) ??
             _firstSubnet;
-
+    debugPrint("First subnet : $_firstSubnet");
     _lastSubnet =
         (await SharedPreferences.getInstance()).getInt(_lastSubnetKey) ??
             _lastSubnet;
+    debugPrint("Last subnet : $_lastSubnet");
 
     _socketTimeout =
         (await SharedPreferences.getInstance()).getInt(_socketTimeoutKey) ??
             _socketTimeout;
-
+    debugPrint("Socket timeout : $_socketTimeout");
     _pingCount =
         (await SharedPreferences.getInstance()).getInt(_pingCountKey) ??
             _pingCount;
+
+    debugPrint("Ping count : $_socketTimeout");
   }
 }

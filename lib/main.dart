@@ -11,15 +11,16 @@ import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 
-late AppSettings appSettings;
+AppSettings appSettings = AppSettings.instance;
 Future<void> main() async {
   configureDependencies(Env.prod);
   WidgetsFlutterBinding.ensureInitialized();
   final appDocDirectory = await getApplicationDocumentsDirectory();
-  await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
+  await configureNetworkTools(appDocDirectory.path);
   final bool allowed = await ConsentLoader.isConsentPageShown();
 
-  appSettings = AppSettings.instance..load();
+  // load app settings
+  await appSettings.load();
   runApp(MyApp(allowed));
 }
 
