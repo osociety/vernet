@@ -23,7 +23,7 @@ enum ScanType { single, top, range }
 class _PortScanPageState extends State<PortScanPage>
     with SingleTickerProviderStateMixin {
   final Set<OpenPort> _openPorts = {};
-  final Map<String, Port> _allPorts = {};
+
   double _progress = 0;
 
   final TextEditingController _targetIPEditingController =
@@ -91,7 +91,6 @@ class _PortScanPageState extends State<PortScanPage>
         progressCallback: _handleProgress,
       ).listen(_handleEvent, onDone: _handleOnDone);
     } else {
-      //TODO: uncomment
       _streamSubscription = PortScannerFlutter.scanPortsForSingleDevice(
         _targetIPEditingController.text,
         startPort: int.parse(_startPortEditingController.text),
@@ -108,11 +107,6 @@ class _PortScanPageState extends State<PortScanPage>
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
     _targetIPEditingController.text = widget.target;
-    PortDescLoader('assets/ports_lists.json').load().then((value) {
-      setState(() {
-        _allPorts.addAll(value);
-      });
-    });
   }
 
   ScanType? _type = ScanType.top;
@@ -236,242 +230,273 @@ class _PortScanPageState extends State<PortScanPage>
             ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            child: Container(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: Row(
+      body: FutureBuilder<Map<String, Port>>(
+        future: PortDescLoader('assets/ports_lists.json').load(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<Map<String, Port>> snapshot,
+        ) {
+          if (snapshot.hasData) {
+            final Map<String, Port> allPorts =
+                snapshot.data ?? <String, Port>{};
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Card(
+                  child: Container(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: TextFormField(
-                            validator: validateIP,
-                            controller: _targetIPEditingController,
-                            decoration: const InputDecoration(
-                              filled: true,
-                              hintText: 'Enter a domain or IP',
-                            ),
+                        Form(
+                          key: _formKey,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  validator: validateIP,
+                                  controller: _targetIPEditingController,
+                                  decoration: const InputDecoration(
+                                    filled: true,
+                                    hintText: 'Enter a domain or IP',
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              if (_type != ScanType.top)
+                                Expanded(child: _getFields())
+                              else
+                                const SizedBox(),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 3),
-                        if (_type != ScanType.top)
-                          Expanded(child: _getFields())
-                        else
-                          const SizedBox(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTile(
+                                leading: Radio<ScanType>(
+                                  value: ScanType.top,
+                                  groupValue: _type,
+                                  onChanged: (ScanType? value) {
+                                    _tabController.index = 0;
+                                    setState(() {
+                                      _type = value;
+                                    });
+                                  },
+                                ),
+                                child: const Text('Top'),
+                              ),
+                            ),
+                            Expanded(
+                              child: CustomTile(
+                                leading: Radio<ScanType>(
+                                  value: ScanType.range,
+                                  groupValue: _type,
+                                  onChanged: (ScanType? value) {
+                                    _tabController.index = 1;
+                                    setState(() {
+                                      _type = value;
+                                    });
+                                  },
+                                ),
+                                child: const Text(
+                                  'Range',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: CustomTile(
+                                leading: Radio<ScanType>(
+                                  value: ScanType.single,
+                                  groupValue: _type,
+                                  onChanged: (ScanType? value) {
+                                    _tabController.index = 2;
+                                    setState(() {
+                                      _type = value;
+                                    });
+                                  },
+                                ),
+                                child: const Text('Single'),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: ElevatedButton(
+                                onPressed: _completed
+                                    ? () {
+                                        if (_formKey.currentState!.validate()) {
+                                          _startScanning();
+                                        }
+                                      }
+                                    : null,
+                                child: Text(_completed ? 'Scan' : 'Scanning'),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomTile(
-                          leading: Radio<ScanType>(
-                            value: ScanType.top,
-                            groupValue: _type,
-                            onChanged: (ScanType? value) {
-                              _tabController.index = 0;
-                              setState(() {
-                                _type = value;
-                              });
-                            },
-                          ),
-                          child: const Text('Top'),
-                        ),
-                      ),
-                      Expanded(
-                        child: CustomTile(
-                          leading: Radio<ScanType>(
-                            value: ScanType.range,
-                            groupValue: _type,
-                            onChanged: (ScanType? value) {
-                              _tabController.index = 1;
-                              setState(() {
-                                _type = value;
-                              });
-                            },
-                          ),
-                          child: const Text(
-                            'Range',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: CustomTile(
-                          leading: Radio<ScanType>(
-                            value: ScanType.single,
-                            groupValue: _type,
-                            onChanged: (ScanType? value) {
-                              _tabController.index = 2;
-                              setState(() {
-                                _type = value;
-                              });
-                            },
-                          ),
-                          child: const Text('Single'),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: ElevatedButton(
-                          onPressed: _completed
-                              ? () {
-                                  if (_formKey.currentState!.validate()) {
-                                    _startScanning();
-                                  }
-                                }
-                              : null,
-                          child: Text(_completed ? 'Scan' : 'Scanning'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Card(
-              child: Container(
-                padding: const EdgeInsets.all(5.0),
-                child: DefaultTabController(
-                  length: _tabs.length,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      TabBar(
-                        controller: _tabController,
-                        tabs: _tabs,
-                        labelColor: Theme.of(context).colorScheme.secondary,
-                      ),
-                      Flexible(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            Wrap(
-                              children: [
-                                _getDomainChip('192.168.1.1'),
-                                _getDomainChip('google.com'),
-                                _getDomainChip('youtube.com'),
-                                _getDomainChip('apple.com'),
-                                _getDomainChip('amazon.com'),
-                                _getDomainChip('cloudflare.com'),
-                              ],
+                ),
+                Expanded(
+                  child: Card(
+                    child: Container(
+                      padding: const EdgeInsets.all(5.0),
+                      child: DefaultTabController(
+                        length: _tabs.length,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            TabBar(
+                              controller: _tabController,
+                              tabs: _tabs,
+                              labelColor:
+                                  Theme.of(context).colorScheme.secondary,
                             ),
-                            Wrap(
-                              children: [
-                                _getCustomRangeChip(
-                                  '0-1024 (known)',
-                                  '0',
-                                  '1024',
-                                ),
-                                _getCustomRangeChip(
-                                  '0-100 (short)',
-                                  '0',
-                                  '100',
-                                ),
-                                _getCustomRangeChip(
-                                  '0-10 (very short)',
-                                  '0',
-                                  '10',
-                                ),
-                                _getCustomRangeChip(
-                                  '0-65535 (Full)',
-                                  '0',
-                                  '65535',
-                                ),
-                              ],
-                            ),
-                            Wrap(
-                              children: [
-                                _getSinglePortChip('20 (FTP Data)', '20'),
-                                _getSinglePortChip('21 (FTP Control)', '21'),
-                                _getSinglePortChip('22 (SSH)', '22'),
-                                _getSinglePortChip('80 (HTTP)', '80'),
-                                _getSinglePortChip('443 (HTTPS)', '443'),
-                              ],
+                            Flexible(
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  Wrap(
+                                    children: [
+                                      _getDomainChip('192.168.1.1'),
+                                      _getDomainChip('google.com'),
+                                      _getDomainChip('youtube.com'),
+                                      _getDomainChip('apple.com'),
+                                      _getDomainChip('amazon.com'),
+                                      _getDomainChip('cloudflare.com'),
+                                    ],
+                                  ),
+                                  Wrap(
+                                    children: [
+                                      _getCustomRangeChip(
+                                        '0-1024 (known)',
+                                        '0',
+                                        '1024',
+                                      ),
+                                      _getCustomRangeChip(
+                                        '0-100 (short)',
+                                        '0',
+                                        '100',
+                                      ),
+                                      _getCustomRangeChip(
+                                        '0-10 (very short)',
+                                        '0',
+                                        '10',
+                                      ),
+                                      _getCustomRangeChip(
+                                        '0-65535 (Full)',
+                                        '0',
+                                        '65535',
+                                      ),
+                                    ],
+                                  ),
+                                  Wrap(
+                                    children: [
+                                      _getSinglePortChip('20 (FTP Data)', '20'),
+                                      _getSinglePortChip(
+                                        '21 (FTP Control)',
+                                        '21',
+                                      ),
+                                      _getSinglePortChip('22 (SSH)', '22'),
+                                      _getSinglePortChip('80 (HTTP)', '80'),
+                                      _getSinglePortChip('443 (HTTPS)', '443'),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: _openPorts.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No open ports found yet.\nOpen ports will appear here.',
-                      textAlign: TextAlign.center,
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: _openPorts.length,
-                    itemBuilder: (context, index) {
-                      final OpenPort openPort = _openPorts.toList()[index];
-                      return Column(
-                        children: [
-                          ListTile(
-                            dense: true,
-                            contentPadding:
-                                const EdgeInsets.only(left: 10.0, right: 10.0),
-                            leading: Text(
-                              '${index + 1}',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            trailing: Text(
-                              '${openPort.port}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                            ),
-                            title: _allPorts.isEmpty
-                                ? const SizedBox()
-                                : Text(
-                                    _allPorts[openPort.port.toString()]!.desc,
-                                  ),
-                            subtitle: _allPorts.isEmpty
-                                ? const SizedBox()
-                                : Row(
-                                    children: [
-                                      if (_allPorts[openPort.port.toString()]!
-                                          .isTCP)
-                                        const Text('TCP   ')
-                                      else
-                                        const SizedBox(),
-                                      if (_allPorts[openPort.port.toString()]!
-                                          .isUDP)
-                                        const Text('UDP   ')
-                                      else
-                                        const SizedBox(),
-                                      Text(
-                                        _allPorts[openPort.port.toString()]!
-                                            .status,
-                                      ),
-                                    ],
-                                  ),
+                Expanded(
+                  flex: 2,
+                  child: _openPorts.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'No open ports found yet.\nOpen ports will appear here.',
+                            textAlign: TextAlign.center,
                           ),
-                          const Divider(height: 4),
-                        ],
-                      );
-                    },
-                  ),
-          ),
-        ],
+                        )
+                      : ListView.builder(
+                          itemCount: _openPorts.length,
+                          itemBuilder: (context, index) {
+                            final OpenPort openPort =
+                                _openPorts.toList()[index];
+                            final port = allPorts[openPort.port.toString()];
+
+                            return Column(
+                              children: [
+                                ListTile(
+                                  dense: true,
+                                  contentPadding: const EdgeInsets.only(
+                                    left: 10.0,
+                                    right: 10.0,
+                                  ),
+                                  leading: Text(
+                                    '${index + 1}',
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  trailing: Text(
+                                    '${openPort.port}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                        ),
+                                  ),
+                                  title: port == null
+                                      ? const SizedBox()
+                                      : Text(
+                                          port.desc,
+                                        ),
+                                  subtitle: port == null
+                                      ? const SizedBox()
+                                      : Row(
+                                          children: [
+                                            if (port.isTCP)
+                                              const Text('TCP   ')
+                                            else
+                                              const SizedBox(),
+                                            if (port.isUDP)
+                                              const Text('UDP   ')
+                                            else
+                                              const SizedBox(),
+                                            Text(
+                                              port.status,
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                                const Divider(height: 4),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                'There is an error while loading..\nPlease try again after sometime.',
+                textAlign: TextAlign.center,
+              ),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   }

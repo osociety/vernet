@@ -9,6 +9,7 @@ import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
+import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
 import 'package:vernet/values/strings.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -27,13 +28,16 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Card(
             child: ListTile(
-              title: const Text('Dark Theme'),
-              trailing: Switch(
-                value: themeChange.darkTheme,
-                onChanged: (bool? value) {
-                  themeChange.darkTheme = value ?? false;
-                },
-              ),
+              title: const Text('Theme'),
+              subtitle: Text(themeChange.themePref.name),
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  builder: (context) => const ThemeDialog(),
+                );
+                await appSettings.load();
+                setState(() {});
+              },
             ),
           ),
           Card(
