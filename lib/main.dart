@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> getCurrentAppTheme() async {
-    themeChangeProvider.darkTheme =
+    themeChangeProvider.themePref =
         await themeChangeProvider.darkThemePreference.getTheme();
   }
 
