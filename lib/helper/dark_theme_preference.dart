@@ -1,15 +1,19 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/models/dark_theme_provider.dart';
 
 class DarkThemePreference {
-  static const themeStatus = 'THEMESTATUS';
+  static const themeStatus = 'THEMESTATUS_NEW';
 
-  Future<void> setDarkTheme(bool value) async {
+  Future<void> setDarkTheme(ThemePreference value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(themeStatus, value);
+    prefs.setString(themeStatus, value.name);
   }
 
-  Future<bool> getTheme() async {
+  Future<ThemePreference> getTheme() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(themeStatus) ?? false;
+    return ThemePreference.values.firstWhere(
+      (element) => element.name == prefs.getString(themeStatus),
+      orElse: () => ThemePreference.light,
+    );
   }
 }
