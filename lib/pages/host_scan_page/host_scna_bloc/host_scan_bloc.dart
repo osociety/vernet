@@ -49,36 +49,36 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    // MdnsScanner.searchMdnsDevices()
-    //     .then((List<ActiveHost> activeHostList) async {
-    //   for (final ActiveHost activeHost in activeHostList) {
-    //     final int index = indexOfActiveHost(activeHost.address);
-    //     final MdnsInfo? mDns = await activeHost.mdnsInfo;
-    //     if (mDns == null) {
-    //       continue;
-    //     }
+    MdnsScanner.searchMdnsDevices()
+        .then((List<ActiveHost> activeHostList) async {
+      for (final ActiveHost activeHost in activeHostList) {
+        final int index = indexOfActiveHost(activeHost.address);
+        final MdnsInfo? mDns = await activeHost.mdnsInfo;
+        if (mDns == null) {
+          continue;
+        }
 
-    //     if (index == -1) {
-    //       deviceInTheNetworkList.add(
-    //         DeviceInTheNetwork.createFromActiveHost(
-    //           activeHost: activeHost,
-    //           currentDeviceIp: ip!,
-    //           gatewayIp: gatewayIp!,
-    //           mdns: mDns,
-    //           mac: (await activeHost.arpData)?.macAddress,
-    //         ),
-    //       );
-    //     } else {
-    //       deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
-    //         ..mdns = mDns;
-    //     }
+        if (index == -1) {
+          deviceInTheNetworkList.add(
+            DeviceInTheNetwork.createFromActiveHost(
+              activeHost: activeHost,
+              currentDeviceIp: ip!,
+              gatewayIp: gatewayIp!,
+              mdns: mDns,
+              mac: (await activeHost.arpData)?.macAddress,
+            ),
+          );
+        } else {
+          deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
+            ..mdns = mDns;
+        }
 
-    //     deviceInTheNetworkList.sort(sort);
+        deviceInTheNetworkList.sort(sort);
 
-    //     emit(const HostScanState.loadInProgress());
-    //     emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
-    //   }
-    // });
+        emit(const HostScanState.loadInProgress());
+        emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+      }
+    });
 
     final streamController = HostScannerFlutter.getAllPingableDevices(
       subnet!,
