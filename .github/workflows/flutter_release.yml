@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LINUX_ZIP: Vernet-${{github.ref_name}}-linux.zip
-      ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-debug.apk
-      ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-debug.apk
-      ANDROID_APK_x86_64: app-x86_64-dev-debug.apk
+      ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-release.apk
+      ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-release.apk
+      ANDROID_APK_x86_64: app-x86_64-dev-release.apk
 
     steps:
       - name: Checkout
@@ -50,15 +50,11 @@ jobs:
           encodedString: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
 
       - name: Create key.properties
-        run: >
-          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" >
-          android/key.properties
-          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >>
-          android/key.properties
-          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >>
-          android/key.properties
-          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >>
-          android/key.properties
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" >> android/key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
 
       - name: Create artifacts directory
         run: mkdir -p artifacts
@@ -69,7 +65,7 @@ jobs:
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
         run: |
-          flutter build apk --debug --split-per-abi --flavor dev
+          flutter build apk --split-per-abi --flavor dev
           flutter build linux --release
 
       - name: Rename ANDROID APKs
