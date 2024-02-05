@@ -70,7 +70,7 @@ Future<void> checkForUpdates(
 
 Future<void> _navigateToStore() async {
   String url = 'https://github.com/git-elliot/vernet/releases/latest';
-  var isFdroidInstalled = await LaunchApp.isAppInstalled(
+  final isFdroidInstalled = await LaunchApp.isAppInstalled(
     androidPackageName: 'org.fdroid.fdroid',
     iosUrlScheme: 'fdroid://',
   );
