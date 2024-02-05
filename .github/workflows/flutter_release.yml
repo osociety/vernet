@@ -69,7 +69,7 @@ jobs:
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
         run: |
-          flutter build apk --debug --split-per-abi --flavor dev
+          flutter build apk --split-per-abi --flavor dev
           flutter build linux --release
 
       - name: Rename ANDROID APKs
