@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:external_app_launcher/external_app_launcher.dart';
 
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
@@ -69,11 +70,23 @@ Future<void> checkForUpdates(
 
 Future<void> _navigateToStore() async {
   String url = 'https://github.com/git-elliot/vernet/releases/latest';
+  var isFdroidInstalled = await LaunchApp.isAppInstalled(
+    androidPackageName: 'org.fdroid.fdroid',
+    iosUrlScheme: 'fdroid://',
+  );
+
   if (Platform.isAndroid) {
     if ((await PackageInfo.fromPlatform()).version.contains('store')) {
       //Goto playstore
       url =
           'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
+    } else if (isFdroidInstalled == true) {
+      await LaunchApp.openApp(
+        androidPackageName: 'org.fdroid.fdroid',
+        iosUrlScheme: 'fdroid://',
+        appStoreLink: 'itms-apps://itunes.apple.com/',
+        openStore: false,
+      );
     }
   }
   launchURL(url);
