@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LINUX_ZIP: Vernet-${{github.ref_name}}-linux.zip
-      ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-debug.apk
-      ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-debug.apk
-      ANDROID_APK_x86_64: app-x86_64-dev-debug.apk
+      ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-release.apk
+      ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-release.apk
+      ANDROID_APK_x86_64: app-x86_64-dev-release.apk
 
     steps:
       - name: Checkout
