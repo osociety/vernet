@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:external_app_launcher/external_app_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
-import 'package:external_app_launcher/external_app_launcher.dart';
 
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
