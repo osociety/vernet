@@ -87,6 +87,7 @@ Future<void> _navigateToStore() async {
         appStoreLink: 'itms-apps://itunes.apple.com/',
         openStore: false,
       );
+      return;
     }
   }
   launchURL(url);
