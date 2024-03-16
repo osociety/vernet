@@ -77,28 +77,34 @@ class _PortScanPageState extends State<PortScanPage>
       _openPorts.clear();
     });
     if (_type == ScanType.single) {
-      PortScannerFlutter.isOpen(
+      PortScannerService.instance
+          .isOpen(
         _targetIPEditingController.text,
         int.parse(_singlePortEditingController.text),
-      ).then((value) {
+      )
+          .then((value) {
         _handleEvent(value);
         _handleOnDone();
       });
     } else if (_type == ScanType.top) {
-      _streamSubscription = PortScannerFlutter.customDiscover(
-        _targetIPEditingController.text,
-        timeout: Duration(milliseconds: appSettings.socketTimeout),
-        progressCallback: _handleProgress,
-      ).listen(_handleEvent, onDone: _handleOnDone);
+      _streamSubscription = PortScannerService.instance
+          .customDiscover(
+            _targetIPEditingController.text,
+            timeout: Duration(milliseconds: appSettings.socketTimeout),
+            progressCallback: _handleProgress,
+          )
+          .listen(_handleEvent, onDone: _handleOnDone);
     } else {
-      _streamSubscription = PortScannerFlutter.scanPortsForSingleDevice(
-        _targetIPEditingController.text,
-        startPort: int.parse(_startPortEditingController.text),
-        endPort: int.parse(_endPortEditingController.text),
-        timeout: Duration(milliseconds: appSettings.socketTimeout),
-        progressCallback: _handleProgress,
-        async: true,
-      ).listen(_handleEvent, onDone: _handleOnDone);
+      _streamSubscription = PortScannerService.instance
+          .scanPortsForSingleDevice(
+            _targetIPEditingController.text,
+            startPort: int.parse(_startPortEditingController.text),
+            endPort: int.parse(_endPortEditingController.text),
+            timeout: Duration(milliseconds: appSettings.socketTimeout),
+            progressCallback: _handleProgress,
+            async: true,
+          )
+          .listen(_handleEvent, onDone: _handleOnDone);
     }
   }
 

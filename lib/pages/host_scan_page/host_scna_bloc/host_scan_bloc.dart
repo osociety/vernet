@@ -49,7 +49,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    MdnsScanner.searchMdnsDevices()
+    MdnsScannerService.instance
+        .searchMdnsDevices()
         .then((List<ActiveHost> activeHostList) async {
       for (final ActiveHost activeHost in activeHostList) {
         final int index = indexOfActiveHost(activeHost.address);
@@ -80,7 +81,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       }
     });
 
-    final streamController = HostScannerFlutter.getAllPingableDevices(
+    final streamController = HostScannerService.instance.getAllPingableDevices(
       subnet!,
       firstHostId: appSettings.firstSubnet,
       lastHostId: appSettings.lastSubnet,
