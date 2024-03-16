@@ -42,6 +42,19 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              title: const Text('In-App Internet'),
+              trailing: Switch(
+                value: appSettings.inAppInternet,
+                onChanged: (bool? value) async {
+                  appSettings.setInAppInternet(value ?? false);
+                  await appSettings.load();
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
+          Card(
+            child: ListTile(
               title: const Text(StringValue.firstSubnet),
               subtitle: const Text(StringValue.firstSubnetDesc),
               trailing: Text(

@@ -5,6 +5,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/main.dart';
 import 'package:vernet/models/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
@@ -194,48 +195,54 @@ class _WifiDetailState extends State<HomePage> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FutureBuilder<InternetProvider?>(
-                    future: ISPLoader().load(),
-                    builder: (
-                      BuildContext context,
-                      AsyncSnapshot<InternetProvider?> snapshot,
-                    ) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomTile(
-                              leading: Icon(
-                                Icons.public,
-                                color: Theme.of(context).colorScheme.secondary,
+                  if (appSettings.inAppInternet)
+                    FutureBuilder<InternetProvider?>(
+                      future: ISPLoader().load(),
+                      builder: (
+                        BuildContext context,
+                        AsyncSnapshot<InternetProvider?> snapshot,
+                      ) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomTile(
+                                leading: Icon(
+                                  Icons.public,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                child: Text(snapshot.data!.ip),
                               ),
-                              child: Text(snapshot.data!.ip),
-                            ),
-                            CustomTile(
-                              leading: Icon(
-                                Icons.dns,
-                                color: Theme.of(context).colorScheme.secondary,
+                              CustomTile(
+                                leading: Icon(
+                                  Icons.dns,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                child: Text(snapshot.data!.isp),
                               ),
-                              child: Text(snapshot.data!.isp),
-                            ),
-                            CustomTile(
-                              leading: Icon(
-                                Icons.location_on,
-                                color: Theme.of(context).colorScheme.secondary,
+                              CustomTile(
+                                leading: Icon(
+                                  Icons.location_on,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                child: Text(snapshot.data!.location.address),
                               ),
-                              child: Text(snapshot.data!.location.address),
-                            ),
-                            const SizedBox(height: 5),
-                            const Divider(height: 3),
-                          ],
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return const Text('Unable to fetch ISP details');
-                      }
-                      return const Text('Loading ISP details..');
-                    },
-                  ),
+                              const SizedBox(height: 5),
+                              const Divider(height: 3),
+                            ],
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return const Text('Unable to fetch ISP details');
+                        }
+                        return const Text('Loading ISP details..');
+                      },
+                    )
+                  else
+                    const Text("In-App Internet is off"),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () {
