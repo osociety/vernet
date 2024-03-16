@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
 
+import 'package:vernet/main.dart';
+
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
     'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1',
@@ -38,7 +40,10 @@ Future<void> checkForUpdates(
   try {
     final info = await PackageInfo.fromPlatform();
     final String v = '${info.version}+${info.buildNumber}';
-    final bool available = await compute(_checkUpdates, v);
+    bool available = false;
+    if (appSettings.inAppInternet) {
+      available = await compute(_checkUpdates, v);
+    }
     ScaffoldMessenger.of(context).clearSnackBars();
     Widget? content;
     SnackBarAction? action;
@@ -53,6 +58,10 @@ Future<void> checkForUpdates(
     } else {
       if (showIfNoUpdate) {
         content = const Text('No updates found');
+        if (!appSettings.inAppInternet) {
+          content =
+              const Text('Please turn on In-App Internet to check updates.');
+        }
       }
     }
     if (ScaffoldMessenger.of(context).mounted && content != null) {

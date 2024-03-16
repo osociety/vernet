@@ -8,10 +8,12 @@ class AppSettings {
   static const String _firstSubnetKey = 'AppSettings-FIRST_SUBNET';
   static const String _socketTimeoutKey = 'AppSettings-SOCKET_TIMEOUT';
   static const String _pingCountKey = 'AppSettings-PING_COUNT';
+  static const String _inAppInternetKey = 'AppSettings-IN-APP-INTERNET';
   int _firstSubnet = 1;
   int _lastSubnet = 254;
   int _socketTimeout = 500;
   int _pingCount = 5;
+  bool _inAppInternet = false;
 
   static final AppSettings _instance = AppSettings._();
 
@@ -20,6 +22,7 @@ class AppSettings {
   int get lastSubnet => _lastSubnet;
   int get socketTimeout => _socketTimeout;
   int get pingCount => _pingCount;
+  bool get inAppInternet => _inAppInternet;
 
   Future<bool> setFirstSubnet(int firstSubnet) async {
     _firstSubnet = firstSubnet;
@@ -45,12 +48,19 @@ class AppSettings {
         .setInt(_pingCountKey, _pingCount);
   }
 
+  Future<bool> setInAppInternet(bool inAppInternet) async {
+    _inAppInternet = inAppInternet;
+    return (await SharedPreferences.getInstance())
+        .setBool(_inAppInternetKey, _inAppInternet);
+  }
+
   Future<void> load() async {
     debugPrint("Fetching all app settings");
     _firstSubnet =
         (await SharedPreferences.getInstance()).getInt(_firstSubnetKey) ??
             _firstSubnet;
     debugPrint("First subnet : $_firstSubnet");
+
     _lastSubnet =
         (await SharedPreferences.getInstance()).getInt(_lastSubnetKey) ??
             _lastSubnet;
@@ -60,10 +70,15 @@ class AppSettings {
         (await SharedPreferences.getInstance()).getInt(_socketTimeoutKey) ??
             _socketTimeout;
     debugPrint("Socket timeout : $_socketTimeout");
+
     _pingCount =
         (await SharedPreferences.getInstance()).getInt(_pingCountKey) ??
             _pingCount;
+    debugPrint("Ping count : $_pingCount");
 
-    debugPrint("Ping count : $_socketTimeout");
+    _inAppInternet =
+        (await SharedPreferences.getInstance()).getBool(_inAppInternetKey) ??
+            _inAppInternet;
+    debugPrint("In-App Internet : $_inAppInternet");
   }
 }
