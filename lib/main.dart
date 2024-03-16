@@ -16,7 +16,7 @@ Future<void> main() async {
   configureDependencies(Env.prod);
   WidgetsFlutterBinding.ensureInitialized();
   final appDocDirectory = await getApplicationDocumentsDirectory();
-  await configureNetworkTools(appDocDirectory.path, enableDebugging: true);
+  await configureNetworkTools(appDocDirectory.path);
   final bool allowed = await ConsentLoader.isConsentPageShown();
 
   // load app settings
