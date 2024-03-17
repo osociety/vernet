@@ -25,7 +25,9 @@ class HostScanWidget extends StatelessWidget {
                       height: 30,
                     ),
                     Text(
-                      'Searching for devices in your local network \n ${appSettings.gatewayIP}',
+                      appSettings.gatewayIP.isNotEmpty
+                          ? 'Searching for devices in ${appSettings.gatewayIP} network'
+                          : 'Searching for devices in your local network',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 18,
