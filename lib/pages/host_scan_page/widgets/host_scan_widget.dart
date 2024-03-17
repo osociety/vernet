@@ -76,6 +76,7 @@ class HostScanWidget extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => PortScanPage(
                                   target: host.internetAddress.address,
+                                  runDefaultScan: true,
                                 ),
                               ),
                             );
