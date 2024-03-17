@@ -5,6 +5,7 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
@@ -131,6 +132,27 @@ class _SettingsPageState extends State<SettingsPage> {
                 await showDialog(
                   context: context,
                   builder: (context) => const PingCountDialog(),
+                );
+                await appSettings.load();
+                setState(() {});
+              },
+            ),
+          ),
+          Card(
+            child: ListTile(
+              title: const Text(StringValue.customSubnet),
+              subtitle: const Text(StringValue.customSubnetDesc),
+              trailing: Text(
+                appSettings.customSubnet,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+              ),
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  builder: (context) => const CustomSubnetDialog(),
                 );
                 await appSettings.load();
                 setState(() {});
