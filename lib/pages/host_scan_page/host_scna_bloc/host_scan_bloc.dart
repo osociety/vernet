@@ -44,10 +44,6 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         ? appSettings.customSubnet
         : await NetworkInfo().getWifiGatewayIP();
     subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
-    print('IP : $ip');
-    print('Subnet : $subnet');
-    print('GT IP : $gatewayIp');
-
     add(const HostScanEvent.startNewScan());
   }
 
