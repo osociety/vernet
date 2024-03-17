@@ -92,6 +92,7 @@ class _PortScanPageState extends State<PortScanPage>
             _targetIPEditingController.text,
             timeout: Duration(milliseconds: appSettings.socketTimeout),
             progressCallback: _handleProgress,
+            async: true,
           )
           .listen(_handleEvent, onDone: _handleOnDone);
     } else {
