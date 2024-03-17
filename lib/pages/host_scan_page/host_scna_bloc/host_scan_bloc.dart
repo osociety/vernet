@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -54,37 +55,40 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    // MdnsScannerService.instance
-    //     .searchMdnsDevices()
-    //     .then((List<ActiveHost> activeHostList) async {
-    //   for (final ActiveHost activeHost in activeHostList) {
-    //     final int index = indexOfActiveHost(activeHost.address);
-    //     final MdnsInfo? mDns = await activeHost.mdnsInfo;
-    //     if (mDns == null) {
-    //       continue;
-    //     }
+    // mdns scanner causes crash on macos while running app.
+    if (!kDebugMode) {
+      MdnsScannerService.instance
+          .searchMdnsDevices()
+          .then((List<ActiveHost> activeHostList) async {
+        for (final ActiveHost activeHost in activeHostList) {
+          final int index = indexOfActiveHost(activeHost.address);
+          final MdnsInfo? mDns = await activeHost.mdnsInfo;
+          if (mDns == null) {
+            continue;
+          }
 
-    //     if (index == -1) {
-    //       deviceInTheNetworkList.add(
-    //         DeviceInTheNetwork.createFromActiveHost(
-    //           activeHost: activeHost,
-    //           currentDeviceIp: ip!,
-    //           gatewayIp: gatewayIp!,
-    //           mdns: mDns,
-    //           mac: (await activeHost.arpData)?.macAddress,
-    //         ),
-    //       );
-    //     } else {
-    //       deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
-    //         ..mdns = mDns;
-    //     }
+          if (index == -1) {
+            deviceInTheNetworkList.add(
+              DeviceInTheNetwork.createFromActiveHost(
+                activeHost: activeHost,
+                currentDeviceIp: ip!,
+                gatewayIp: gatewayIp!,
+                mdns: mDns,
+                mac: (await activeHost.arpData)?.macAddress,
+              ),
+            );
+          } else {
+            deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
+              ..mdns = mDns;
+          }
 
-    //     deviceInTheNetworkList.sort(sort);
+          deviceInTheNetworkList.sort(sort);
 
-    //     emit(const HostScanState.loadInProgress());
-    //     emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
-    //   }
-    // });
+          emit(const HostScanState.loadInProgress());
+          emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+        }
+      });
+    }
 
     final streamController = HostScannerService.instance.getAllPingableDevices(
       subnet!,
