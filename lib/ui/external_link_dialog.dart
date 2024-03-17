@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/helper/utils_helper.dart';
 
-class ExternalLinkWarningDialog extends StatefulWidget {
+class ExternalLinkWarningDialog extends StatelessWidget {
   const ExternalLinkWarningDialog({super.key, required this.link});
 
   final String link;
 
   @override
-  State<ExternalLinkWarningDialog> createState() =>
-      _ExternalLinkWarningDialogState();
-}
-
-class _ExternalLinkWarningDialogState extends State<ExternalLinkWarningDialog> {
-  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Confirm to open external link"),
-      content: Text(widget.link),
+      content: Text(link),
       actions: [
         TextButton(
           onPressed: () {
@@ -26,7 +20,7 @@ class _ExternalLinkWarningDialogState extends State<ExternalLinkWarningDialog> {
         ),
         TextButton.icon(
           onPressed: () {
-            launchURL(widget.link);
+            launchURL(link);
           },
           icon: const Icon(Icons.link),
           label: const Text('Open Link'),
