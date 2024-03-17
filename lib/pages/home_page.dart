@@ -246,7 +246,7 @@ class _WifiDetailState extends State<HomePage> {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () {
-                      launchURL('https://fast.com');
+                      launchURLWithWarning(context, 'https://fast.com');
                     },
                     icon: const Icon(Icons.speed),
                     label: const Text('Speed Test'),

@@ -162,45 +162,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.bug_report),
                       title: const Text('Report Issues'),
-                      // subtitle: Text(_issueUrl),
-                      // trailing: IconButton(
-                      //   icon: Icon(Icons.open_in_new),
-                      //   onPressed: () {
-                      //     _launchURL(_issueUrl);
-                      //   },
-                      // ),
                       onTap: () {
-                        launchURL(_issueUrl);
+                        launchURLWithWarning(context, _issueUrl);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.favorite),
                       title: const Text('Donate'),
-                      // subtitle: Text(_donateUrl),
-                      // trailing: IconButton(
-                      //   icon: Icon(Icons.open_in_new),
-                      //   onPressed: () {
-                      //     _launchURL(_donateUrl);
-                      //   },
-                      // ),
                       onTap: () {
-                        launchURL(_donateUrl);
+                        launchURLWithWarning(context, _donateUrl);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.code),
                       title: const Text('Source Code'),
-                      // subtitle: Text(_srcUrl),
                       onTap: () {
-                        launchURL(_srcUrl);
+                        launchURLWithWarning(context, _srcUrl);
                       },
-
-                      // trailing: IconButton(
-                      //   icon: Icon(Icons.open_in_new),
-                      //   onPressed: () {
-                      //     _launchURL(_srcUrl);
-                      //   },
-                      // ),
                     ),
                     const ListTile(
                       title: Text(

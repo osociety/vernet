@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
 
 import 'package:vernet/main.dart';
+import 'package:vernet/ui/external_link_dialog.dart';
 
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
@@ -52,7 +53,7 @@ Future<void> checkForUpdates(
       action = SnackBarAction(
         label: 'Update',
         onPressed: () {
-          _navigateToStore();
+          _navigateToStore(context);
         },
       );
     } else {
@@ -77,14 +78,15 @@ Future<void> checkForUpdates(
   }
 }
 
-Future<void> _navigateToStore() async {
+Future<void> _navigateToStore(BuildContext context) async {
   String url = 'https://github.com/git-elliot/vernet/releases/latest';
-  final isFdroidInstalled = await LaunchApp.isAppInstalled(
-    androidPackageName: 'org.fdroid.fdroid',
-    iosUrlScheme: 'fdroid://',
-  );
 
   if (Platform.isAndroid) {
+    final isFdroidInstalled = await LaunchApp.isAppInstalled(
+      androidPackageName: 'org.fdroid.fdroid',
+      iosUrlScheme: 'fdroid://',
+    );
+
     if ((await PackageInfo.fromPlatform()).version.contains('store')) {
       //Goto playstore
       url =
@@ -99,5 +101,5 @@ Future<void> _navigateToStore() async {
       return;
     }
   }
-  launchURL(url);
+  launchURLWithWarning(context, url);
 }
