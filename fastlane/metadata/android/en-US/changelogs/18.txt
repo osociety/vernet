@@ -1,1 +1,1 @@
-Minor bug fixes and improvements.
+Follow system theme added and bug fixes
