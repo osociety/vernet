@@ -10,9 +10,10 @@ import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
 class PortScanPage extends StatefulWidget {
-  const PortScanPage({this.target = ''});
+  const PortScanPage({this.target = '', this.runDefaultScan = false});
 
   final String target;
+  final bool runDefaultScan;
 
   @override
   _PortScanPageState createState() => _PortScanPageState();
@@ -77,28 +78,35 @@ class _PortScanPageState extends State<PortScanPage>
       _openPorts.clear();
     });
     if (_type == ScanType.single) {
-      PortScannerFlutter.isOpen(
+      PortScannerService.instance
+          .isOpen(
         _targetIPEditingController.text,
         int.parse(_singlePortEditingController.text),
-      ).then((value) {
+      )
+          .then((value) {
         _handleEvent(value);
         _handleOnDone();
       });
     } else if (_type == ScanType.top) {
-      _streamSubscription = PortScannerFlutter.customDiscover(
-        _targetIPEditingController.text,
-        timeout: Duration(milliseconds: appSettings.socketTimeout),
-        progressCallback: _handleProgress,
-      ).listen(_handleEvent, onDone: _handleOnDone);
+      _streamSubscription = PortScannerService.instance
+          .customDiscover(
+            _targetIPEditingController.text,
+            timeout: Duration(milliseconds: appSettings.socketTimeout),
+            progressCallback: _handleProgress,
+            async: true,
+          )
+          .listen(_handleEvent, onDone: _handleOnDone);
     } else {
-      _streamSubscription = PortScannerFlutter.scanPortsForSingleDevice(
-        _targetIPEditingController.text,
-        startPort: int.parse(_startPortEditingController.text),
-        endPort: int.parse(_endPortEditingController.text),
-        timeout: Duration(milliseconds: appSettings.socketTimeout),
-        progressCallback: _handleProgress,
-        async: true,
-      ).listen(_handleEvent, onDone: _handleOnDone);
+      _streamSubscription = PortScannerService.instance
+          .scanPortsForSingleDevice(
+            _targetIPEditingController.text,
+            startPort: int.parse(_startPortEditingController.text),
+            endPort: int.parse(_endPortEditingController.text),
+            timeout: Duration(milliseconds: appSettings.socketTimeout),
+            progressCallback: _handleProgress,
+            async: true,
+          )
+          .listen(_handleEvent, onDone: _handleOnDone);
     }
   }
 
@@ -107,6 +115,9 @@ class _PortScanPageState extends State<PortScanPage>
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
     _targetIPEditingController.text = widget.target;
+    if (widget.runDefaultScan) {
+      Future.delayed(Durations.short2, _startScanning);
+    }
   }
 
   ScanType? _type = ScanType.top;

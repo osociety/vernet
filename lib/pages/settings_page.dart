@@ -5,6 +5,7 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
@@ -38,6 +39,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 await appSettings.load();
                 setState(() {});
               },
+            ),
+          ),
+          Card(
+            child: ListTile(
+              title: const Text('In-App Internet'),
+              trailing: Switch(
+                value: appSettings.inAppInternet,
+                onChanged: (bool? value) async {
+                  appSettings.setInAppInternet(value ?? false);
+                  await appSettings.load();
+                  setState(() {});
+                },
+              ),
             ),
           ),
           Card(
@@ -126,6 +140,27 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              title: const Text(StringValue.customSubnet),
+              subtitle: const Text(StringValue.customSubnetDesc),
+              trailing: Text(
+                appSettings.customSubnet,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+              ),
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  builder: (context) => const CustomSubnetDialog(),
+                );
+                await appSettings.load();
+                setState(() {});
+              },
+            ),
+          ),
+          Card(
+            child: ListTile(
               title: const Text('Check for Updates'),
               trailing: IconButton(
                 icon: const Icon(Icons.refresh),
@@ -149,45 +184,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     ListTile(
                       leading: const Icon(Icons.bug_report),
                       title: const Text('Report Issues'),
-                      // subtitle: Text(_issueUrl),
-                      // trailing: IconButton(
-                      //   icon: Icon(Icons.open_in_new),
-                      //   onPressed: () {
-                      //     _launchURL(_issueUrl);
-                      //   },
-                      // ),
                       onTap: () {
-                        launchURL(_issueUrl);
+                        launchURLWithWarning(context, _issueUrl);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.favorite),
                       title: const Text('Donate'),
-                      // subtitle: Text(_donateUrl),
-                      // trailing: IconButton(
-                      //   icon: Icon(Icons.open_in_new),
-                      //   onPressed: () {
-                      //     _launchURL(_donateUrl);
-                      //   },
-                      // ),
                       onTap: () {
-                        launchURL(_donateUrl);
+                        launchURLWithWarning(context, _donateUrl);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.code),
                       title: const Text('Source Code'),
-                      // subtitle: Text(_srcUrl),
                       onTap: () {
-                        launchURL(_srcUrl);
+                        launchURLWithWarning(context, _srcUrl);
                       },
-
-                      // trailing: IconButton(
-                      //   icon: Icon(Icons.open_in_new),
-                      //   onPressed: () {
-                      //     _launchURL(_srcUrl);
-                      //   },
-                      // ),
                     ),
                     const ListTile(
                       title: Text(

@@ -42,9 +42,10 @@ Note: macOS build hasn't been notarized yet.
 ### Instructions for Linux
 
 1. Star this repository.
-2. Download vernet-linux.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
-3. Extract downloaded zip file.
-4. Go to bundle folder and double click vernet file.
+2. Install `net-tools` package for `arp` command, otherwise app will not run.
+3. Download vernet-linux.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+4. Extract downloaded zip file.
+5. Go to bundle folder and double click vernet file.
 
 ## Contributors Required
 

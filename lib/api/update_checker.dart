@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:external_app_launcher/external_app_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
+
+import 'package:vernet/main.dart';
 
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
@@ -37,7 +40,10 @@ Future<void> checkForUpdates(
   try {
     final info = await PackageInfo.fromPlatform();
     final String v = '${info.version}+${info.buildNumber}';
-    final bool available = await compute(_checkUpdates, v);
+    bool available = false;
+    if (appSettings.inAppInternet) {
+      available = await compute(_checkUpdates, v);
+    }
     ScaffoldMessenger.of(context).clearSnackBars();
     Widget? content;
     SnackBarAction? action;
@@ -46,12 +52,16 @@ Future<void> checkForUpdates(
       action = SnackBarAction(
         label: 'Update',
         onPressed: () {
-          _navigateToStore();
+          _navigateToStore(context);
         },
       );
     } else {
       if (showIfNoUpdate) {
         content = const Text('No updates found');
+        if (!appSettings.inAppInternet) {
+          content =
+              const Text('Please turn on In-App Internet to check updates.');
+        }
       }
     }
     if (ScaffoldMessenger.of(context).mounted && content != null) {
@@ -67,14 +77,28 @@ Future<void> checkForUpdates(
   }
 }
 
-Future<void> _navigateToStore() async {
+Future<void> _navigateToStore(BuildContext context) async {
   String url = 'https://github.com/git-elliot/vernet/releases/latest';
+
   if (Platform.isAndroid) {
+    final isFdroidInstalled = await LaunchApp.isAppInstalled(
+      androidPackageName: 'org.fdroid.fdroid',
+      iosUrlScheme: 'fdroid://',
+    );
+
     if ((await PackageInfo.fromPlatform()).version.contains('store')) {
       //Goto playstore
       url =
           'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
+    } else if (isFdroidInstalled == true) {
+      await LaunchApp.openApp(
+        androidPackageName: 'org.fdroid.fdroid',
+        iosUrlScheme: 'fdroid://',
+        appStoreLink: 'itms-apps://itunes.apple.com/',
+        openStore: false,
+      );
+      return;
     }
   }
-  launchURL(url);
+  launchURLWithWarning(context, url);
 }

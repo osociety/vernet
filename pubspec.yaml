@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.3+18
+version: 1.0.4+19
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -17,6 +17,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.5
   dart_ping: ^9.0.0
+  external_app_launcher: ^3.1.0
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -34,7 +35,7 @@ dependencies:
   # Discover network info and configure themselves accordingly
   network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
-  network_tools_flutter: ^1.0.5
+  network_tools_flutter: ^2.0.0
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^4.1.0
   path_provider: ^2.1.1
