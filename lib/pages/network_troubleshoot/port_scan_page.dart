@@ -10,9 +10,10 @@ import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
 class PortScanPage extends StatefulWidget {
-  const PortScanPage({this.target = ''});
+  const PortScanPage({this.target = '', this.runDefaultScan = false});
 
   final String target;
+  final bool runDefaultScan;
 
   @override
   _PortScanPageState createState() => _PortScanPageState();
@@ -114,6 +115,9 @@ class _PortScanPageState extends State<PortScanPage>
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
     _targetIPEditingController.text = widget.target;
+    if (widget.runDefaultScan) {
+      Future.delayed(Durations.short2, _startScanning);
+    }
   }
 
   ScanType? _type = ScanType.top;
