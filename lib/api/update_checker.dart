@@ -9,7 +9,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
 
 import 'package:vernet/main.dart';
-import 'package:vernet/ui/external_link_dialog.dart';
 
 Future<bool> _checkUpdates(String v) async {
   final Uri url = Uri.parse(
