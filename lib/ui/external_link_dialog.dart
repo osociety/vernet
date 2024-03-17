@@ -15,7 +15,7 @@ class _ExternalLinkWarningDialogState extends State<ExternalLinkWarningDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Confirm external link opening"),
+      title: const Text("Confirm to open external link"),
       content: Text(widget.link),
       actions: [
         TextButton(
