@@ -51,41 +51,6 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    // mdns scanner causes crash on macos while running app.
-    if (!kDebugMode) {
-      MdnsScannerService.instance
-          .searchMdnsDevices()
-          .then((List<ActiveHost> activeHostList) async {
-        for (final ActiveHost activeHost in activeHostList) {
-          final int index = indexOfActiveHost(activeHost.address);
-          final MdnsInfo? mDns = await activeHost.mdnsInfo;
-          if (mDns == null) {
-            continue;
-          }
-
-          if (index == -1) {
-            deviceInTheNetworkList.add(
-              DeviceInTheNetwork.createFromActiveHost(
-                activeHost: activeHost,
-                currentDeviceIp: ip!,
-                gatewayIp: gatewayIp!,
-                mdns: mDns,
-                mac: (await activeHost.arpData)?.macAddress,
-              ),
-            );
-          } else {
-            deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
-              ..mdns = mDns;
-          }
-
-          deviceInTheNetworkList.sort(sort);
-
-          emit(const HostScanState.loadInProgress());
-          emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
-        }
-      });
-    }
-
     final streamController = HostScannerService.instance.getAllPingableDevices(
       subnet!,
       firstHostId: appSettings.firstSubnet,
@@ -114,10 +79,40 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       }
 
       deviceInTheNetworkList.sort(sort);
-
       emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
     }
+
+    final activeMdnsHostList =
+        await MdnsScannerService.instance.searchMdnsDevices();
+
+    for (final ActiveHost activeHost in activeMdnsHostList) {
+      final int index = indexOfActiveHost(activeHost.address);
+      final MdnsInfo? mDns = await activeHost.mdnsInfo;
+      if (mDns == null) {
+        continue;
+      }
+
+      if (index == -1) {
+        deviceInTheNetworkList.add(
+          DeviceInTheNetwork.createFromActiveHost(
+            activeHost: activeHost,
+            currentDeviceIp: ip!,
+            gatewayIp: gatewayIp!,
+            mdns: mDns,
+            mac: (await activeHost.arpData)?.macAddress,
+          ),
+        );
+      } else {
+        deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
+          ..mdns = mDns;
+      }
+
+      deviceInTheNetworkList.sort(sort);
+      emit(const HostScanState.loadInProgress());
+      emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+    }
+    emit(HostScanState.loadSuccess(deviceInTheNetworkList));
   }
 
   /// Getting active host IP and finds it's index inside of activeHostList
