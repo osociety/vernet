@@ -11,8 +11,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      lib: ${{ steps.filter.outputs.lib }}
+      android: ${{ steps.filter.outputs.android }}
+      test: ${{ steps.filter.outputs.test }}
+    steps:
+    # For pull requests it's not necessary to checkout the code
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          lib:
+            - 'lib/**'
+          android:
+            - 'android/**'
+          test:
+            - 'test/**'
   build:
     name: 'Flutter Test'
+    needs: changes
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.test == 'true'}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
