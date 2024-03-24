@@ -94,4 +94,4 @@ jobs:
           flutter build apk --debug --flavor dev
       - name: Build Linux 
         if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
-        run: flutter build linux --release
+        run: flutter build linux
