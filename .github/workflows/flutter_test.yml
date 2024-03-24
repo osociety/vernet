@@ -94,6 +94,11 @@ jobs:
         if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true'}}
         run: |
           flutter build apk --debug --flavor dev
+          
+      # Run only if test, lib, and linux folder is changed
+      - name: Install Linux dependencies
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
+        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Build Linux 
         if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
         run: flutter build linux
