@@ -19,8 +19,10 @@ jobs:
     # Set job outputs to values from filter step
     outputs:
       lib: ${{ steps.filter.outputs.lib }}
-      android: ${{ steps.filter.outputs.android }}
       test: ${{ steps.filter.outputs.test }}
+      android: ${{ steps.filter.outputs.android }}
+      linux: ${{ steps.filter.outputs.linux }}
+      macos: ${{ steps.filter.outputs.macos }}
     steps:
     # For pull requests it's not necessary to checkout the code
     - uses: dorny/paths-filter@v3
