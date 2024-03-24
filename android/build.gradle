@@ -3,7 +3,8 @@ allprojects {
         google()
         jcenter()
     }
-    // Fix for gradle error - Namespace not specified. Specify a namespace in the module's build file
+    // Fix for Gradle Error. 
+    // Namespace not specified. Specify a namespace in the module's build file
     subprojects {
         afterEvaluate { project ->
             if (project.hasProperty('android')) {
