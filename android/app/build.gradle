@@ -78,14 +78,14 @@ android {
             versionNameSuffix "-store"
         }
     }
-    lint {
-        checkReleaseBuilds false
+
+    namespace "org.fsociety.vernet"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    namespace 'org.fsociety.vernet'
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = true
-        }
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 
