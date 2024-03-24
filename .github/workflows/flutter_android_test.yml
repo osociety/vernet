@@ -33,7 +33,7 @@ jobs:
             - 'android/**'
           test:
             - 'test/**'
-  build:
+  android-build:
     name: 'Flutter Test'
     needs: changes
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.test == 'true'}}
