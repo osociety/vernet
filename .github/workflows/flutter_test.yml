@@ -41,7 +41,7 @@ jobs:
             - 'macos/**'
             
   android-linux-build:
-    name: 'Flutter Android and Linux Build'
+    name: 'Flutter Android/Linux Build'
     needs: changes
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' }}
     runs-on: ubuntu-latest
