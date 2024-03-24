@@ -8,7 +8,7 @@ Vernet - Network Analyzer and Monitoring Tool
 
 ## Features
 
-1. Shows Wi-Fi details
+1. Shows Wi-Fi details such as BSSID and MAC Address.
 2. Scans for devices(or hosts) on network
 3. Scans for open ports of target IP
 4. Shows ISP details
