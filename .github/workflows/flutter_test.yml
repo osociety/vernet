@@ -33,10 +33,15 @@ jobs:
             - 'android/**'
           test:
             - 'test/**'
-  android-build:
-    name: 'Flutter Test'
+          linux:
+            - 'linux/**'
+          macos:
+            - 'macos/**'
+            
+  android-linux-build:
+    name: 'Flutter Android and Linux Build'
     needs: changes
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.test == 'true'}}
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -83,6 +88,10 @@ jobs:
         run: flutter analyze
       - name: Run tests
         run: flutter test
-      - name: Build dev debug flavor
+      - name: Build Android
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true'}}
         run: |
           flutter build apk --debug --flavor dev
+      - name: Build Linux 
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
+        run: flutter build linux --release
