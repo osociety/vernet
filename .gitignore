@@ -145,3 +145,4 @@ android/app/release
 # gem files
 android/.bundle
 android/vendor
+android/fastlane/Appfile

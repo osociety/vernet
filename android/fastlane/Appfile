@@ -1,2 +1,0 @@
-json_key_file("/Users/paras/Development/keys/pc-api-8425228000688621147-853-39b50356df30.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
-package_name("org.fsociety.vernet.store") # e.g. com.krausefx.app
