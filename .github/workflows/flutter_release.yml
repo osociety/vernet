@@ -114,11 +114,13 @@ jobs:
       - name: Cache bundle dependencies
         uses: actions/cache@v2
         with:
-         path: vendor/bundle
+         path: android/vendor/bundle
          key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
          restore-keys: '${{ runner.os }}-gems-'
 
       - name: Download bundle dependencies
+        with:
+         path: android/
         run: |
           gem install bundler:2.3.20
           bundle config path vendor/bundle
@@ -128,6 +130,8 @@ jobs:
         env:
           SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
           SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
+        with:
+         path: android/
         run: bundle exec fastlane android deploy
 
   release-macos: 
