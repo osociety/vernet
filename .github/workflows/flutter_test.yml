@@ -11,8 +11,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: 'Flutter Test'
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      lib: ${{ steps.filter.outputs.lib }}
+      test: ${{ steps.filter.outputs.test }}
+      android: ${{ steps.filter.outputs.android }}
+      linux: ${{ steps.filter.outputs.linux }}
+      macos: ${{ steps.filter.outputs.macos }}
+    steps:
+    # For pull requests it's not necessary to checkout the code
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          lib:
+            - 'lib/**'
+          android:
+            - 'android/**'
+          test:
+            - 'test/**'
+          linux:
+            - 'linux/**'
+          macos:
+            - 'macos/**'
+            
+  android-linux-build:
+    name: 'Android / Linux Build'
+    needs: changes
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -53,12 +84,23 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
+      - name: Upgrade pub dependencies
+        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Run analyzer
         run: flutter analyze
       - name: Run tests
         run: flutter test
-      - name: Build dev debug flavor
+      - name: Build Android
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true'}}
         run: |
           flutter build apk --debug --flavor dev
+          
+      # Run only if test, lib, and linux folder is changed
+      - name: Install Linux dependencies
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
+        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - name: Build Linux 
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
+        run: flutter build linux

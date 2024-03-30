@@ -1,0 +1,2 @@
+Significant search speed improvement to host and port scanning.
+Host Name for devices added on platform Linux and iOS. 

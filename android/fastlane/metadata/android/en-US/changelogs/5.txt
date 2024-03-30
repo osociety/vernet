@@ -1,0 +1,1 @@
+Unnecessary ACCESS_COARSE_LOCATION permission removed.
