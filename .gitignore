@@ -141,3 +141,7 @@ app.*.symbols
 android/app/debug
 android/app/profile
 android/app/release
+
+# gem files
+android/.bundle
+android/vendor
