@@ -103,32 +103,32 @@ jobs:
         with:
           files: ${{ vars.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
-       - name: Build Android App Bundle
-         run: flutter build appbundle --flavor store
+      - name: Build Android App Bundle
+        run: flutter build appbundle --flavor store
 
-       - name: 'Setup Ruby, JRuby and TruffleRuby'
-         uses: ruby/setup-ruby@v1.115.0
-         with:
-           ruby-version: 3.1.2
+      - name: 'Setup Ruby, JRuby and TruffleRuby'
+        uses: ruby/setup-ruby@v1.115.0
+        with:
+         ruby-version: 3.1.2
 
-       - name: Cache bundle dependencies
-         uses: actions/cache@v2
-         with:
-           path: vendor/bundle
-           key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
-           restore-keys: '${{ runner.os }}-gems-'
+      - name: Cache bundle dependencies
+        uses: actions/cache@v2
+        with:
+         path: vendor/bundle
+         key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
+         restore-keys: '${{ runner.os }}-gems-'
 
-       - name: Download bundle dependencies
-         run: |
-           gem install bundler:2.3.20
-           bundle config path vendor/bundle
-           bundle install
+      - name: Download bundle dependencies
+        run: |
+          gem install bundler:2.3.20
+          bundle config path vendor/bundle
+          bundle install
 
-       - name: Release to Google Play
-         env:
-           SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
-           SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
-         run: bundle exec fastlane android deploy
+      - name: Release to Google Play
+        env:
+          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
+          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
+        run: bundle exec fastlane android deploy
 
   release-macos: 
     runs-on: macos-latest
@@ -211,4 +211,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ vars.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
-
