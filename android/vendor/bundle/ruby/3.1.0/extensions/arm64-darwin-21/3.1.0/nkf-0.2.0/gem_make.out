@@ -1,0 +1,16 @@
+current directory: /Users/paras/Development/flutterprojects/vernet/android/vendor/bundle/ruby/3.1.0/gems/nkf-0.2.0/ext/nkf
+/Users/paras/.rbenv/versions/3.1.2/bin/ruby -I /Users/paras/.rbenv/versions/3.1.2/lib/ruby/3.1.0 -r ./siteconf20240330-27162-iumv5p.rb extconf.rb
+creating Makefile
+
+current directory: /Users/paras/Development/flutterprojects/vernet/android/vendor/bundle/ruby/3.1.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= clean
+
+current directory: /Users/paras/Development/flutterprojects/vernet/android/vendor/bundle/ruby/3.1.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\=
+compiling nkf.c
+linking shared-object nkf.bundle
+ld: warning: -multiply_defined is obsolete
+
+current directory: /Users/paras/Development/flutterprojects/vernet/android/vendor/bundle/ruby/3.1.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= install
+/opt/homebrew/bin/ginstall -c -m 0755 nkf.bundle ./.gem.20240330-27162-nmes7a

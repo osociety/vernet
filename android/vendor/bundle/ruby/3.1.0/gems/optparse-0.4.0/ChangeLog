@@ -1,0 +1,163 @@
+-*- coding: utf-8 -*-
+
+commit acbf6e3e12de4d116f7215b64432f204d293da97
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-11-07 10:40:38 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-11-07 10:40:38 +0900
+
+    Bump up 0.4.0
+
+commit 38848ce4b31977d4a892c2a5573b304c77208283
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-10-05 16:17:40 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-10-05 16:26:53 +0900
+
+    Use test-unit-ruby-core gem
+
+commit a291ef5c26445d423bf0223b0cb64340df18f0cb
+  Author:     dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+  AuthorDate: 2023-09-11 03:20:53 +0000
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-09-11 14:02:17 +0900
+
+    Bump actions/checkout from 3 to 4
+
+    Bumps [actions/checkout](https://github.com/actions/checkout) from 3 to 4.
+    - [Release notes](https://github.com/actions/checkout/releases)
+    - [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)
+    - [Commits](https://github.com/actions/checkout/compare/v3...v4)
+
+    ---
+    updated-dependencies:
+    - dependency-name: actions/checkout
+      dependency-type: direct:production
+      update-type: version-update:semver-major
+    ...
+
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+commit 2940dbb65a7df013995934a93e6906109adda766
+  Author:     BurdetteLamar <burdettelamar@yahoo.com>
+  AuthorDate: 2023-07-30 16:35:00 +0100
+  Commit:     BurdetteLamar <burdettelamar@yahoo.com>
+  CommitDate: 2023-07-30 16:35:00 +0100
+
+    [DOC] Corrections to tutorial
+
+commit e8bee0be8f52f5a3e08d0db09a13798701670391
+  Author:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  AuthorDate: 2023-07-30 11:24:59 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2023-07-30 11:24:59 +0900
+
+    [DOC] Mark up constant and method names as code
+
+commit 3cde2178d3d1bd1c7bf9c7e2af930e89e0bad6e5
+  Author:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  AuthorDate: 2023-07-12 01:07:11 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2023-07-12 01:07:37 +0900
+
+    Upload according to build results
+
+commit fb91d97c109269aee4fb0f7ecc1b3826dad118d8
+  Author:     Jeremy Evans <code@jeremyevans.net>
+  AuthorDate: 2023-04-04 13:58:59 -0700
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-04-05 08:43:45 +0900
+
+    Document requires needed for Date/DateTime/Time/URI/Shellwords support
+
+    Fixes [Bug #19566]
+
+commit 5bf4fa8a72a00d0891106af21655800db1d2ceff
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-03-24 13:01:25 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-03-24 13:38:04 +0900
+
+    Update test libraries from https://github.com/ruby/ruby/commit/b4e438d8aabaf4bba2b27f374c787543fae07c58
+
+commit b67cc2407e6f9b5b4c9bc0751e21fa4969da0ceb
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-02-18 16:37:54 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-02-18 16:46:18 +0900
+
+    Skip build and upload package with Windows
+
+commit fd6621a23da2e8d3d1a3ab75003dbfeb0e42e2ab
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-02-18 16:31:55 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-02-18 16:46:18 +0900
+
+    Exclude JRuby from Windows
+
+commit 426726fa170ab5a1ddba4f2ef04ae6864ed2a625
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-02-18 16:25:39 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-02-18 16:46:18 +0900
+
+    Try with Windows
+
+commit 45fade52f519f656f62eb601899e3e96d3f69fca
+  Author:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  AuthorDate: 2023-02-18 16:25:25 +0900
+  Commit:     Hiroshi SHIBATA <hsbt@ruby-lang.org>
+  CommitDate: 2023-02-18 16:46:18 +0900
+
+    Use ruby/actions/.github/workflows/ruby_versions.yml@master
+
+commit 366a6a6b569037420013e83ada92012d0c6a2f76
+  Author:     Keishi Tanaka <k-tanaka@ruby-dev.jp>
+  AuthorDate: 2023-01-21 14:09:00 +0900
+  Commit:     GitHub <noreply@github.com>
+  CommitDate: 2023-01-21 14:09:00 +0900
+
+    Migrate set-output to $GITHUB_OUTPUT (#50)
+
+    https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+
+commit 3e63d878f895a299a6ddeee5f8c615b69edf401c
+  Author:     Junichi Ito <jit@sonicgarden.jp>
+  AuthorDate: 2022-11-29 08:07:47 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2022-12-22 19:58:43 +0900
+
+    Add symbolize_names to getopts
+
+commit 73661899ad17e1061c7fc0f88cc4ac4e66a3c9a9
+  Author:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  AuthorDate: 2022-12-22 19:57:30 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2022-12-22 19:57:30 +0900
+
+    bump up to 0.4.0.pre.1
+
+commit 697ea7bf8e343704e735fb2d1f7787d96b843469
+  Author:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  AuthorDate: 2022-12-22 19:55:51 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2022-12-22 19:55:51 +0900
+
+    Add .rdoc_options
+
+commit ab0022bd23d77e515390cbb2c165f7647400be46
+  Author:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  AuthorDate: 2021-09-29 11:47:47 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2022-12-22 19:53:20 +0900
+
+    Cron test
+
+commit 33663e2c50eb8496b81750976b3480c14783470d
+  Author:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  AuthorDate: 2022-12-22 19:48:22 +0900
+  Commit:     Nobuyoshi Nakada <nobu@ruby-lang.org>
+  CommitDate: 2022-12-22 19:50:16 +0900
+
+    Add `helper.bump`

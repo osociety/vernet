@@ -1,0 +1,1 @@
+Hard code versioning removed from settings page

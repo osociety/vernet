@@ -84,6 +84,8 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
+      - name: Upgrade pub dependencies
+        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Run analyzer
