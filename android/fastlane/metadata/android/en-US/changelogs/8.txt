@@ -1,0 +1,1 @@
+GeoLocation API updated and speed test via browser added

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ class _PingPageState extends BasePage<PingPage> {
       _ping = Ping(
         textEditingController.text,
         count: appSettings.pingCount,
+        forceCodepage: Platform.isWindows,
       );
     });
     _streamSubscription = _ping?.stream.listen(

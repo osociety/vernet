@@ -1,0 +1,1 @@
+Changelogs are now maintained in fastlane folder
