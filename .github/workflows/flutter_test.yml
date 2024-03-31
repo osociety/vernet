@@ -23,6 +23,7 @@ jobs:
       android: ${{ steps.filter.outputs.android }}
       linux: ${{ steps.filter.outputs.linux }}
       macos: ${{ steps.filter.outputs.macos }}
+      yaml: ${{ steps.filter.outputs.yaml }}
     steps:
     # For pull requests it's not necessary to checkout the code
     - uses: dorny/paths-filter@v3
@@ -39,11 +40,13 @@ jobs:
             - 'linux/**'
           macos:
             - 'macos/**'
+          yaml:
+            - '*.yaml'
             
   android-linux-build:
     name: 'Android / Linux Build'
     needs: changes
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' }}
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -93,22 +96,22 @@ jobs:
       - name: Run tests
         run: flutter test
       - name: Build Android
-        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true'}}
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.yaml == 'true' }}
         run: |
           flutter build apk --debug --flavor dev
           
       # Run only if test, lib, and linux folder is changed
       - name: Install Linux dependencies
-        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Build Linux 
-        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true'}}
+        if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
         run: flutter build linux
   
   macos-build:
     name: 'Macos Build'
     needs: changes
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true'}}
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -154,7 +157,7 @@ jobs:
 
       - name: Run analyzer
         run: flutter analyze
-        
+
       - name: Run tests
         run: flutter test
 
