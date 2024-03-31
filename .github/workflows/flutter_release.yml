@@ -93,7 +93,7 @@ jobs:
           SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
           SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
         working-directory: android/
-        run: bundle exec fastlane android deploy
+        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy' }} 
 
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
