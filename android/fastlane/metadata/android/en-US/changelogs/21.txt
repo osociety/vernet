@@ -1,0 +1,2 @@
+Minor bug fixes and improvments.
+Publishing dmg for macos now.
