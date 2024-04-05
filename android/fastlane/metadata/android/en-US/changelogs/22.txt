@@ -1,0 +1,1 @@
+Run checks for windows and publish beta on android for prerelease publish
