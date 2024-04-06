@@ -22,6 +22,8 @@ dependencies:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^8.1.1
+  # Native splash screen plugin
+  flutter_native_splash: ^2.4.0
   # Annotations for freezed
   freezed_annotation: ^2.2.0
   # Service locator
