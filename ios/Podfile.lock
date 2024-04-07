@@ -6,6 +6,8 @@ PODS:
     - Flutter
   - flutter_isolate (0.0.1):
     - Flutter
+  - flutter_native_splash (0.0.1):
+    - Flutter
   - network_info_plus (0.0.1):
     - Flutter
   - nsd_ios (0.0.1):
@@ -28,6 +30,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_icmp_ping (from `.symlinks/plugins/flutter_icmp_ping/ios`)
   - flutter_isolate (from `.symlinks/plugins/flutter_isolate/ios`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
   - nsd_ios (from `.symlinks/plugins/nsd_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -45,6 +48,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_icmp_ping/ios"
   flutter_isolate:
     :path: ".symlinks/plugins/flutter_isolate/ios"
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   network_info_plus:
     :path: ".symlinks/plugins/network_info_plus/ios"
   nsd_ios:
@@ -65,6 +70,7 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_icmp_ping: 2b159955eee0c487c766ad83fec224ae35e7c935
   flutter_isolate: 0edf5081826d071adf21759d1eb10ff5c24503b5
+  flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
   network_info_plus: 6d0c3eb8367b8164fa3fb0c19875e3f59d49697f
   nsd_ios: 8c37babdc6538e3350dbed3a52674d2edde98173
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
