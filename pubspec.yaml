@@ -22,8 +22,10 @@ dependencies:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^8.1.1
+  # Native splash screen plugin
+  flutter_native_splash: ^2.4.0
   # Annotations for freezed
-  freezed_annotation: ^2.2.0
+  freezed_annotation: ^2.4.1
   # Service locator
   get_it: ^7.2.0
   # A composable, multi-platform, Future-based API for HTTP requests.
@@ -33,6 +35,7 @@ dependencies:
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
+  json_annotation: ^4.8.1
   network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^2.0.0
@@ -52,15 +55,16 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner:
+  build_runner: ^2.4.9
 
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^2.2.0
+  freezed: ^2.5.0
   # Convenient code generator for get_it.
   injectable_generator: ^2.1.4
   # Collection of lint rules for Dart and Flutter projects.
+  json_serializable: ^6.7.1
   lint: ^2.0.1
 
 flutter:

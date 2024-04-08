@@ -29,10 +29,6 @@ class HostScanWidget extends StatelessWidget {
                           ? 'Searching for devices in ${appSettings.gatewayIP} network'
                           : 'Searching for devices in your local network',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.blue,
-                      ),
                     ),
                   ],
                 ),

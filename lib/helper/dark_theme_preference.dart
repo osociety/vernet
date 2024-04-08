@@ -13,7 +13,7 @@ class DarkThemePreference {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return ThemePreference.values.firstWhere(
       (element) => element.name == prefs.getString(themeStatus),
-      orElse: () => ThemePreference.light,
+      orElse: () => ThemePreference.system,
     );
   }
 }

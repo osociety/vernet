@@ -22,6 +22,7 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
             padding: MediaQuery.of(context).padding,
             child: Column(
               children: [
+                const SizedBox(height: 40),
                 const Text('Made with ❤️ in India'),
                 const SizedBox(height: 15),
                 Text(
