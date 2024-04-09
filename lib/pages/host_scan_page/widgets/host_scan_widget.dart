@@ -36,13 +36,13 @@ class HostScanWidget extends StatelessWidget {
             );
           },
           foundNewDevice: (FoundNewDevice value) {
-            return _devicesWidget(value.activeHostList);
+            return _devicesWidget(context, value.activeHostList, true);
           },
           loadFailure: (value) {
             return const Text('Failure');
           },
           loadSuccess: (value) {
-            return _devicesWidget(value.activeHostList);
+            return _devicesWidget(context, value.activeHostList, false);
           },
           error: (Error value) {
             return const Text('Error');
@@ -52,13 +52,36 @@ class HostScanWidget extends StatelessWidget {
     );
   }
 
-  Widget _devicesWidget(List<DeviceInTheNetwork> activeHostList) {
+  Widget _devicesWidget(
+    BuildContext context,
+    List<DeviceInTheNetwork> activeHostList,
+    bool loading,
+  ) {
     return Flex(
       direction: Axis.vertical,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Text("Found ${activeHostList.length} devices"),
+        ListTile(
+          title: Text(
+            "Found ${activeHostList.length} devices",
+            textAlign: TextAlign.center,
+          ),
+          trailing: loading
+              ? const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 25.0,
+                    width: 25.0,
+                    child: Center(child: CircularProgressIndicator.adaptive()),
+                  ),
+                )
+              : IconButton(
+                  onPressed: () {
+                    context
+                        .read<HostScanBloc>()
+                        .add(const HostScanEvent.initialized());
+                  },
+                  icon: const Icon(Icons.replay),
+                ),
         ),
         Expanded(
           child: ListView.builder(
