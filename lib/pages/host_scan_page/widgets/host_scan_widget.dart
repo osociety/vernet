@@ -65,7 +65,11 @@ class HostScanWidget extends StatelessWidget {
           trailing: loading
               ? const Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator.adaptive(),
+                  child: SizedBox(
+                    height: 25.0,
+                    width: 25.0,
+                    child: Center(child: CircularProgressIndicator.adaptive()),
+                  ),
                 )
               : IconButton(
                   onPressed: () {
@@ -73,7 +77,7 @@ class HostScanWidget extends StatelessWidget {
                         .read<HostScanBloc>()
                         .add(const HostScanEvent.initialized());
                   },
-                  icon: const Icon(Icons.play_arrow),
+                  icon: const Icon(Icons.replay),
                 ),
         ),
         Expanded(
