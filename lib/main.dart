@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -14,14 +15,18 @@ import 'package:vernet/pages/settings_page.dart';
 AppSettings appSettings = AppSettings.instance;
 Future<void> main() async {
   configureDependencies(Env.prod);
-  WidgetsFlutterBinding.ensureInitialized();
+
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
+
   final appDocDirectory = await getApplicationDocumentsDirectory();
   await configureNetworkToolsFlutter(appDocDirectory.path);
-  final bool allowed = await ConsentLoader.isConsentPageShown();
 
-  // load app settings
+  final bool allowed = await ConsentLoader.isConsentPageShown();
   await appSettings.load();
+
   runApp(MyApp(allowed));
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatefulWidget {

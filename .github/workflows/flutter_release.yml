@@ -10,6 +10,7 @@ env:
   LINUX_BUILD_PATH: ${{ vars.LINUX_BUILD_PATH }}
   MACOS_BUILD_PATH: ${{ vars.MACOS_BUILD_PATH }}
   WINDOWS_BUILD_PATH: ${{ vars.WINDOWS_BUILD_PATH }}
+  MACOS_DMG_PATH: installers/dmg_creator
 
 jobs:
   release-android-and-linux: 
@@ -92,7 +93,7 @@ jobs:
           SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
           SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
         working-directory: android/
-        run: bundle exec fastlane android deploy
+        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy' }} 
 
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
@@ -102,16 +103,16 @@ jobs:
 
       - name: Rename ANDROID APKs
         run: |
-          mv ${{vars.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V7A}} ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
-          mv ${{vars.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V8A}} ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
-          mv ${{vars.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
+          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V7A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
+          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V8A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
+          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Linux Archive
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
           filename: ${{ env.LINUX_ZIP }}
-          directory: ${{ vars.LINUX_BUILD_PATH }}
+          directory: ${{  env.LINUX_BUILD_PATH }}
 
       - name: Publish Android Release
         uses: softprops/action-gh-release@v1
@@ -120,9 +121,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
-            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
-            ${{vars.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
+            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
+            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
+            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v1
@@ -130,12 +131,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ vars.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
+          files: ${{  env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
   release-macos: 
     runs-on: macos-latest
     env:
       MACOS_ZIP: Vernet-${{github.ref_name}}-macos.zip
+      MACOS_DMG: Vernet-${{github.ref_name}}-macos.dmg
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -162,8 +164,19 @@ jobs:
         with:
           type: 'zip'
           filename: ${{ env.MACOS_ZIP }}
-          directory: ${{ vars.MACOS_BUILD_PATH }}
+          directory: ${{ env.MACOS_BUILD_PATH }}
           path: vernet.app
+
+      - name: Install Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          
+      - name: Install Appdmg and Create dmg
+        working-directory: ${{ env.MACOS_DMG_PATH }}
+        run: |
+          npm install -g appdmg
+          appdmg ./config.json ./${{ env.MACOS_DMG }}
 
       - name: Publish macOS Release
         uses: softprops/action-gh-release@v1
@@ -171,7 +184,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ vars.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
+          files: |
+            ${{ env.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
+            ${{ env.MACOS_DMG_PATH }}/${{ env.MACOS_DMG }}
 
   release-windows:
     runs-on: windows-latest
@@ -203,7 +218,7 @@ jobs:
         with:
           type: 'zip'
           filename: ${{ env.WINDOWS_ZIP }}
-          directory: ${{ vars.WINDOWS_BUILD_PATH }}
+          directory: ${{  env.WINDOWS_BUILD_PATH }}
           path: vernet.exe
 
       - name: Publish Windows Release
@@ -212,4 +227,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ vars.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
+          files: ${{  env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}

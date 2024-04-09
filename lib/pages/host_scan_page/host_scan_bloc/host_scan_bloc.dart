@@ -29,15 +29,17 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   String? subnet;
 
   /// List of all ActiveHost devices that got found in the current scan
-  List<DeviceInTheNetwork> deviceInTheNetworkList = [];
+  final List<DeviceInTheNetwork> deviceInTheNetworkList = [];
 
   /// mDNS for each ip
-  Map<String, MdnsInfo> mDnsDevices = {};
+  final Map<String, MdnsInfo> mDnsDevices = {};
 
   Future<void> _initialized(
     Initialized event,
     Emitter<HostScanState> emit,
   ) async {
+    deviceInTheNetworkList.clear();
+    mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
     ip = await NetworkInfo().getWifiIP();
     gatewayIp = appSettings.customSubnet.isNotEmpty

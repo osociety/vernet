@@ -1,14 +1,23 @@
 PODS:
+  - external_app_launcher (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_icmp_ping (0.0.1):
     - Flutter
   - flutter_isolate (0.0.1):
     - Flutter
+  - flutter_native_splash (0.0.1):
+    - Flutter
   - network_info_plus (0.0.1):
+    - Flutter
+  - nsd_ios (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
     - Flutter
-  - permission_handler_apple (9.1.1):
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - permission_handler_apple (9.3.0):
     - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
@@ -17,26 +26,38 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - external_app_launcher (from `.symlinks/plugins/external_app_launcher/ios`)
   - Flutter (from `Flutter`)
   - flutter_icmp_ping (from `.symlinks/plugins/flutter_icmp_ping/ios`)
   - flutter_isolate (from `.symlinks/plugins/flutter_isolate/ios`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
+  - nsd_ios (from `.symlinks/plugins/nsd_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
+  external_app_launcher:
+    :path: ".symlinks/plugins/external_app_launcher/ios"
   Flutter:
     :path: Flutter
   flutter_icmp_ping:
     :path: ".symlinks/plugins/flutter_icmp_ping/ios"
   flutter_isolate:
     :path: ".symlinks/plugins/flutter_isolate/ios"
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   network_info_plus:
     :path: ".symlinks/plugins/network_info_plus/ios"
+  nsd_ios:
+    :path: ".symlinks/plugins/nsd_ios/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   shared_preferences_foundation:
@@ -45,15 +66,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  external_app_launcher: ad55ac844aa21f2d2197d7cec58ff0d0dc40bbc0
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_icmp_ping: 2b159955eee0c487c766ad83fec224ae35e7c935
   flutter_isolate: 0edf5081826d071adf21759d1eb10ff5c24503b5
-  network_info_plus: b78876159360f5580608c2cea620d6ceffabd0ad
-  package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
-  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
-  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
+  flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
+  network_info_plus: 6d0c3eb8367b8164fa3fb0c19875e3f59d49697f
+  nsd_ios: 8c37babdc6538e3350dbed3a52674d2edde98173
+  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+  shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
+  url_launcher_ios: 6116280ddcfe98ab8820085d8d76ae7449447586
 
-PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.15.2
