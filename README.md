@@ -17,7 +17,7 @@ Vernet - Network Analyzer and Monitoring Tool
 
 |Vernet|Home|Devices|Open Ports|Dark Home|Settings|
 |-|-|-|-|-|-|
-|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "100">|<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "100">|
+|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "100">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "100">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "100">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "100">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "100">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "100">|
 
 ## Download
 
