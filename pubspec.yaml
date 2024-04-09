@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.6+23
+version: 1.0.6+24
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
