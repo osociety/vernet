@@ -52,8 +52,11 @@ class HostScanWidget extends StatelessWidget {
     );
   }
 
-  Widget _devicesWidget(BuildContext context,
-      List<DeviceInTheNetwork> activeHostList, bool loading) {
+  Widget _devicesWidget(
+    BuildContext context,
+    List<DeviceInTheNetwork> activeHostList,
+    bool loading,
+  ) {
     return Flex(
       direction: Axis.vertical,
       children: [
