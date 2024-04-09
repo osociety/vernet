@@ -1,3 +1,0 @@
-Fixed full port scan freeze issue.
-Theme and framework update.
-Minor bug fixes and improvements.

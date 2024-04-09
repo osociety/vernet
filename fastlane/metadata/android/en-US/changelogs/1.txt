@@ -1,1 +1,0 @@
-Only host scanner, port scanner and ping is supported.
