@@ -43,7 +43,8 @@ class AdaptiveDialog extends StatelessWidget {
                 ),
                 ...actions,
               ],
-            ))
+            ),
+          )
         : AlertDialog(
             title: title,
             content: content,
