@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   changes:
+    name: 'Detect changes'
     runs-on: ubuntu-latest
     # Required permissions
     permissions:
