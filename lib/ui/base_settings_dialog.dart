@@ -1,4 +1,9 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
+import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
 
 abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
   final _formKey = GlobalKey<FormState>();
@@ -27,32 +32,53 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(getDialogTitle()),
-      content: Form(
-        key: _formKey,
-        child: TextFormField(
-          key: _fieldKey,
-          controller: _controller,
-          validator: validate,
-          keyboardType: getKeyBoardType(),
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            hintText: getHintText(),
-          ),
-        ),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              onSubmit(_controller.text);
-              Navigator.pop(context);
-            }
-          },
-          child: const Text('Submit'),
-        ),
-      ],
+    return AdaptiveDialog(
+      title: title,
+      content: content,
+      actions: actions(context),
     );
+  }
+
+  Widget get title => Text(getDialogTitle());
+  Widget get content => Form(
+        key: _formKey,
+        child: Platform.isIOS || Platform.isMacOS
+            ? CupertinoTextFormFieldRow(
+                key: _fieldKey,
+                controller: _controller,
+                validator: validate,
+                keyboardType: getKeyBoardType(),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2.0,
+                    color: CupertinoColors.inactiveGray,
+                  ),
+                  borderRadius: BorderRadius.circular(32.0),
+                ),
+              )
+            : TextFormField(
+                key: _fieldKey,
+                controller: _controller,
+                validator: validate,
+                keyboardType: getKeyBoardType(),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: getHintText(),
+                ),
+              ),
+      );
+  List<Widget> actions(BuildContext context) {
+    return [
+      AdaptiveDialogAction(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            onSubmit(_controller.text);
+            Navigator.pop(context);
+          }
+        },
+        isDestructiveAction: true,
+        child: const Text('Submit'),
+      ),
+    ];
   }
 }

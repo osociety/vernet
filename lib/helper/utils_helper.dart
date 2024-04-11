@@ -7,7 +7,7 @@ Future<void> launchURL(String url) async => await canLaunchUrlString(url)
     : throw 'Could not launch $url';
 
 Future<void> launchURLWithWarning(BuildContext context, String url) {
-  return showDialog(
+  return showAdaptiveDialog(
     context: context,
     builder: (context) => ExternalLinkWarningDialog(
       link: url,
