@@ -5,6 +5,7 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
@@ -28,11 +29,11 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         children: [
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text('Theme'),
               subtitle: Text(themeChange.themePref.name),
               onTap: () async {
-                await showDialog(
+                await showAdaptiveDialog(
                   context: context,
                   builder: (context) => const ThemeDialog(),
                 );
@@ -42,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text('In-App Internet'),
               trailing: Switch(
                 value: appSettings.inAppInternet,
@@ -55,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text(StringValue.firstSubnet),
               subtitle: const Text(StringValue.firstSubnetDesc),
               trailing: Text(
@@ -66,7 +67,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
-                await showDialog(
+                await showAdaptiveDialog(
                   context: context,
                   builder: (context) => const FirstSubnetDialog(),
                 );
@@ -76,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text(StringValue.lastSubnet),
               subtitle: const Text(StringValue.lastSubnetDesc),
               trailing: Text(
@@ -87,7 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
-                await showDialog(
+                await showAdaptiveDialog(
                   context: context,
                   builder: (context) => const LastSubnetDialog(),
                 );
@@ -97,7 +98,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text(StringValue.socketTimeout),
               subtitle: const Text(StringValue.socketTimeoutdesc),
               trailing: Text(
@@ -108,7 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
-                await showDialog(
+                await showAdaptiveDialog(
                   context: context,
                   builder: (context) => const SocketTimeoutDialog(),
                 );
@@ -118,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text(StringValue.pingCount),
               subtitle: const Text(StringValue.pingCountDesc),
               trailing: Text(
@@ -129,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
-                await showDialog(
+                await showAdaptiveDialog(
                   context: context,
                   builder: (context) => const PingCountDialog(),
                 );
@@ -139,7 +140,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text(StringValue.customSubnet),
               subtitle: const Text(StringValue.customSubnetDesc),
               trailing: Text(
@@ -150,7 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ?.copyWith(color: Theme.of(context).colorScheme.secondary),
               ),
               onTap: () async {
-                await showDialog(
+                await showAdaptiveDialog(
                   context: context,
                   builder: (context) => const CustomSubnetDialog(),
                 );
@@ -160,7 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text('Check for Updates'),
               trailing: IconButton(
                 icon: const Icon(Icons.refresh),
@@ -171,7 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               title: const Text('About'),
               onTap: () async {
                 final info = await PackageInfo.fromPlatform();
@@ -181,28 +182,28 @@ class _SettingsPageState extends State<SettingsPage> {
                   applicationVersion: '${info.version}+${info.buildNumber}',
                   applicationIcon: const Icon(Icons.radar),
                   children: [
-                    ListTile(
+                    AdaptiveListTile(
                       leading: const Icon(Icons.bug_report),
                       title: const Text('Report Issues'),
                       onTap: () {
                         launchURLWithWarning(context, _issueUrl);
                       },
                     ),
-                    ListTile(
+                    AdaptiveListTile(
                       leading: const Icon(Icons.favorite),
                       title: const Text('Donate'),
                       onTap: () {
                         launchURLWithWarning(context, _donateUrl);
                       },
                     ),
-                    ListTile(
+                    AdaptiveListTile(
                       leading: const Icon(Icons.code),
                       title: const Text('Source Code'),
                       onTap: () {
                         launchURLWithWarning(context, _srcUrl);
                       },
                     ),
-                    const ListTile(
+                    const AdaptiveListTile(
                       title: Text(
                         'Made with ❤️ in India',
                         textAlign: TextAlign.center,

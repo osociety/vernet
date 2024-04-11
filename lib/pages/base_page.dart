@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
 abstract class BasePage<T extends StatefulWidget> extends State<T> {
@@ -26,7 +27,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
 
   Widget buildPopularChips() {
     return Card(
-      child: ListTile(
+      child: AdaptiveListTile(
         title: const Text('Popular targets'),
         subtitle: Wrap(
           children: [

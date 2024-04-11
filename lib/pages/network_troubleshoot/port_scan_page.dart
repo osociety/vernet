@@ -6,6 +6,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 
@@ -442,7 +443,7 @@ class _PortScanPageState extends State<PortScanPage>
 
                             return Column(
                               children: [
-                                ListTile(
+                                AdaptiveListTile(
                                   dense: true,
                                   contentPadding: const EdgeInsets.only(
                                     left: 10.0,

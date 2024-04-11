@@ -5,6 +5,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 
 class HostScanWidget extends StatelessWidget {
   @override
@@ -60,7 +61,7 @@ class HostScanWidget extends StatelessWidget {
     return Flex(
       direction: Axis.vertical,
       children: [
-        ListTile(
+        AdaptiveListTile(
           title: Text(
             "Found ${activeHostList.length} devices",
             textAlign: TextAlign.center,
@@ -88,7 +89,7 @@ class HostScanWidget extends StatelessWidget {
             itemCount: activeHostList.length,
             itemBuilder: (context, index) {
               final DeviceInTheNetwork host = activeHostList[index];
-              return ListTile(
+              return AdaptiveListTile(
                 leading: Icon(host.iconData),
                 title: FutureBuilder(
                   future: host.make,

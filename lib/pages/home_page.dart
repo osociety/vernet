@@ -13,6 +13,7 @@ import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -61,7 +62,7 @@ class _WifiDetailState extends State<HomePage> {
           Card(
             child: _wifiInfo == null
                 ? const CircularProgressIndicator.adaptive()
-                : ListTile(
+                : AdaptiveListTile(
                     minVerticalPadding: 10,
                     leading: const Icon(Icons.router),
                     title: Text(_wifiInfo!.name),
@@ -107,7 +108,7 @@ class _WifiDetailState extends State<HomePage> {
                   ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               leading: const Icon(Icons.network_check),
               title: const Text('Network Troubleshooting'),
               minVerticalPadding: 10,
@@ -148,7 +149,7 @@ class _WifiDetailState extends State<HomePage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               leading: const Icon(Icons.dns),
               title: const Text('Domain Name System (DNS)'),
               minVerticalPadding: 10,
@@ -189,7 +190,7 @@ class _WifiDetailState extends State<HomePage> {
             ),
           ),
           Card(
-            child: ListTile(
+            child: AdaptiveListTile(
               leading: const Icon(Icons.signal_cellular_alt),
               title: const Text('Internet Service Provider (ISP)'),
               subtitle: Column(
