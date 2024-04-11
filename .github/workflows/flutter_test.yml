@@ -179,7 +179,7 @@ jobs:
       - name: Cache pods
         uses: actions/cache@v3
         with:
-          path: Pods
+          path: macos/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
