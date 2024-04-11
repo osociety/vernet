@@ -54,20 +54,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
       - name: Setup Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.2.1
         with:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
       - name: Flutter version
         run: flutter --version
       - name: Cache pubspec dependencies
-        uses: actions/cache@v3.0.7
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ${{ env.FLUTTER_HOME }}/.pub-cache
@@ -80,7 +80,7 @@ jobs:
             build-pubspec-${{ hashFiles('**/pubspec.lock') }}
             build-pubspec-
       - name: Cache build runner
-        uses: actions/cache@v2
+        uses: actions/cache@v4.0.2
         with:
           path: |
             **/.dart_tool
@@ -109,18 +109,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
       - name: Setup Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.2.1
         with:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
       - name: Cache pubspec dependencies
-        uses: actions/cache@v3.0.7
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ${{ env.FLUTTER_HOME }}/.pub-cache
@@ -133,7 +133,7 @@ jobs:
             build-pubspec-${{ hashFiles('**/pubspec.lock') }}
             build-pubspec-
       - name: Cache build runner
-        uses: actions/cache@v2
+        uses: actions/cache@v4.0.2
         with:
           path: |
             **/.dart_tool
@@ -170,13 +170,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
       - name: Cache pubspec dependencies
-        uses: actions/cache@v3.0.7
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ${{ env.FLUTTER_HOME }}/.pub-cache
@@ -189,7 +189,7 @@ jobs:
             build-pubspec-${{ hashFiles('**/pubspec.lock') }}
             build-pubspec-
       - name: Cache build runner
-        uses: actions/cache@v2
+        uses: actions/cache@v4.0.2
         with:
           path: |
             **/.dart_tool
@@ -216,13 +216,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
       - name: Cache pubspec dependencies
-        uses: actions/cache@v3.0.7
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ${{ env.FLUTTER_HOME }}/.pub-cache
@@ -235,7 +235,7 @@ jobs:
             build-pubspec-${{ hashFiles('**/pubspec.lock') }}
             build-pubspec-
       - name: Cache build runner
-        uses: actions/cache@v2
+        uses: actions/cache@v4.0.2
         with:
           path: |
             **/.dart_tool
