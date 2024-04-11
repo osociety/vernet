@@ -176,6 +176,14 @@ jobs:
           restore-keys: |
             build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
+      - name: Cache pods
+      - uses: actions/cache@v3
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+            ${{ runner.os }}-pods-
       - name: Download pub dependencies
         run: flutter pub get
       - name: Upgrade pub dependencies
