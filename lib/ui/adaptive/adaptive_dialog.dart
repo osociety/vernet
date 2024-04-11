@@ -47,7 +47,15 @@ class AdaptiveDialog extends StatelessWidget {
         : AlertDialog(
             title: title,
             content: content,
-            actions: actions,
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Close"),
+              ),
+              ...actions,
+            ],
           );
   }
 }

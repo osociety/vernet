@@ -48,6 +48,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
                 controller: _controller,
                 validator: validate,
                 keyboardType: getKeyBoardType(),
+                placeholder: getHintText(),
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2.0,

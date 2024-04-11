@@ -17,7 +17,7 @@ class ExternalLinkWarningDialog<T extends Dialog> extends StatelessWidget {
     );
   }
 
-  Widget get title => const Text("Confirm to open external link");
+  Widget get title => const Text("Confirm external link");
   Widget get content => Text(link);
   List<Widget> actions(BuildContext context) {
     return [

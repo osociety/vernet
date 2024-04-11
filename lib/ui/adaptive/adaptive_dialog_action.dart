@@ -25,7 +25,7 @@ class AdaptiveDialogAction extends StatelessWidget {
             isDestructiveAction: isDestructiveAction,
             child: child,
           )
-        : ElevatedButton(
+        : TextButton(
             onPressed: onPressed,
             child: child,
           );
