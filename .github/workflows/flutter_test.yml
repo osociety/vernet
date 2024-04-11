@@ -45,11 +45,11 @@ jobs:
             - '*.yaml'
           windows:
             - 'windows/**'
-            
-  android-linux-build:
-    name: 'Android / Linux Build'
+  
+  flutter-test:
+    name: 'Flutter Test'
     needs: changes
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.yaml == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -76,6 +76,7 @@ jobs:
             **/.dart_tool/package_config.json
           key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
+            build-pubspec-${{ hashFiles('**/pubspec.lock') }}
             build-pubspec-
       - name: Cache build runner
         uses: actions/cache@v2
@@ -87,6 +88,7 @@ jobs:
             **/*.config.dart
           key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
           restore-keys: |
+            build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
@@ -98,6 +100,55 @@ jobs:
         run: flutter analyze
       - name: Run tests
         run: flutter test
+
+  android-linux-build:
+    name: 'Android / Linux Build'
+    needs: flutter-test
+    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Flutter action
+        uses: subosito/flutter-action@v2.8.0
+        with:
+          channel: stable
+      - name: Cache pubspec dependencies
+        uses: actions/cache@v3.0.7
+        with:
+          path: |
+            ${{ env.FLUTTER_HOME }}/.pub-cache
+            **/.packages
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+            build-pubspec-
+      - name: Cache build runner
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/.dart_tool
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+          restore-keys: |
+            build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+            build-runner-
+      - name: Download pub dependencies
+        run: flutter pub get
+      - name: Upgrade pub dependencies
+        run: flutter pub upgrade
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Build Android
         if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.yaml == 'true' }}
         run: |
@@ -113,21 +164,16 @@ jobs:
   
   macos-build:
     name: 'Macos Build'
-    needs: changes
+    needs: flutter-test
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Flutter action
         uses: subosito/flutter-action@v2.8.0
         with:
           channel: stable
-          
-      - name: Flutter version
-        run: flutter --version
-
       - name: Cache pubspec dependencies
         uses: actions/cache@v3.0.7
         with:
@@ -139,6 +185,7 @@ jobs:
             **/.dart_tool/package_config.json
           key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
+            build-pubspec-${{ hashFiles('**/pubspec.lock') }}
             build-pubspec-
       - name: Cache build runner
         uses: actions/cache@v2
@@ -150,54 +197,59 @@ jobs:
             **/*.config.dart
           key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
           restore-keys: |
+            build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
-
       - name: Download pub dependencies
         run: flutter pub get
-
       - name: Upgrade pub dependencies
         run: flutter pub upgrade
-
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Run analyzer
-        run: flutter analyze
-
-      - name: Run tests
-        run: flutter test
-
       - name: Build macos
         run: flutter build macos
 
   windows-build:
     name: 'Windows Build'
-    needs: changes
+    needs: flutter-test
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
       - name: Flutter action
         uses: subosito/flutter-action@v2.8.0
         with:
           channel: stable
-
+      - name: Cache pubspec dependencies
+        uses: actions/cache@v3.0.7
+        with:
+          path: |
+            ${{ env.FLUTTER_HOME }}/.pub-cache
+            **/.packages
+            **/.flutter-plugins
+            **/.flutter-plugin-dependencies
+            **/.dart_tool/package_config.json
+          key: build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            build-pubspec-${{ hashFiles('**/pubspec.lock') }}
+            build-pubspec-
+      - name: Cache build runner
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/.dart_tool
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+          restore-keys: |
+            build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
+            build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      
       - name: Upgrade pub dependencies
         run: flutter pub upgrade
-
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      - name: Run analyzer
-        run: flutter analyze
-
-      - name: Run tests
-        run: flutter test
-
       - name: Build windows
         run: flutter build windows
