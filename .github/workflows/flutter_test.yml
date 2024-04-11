@@ -64,6 +64,9 @@ jobs:
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
       - name: Flutter version
         run: flutter --version
       - name: Cache pubspec dependencies
@@ -119,6 +122,9 @@ jobs:
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
       - name: Cache pubspec dependencies
         uses: actions/cache@v4.0.2
         with:
@@ -175,6 +181,9 @@ jobs:
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
       - name: Cache pubspec dependencies
         uses: actions/cache@v4.0.2
         with:
@@ -221,6 +230,9 @@ jobs:
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
       - name: Cache pubspec dependencies
         uses: actions/cache@v4.0.2
         with:
