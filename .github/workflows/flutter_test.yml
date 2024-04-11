@@ -104,7 +104,7 @@ jobs:
 
   android-linux-build:
     name: 'Build Android + Linux'
-    needs: flutter-test
+    needs: [needs, flutter-test]
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -165,7 +165,7 @@ jobs:
   
   macos-build:
     name: 'Build Macos'
-    needs: flutter-test
+    needs: [needs, flutter-test]
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: macos-latest
     steps:
@@ -211,7 +211,7 @@ jobs:
 
   windows-build:
     name: 'Build Windows'
-    needs: flutter-test
+    needs: [needs, flutter-test]
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true' }}
     runs-on: windows-latest
     steps:
