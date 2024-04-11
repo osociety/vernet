@@ -177,7 +177,7 @@ jobs:
             build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
       - name: Cache pods
-      - uses: actions/cache@v3
+        uses: actions/cache@v3
         with:
           path: Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
