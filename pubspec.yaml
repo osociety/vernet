@@ -8,6 +8,8 @@ version: 1.0.7+25
 environment:
   sdk: ">=2.17.0 <3.0.0"
 
+isar_version: &isar_version 3.1.0
+
 dependencies:
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
@@ -32,6 +34,10 @@ dependencies:
   http: ^1.1.0
   # Convenient code generator for get_it
   injectable: ^2.1.0
+  # database for flutter
+  isar: *isar_version
+  # contains Isar Core
+  isar_flutter_libs: *isar_version
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
@@ -63,6 +69,7 @@ dev_dependencies:
   freezed: ^2.5.0
   # Convenient code generator for get_it.
   injectable_generator: ^2.1.4
+  isar_generator: *isar_version
   # Collection of lint rules for Dart and Flutter projects.
   json_serializable: ^6.7.1
   lint: ^2.0.1

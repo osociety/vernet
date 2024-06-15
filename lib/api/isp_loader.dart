@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vernet/models/internet_provider.dart';
+import 'package:vernet/providers/internet_provider.dart';
 
 class ISPLoader {
   static Future<String> loadIP(String url) async {

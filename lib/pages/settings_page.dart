@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
