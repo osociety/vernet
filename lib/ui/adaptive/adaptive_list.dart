@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/providers/dark_theme_provider.dart';
 
 class AdaptiveListTile extends StatelessWidget {
   const AdaptiveListTile({

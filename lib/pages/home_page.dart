@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/internet_provider.dart';
+import 'package:vernet/providers/internet_provider.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';

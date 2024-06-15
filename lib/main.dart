@@ -7,7 +7,7 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/injection.dart';
-import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';

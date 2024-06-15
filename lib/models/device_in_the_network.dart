@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 
 /// Contains all the information of a device in the network including
 /// icon, open ports and in the future host name and mDNS name
+@collection
 class DeviceInTheNetwork {
   /// Create basic device with default (not the correct) icon
   DeviceInTheNetwork({
@@ -77,6 +79,8 @@ class DeviceInTheNetwork {
       mac: mac,
     );
   }
+
+  Id id = Isar.autoIncrement;
 
   /// Ip of the device
   final InternetAddress internetAddress;
