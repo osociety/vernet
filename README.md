@@ -73,3 +73,6 @@ Drop mail at fs0c19ty@protonmail.com
 4. Support me on Ko-Fi
 
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
+
+## Publishing to F-droid
+You can follow this guide to publish your app to f-droid - https://fsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
