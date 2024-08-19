@@ -31,6 +31,15 @@ platform :android do
 
   desc "Deploy a new version to the Google Play"
   lane :deploy do
+    upload_to_play_store(skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab')
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy_full do
     upload_to_play_store(aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab')
   end
 end
