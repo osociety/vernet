@@ -5,6 +5,7 @@ import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 
 class PingPage extends StatefulWidget {
   const PingPage({super.key});
@@ -81,7 +82,7 @@ class _PingPageState extends BasePage<PingPage> {
   Widget buildResults(BuildContext context) {
     return Column(
       children: [
-        ListTile(title: _getPingSummary()),
+        AdaptiveListTile(title: _getPingSummary()),
         if (_pingPackets.isEmpty)
           const Center(
             child: Text('Ping results will appear here'),
@@ -100,7 +101,7 @@ class _PingPageState extends BasePage<PingPage> {
                 }
                 return Column(
                   children: [
-                    ListTile(
+                    AdaptiveListTile(
                       dense: true,
                       contentPadding:
                           const EdgeInsets.only(left: 10.0, right: 10.0),

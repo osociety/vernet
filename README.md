@@ -54,6 +54,8 @@ Note: macOS build hasn't been notarized yet.
 
 Drop mail at fs0c19ty@protonmail.com
 
+## Publishing to F-droid
+You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
 ## How to Contribute
 
 1. Found bug? Open an [issue](https://github.com/git-elliot/vernet/issues)
@@ -62,12 +64,15 @@ Drop mail at fs0c19ty@protonmail.com
 ## Support and Donate
 
 1. Support this project by becoming stargazer of this project.
-2. Buy me a coffee.
+2. Rate our app on [Playstore](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
+
+3. Buy me a coffee.
 
     | Librepay | 
     |----------|
     |[![Librepay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/OpenSociety/donate)
 
-3. Support me on Ko-Fi
+4. Support me on Ko-Fi
 
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
+
