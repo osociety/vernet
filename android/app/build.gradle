@@ -38,7 +38,7 @@ android {
     defaultConfig {
         applicationId "org.fsociety.vernet"
         minSdkVersion 24
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -55,6 +55,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
+            crunchPngs false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -66,6 +67,7 @@ android {
             dimension "deploy"
             signingConfig signingConfigs.release
         }
+        
         fdroid {
             dimension "deploy"
             signingConfig signingConfigs.release
