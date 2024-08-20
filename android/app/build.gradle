@@ -29,7 +29,6 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdk 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -38,6 +37,7 @@ android {
     defaultConfig {
         applicationId "org.fsociety.vernet"
         minSdkVersion 24
+        compileSdk 34
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
