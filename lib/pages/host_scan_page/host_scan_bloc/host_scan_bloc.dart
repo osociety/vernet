@@ -20,7 +20,7 @@ part 'host_scan_state.dart';
 class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   HostScanBloc() : super(HostScanState.initial()) {
     on<Initialized>(_initialized);
-    on<StartNewScan>(_startNewScanBuiltInIsolate2);
+    on<StartNewScan>(_startNewScanBuiltInIsolate);
   }
   final scannerService = getIt<DeviceScannerService>();
 
@@ -53,7 +53,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     add(const HostScanEvent.startNewScan());
   }
 
-  Future<void> _startNewScanBuiltInIsolate2(
+  Future<void> _startNewScanBuiltInIsolate(
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
@@ -67,6 +67,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       devices.add(device);
       emit(HostScanState.foundNewDevice(devices));
     }
+    //todo: icon data and device name (this device and router is pending)
 
     emit(HostScanState.loadSuccess(devices));
   }
