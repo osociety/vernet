@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/device_in_the_network.dart';
+import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
@@ -55,7 +55,7 @@ class HostScanWidget extends StatelessWidget {
 
   Widget _devicesWidget(
     BuildContext context,
-    List<DeviceInTheNetwork> activeHostList,
+    List<Device> activeHostList,
     bool loading,
   ) {
     return Flex(
@@ -88,18 +88,12 @@ class HostScanWidget extends StatelessWidget {
           child: ListView.builder(
             itemCount: activeHostList.length,
             itemBuilder: (context, index) {
-              final DeviceInTheNetwork host = activeHostList[index];
+              final Device host = activeHostList[index];
               return AdaptiveListTile(
-                leading: Icon(host.iconData),
-                title: FutureBuilder(
-                  future: host.make,
-                  builder: (context, AsyncSnapshot<String?> snapshot) {
-                    return Text(snapshot.data ?? '');
-                  },
-                  initialData: 'Generic Device',
-                ),
+                // leading: Icon(host.iconData), todo: geticondata
+                title: Text(host.make),
                 subtitle: Text(
-                  '${host.internetAddress.address} ${host.mac}',
+                  '${host.internetAddress} ${host.macAddress}',
                 ),
                 trailing: IconButton(
                   tooltip: 'Scan open ports for this target',
@@ -109,7 +103,7 @@ class HostScanWidget extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PortScanPage(
-                          target: host.internetAddress.address,
+                          target: host.internetAddress,
                         ),
                       ),
                     );
@@ -118,7 +112,7 @@ class HostScanWidget extends StatelessWidget {
                 onLongPress: () {
                   Clipboard.setData(
                     ClipboardData(
-                      text: host.internetAddress.address,
+                      text: host.internetAddress,
                     ),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(

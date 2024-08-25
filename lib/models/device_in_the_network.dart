@@ -2,18 +2,17 @@ import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 
 /// Contains all the information of a device in the network including
 /// icon, open ports and in the future host name and mDNS name
-@collection
 class DeviceInTheNetwork {
   /// Create basic device with default (not the correct) icon
   DeviceInTheNetwork({
     required this.internetAddress,
     required Future<String?> makeVar,
     required this.pingData,
+    required this.currentDeviceIp,
     MdnsInfo? mdnsVar,
     String? mac,
     this.iconData = Icons.devices,
@@ -73,6 +72,7 @@ class DeviceInTheNetwork {
       internetAddress: internetAddress,
       makeVar: deviceMake,
       pingData: pingData,
+      currentDeviceIp: currentDeviceIp,
       hostId: hostId,
       iconData: iconData,
       mdnsVar: mdns,
@@ -80,10 +80,9 @@ class DeviceInTheNetwork {
     );
   }
 
-  Id id = Isar.autoIncrement;
-
   /// Ip of the device
   final InternetAddress internetAddress;
+  final String currentDeviceIp;
   late Future<String?> make;
   String? _mac;
 

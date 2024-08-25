@@ -6,8 +6,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/device_in_the_network.dart';
+import 'package:vernet/models/isar/device.dart';
+import 'package:vernet/services/impls/device_scanner_service.dart';
 
 part 'host_scan_bloc.freezed.dart';
 part 'host_scan_event.dart';
@@ -17,8 +20,9 @@ part 'host_scan_state.dart';
 class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   HostScanBloc() : super(HostScanState.initial()) {
     on<Initialized>(_initialized);
-    on<StartNewScan>(_startNewScanBuiltInIsolate);
+    on<StartNewScan>(_startNewScanBuiltInIsolate2);
   }
+  final scannerService = getIt<DeviceScannerService>();
 
   /// IP of the device in the local network.
   String? ip;
@@ -49,98 +53,114 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     add(const HostScanEvent.startNewScan());
   }
 
-  Future<void> _startNewScanBuiltInIsolate(
+  Future<void> _startNewScanBuiltInIsolate2(
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    final streamController = HostScannerService.instance.getAllPingableDevices(
-      subnet!,
-      firstHostId: appSettings.firstSubnet,
-      lastHostId: appSettings.lastSubnet,
-    );
-    await for (final ActiveHost activeHost in streamController) {
-      final int index = indexOfActiveHost(activeHost.address);
-
-      if (index == -1) {
-        deviceInTheNetworkList.add(
-          DeviceInTheNetwork.createFromActiveHost(
-            activeHost: activeHost,
-            currentDeviceIp: ip!,
-            gatewayIp: gatewayIp!,
-            mac: (await activeHost.arpData)?.macAddress,
-          ),
-        );
-      } else {
-        deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
-          activeHost: activeHost,
-          currentDeviceIp: ip!,
-          gatewayIp: gatewayIp!,
-          mdns: deviceInTheNetworkList[index].mdns,
-          mac: (await activeHost.arpData)?.macAddress,
-        );
-      }
-
-      deviceInTheNetworkList.sort(sort);
+    List<Device> devicesList = [];
+    //todo: add watcher and get results.
+    (await scannerService.getOnGoingScan()).listen((devices) {
       emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
-    }
+      emit(HostScanState.foundNewDevice(devices));
+      devicesList = devices;
+    });
 
-    final activeMdnsHostList =
-        await MdnsScannerService.instance.searchMdnsDevices();
-
-    for (final ActiveHost activeHost in activeMdnsHostList) {
-      final int index = indexOfActiveHost(activeHost.address);
-      final MdnsInfo? mDns = await activeHost.mdnsInfo;
-      if (mDns == null) {
-        continue;
-      }
-
-      if (index == -1) {
-        deviceInTheNetworkList.add(
-          DeviceInTheNetwork.createFromActiveHost(
-            activeHost: activeHost,
-            currentDeviceIp: ip!,
-            gatewayIp: gatewayIp!,
-            mdns: mDns,
-            mac: (await activeHost.arpData)?.macAddress,
-          ),
-        );
-      } else {
-        deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
-          ..mdns = mDns;
-      }
-
-      deviceInTheNetworkList.sort(sort);
-      emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
-    }
-    emit(HostScanState.loadSuccess(deviceInTheNetworkList));
+    await getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
+    emit(HostScanState.loadSuccess(devicesList));
   }
 
-  /// Getting active host IP and finds it's index inside of activeHostList
-  /// Returns -1 if didn't find
-  int indexOfActiveHost(String ip) {
-    return deviceInTheNetworkList
-        .indexWhere((element) => element.internetAddress.address == ip);
-  }
+  // Future<void> _startNewScanBuiltInIsolate(
+  //   StartNewScan event,
+  //   Emitter<HostScanState> emit,
+  // ) async {
+  //   final streamController = HostScannerService.instance.getAllPingableDevices(
+  //     subnet!,
+  //     firstHostId: appSettings.firstSubnet,
+  //     lastHostId: appSettings.lastSubnet,
+  //   );
+  //   await for (final ActiveHost activeHost in streamController) {
+  //     final int index = indexOfActiveHost(activeHost.address);
 
-  int sort(DeviceInTheNetwork a, DeviceInTheNetwork b) {
-    final regexA = a.internetAddress.address.contains('.') ? '.' : '::';
-    final regexB = b.internetAddress.address.contains('.') ? '.' : '::';
-    if (regexA.length == 2 || regexB.length == 2) {
-      return regexA.length.compareTo(regexB.length);
-    }
-    final int aIp = int.parse(
-      a.internetAddress.address.substring(
-        a.internetAddress.address.lastIndexOf(regexA) + regexA.length,
-      ),
-    );
-    final int bIp = int.parse(
-      b.internetAddress.address.substring(
-        b.internetAddress.address.lastIndexOf(regexB) + regexB.length,
-      ),
-    );
+  //     if (index == -1) {
+  //       deviceInTheNetworkList.add(
+  //         DeviceInTheNetwork.createFromActiveHost(
+  //           activeHost: activeHost,
+  //           currentDeviceIp: ip!,
+  //           gatewayIp: gatewayIp!,
+  //           mac: (await activeHost.arpData)?.macAddress,
+  //         ),
+  //       );
+  //     } else {
+  //       deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
+  //         activeHost: activeHost,
+  //         currentDeviceIp: ip!,
+  //         gatewayIp: gatewayIp!,
+  //         mdns: deviceInTheNetworkList[index].mdns,
+  //         mac: (await activeHost.arpData)?.macAddress,
+  //       );
+  //     }
 
-    return aIp.compareTo(bIp);
-  }
+  //     deviceInTheNetworkList.sort(sort);
+  //     emit(const HostScanState.loadInProgress());
+  //     emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+  //   }
+
+  //   final activeMdnsHostList =
+  //       await MdnsScannerService.instance.searchMdnsDevices();
+
+  //   for (final ActiveHost activeHost in activeMdnsHostList) {
+  //     final int index = indexOfActiveHost(activeHost.address);
+  //     final MdnsInfo? mDns = await activeHost.mdnsInfo;
+  //     if (mDns == null) {
+  //       continue;
+  //     }
+
+  //     if (index == -1) {
+  //       deviceInTheNetworkList.add(
+  //         DeviceInTheNetwork.createFromActiveHost(
+  //           activeHost: activeHost,
+  //           currentDeviceIp: ip!,
+  //           gatewayIp: gatewayIp!,
+  //           mdns: mDns,
+  //           mac: (await activeHost.arpData)?.macAddress,
+  //         ),
+  //       );
+  //     } else {
+  //       deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
+  //         ..mdns = mDns;
+  //     }
+
+  //     deviceInTheNetworkList.sort(sort);
+  //     emit(const HostScanState.loadInProgress());
+  //     emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+  //   }
+  //   emit(HostScanState.loadSuccess(deviceInTheNetworkList));
+  // }
+
+  // /// Getting active host IP and finds it's index inside of activeHostList
+  // /// Returns -1 if didn't find
+  // int indexOfActiveHost(String ip) {
+  //   return deviceInTheNetworkList
+  //       .indexWhere((element) => element.internetAddress.address == ip);
+  // }
+
+  // int sort(DeviceInTheNetwork a, DeviceInTheNetwork b) {
+  //   final regexA = a.internetAddress.address.contains('.') ? '.' : '::';
+  //   final regexB = b.internetAddress.address.contains('.') ? '.' : '::';
+  //   if (regexA.length == 2 || regexB.length == 2) {
+  //     return regexA.length.compareTo(regexB.length);
+  //   }
+  //   final int aIp = int.parse(
+  //     a.internetAddress.address.substring(
+  //       a.internetAddress.address.lastIndexOf(regexA) + regexA.length,
+  //     ),
+  //   );
+  //   final int bIp = int.parse(
+  //     b.internetAddress.address.substring(
+  //       b.internetAddress.address.lastIndexOf(regexB) + regexB.length,
+  //     ),
+  //   );
+
+  //   return aIp.compareTo(bIp);
+  // }
 }
