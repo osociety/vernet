@@ -1,7 +1,7 @@
 import 'package:vernet/models/isar/device.dart';
 
 abstract class ScannerService {
-  Future<void> startNewScan(
+  Stream<Device> startNewScan(
     String subnet,
     String ip,
     String gatewayIp,

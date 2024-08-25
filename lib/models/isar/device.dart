@@ -1,23 +1,34 @@
 import 'package:isar/isar.dart';
+
 part 'device.g.dart';
 
 @collection
 class Device {
   Device({
     required this.internetAddress,
-    required this.macAddress,
     required this.make,
     required this.currentDeviceIp,
     required this.gatewayIp,
     required this.scanId,
+    this.macAddress,
   });
-  Id id = Isar.autoIncrement;
+  final Id id = Isar.autoIncrement;
   @Index(type: IndexType.value)
   final int scanId;
   @Index(type: IndexType.value)
   final String internetAddress;
   final String currentDeviceIp;
   final String gatewayIp;
-  final String macAddress;
+  final String? macAddress;
   final String make;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Device &&
+          runtimeType == other.runtimeType &&
+          internetAddress == other.internetAddress;
+
+  @override
+  int get hashCode => internetAddress.hashCode;
 }

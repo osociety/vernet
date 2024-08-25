@@ -14,17 +14,21 @@ class DeviceScannerService extends ScannerService {
   final _deviceRepository = getIt<DeviceRepository>();
 
   @override
-  Future<void> startNewScan(
+  Stream<Device> startNewScan(
     String subnet,
     String ip,
     String gatewayIp,
-  ) async {
-    final startTime = DateTime.now();
+  ) async* {
+    var scan = await _scanRepository.getOnGoingScan();
+    if (scan != null) {
+      //TODO: add log that scan is already running
+      return;
+    }
 
-    final scan = await _scanRepository.put(
+    scan = await _scanRepository.put(
       Scan(
         gatewayIp: subnet,
-        startTime: startTime,
+        startTime: DateTime.now(),
         onGoing: true,
       ),
     );
@@ -35,23 +39,49 @@ class DeviceScannerService extends ScannerService {
       lastHostId: appSettings.lastSubnet,
     );
     await for (final ActiveHost activeHost in streamController) {
-      final device =
+      var device =
           await _deviceRepository.getDevice(scan.id, activeHost.address);
       if (device == null) {
-        await _deviceRepository.put(
-          Device(
-            internetAddress: activeHost.address,
-            macAddress: (await activeHost.arpData)!.macAddress,
-            make: await activeHost.deviceName,
-            currentDeviceIp: ip,
-            gatewayIp: gatewayIp,
-            scanId: scan.id,
-          ),
+        device = Device(
+          internetAddress: activeHost.address,
+          macAddress: (await activeHost.arpData)!.macAddress,
+          make: await activeHost.deviceName,
+          currentDeviceIp: ip,
+          gatewayIp: gatewayIp,
+          scanId: scan.id,
         );
+        await _deviceRepository.put(device);
       }
+
+      yield device;
       //save items to database
     }
-    //TODO: also store mdns search devices
+
+    final activeMdnsHostList =
+        await MdnsScannerService.instance.searchMdnsDevices();
+
+    for (final ActiveHost activeHost in activeMdnsHostList) {
+      var device =
+          await _deviceRepository.getDevice(scan.id, activeHost.address);
+
+      final MdnsInfo? mDns = await activeHost.mdnsInfo;
+      if (mDns == null) {
+        continue;
+      }
+
+      if (device == null) {
+        device = Device(
+          internetAddress: activeHost.address,
+          macAddress: (await activeHost.arpData)?.macAddress,
+          make: await activeHost.deviceName,
+          currentDeviceIp: ip,
+          gatewayIp: gatewayIp,
+          scanId: scan.id,
+        );
+        await _deviceRepository.put(device);
+      }
+      yield device;
+    }
 
     scan.endTime = DateTime.now();
     scan.onGoing = false;

@@ -57,16 +57,18 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    List<Device> devicesList = [];
-    //todo: add watcher and get results.
-    (await scannerService.getOnGoingScan()).listen((devices) {
-      emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(devices));
-      devicesList = devices;
-    });
+    emit(const HostScanState.loadInProgress());
 
-    await getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
-    emit(HostScanState.loadSuccess(devicesList));
+    final Set<Device> devices = {};
+
+    final deviceStream =
+        getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
+    await for (final Device device in deviceStream) {
+      devices.add(device);
+      emit(HostScanState.foundNewDevice(devices));
+    }
+
+    emit(HostScanState.loadSuccess(devices));
   }
 
   // Future<void> _startNewScanBuiltInIsolate(

@@ -37,13 +37,13 @@ class HostScanWidget extends StatelessWidget {
             );
           },
           foundNewDevice: (FoundNewDevice value) {
-            return _devicesWidget(context, value.activeHostList, true);
+            return _devicesWidget(context, value.activeHosts.toList(), true);
           },
           loadFailure: (value) {
             return const Text('Failure');
           },
           loadSuccess: (value) {
-            return _devicesWidget(context, value.activeHostList, false);
+            return _devicesWidget(context, value.activeHosts.toList(), false);
           },
           error: (Error value) {
             return const Text('Error');
@@ -93,7 +93,7 @@ class HostScanWidget extends StatelessWidget {
                 // leading: Icon(host.iconData), todo: geticondata
                 title: Text(host.make),
                 subtitle: Text(
-                  '${host.internetAddress} ${host.macAddress}',
+                  '${host.internetAddress} (${host.macAddress ?? ''})',
                 ),
                 trailing: IconButton(
                   tooltip: 'Scan open ports for this target',

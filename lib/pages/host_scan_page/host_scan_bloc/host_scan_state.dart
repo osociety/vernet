@@ -7,11 +7,11 @@ class HostScanState with _$HostScanState {
   const factory HostScanState.loadInProgress() = _LoadInProgress;
 
   const factory HostScanState.foundNewDevice(
-    List<Device> activeHostList,
+    Set<Device> activeHosts,
   ) = FoundNewDevice;
 
   const factory HostScanState.loadSuccess(
-    List<Device> activeHostList,
+    Set<Device> activeHosts,
   ) = LoadSuccess;
 
   const factory HostScanState.loadFailure() = _loadFailure;

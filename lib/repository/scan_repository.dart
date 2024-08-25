@@ -35,6 +35,7 @@ class ScanRepository extends IsarRepository<Scan> {
     return scanDB!.scans
         .filter()
         .onGoingEqualTo(true)
+        .endTimeEqualTo(null)
         .sortByStartTimeDesc()
         .findFirst();
   }
