@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,7 +8,6 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/injection.dart';
-import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
@@ -59,12 +57,9 @@ class _MyAppState extends State<MyApp> {
           ? appSettings.customSubnet
           : await NetworkInfo().getWifiGatewayIP();
       final subnet = gatewayIp!.substring(0, gatewayIp.lastIndexOf('.'));
-      print('Scanning devices');
-      final stream =
-          getIt<DeviceScannerService>().startNewScan(subnet, ip!, gatewayIp);
-      await for (final Device device in stream) {
-        print("Found ${device.internetAddress}");
-      }
+      getIt<DeviceScannerService>()
+          .startNewScan(subnet, ip!, gatewayIp)
+          .listen((device) {});
     }
   }
 

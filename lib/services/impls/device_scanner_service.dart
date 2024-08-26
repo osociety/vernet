@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/isar/device.dart';
@@ -27,6 +29,8 @@ class DeviceScannerService extends ScannerService {
       ),
     );
 
+    await storeCurrentScanId(scan.id);
+
     final streamController = HostScannerService.instance.getAllPingableDevices(
       subnet,
       firstHostId: appSettings.firstSubnet,
@@ -46,6 +50,7 @@ class DeviceScannerService extends ScannerService {
         );
         await _deviceRepository.put(device);
       }
+      debugPrint('Device found: ${device.internetAddress}');
       yield device;
     }
 
@@ -72,12 +77,14 @@ class DeviceScannerService extends ScannerService {
         );
         await _deviceRepository.put(device);
       }
+      debugPrint('Device found: ${device.internetAddress}');
       yield device;
     }
 
     scan.endTime = DateTime.now();
     scan.onGoing = false;
     await _scanRepository.put(scan);
+    debugPrint('Scan ended');
   }
 
   @override

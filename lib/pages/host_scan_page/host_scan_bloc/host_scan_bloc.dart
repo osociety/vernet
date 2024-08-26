@@ -6,10 +6,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/device_in_the_network.dart';
 import 'package:vernet/models/isar/device.dart';
+import 'package:vernet/models/isar/scan.dart';
+import 'package:vernet/repository/scan_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 
 part 'host_scan_bloc.freezed.dart';
@@ -82,12 +85,23 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     emit(const HostScanState.loadInProgress());
 
     final Set<Device> devicesSet = {};
-    //todo: move below line to app startup
-
     final deviceStream = await getIt<DeviceScannerService>().getOnGoingScan();
-    await for (final List<Device> devices in deviceStream) {
+    deviceStream.listen((devices) {
       devicesSet.addAll(devices);
-      emit(HostScanState.loadSuccess(devicesSet));
+      emit(HostScanState.foundNewDevice(devicesSet));
+    });
+
+    //load success based on scan record getting updated to ongoing = true
+    final currentScanId = await getCurrentScanId();
+    if (currentScanId != null) {
+      final scanStream = await getIt<ScanRepository>().watch(currentScanId);
+      await for (final List<Scan> scanList in scanStream) {
+        final scan = scanList.first;
+        if (scan.onGoing == false) {
+          emit(HostScanState.loadSuccess(devicesSet));
+          break;
+        }
+      }
     }
   }
 }
