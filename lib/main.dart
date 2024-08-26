@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:injectable/injectable.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -7,10 +9,12 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/services/impls/device_scanner_service.dart';
 
 AppSettings appSettings = AppSettings.instance;
 Future<void> main() async {
@@ -45,6 +49,23 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getCurrentAppTheme();
+    startScanOnStartup();
+  }
+
+  Future<void> startScanOnStartup() async {
+    if (appSettings.runScanOnStartup) {
+      final ip = await NetworkInfo().getWifiIP();
+      final gatewayIp = appSettings.customSubnet.isNotEmpty
+          ? appSettings.customSubnet
+          : await NetworkInfo().getWifiGatewayIP();
+      final subnet = gatewayIp!.substring(0, gatewayIp.lastIndexOf('.'));
+      print('Scanning devices');
+      final stream =
+          getIt<DeviceScannerService>().startNewScan(subnet, ip!, gatewayIp);
+      await for (final Device device in stream) {
+        print("Found ${device.internetAddress}");
+      }
+    }
   }
 
   Future<void> getCurrentAppTheme() async {

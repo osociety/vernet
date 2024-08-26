@@ -21,6 +21,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   HostScanBloc() : super(HostScanState.initial()) {
     on<Initialized>(_initialized);
     on<StartNewScan>(_startNewScanBuiltInIsolate);
+    on<LoadScan>(_loadScanAndShowResults);
   }
   final scannerService = getIt<DeviceScannerService>();
 
@@ -50,7 +51,11 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         ? appSettings.customSubnet
         : await NetworkInfo().getWifiGatewayIP();
     subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
-    add(const HostScanEvent.startNewScan());
+    if (appSettings.runScanOnStartup) {
+      add(const HostScanEvent.loadScan());
+    } else {
+      add(const HostScanEvent.startNewScan());
+    }
   }
 
   Future<void> _startNewScanBuiltInIsolate(
@@ -60,15 +65,29 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     emit(const HostScanState.loadInProgress());
 
     final Set<Device> devices = {};
-
     final deviceStream =
         getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
     await for (final Device device in deviceStream) {
       devices.add(device);
-      print('Device found ${device.internetAddress}');
       emit(HostScanState.foundNewDevice(devices));
     }
 
     emit(HostScanState.loadSuccess(devices));
+  }
+
+  Future<void> _loadScanAndShowResults(
+    LoadScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    emit(const HostScanState.loadInProgress());
+
+    final Set<Device> devicesSet = {};
+    //todo: move below line to app startup
+
+    final deviceStream = await getIt<DeviceScannerService>().getOnGoingScan();
+    await for (final List<Device> devices in deviceStream) {
+      devicesSet.addAll(devices);
+      emit(HostScanState.loadSuccess(devicesSet));
+    }
   }
 }

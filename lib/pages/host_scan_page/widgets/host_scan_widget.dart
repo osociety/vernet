@@ -7,6 +7,7 @@ import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 
+//TODO: Device doesn't refresh when active scan going on
 class HostScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -79,7 +80,7 @@ class HostScanWidget extends StatelessWidget {
                   onPressed: () {
                     context
                         .read<HostScanBloc>()
-                        .add(const HostScanEvent.initialized());
+                        .add(const HostScanEvent.startNewScan());
                   },
                   icon: const Icon(Icons.replay),
                 ),

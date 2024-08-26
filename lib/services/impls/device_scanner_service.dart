@@ -46,9 +46,7 @@ class DeviceScannerService extends ScannerService {
         );
         await _deviceRepository.put(device);
       }
-
       yield device;
-      //save items to database
     }
 
     final activeMdnsHostList =
@@ -79,7 +77,6 @@ class DeviceScannerService extends ScannerService {
 
     scan.endTime = DateTime.now();
     scan.onGoing = false;
-    //Update scan results
     await _scanRepository.put(scan);
   }
 

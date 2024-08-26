@@ -32,11 +32,6 @@ class ScanRepository extends IsarRepository<Scan> {
 
   Future<Scan?> getOnGoingScan() async {
     final scanDB = await _database.open();
-    return scanDB!.scans
-        .filter()
-        .onGoingEqualTo(true)
-        .endTimeEqualTo(null)
-        .sortByStartTimeDesc()
-        .findFirst();
+    return scanDB!.scans.where().sortByStartTimeDesc().findFirst();
   }
 }

@@ -60,6 +60,19 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              title: const Text('Run scan on app startup'),
+              trailing: Switch(
+                value: appSettings.runScanOnStartup,
+                onChanged: (bool? value) async {
+                  appSettings.setRunScanOnStartup(value ?? false);
+                  await appSettings.load();
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
+          Card(
+            child: AdaptiveListTile(
               title: const Text(StringValue.firstSubnet),
               subtitle: const Text(StringValue.firstSubnetDesc),
               trailing: Text(
