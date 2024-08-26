@@ -44,7 +44,7 @@ jobs:
         run: flutter pub upgrade
 
       - name: Run build_runner
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Download Android keystore
         id: android_keystore
@@ -154,7 +154,7 @@ jobs:
         run: flutter pub upgrade
 
       - name: Run build_runner
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build macos release
         run: flutter build macos --release
@@ -208,7 +208,7 @@ jobs:
         run: flutter pub upgrade
 
       - name: Run build_runner
-        run: flutter pub run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build windows release
         run: flutter build windows --release

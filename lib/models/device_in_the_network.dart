@@ -12,6 +12,8 @@ class DeviceInTheNetwork {
     required this.internetAddress,
     required Future<String?> makeVar,
     required this.pingData,
+    required this.currentDeviceIp,
+    required this.gatewayIp,
     MdnsInfo? mdnsVar,
     String? mac,
     this.iconData = Icons.devices,
@@ -71,6 +73,8 @@ class DeviceInTheNetwork {
       internetAddress: internetAddress,
       makeVar: deviceMake,
       pingData: pingData,
+      currentDeviceIp: currentDeviceIp,
+      gatewayIp: gatewayIp,
       hostId: hostId,
       iconData: iconData,
       mdnsVar: mdns,
@@ -80,6 +84,8 @@ class DeviceInTheNetwork {
 
   /// Ip of the device
   final InternetAddress internetAddress;
+  final String currentDeviceIp;
+  final String gatewayIp;
   late Future<String?> make;
   String? _mac;
 
@@ -96,14 +102,13 @@ class DeviceInTheNetwork {
   set mdns(MdnsInfo? name) {
     _mdns = name;
 
-    final Future<String?> deviceMake = getDeviceMake(
+    make = getDeviceMake(
       currentDeviceIp: '',
       hostIp: internetAddress.address,
       gatewayIp: '',
       hostMake: make,
       mdns: _mdns,
     );
-    make = deviceMake;
   }
 
   /// Some name to show the user
