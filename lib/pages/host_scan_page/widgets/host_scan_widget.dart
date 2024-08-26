@@ -90,8 +90,8 @@ class HostScanWidget extends StatelessWidget {
             itemBuilder: (context, index) {
               final Device host = activeHostList[index];
               return AdaptiveListTile(
-                // leading: Icon(host.iconData), todo: geticondata
-                title: Text(host.make),
+                leading: Icon(host.iconData),
+                title: Text(host.deviceMake ?? ''),
                 subtitle: Text(
                   '${host.internetAddress} (${host.macAddress ?? ''})',
                 ),

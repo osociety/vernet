@@ -10,8 +10,8 @@ import 'package:vernet/services/scanner_service.dart';
 
 @Injectable()
 class DeviceScannerService extends ScannerService {
-  final _scanRepository = getIt<ScanRepository>();
-  final _deviceRepository = getIt<DeviceRepository>();
+  static final _scanRepository = getIt<ScanRepository>();
+  static final _deviceRepository = getIt<DeviceRepository>();
 
   @override
   Stream<Device> startNewScan(
@@ -19,13 +19,7 @@ class DeviceScannerService extends ScannerService {
     String ip,
     String gatewayIp,
   ) async* {
-    var scan = await _scanRepository.getOnGoingScan();
-    if (scan != null) {
-      //TODO: add log that scan is already running
-      return;
-    }
-
-    scan = await _scanRepository.put(
+    final scan = await _scanRepository.put(
       Scan(
         gatewayIp: subnet,
         startTime: DateTime.now(),
@@ -45,8 +39,8 @@ class DeviceScannerService extends ScannerService {
         device = Device(
           internetAddress: activeHost.address,
           macAddress: (await activeHost.arpData)!.macAddress,
-          make: await activeHost.deviceName,
           currentDeviceIp: ip,
+          hostMake: await activeHost.deviceName,
           gatewayIp: gatewayIp,
           scanId: scan.id,
         );
@@ -73,7 +67,7 @@ class DeviceScannerService extends ScannerService {
         device = Device(
           internetAddress: activeHost.address,
           macAddress: (await activeHost.arpData)?.macAddress,
-          make: await activeHost.deviceName,
+          hostMake: await activeHost.deviceName,
           currentDeviceIp: ip,
           gatewayIp: gatewayIp,
           scanId: scan.id,

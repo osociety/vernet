@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 
 part 'device.g.dart';
@@ -6,10 +9,11 @@ part 'device.g.dart';
 class Device {
   Device({
     required this.internetAddress,
-    required this.make,
+    required this.hostMake,
     required this.currentDeviceIp,
     required this.gatewayIp,
     required this.scanId,
+    this.mdnsDomainName,
     this.macAddress,
   });
   final Id id = Isar.autoIncrement;
@@ -20,7 +24,8 @@ class Device {
   final String currentDeviceIp;
   final String gatewayIp;
   final String? macAddress;
-  final String make;
+  final String? hostMake;
+  final String? mdnsDomainName;
 
   @override
   bool operator ==(Object other) =>
@@ -31,4 +36,29 @@ class Device {
 
   @override
   int get hashCode => internetAddress.hashCode;
+
+  @ignore
+  String? get deviceMake {
+    if (currentDeviceIp == internetAddress) {
+      return 'This device';
+    } else if (gatewayIp == internetAddress) {
+      return 'Router/Gateway';
+    } else if (mdnsDomainName != null) {
+      return mdnsDomainName;
+    }
+    return hostMake;
+  }
+
+  @ignore
+  IconData get iconData {
+    if (internetAddress == currentDeviceIp) {
+      if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+        return Icons.computer;
+      }
+      return Icons.smartphone;
+    } else if (internetAddress == gatewayIp) {
+      return Icons.router;
+    }
+    return Icons.devices;
+  }
 }
