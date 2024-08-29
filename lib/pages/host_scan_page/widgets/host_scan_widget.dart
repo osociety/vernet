@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';
+import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 
+//TODO: Device doesn't refresh when active scan going on
 class HostScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -37,13 +38,13 @@ class HostScanWidget extends StatelessWidget {
             );
           },
           foundNewDevice: (FoundNewDevice value) {
-            return _devicesWidget(context, value.activeHostList, true);
+            return _devicesWidget(context, value.activeHosts.toList(), true);
           },
           loadFailure: (value) {
             return const Text('Failure');
           },
           loadSuccess: (value) {
-            return _devicesWidget(context, value.activeHostList, false);
+            return _devicesWidget(context, value.activeHosts.toList(), false);
           },
           error: (Error value) {
             return const Text('Error');
@@ -55,7 +56,7 @@ class HostScanWidget extends StatelessWidget {
 
   Widget _devicesWidget(
     BuildContext context,
-    List<DeviceInTheNetwork> activeHostList,
+    List<Device> activeHostList,
     bool loading,
   ) {
     return Flex(
@@ -79,7 +80,7 @@ class HostScanWidget extends StatelessWidget {
                   onPressed: () {
                     context
                         .read<HostScanBloc>()
-                        .add(const HostScanEvent.initialized());
+                        .add(const HostScanEvent.startNewScan());
                   },
                   icon: const Icon(Icons.replay),
                 ),
@@ -88,18 +89,12 @@ class HostScanWidget extends StatelessWidget {
           child: ListView.builder(
             itemCount: activeHostList.length,
             itemBuilder: (context, index) {
-              final DeviceInTheNetwork host = activeHostList[index];
+              final Device host = activeHostList[index];
               return AdaptiveListTile(
                 leading: Icon(host.iconData),
-                title: FutureBuilder(
-                  future: host.make,
-                  builder: (context, AsyncSnapshot<String?> snapshot) {
-                    return Text(snapshot.data ?? '');
-                  },
-                  initialData: 'Generic Device',
-                ),
+                title: Text(host.deviceMake ?? ''),
                 subtitle: Text(
-                  '${host.internetAddress.address} ${host.mac}',
+                  '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
                 trailing: IconButton(
                   tooltip: 'Scan open ports for this target',
@@ -109,7 +104,7 @@ class HostScanWidget extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PortScanPage(
-                          target: host.internetAddress.address,
+                          target: host.internetAddress,
                         ),
                       ),
                     );
@@ -118,7 +113,7 @@ class HostScanWidget extends StatelessWidget {
                 onLongPress: () {
                   Clipboard.setData(
                     ClipboardData(
-                      text: host.internetAddress.address,
+                      text: host.internetAddress,
                     ),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(

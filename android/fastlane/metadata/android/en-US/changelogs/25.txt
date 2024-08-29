@@ -1,0 +1,15 @@
+## What's Changed
+* Added rate our app in readme by @git-elliot in https://github.com/osociety/vernet/pull/169
+* Update issue templates by @git-elliot in https://github.com/osociety/vernet/pull/170
+* Added adaptive widgets for ios and macos by @git-elliot in https://github.com/osociety/vernet/pull/171
+* Run test before build and restore keys in GHA by @git-elliot in https://github.com/osociety/vernet/pull/172
+* fastlane i18n ru by @yurtpage in https://github.com/osociety/vernet/pull/175
+* Add link to blog for f-droid publishing guide. by @git-elliot in https://github.com/osociety/vernet/pull/178
+* Update README.md by @git-elliot in https://github.com/osociety/vernet/pull/179
+* Uploaded to play store 1.0.7 by @git-elliot in https://github.com/osociety/vernet/pull/181
+* Dev -> Main by @git-elliot in https://github.com/osociety/vernet/pull/180
+
+## New Contributors
+* @yurtpage made their first contribution in https://github.com/osociety/vernet/pull/175
+
+**Full Changelog**: https://github.com/osociety/vernet/compare/v1.0.6+24...v1.0.7+25

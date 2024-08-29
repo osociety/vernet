@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/dark_theme_provider.dart';
+import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
@@ -22,6 +23,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final InAppReview inAppReview = InAppReview.instance;
+
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
@@ -49,6 +52,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 value: appSettings.inAppInternet,
                 onChanged: (bool? value) async {
                   appSettings.setInAppInternet(value ?? false);
+                  await appSettings.load();
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
+          Card(
+            child: AdaptiveListTile(
+              title: const Text('Run scan on app startup'),
+              trailing: Switch(
+                value: appSettings.runScanOnStartup,
+                onChanged: (bool? value) async {
+                  appSettings.setRunScanOnStartup(value ?? false);
                   await appSettings.load();
                   setState(() {});
                 },
@@ -169,6 +185,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   checkForUpdates(context, showIfNoUpdate: true);
                 },
               ),
+            ),
+          ),
+          Card(
+            child: AdaptiveListTile(
+              title: const Text('Rate our app'),
+              onTap: () {
+                inAppReview.openStoreListing();
+              },
             ),
           ),
           Card(

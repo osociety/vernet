@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  isar_flutter_libs
   nsd_windows
   permission_handler_windows
   url_launcher_windows

@@ -6,8 +6,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/pages/host_scan_page/device_in_the_network.dart';
+import 'package:vernet/models/device_in_the_network.dart';
+import 'package:vernet/models/isar/device.dart';
+import 'package:vernet/models/isar/scan.dart';
+import 'package:vernet/repository/scan_repository.dart';
+import 'package:vernet/services/impls/device_scanner_service.dart';
 
 part 'host_scan_bloc.freezed.dart';
 part 'host_scan_event.dart';
@@ -18,7 +24,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   HostScanBloc() : super(HostScanState.initial()) {
     on<Initialized>(_initialized);
     on<StartNewScan>(_startNewScanBuiltInIsolate);
+    on<LoadScan>(_loadScanAndShowResults);
   }
+  final scannerService = getIt<DeviceScannerService>();
 
   /// IP of the device in the local network.
   String? ip;
@@ -46,101 +54,54 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         ? appSettings.customSubnet
         : await NetworkInfo().getWifiGatewayIP();
     subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
-    add(const HostScanEvent.startNewScan());
+    if (appSettings.runScanOnStartup) {
+      add(const HostScanEvent.loadScan());
+    } else {
+      add(const HostScanEvent.startNewScan());
+    }
   }
 
   Future<void> _startNewScanBuiltInIsolate(
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
-    final streamController = HostScannerService.instance.getAllPingableDevices(
-      subnet!,
-      firstHostId: appSettings.firstSubnet,
-      lastHostId: appSettings.lastSubnet,
-    );
-    await for (final ActiveHost activeHost in streamController) {
-      final int index = indexOfActiveHost(activeHost.address);
+    emit(const HostScanState.loadInProgress());
 
-      if (index == -1) {
-        deviceInTheNetworkList.add(
-          DeviceInTheNetwork.createFromActiveHost(
-            activeHost: activeHost,
-            currentDeviceIp: ip!,
-            gatewayIp: gatewayIp!,
-            mac: (await activeHost.arpData)?.macAddress,
-          ),
-        );
-      } else {
-        deviceInTheNetworkList[index] = DeviceInTheNetwork.createFromActiveHost(
-          activeHost: activeHost,
-          currentDeviceIp: ip!,
-          gatewayIp: gatewayIp!,
-          mdns: deviceInTheNetworkList[index].mdns,
-          mac: (await activeHost.arpData)?.macAddress,
-        );
-      }
-
-      deviceInTheNetworkList.sort(sort);
-      emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
+    final Set<Device> devices = {};
+    final deviceStream =
+        getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
+    await for (final Device device in deviceStream) {
+      devices.add(device);
+      emit(HostScanState.foundNewDevice(devices));
     }
 
-    final activeMdnsHostList =
-        await MdnsScannerService.instance.searchMdnsDevices();
-
-    for (final ActiveHost activeHost in activeMdnsHostList) {
-      final int index = indexOfActiveHost(activeHost.address);
-      final MdnsInfo? mDns = await activeHost.mdnsInfo;
-      if (mDns == null) {
-        continue;
-      }
-
-      if (index == -1) {
-        deviceInTheNetworkList.add(
-          DeviceInTheNetwork.createFromActiveHost(
-            activeHost: activeHost,
-            currentDeviceIp: ip!,
-            gatewayIp: gatewayIp!,
-            mdns: mDns,
-            mac: (await activeHost.arpData)?.macAddress,
-          ),
-        );
-      } else {
-        deviceInTheNetworkList[index] = deviceInTheNetworkList[index]
-          ..mdns = mDns;
-      }
-
-      deviceInTheNetworkList.sort(sort);
-      emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(deviceInTheNetworkList));
-    }
-    emit(HostScanState.loadSuccess(deviceInTheNetworkList));
+    emit(HostScanState.loadSuccess(devices));
   }
 
-  /// Getting active host IP and finds it's index inside of activeHostList
-  /// Returns -1 if didn't find
-  int indexOfActiveHost(String ip) {
-    return deviceInTheNetworkList
-        .indexWhere((element) => element.internetAddress.address == ip);
-  }
+  Future<void> _loadScanAndShowResults(
+    LoadScan event,
+    Emitter<HostScanState> emit,
+  ) async {
+    emit(const HostScanState.loadInProgress());
 
-  int sort(DeviceInTheNetwork a, DeviceInTheNetwork b) {
-    final regexA = a.internetAddress.address.contains('.') ? '.' : '::';
-    final regexB = b.internetAddress.address.contains('.') ? '.' : '::';
-    if (regexA.length == 2 || regexB.length == 2) {
-      return regexA.length.compareTo(regexB.length);
+    final Set<Device> devicesSet = {};
+    final deviceStream = await getIt<DeviceScannerService>().getOnGoingScan();
+    deviceStream.listen((devices) {
+      devicesSet.addAll(devices);
+      emit(HostScanState.foundNewDevice(devicesSet));
+    });
+
+    //load success based on scan record getting updated to ongoing = false
+    final currentScanId = await getCurrentScanId();
+    if (currentScanId != null) {
+      final scanStream = await getIt<ScanRepository>().watch(currentScanId);
+      await for (final List<Scan> scanList in scanStream) {
+        final scan = scanList.first;
+        if (scan.onGoing == false) {
+          emit(HostScanState.loadSuccess(devicesSet));
+          break;
+        }
+      }
     }
-    final int aIp = int.parse(
-      a.internetAddress.address.substring(
-        a.internetAddress.address.lastIndexOf(regexA) + regexA.length,
-      ),
-    );
-    final int bIp = int.parse(
-      b.internetAddress.address.substring(
-        b.internetAddress.address.lastIndexOf(regexB) + regexB.length,
-      ),
-    );
-
-    return aIp.compareTo(bIp);
   }
 }
