@@ -9,9 +9,11 @@ import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/pages/home_page.dart';
+import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 
 AppSettings appSettings = AppSettings.instance;
@@ -27,12 +29,17 @@ Future<void> main() async {
   final bool allowed = await ConsentLoader.isConsentPageShown();
   await appSettings.load();
 
+  await NotificationService.initNotification();
+
   runApp(MyApp(allowed));
   FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatefulWidget {
   const MyApp(this.allowed, {super.key});
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+  // static const Color mainColor = Colors.deepPurple;
 
   final bool allowed;
 
@@ -46,6 +53,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    NotificationService.grantPermissions();
     getCurrentAppTheme();
     startScanOnStartup();
   }
@@ -77,18 +85,40 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<DarkThemeProvider>(
         builder: (BuildContext context, value, Widget? child) {
           return MaterialApp(
+            navigatorKey: MyApp.navigatorKey,
+            initialRoute: '/',
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/':
+                  return MaterialPageRoute(
+                    builder: (context) => homePage,
+                  );
+
+                case '/hostscan':
+                  return MaterialPageRoute(
+                    builder: (context) {
+                      return HostScanPage();
+                    },
+                  );
+
+                default:
+                  assert(false, 'Page ${settings.name} not found');
+                  return null;
+              }
+            },
             title: 'Vernet',
             theme: themeChangeProvider.darkTheme
                 ? ThemeData.dark()
                 : ThemeData.light(),
-            home: widget.allowed
-                ? const TabBarPage()
-                : const LocationConsentPage(),
+            home: homePage,
           );
         },
       ),
     );
   }
+
+  Widget get homePage =>
+      widget.allowed ? const TabBarPage() : const LocationConsentPage();
 }
 
 class TabBarPage extends StatefulWidget {
