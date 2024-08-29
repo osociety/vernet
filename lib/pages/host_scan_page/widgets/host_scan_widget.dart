@@ -94,7 +94,7 @@ class HostScanWidget extends StatelessWidget {
                 leading: Icon(host.iconData),
                 title: Text(host.deviceMake ?? ''),
                 subtitle: Text(
-                  '${host.internetAddress} (${host.macAddress ?? ''})',
+                  '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
                 trailing: IconButton(
                   tooltip: 'Scan open ports for this target',

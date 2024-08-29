@@ -91,7 +91,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(HostScanState.foundNewDevice(devicesSet));
     });
 
-    //load success based on scan record getting updated to ongoing = true
+    //load success based on scan record getting updated to ongoing = false
     final currentScanId = await getCurrentScanId();
     if (currentScanId != null) {
       final scanStream = await getIt<ScanRepository>().watch(currentScanId);

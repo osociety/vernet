@@ -42,7 +42,7 @@ class DeviceScannerService extends ScannerService {
       if (device == null) {
         device = Device(
           internetAddress: activeHost.address,
-          macAddress: (await activeHost.arpData)!.macAddress,
+          macAddress: (await activeHost.arpData)?.macAddress,
           currentDeviceIp: ip,
           hostMake: await activeHost.deviceName,
           gatewayIp: gatewayIp,
