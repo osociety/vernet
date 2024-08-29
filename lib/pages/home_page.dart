@@ -60,6 +60,7 @@ class _WifiDetailState extends State<HomePage> {
       child: Column(
         children: [
           Card(
+            //todo: replace this widget by future builder
             child: _wifiInfo == null
                 ? const CircularProgressIndicator.adaptive()
                 : AdaptiveListTile(

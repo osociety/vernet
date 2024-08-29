@@ -1,0 +1,2 @@
+Added option in settings to run scan at app startup/launch
+Upgraded to latest Android SDK.
