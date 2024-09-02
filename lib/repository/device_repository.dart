@@ -49,4 +49,9 @@ class DeviceRepository extends IsarRepository<Device> {
         .build()
         .watch(fireImmediately: true);
   }
+
+  Future<int> countByScanId(int scanId) async {
+    final deviceDB = await _database.open();
+    return deviceDB!.devices.filter().scanIdEqualTo(scanId).count();
+  }
 }

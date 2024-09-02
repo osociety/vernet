@@ -19,4 +19,5 @@ class StringValue {
   static const String customSubnetDesc =
       'Scan a custom subnet instead of local one.';
   static const String customSubnetHint = 'e.g., 10.102.200.1';
+  static const String hostScanPageTitle = 'Scan for devices';
 }

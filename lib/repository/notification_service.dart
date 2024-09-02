@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -73,42 +72,12 @@ class NotificationService {
         darwinNotificationCategoryText,
         actions: <DarwinNotificationAction>[
           DarwinNotificationAction.text(
-            'text_1',
-            'Action 1',
-            buttonTitle: 'Send',
+            'view_scan',
+            'View scan',
+            buttonTitle: 'View',
             placeholder: 'Placeholder',
           ),
         ],
-      ),
-      DarwinNotificationCategory(
-        darwinNotificationCategoryPlain,
-        actions: <DarwinNotificationAction>[
-          DarwinNotificationAction.plain('id_1', 'Action 1'),
-          DarwinNotificationAction.plain(
-            'id_2',
-            'Action 2 (destructive)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.destructive,
-            },
-          ),
-          DarwinNotificationAction.plain(
-            navigationActionId,
-            'Action 3 (foreground)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.foreground,
-            },
-          ),
-          DarwinNotificationAction.plain(
-            'id_4',
-            'Action 4 (auth required)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.authenticationRequired,
-            },
-          ),
-        ],
-        options: <DarwinNotificationCategoryOption>{
-          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
-        },
       ),
     ];
 
@@ -180,6 +149,12 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction(
+          urlLaunchActionId,
+          'View',
+        ),
+      ],
     );
 
     const DarwinNotificationDetails iosNotificationDetails =
@@ -197,11 +172,7 @@ class NotificationService {
       actions: <LinuxNotificationAction>[
         LinuxNotificationAction(
           key: urlLaunchActionId,
-          label: 'Action 1',
-        ),
-        LinuxNotificationAction(
-          key: navigationActionId,
-          label: 'Action 2',
+          label: 'View',
         ),
       ],
     );
@@ -226,21 +197,18 @@ class NotificationService {
     await _requestPermissions();
   }
 
-  static Future<void> _isAndroidPermissionGranted() async {
+  static Future<bool> _isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
-      final bool granted = await flutterLocalNotificationsPlugin
+      return await flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
                   AndroidFlutterLocalNotificationsPlugin>()
               ?.areNotificationsEnabled() ??
           false;
-
-      // setState(() {
-      //   _notificationsEnabled = granted;
-      // });
     }
+    return false;
   }
 
-  static Future<void> _requestPermissions() async {
+  static Future<bool?> _requestPermissions() async {
     if (Platform.isIOS || Platform.isMacOS) {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -263,11 +231,8 @@ class NotificationService {
           flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
-      final bool? grantedNotificationPermission =
-          await androidImplementation?.requestNotificationsPermission();
-      // setState(() {
-      //   _notificationsEnabled = grantedNotificationPermission ?? false;
-      // });
+      return await androidImplementation?.requestNotificationsPermission();
     }
+    return false;
   }
 }
