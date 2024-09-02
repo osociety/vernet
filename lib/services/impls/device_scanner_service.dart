@@ -95,4 +95,12 @@ class DeviceScannerService extends ScannerService {
     }
     return const Stream.empty();
   }
+
+  Future<int> getCurrentDevicesCount() async {
+    final scan = await _scanRepository.getOnGoingScan();
+    if (scan != null) {
+      return _deviceRepository.countByScanId(scan.id);
+    }
+    return 0;
+  }
 }

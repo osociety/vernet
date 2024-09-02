@@ -12,6 +12,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/models/device_in_the_network.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/isar/scan.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/scan_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 
@@ -75,6 +76,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(HostScanState.foundNewDevice(devices));
     }
 
+    await NotificationService.showNotificationWithActions();
     emit(HostScanState.loadSuccess(devices));
   }
 
@@ -99,6 +101,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         final scan = scanList.first;
         if (scan.onGoing == false) {
           emit(HostScanState.loadSuccess(devicesSet));
+          await NotificationService.showNotificationWithActions();
           break;
         }
       }
