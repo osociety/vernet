@@ -101,7 +101,6 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         final scan = scanList.first;
         if (scan.onGoing == false) {
           emit(HostScanState.loadSuccess(devicesSet));
-          await NotificationService.showNotificationWithActions();
           break;
         }
       }

@@ -70,7 +70,9 @@ class _WifiDetailState extends State<HomePage> {
         }
       }).onDone(() async {
         if (mounted) {
-          scanRunning = false;
+          setState(() {
+            scanRunning = false;
+          });
         }
         await NotificationService.showNotificationWithActions();
       });
@@ -79,10 +81,26 @@ class _WifiDetailState extends State<HomePage> {
     return _wifiInfo;
   }
 
+  void _configureSelectNotificationSubject() {
+    NotificationService.selectNotificationStream.stream
+        .listen((String? payload) async {
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        '/hostscan',
+        ModalRoute.withName('/'),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    NotificationService.selectNotificationStream.close();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
-    _getWifiInfo();
+    _configureSelectNotificationSubject();
   }
 
   Widget _getDeviceCountWidget() {
