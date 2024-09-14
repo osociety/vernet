@@ -5,6 +5,8 @@ Vernet - Network Analyzer and Monitoring Tool
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/git-elliot/vernet?include_prereleases)](https://github.com/git-elliot/vernet/releases/latest)
 ![GitHub repo size](https://img.shields.io/github/repo-size/git-elliot/vernet)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total)
+![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
 
 ## Features
 
