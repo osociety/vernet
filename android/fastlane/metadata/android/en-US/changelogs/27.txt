@@ -1,0 +1,1 @@
+Bug fix for scan for devices not working

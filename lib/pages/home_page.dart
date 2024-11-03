@@ -5,7 +5,9 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
@@ -13,8 +15,11 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/providers/internet_provider.dart';
+import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
+import 'package:vernet/values/strings.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,9 +30,13 @@ class HomePage extends StatefulWidget {
 
 class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
-  bool _location = false;
+  bool scanRunning = false;
+  Set<Device> devices = {};
 
-  Future<void> _getWifiInfo() async {
+  Future<WifiInfo?> _getWifiInfo() async {
+    if (_wifiInfo != null) {
+      return _wifiInfo;
+    }
     if (Platform.isAndroid) {
       await Permission.location.request();
     }
@@ -35,23 +44,83 @@ class _WifiDetailState extends State<HomePage> {
     final wifiIP = await NetworkInfo().getWifiIP();
     final wifiBSSID = await NetworkInfo().getWifiBSSID();
     final wifiName = await NetworkInfo().getWifiName();
+    final gatewayIp = appSettings.customSubnet.isNotEmpty
+        ? appSettings.customSubnet
+        : await NetworkInfo().getWifiGatewayIP() ?? '';
+    final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
+        await Permission.location.serviceStatus.isEnabled;
+    _wifiInfo = WifiInfo(
+      wifiIP,
+      wifiBSSID,
+      wifiName,
+      wifiName == null,
+      gatewayIp,
+      isLocationOn,
+    );
 
-    setState(() {
-      _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null);
-    });
-    if (Platform.isAndroid || Platform.isIOS) {
-      Permission.location.serviceStatus.isEnabled.then(
-        (value) => setState(() {
-          _location = value;
-        }),
-      );
+    if (appSettings.runScanOnStartup) {
+      getIt<DeviceScannerService>()
+          .startNewScan(_wifiInfo!.subnet, wifiIP!, gatewayIp)
+          .listen((device) {
+        if (mounted) {
+          setState(() {
+            scanRunning = true;
+            devices.add(device);
+          });
+        }
+      }).onDone(() async {
+        if (mounted) {
+          setState(() {
+            scanRunning = false;
+          });
+        }
+        await NotificationService.showNotificationWithActions();
+      });
     }
+
+    return _wifiInfo;
+  }
+
+  void _configureSelectNotificationSubject() {
+    NotificationService.selectNotificationStream.stream
+        .listen((String? payload) async {
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        '/hostscan',
+        ModalRoute.withName('/'),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    NotificationService.selectNotificationStream.close();
+    super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    _getWifiInfo();
+    _configureSelectNotificationSubject();
+  }
+
+  Widget _getDeviceCountWidget() {
+    if (appSettings.runScanOnStartup) {
+      return Row(
+        children: [
+          Text(
+            '${devices.length} devices ${scanRunning ? 'found' : 'connected'}',
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+          if (scanRunning)
+            const CircularProgressIndicator.adaptive()
+          else
+            const SizedBox(),
+        ],
+      );
+    }
+    return const SizedBox();
   }
 
   @override
@@ -60,19 +129,24 @@ class _WifiDetailState extends State<HomePage> {
       child: Column(
         children: [
           Card(
-            //todo: replace this widget by future builder
-            child: _wifiInfo == null
-                ? const CircularProgressIndicator.adaptive()
-                : AdaptiveListTile(
+            child: FutureBuilder<WifiInfo?>(
+              future: _getWifiInfo(),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<WifiInfo?> snapshot,
+              ) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  final wifiInfo = snapshot.data;
+                  return AdaptiveListTile(
                     minVerticalPadding: 10,
                     leading: const Icon(Icons.router),
-                    title: Text(_wifiInfo!.name),
+                    title: Text(wifiInfo!.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Connected to ${_wifiInfo!.bssid}'),
+                        Text('Connected to ${wifiInfo.bssid}'),
                         const SizedBox(height: 5),
-                        if (_location)
+                        if (wifiInfo.isLocationOn)
                           const SizedBox()
                         else
                           Text(
@@ -87,16 +161,24 @@ class _WifiDetailState extends State<HomePage> {
                           ),
                         const Divider(height: 3),
                         const SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HostScanPage(),
-                              ),
-                            );
-                          },
-                          child: const Text('Scan for devices'),
+                        Row(
+                          children: [
+                            _getDeviceCountWidget(),
+                            const SizedBox(
+                              width: 4,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HostScanPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text(StringValue.hostScanPageTitle),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -106,7 +188,14 @@ class _WifiDetailState extends State<HomePage> {
                         _getWifiInfo();
                       },
                     ),
-                  ),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Text("Unable to fetch WiFi details");
+                } else {
+                  return const CircularProgressIndicator.adaptive();
+                }
+              },
+            ),
           ),
           Card(
             child: AdaptiveListTile(

@@ -12,6 +12,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/models/device_in_the_network.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/isar/scan.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/scan_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 
@@ -49,16 +50,29 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     deviceInTheNetworkList.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
-    ip = await NetworkInfo().getWifiIP();
-    gatewayIp = appSettings.customSubnet.isNotEmpty
-        ? appSettings.customSubnet
-        : await NetworkInfo().getWifiGatewayIP();
-    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
+    await initializeWifiParameters(emit);
     if (appSettings.runScanOnStartup) {
       add(const HostScanEvent.loadScan());
     } else {
       add(const HostScanEvent.startNewScan());
     }
+  }
+
+  Future<void> initializeWifiParameters(Emitter<HostScanState> emit) async {
+    final wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
+    if (appSettings.customSubnet.isNotEmpty) {
+      gatewayIp = appSettings.customSubnet;
+    } else if (wifiGatewayIP != null) {
+      gatewayIp = wifiGatewayIP;
+    } else {
+      // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
+      // to NetworkInfo().getWifiIP()
+      gatewayIp = ip = await NetworkInfo().getWifiIP();
+    }
+    if (gatewayIp == null) {
+      emit(const HostScanState.error());
+    }
+    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
   }
 
   Future<void> _startNewScanBuiltInIsolate(
@@ -75,6 +89,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(HostScanState.foundNewDevice(devices));
     }
 
+    await NotificationService.showNotificationWithActions();
     emit(HostScanState.loadSuccess(devices));
   }
 
