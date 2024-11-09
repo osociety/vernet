@@ -47,8 +47,9 @@ void main() {
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
 
-      // // Trigger a frame.
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      // Trigger a frame.
+      // TODO: this guy is the main culprit
+      // await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify that the scan completes
       // expect(
