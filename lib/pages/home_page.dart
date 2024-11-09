@@ -19,6 +19,7 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
+import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 class HomePage extends StatefulWidget {
@@ -168,6 +169,9 @@ class _WifiDetailState extends State<HomePage> {
                               width: 4,
                             ),
                             ElevatedButton(
+                              key: const ValueKey(
+                                Keys.scanForDevicesButton,
+                              ),
                               onPressed: () {
                                 Navigator.push(
                                   context,
