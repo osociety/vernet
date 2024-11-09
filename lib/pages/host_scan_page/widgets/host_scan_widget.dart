@@ -6,6 +6,7 @@ import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/keys.dart';
 
 //TODO: Device doesn't refresh when active scan going on
 class HostScanWidget extends StatelessWidget {
@@ -77,6 +78,7 @@ class HostScanWidget extends StatelessWidget {
                   ),
                 )
               : IconButton(
+                  key: const ValueKey(Keys.rescanIconButton),
                   onPressed: () {
                     context
                         .read<HostScanBloc>()

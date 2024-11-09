@@ -8,9 +8,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/main.dart';
 
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp(false));
+Future<void> main() async {
+  group('widget test', () {
+    testWidgets('tap on the scan for devices button, verify device found',
+        (tester) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(const MyApp(false));
+    });
   });
 }

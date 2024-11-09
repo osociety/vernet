@@ -51,7 +51,7 @@ jobs:
     name: 'Flutter Analyze + Test'
     needs: changes
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.yaml == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -85,14 +85,14 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Run analyzer
         run: flutter analyze
       - name: Run tests
         run: flutter test
+      - name: Run integration tests
+        run: flutter test integration_test -d macos
 
   android-linux-build:
     name: 'Build Android + Linux'
@@ -130,8 +130,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build Android
@@ -186,8 +184,6 @@ jobs:
             ${{ runner.os }}-pods-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build macos
@@ -224,8 +220,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build windows
