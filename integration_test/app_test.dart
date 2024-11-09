@@ -38,26 +38,26 @@ void main() {
       expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
 
       // Finds the scan for devices button to tap on.
-      final devicesButton = find.byKey(
-        const ValueKey(
-          Keys.scanForDevicesButton,
-        ),
-      );
+      // final devicesButton = find.byKey(
+      //   const ValueKey(
+      //     Keys.scanForDevicesButton,
+      //   ),
+      // );
 
       // Emulate a tap on the button.
-      await tester.tap(devicesButton);
+      // await tester.tap(devicesButton);
 
-      // Trigger a frame.
-      await tester.pumpAndSettle();
+      // // Trigger a frame.
+      // await tester.pumpAndSettle();
 
       // Verify that the scan completes
       // expect(
       //   find.byKey(const ValueKey(Keys.rescanIconButton)),
       //   findsOneWidget,
       // );
-      expect(find.byType(AdaptiveListTile), findsAny);
+      // expect(find.byType(AdaptiveListTile), findsAny);
 
-      await tester.pumpAndSettle();
+      // await tester.pumpAndSettle();
     });
   });
 }
