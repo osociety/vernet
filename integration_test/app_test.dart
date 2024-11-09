@@ -56,6 +56,8 @@ void main() {
       //   findsOneWidget,
       // );
       expect(find.byType(AdaptiveListTile), findsAny);
+
+      await tester.pumpAndSettle();
     });
   });
 }

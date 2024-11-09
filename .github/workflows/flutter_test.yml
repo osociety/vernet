@@ -92,7 +92,7 @@ jobs:
       - name: Run tests
         run: flutter test
       - name: Run integration tests
-        run: flutter test integration_test -d macos; echo $?
+        run: flutter test integration_test -d macos
 
   android-linux-build:
     name: 'Build Android + Linux'
