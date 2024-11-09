@@ -48,16 +48,14 @@ void main() {
       await tester.tap(devicesButton);
 
       // // Trigger a frame.
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify that the scan completes
       // expect(
       //   find.byKey(const ValueKey(Keys.rescanIconButton)),
       //   findsOneWidget,
       // );
-      // expect(find.byType(AdaptiveListTile), findsAny);
-
-      // await tester.pumpAndSettle();
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
   });
 }
