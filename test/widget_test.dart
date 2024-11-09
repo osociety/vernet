@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/main.dart';
 
 Future<void> main() async {
-  group('end-to-end test', () {
+  group('widget test', () {
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
       // Build our app and trigger a frame.
