@@ -48,7 +48,7 @@ void main() {
       await tester.tap(devicesButton);
 
       // // Trigger a frame.
-      // await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
       // Verify that the scan completes
       // expect(
