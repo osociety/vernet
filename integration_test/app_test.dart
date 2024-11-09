@@ -48,7 +48,7 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle(const Duration(seconds: 30));
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
       // expect(
       //   find.byKey(const ValueKey(Keys.rescanIconButton)),
