@@ -51,7 +51,7 @@ jobs:
     name: 'Flutter Analyze + Test'
     needs: changes
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.yaml == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     # strategy:
     #   matrix:
     #     api-level: [24, 29, 34]
@@ -96,6 +96,8 @@ jobs:
         run: flutter analyze
       - name: Run tests
         run: flutter test
+      - name: Run integration tests
+        run: flutter test integration_test/app_test.dart
       # - name: Enable KVM
       #   run: |
       #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -229,8 +231,6 @@ jobs:
         run: flutter pub run build_runner build
       - name: Build macos
         run: flutter build macos
-      - name: Run integration tests
-        run: flutter test integration_test/app_test.dart
 
   windows-build:
     name: 'Build Windows'
