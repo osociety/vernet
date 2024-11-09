@@ -7,6 +7,7 @@ import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
+import 'package:vernet/values/strings.dart';
 
 //TODO: Device doesn't refresh when active scan going on
 class HostScanWidget extends StatelessWidget {
@@ -30,7 +31,7 @@ class HostScanWidget extends StatelessWidget {
                     Text(
                       appSettings.gatewayIP.isNotEmpty
                           ? 'Searching for devices in ${appSettings.gatewayIP} network'
-                          : 'Searching for devices in your local network',
+                          : StringValue.loadingDevicesMessage,
                       textAlign: TextAlign.center,
                     ),
                   ],
