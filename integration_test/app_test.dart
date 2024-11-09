@@ -46,8 +46,9 @@ void main() {
 
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
+      await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
       // expect(
       //   find.byKey(const ValueKey(Keys.rescanIconButton)),
