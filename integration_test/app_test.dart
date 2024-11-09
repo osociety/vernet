@@ -22,6 +22,13 @@ void main() {
   group('end-to-end test', () {
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('tap on the scan for devices button, verify device found',
+        (tester) async {
       final appDocDirectory = await getApplicationDocumentsDirectory();
       await configureNetworkToolsFlutter(appDocDirectory.path);
       // Load app widget.
@@ -45,10 +52,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that the scan completes
-      // expect(
-      //   find.byKey(const ValueKey(Keys.rescanIconButton)),
-      //   findsOneWidget,
-      // );
+      expect(
+        find.byKey(const ValueKey(Keys.rescanIconButton)),
+        findsOneWidget,
+      );
       expect(find.byType(AdaptiveListTile), findsAny);
     });
   });
