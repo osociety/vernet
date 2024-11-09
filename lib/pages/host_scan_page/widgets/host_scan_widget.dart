@@ -70,14 +70,7 @@ class HostScanWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           trailing: loading
-              ? const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    height: 25.0,
-                    width: 25.0,
-                    child: Center(child: CircularProgressIndicator.adaptive()),
-                  ),
-                )
+              ? const SizedBox()
               : IconButton(
                   key: const ValueKey(Keys.rescanIconButton),
                   onPressed: () {

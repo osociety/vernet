@@ -48,12 +48,8 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 30));
+      await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
-      // expect(
-      //   find.byKey(const ValueKey(Keys.rescanIconButton)),
-      //   findsOneWidget,
-      // );
     });
   });
 }
