@@ -85,8 +85,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Run analyzer
@@ -132,8 +130,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build Android
@@ -188,8 +184,6 @@ jobs:
             ${{ runner.os }}-pods-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build macos
@@ -226,8 +220,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build windows
