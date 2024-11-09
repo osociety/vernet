@@ -97,7 +97,7 @@ jobs:
       - name: Run tests
         run: flutter test
       - name: Run integration tests
-        run: flutter test integration_test/app_test.dart
+        run: flutter test integration_test/app_test.dart -d macos
       # - name: Enable KVM
       #   run: |
       #     echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
