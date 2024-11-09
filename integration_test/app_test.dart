@@ -51,12 +51,15 @@ void main() {
       // TODO: this guy is the main culprit
       // await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Verify that the scan completes
-      // expect(
-      //   find.byKey(const ValueKey(Keys.rescanIconButton)),
-      //   findsOneWidget,
-      // );
       expect(find.byType(AdaptiveListTile), findsAny);
+      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.pump();
+      expect(find.byType(AdaptiveListTile), findsAtLeast(2));
+      expect(
+        find.byKey(const ValueKey(Keys.rescanIconButton)),
+        findsOneWidget,
+      );
     });
   });
 }
