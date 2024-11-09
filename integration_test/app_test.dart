@@ -20,6 +20,12 @@ void main() {
   configureDependencies(Env.test);
 
   group('end-to-end test', () {
+    testWidgets('just test if app is able to launch', (tester) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
       final appDocDirectory = await getApplicationDocumentsDirectory();
@@ -40,16 +46,10 @@ void main() {
 
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
-
-      // Trigger a frame.
-      await tester.pumpAndSettle();
-
-      // Verify that the scan completes
-      // expect(
-      //   find.byKey(const ValueKey(Keys.rescanIconButton)),
-      //   findsOneWidget,
-      // );
+      await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
+      await tester.pumpAndSettle();
+      expect(find.byType(AdaptiveListTile), findsAtLeast(2));
     });
   });
 }

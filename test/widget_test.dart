@@ -10,8 +10,7 @@ import 'package:vernet/main.dart';
 
 Future<void> main() async {
   group('widget test', () {
-    testWidgets('tap on the scan for devices button, verify device found',
-        (tester) async {
+    testWidgets('my first widget test', (tester) async {
       // Build our app and trigger a frame.
       await tester.pumpWidget(const MyApp(false));
     });
