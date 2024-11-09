@@ -150,9 +150,6 @@ jobs:
       - name: Download pub dependencies
         run: flutter pub get
 
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
-
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
 
