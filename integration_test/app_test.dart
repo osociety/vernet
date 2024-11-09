@@ -15,16 +15,41 @@ import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
-Future<void> main() async {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   configureDependencies(Env.test);
-  final appDocDirectory = await getApplicationDocumentsDirectory();
-  await configureNetworkToolsFlutter(appDocDirectory.path);
+
   group('end-to-end test', () {
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
-      // Build our app and trigger a frame.
-      await tester.pumpWidget(const MyApp(false));
+      final appDocDirectory = await getApplicationDocumentsDirectory();
+      await configureNetworkToolsFlutter(appDocDirectory.path);
+      // Load app widget.
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+
+      // Verify that there are 4 widgets at homepage
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+
+      // Finds the scan for devices button to tap on.
+      final devicesButton = find.byKey(
+        const ValueKey(
+          Keys.scanForDevicesButton,
+        ),
+      );
+
+      // Emulate a tap on the button.
+      await tester.tap(devicesButton);
+
+      // Trigger a frame.
+      await tester.pumpAndSettle();
+
+      // Verify that the scan completes
+      expect(
+        find.byKey(const ValueKey(Keys.rescanIconButton)),
+        findsOneWidget,
+      );
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
   });
 }
