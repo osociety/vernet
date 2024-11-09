@@ -60,6 +60,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
   Future<void> initializeWifiParameters(Emitter<HostScanState> emit) async {
     final wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
+    ip = await NetworkInfo().getWifiIP();
     if (appSettings.customSubnet.isNotEmpty) {
       gatewayIp = appSettings.customSubnet;
     } else if (wifiGatewayIP != null) {
@@ -67,7 +68,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     } else {
       // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
       // to NetworkInfo().getWifiIP()
-      gatewayIp = ip = await NetworkInfo().getWifiIP();
+      gatewayIp = ip;
     }
     if (gatewayIp == null) {
       emit(const HostScanState.error());
