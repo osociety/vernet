@@ -194,7 +194,7 @@ class _WifiDetailState extends State<HomePage> {
                 } else if (snapshot.hasError) {
                   return const Text("Unable to fetch WiFi details");
                 } else {
-                  return const CircularProgressIndicator.adaptive();
+                  return const Text('Loading...');
                 }
               },
             ),
