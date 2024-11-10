@@ -5,6 +5,8 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -16,15 +18,22 @@ import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
+  int port = 0;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  configureDependencies(Env.test);
+  late ServerSocket server;
+  setUpAll(() async {
+    configureDependencies(Env.test);
+    final appDocDirectory = await getApplicationDocumentsDirectory();
+    await configureNetworkToolsFlutter(appDocDirectory.path);
+    server =
+        await ServerSocket.bind(InternetAddress.anyIPv4, port, shared: true);
+    port = server.port;
+    debugPrint("Opened port in this machine at $port");
+  });
 
   group('host scanner end-to-end test', () {
     testWidgets('just test if app is able to launch and display homepage',
         (tester) async {
-      // Build our app and trigger a frame.
-      final appDocDirectory = await getApplicationDocumentsDirectory();
-      await configureNetworkToolsFlutter(appDocDirectory.path);
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
@@ -64,16 +73,17 @@ void main() {
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
-      final fullRangeChip = find.byKey(Keys.knownPortChip);
+      final fullRangeChip = find.byKey(Keys.fullPortChip);
 
       await tester.tap(fullRangeChip);
       await tester.pumpAndSettle();
 
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.pumpAndSettle(const Duration(minutes: 2));
 
       expect(find.byType(AdaptiveListTile), findsAny);
+      // expect(find.text('$port'), findsOne);
     });
   });
 }
