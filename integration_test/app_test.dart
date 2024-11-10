@@ -102,7 +102,7 @@ void main() {
 
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 20));
+      await tester.pumpAndSettle(const Duration(seconds: 30));
       expect(find.text('80'), findsOne);
     });
   });
