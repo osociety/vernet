@@ -19,11 +19,18 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   configureDependencies(Env.test);
 
-  group('end-to-end test', () {
-    testWidgets('just test if app is able to launch', (tester) async {
+  group('host scanner end-to-end test', () {
+    testWidgets('just test if app is able to launch and display homepage',
+        (tester) async {
       // Build our app and trigger a frame.
+      final appDocDirectory = await getApplicationDocumentsDirectory();
+      await configureNetworkToolsFlutter(appDocDirectory.path);
+      // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
+
+      // Verify that there are 4 widgets at homepage
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
     });
 
     testWidgets('tap on the scan for devices button, verify device found',
@@ -50,6 +57,24 @@ void main() {
       expect(find.byType(AdaptiveListTile), findsAny);
       await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
+
+      // final routerIconButton = find.byKey(Keys.routerOrGatewayTileIconButton);
+
+      // await tester.tap(routerIconButton);
+      // await tester.pumpAndSettle();
+      // expect(find.byType(AppBar), findsOne);
+
+      // final radioButton = find.byKey(Keys.rangePortScanRadioButton);
+      // await tester.tap(radioButton);
+      // await tester.pump();
+
+      // final fullRangeChip = find.byKey(Keys.fullPortChip);
+
+      // await tester.tap(fullRangeChip);
+      // await tester.pump();
+
+      // final portScanButton = find.byKey(Keys.portScanButton);
+      // await tester.tap(portScanButton);
     });
   });
 }

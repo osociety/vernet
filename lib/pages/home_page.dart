@@ -169,9 +169,7 @@ class _WifiDetailState extends State<HomePage> {
                               width: 4,
                             ),
                             ElevatedButton(
-                              key: const ValueKey(
-                                Keys.scanForDevicesButton,
-                              ),
+                              key: Keys.scanForDevicesButton,
                               onPressed: () {
                                 Navigator.push(
                                   context,

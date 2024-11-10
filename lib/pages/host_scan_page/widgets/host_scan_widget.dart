@@ -8,6 +8,7 @@ import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
+import 'package:vernet/values/tooltip_messages.dart';
 
 //TODO: Device doesn't refresh when active scan going on
 class HostScanWidget extends StatelessWidget {
@@ -72,7 +73,7 @@ class HostScanWidget extends StatelessWidget {
           trailing: loading
               ? const SizedBox()
               : IconButton(
-                  key: const ValueKey(Keys.rescanIconButton),
+                  key: Keys.rescanIconButton,
                   onPressed: () {
                     context
                         .read<HostScanBloc>()
@@ -93,7 +94,8 @@ class HostScanWidget extends StatelessWidget {
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
                 trailing: IconButton(
-                  tooltip: 'Scan open ports for this target',
+                  key: ValueKey(host.deviceMake ?? ''),
+                  tooltip: TooltipMessages.currentDevicePortScan,
                   icon: const Icon(Icons.radar),
                   onPressed: () {
                     Navigator.push(

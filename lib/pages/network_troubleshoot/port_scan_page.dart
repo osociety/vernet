@@ -9,6 +9,7 @@ import 'package:vernet/models/port.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/values/keys.dart';
 
 class PortScanPage extends StatefulWidget {
   const PortScanPage({this.target = '', this.runDefaultScan = false});
@@ -134,8 +135,9 @@ class _PortScanPageState extends State<PortScanPage>
     _streamSubscription?.cancel();
   }
 
-  Widget _getCustomRangeChip(String label, String start, String end) {
+  Widget _getCustomRangeChip(Key key, String label, String start, String end) {
     return PopularChip(
+      key: key,
       label: label,
       onPressed: () {
         _startPortEditingController.text = start;
@@ -302,6 +304,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Expanded(
                               child: CustomTile(
                                 leading: Radio<ScanType>(
+                                  key: Keys.rangePortScanRadioButton,
                                   value: ScanType.range,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {
@@ -335,6 +338,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: ElevatedButton(
+                                key: Keys.portScanButton,
                                 onPressed: _completed
                                     ? () {
                                         if (_formKey.currentState!.validate()) {
@@ -383,21 +387,25 @@ class _PortScanPageState extends State<PortScanPage>
                                   Wrap(
                                     children: [
                                       _getCustomRangeChip(
+                                        Keys.knowPortChip,
                                         '0-1024 (known)',
                                         '0',
                                         '1024',
                                       ),
                                       _getCustomRangeChip(
+                                        Keys.shortPortChip,
                                         '0-100 (short)',
                                         '0',
                                         '100',
                                       ),
                                       _getCustomRangeChip(
+                                        Keys.veryShortPortChip,
                                         '0-10 (very short)',
                                         '0',
                                         '10',
                                       ),
                                       _getCustomRangeChip(
+                                        Keys.fullPortChip,
                                         '0-65535 (Full)',
                                         '0',
                                         '65535',
