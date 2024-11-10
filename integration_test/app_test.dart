@@ -48,10 +48,29 @@ void main() {
 
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
+
+      final routerIconButton = find.byKey(Keys.routerOrGatewayTileIconButton);
+
+      await tester.tap(routerIconButton);
+      await tester.pumpAndSettle();
+      expect(find.byType(AppBar), findsOne);
+
+      final radioButton = find.byKey(Keys.rangePortScanRadioButton);
+      await tester.tap(radioButton);
+      await tester.pumpAndSettle();
+
+      final portChip = find.byKey(Keys.knownPortChip);
+
+      await tester.tap(portChip);
+      await tester.pumpAndSettle();
+
+      final portScanButton = find.byKey(Keys.portScanButton);
+      await tester.tap(portScanButton);
+      await tester.pumpAndSettle();
     });
 
     testWidgets('port scan returns open port for google.com', (tester) async {
