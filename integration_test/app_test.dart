@@ -70,8 +70,6 @@ void main() {
 
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle();
-      await tester.pump();
       await tester.pumpAndSettle(const Duration(seconds: 20));
       await tester.pump();
       //TODO: not passing in github actions
