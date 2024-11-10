@@ -96,7 +96,7 @@ jobs:
       - name: Run tests
         run: flutter test
       - name: Run integration tests
-        # if: ${{ steps.extract_branch.outputs.branch == 'main' }}
+        if: ${{ steps.extract_branch.outputs.branch == 'main' }}
         run: flutter test integration_test -d macos
 
   android-linux-build:

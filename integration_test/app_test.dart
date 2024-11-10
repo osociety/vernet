@@ -102,9 +102,9 @@ void main() {
 
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 30));
+      await tester.pumpAndSettle(const Duration(seconds: 20));
       //TODO: not passing in github actions
-      // expect(find.byType(AdaptiveListTile), findsAny);
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
   });
 }
