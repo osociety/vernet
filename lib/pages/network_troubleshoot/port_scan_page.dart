@@ -532,7 +532,7 @@ class _PortScanPageState extends State<PortScanPage>
             );
           } else {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Text('Loading...'),
             );
           }
         },
