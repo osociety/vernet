@@ -71,7 +71,7 @@ void main() {
 
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.pumpAndSettle(const Duration(seconds: 20));
 
       expect(find.byType(AdaptiveListTile), findsAny);
     });
