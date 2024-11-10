@@ -113,4 +113,8 @@ class AppSettings {
             _customSubnet;
     debugPrint("Custom Subnet : $_customSubnet");
   }
+
+  Future<bool> clearAll() async {
+    return (await SharedPreferences.getInstance()).clear();
+  }
 }

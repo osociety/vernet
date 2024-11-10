@@ -169,9 +169,7 @@ class _WifiDetailState extends State<HomePage> {
                               width: 4,
                             ),
                             ElevatedButton(
-                              key: const ValueKey(
-                                Keys.scanForDevicesButton,
-                              ),
+                              key: Keys.scanForDevicesButton,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -196,7 +194,7 @@ class _WifiDetailState extends State<HomePage> {
                 } else if (snapshot.hasError) {
                   return const Text("Unable to fetch WiFi details");
                 } else {
-                  return const CircularProgressIndicator.adaptive();
+                  return const Text('Loading...');
                 }
               },
             ),
@@ -225,6 +223,7 @@ class _WifiDetailState extends State<HomePage> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton.icon(
+                        key: Keys.scanForOpenPortsButton,
                         onPressed: () {
                           Navigator.push(
                             context,

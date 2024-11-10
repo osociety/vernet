@@ -48,11 +48,11 @@ dependencies:
   json_annotation: ^4.8.1
   network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
-  # network_tools_flutter: ^2.0.0
-  network_tools_flutter:
-    git:
-        url: https://github.com/osociety/network_tools_flutter.git
-        ref: dev # branch name
+  network_tools_flutter: ^2.0.2
+  # network_tools_flutter:
+  #   git:
+  #       url: https://github.com/osociety/network_tools_flutter.git
+  #       ref: dev # branch name
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^4.1.0
   path_provider: ^2.1.1

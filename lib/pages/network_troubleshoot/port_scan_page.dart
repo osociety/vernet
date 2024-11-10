@@ -9,6 +9,7 @@ import 'package:vernet/models/port.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/values/keys.dart';
 
 class PortScanPage extends StatefulWidget {
   const PortScanPage({this.target = '', this.runDefaultScan = false});
@@ -59,8 +60,9 @@ class _PortScanPageState extends State<PortScanPage>
   }
 
   void _handleEvent(ActiveHost? host) {
+    debugPrint('Found open port : ${host!.openPorts}');
     setState(() {
-      _openPorts.addAll(host!.openPorts);
+      _openPorts.addAll(host.openPorts);
     });
   }
 
@@ -69,6 +71,11 @@ class _PortScanPageState extends State<PortScanPage>
       _completed = true;
     });
     if (_completed && _openPorts.isEmpty) _showSnackBar('No open ports found');
+    debugPrint(
+      _completed && _openPorts.isEmpty
+          ? 'No open ports found'
+          : 'Port Scan ended',
+    );
   }
 
   StreamSubscription<ActiveHost>? _streamSubscription;
@@ -134,8 +141,9 @@ class _PortScanPageState extends State<PortScanPage>
     _streamSubscription?.cancel();
   }
 
-  Widget _getCustomRangeChip(String label, String start, String end) {
+  Widget _getCustomRangeChip(Key key, String label, String start, String end) {
     return PopularChip(
+      key: key,
       label: label,
       onPressed: () {
         _startPortEditingController.text = start;
@@ -153,8 +161,9 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 
-  Widget _getDomainChip(String label) {
+  Widget _getDomainChip(Key key, String label) {
     return PopularChip(
+      key: key,
       label: label,
       onPressed: () {
         _targetIPEditingController.text = label;
@@ -302,6 +311,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Expanded(
                               child: CustomTile(
                                 leading: Radio<ScanType>(
+                                  key: Keys.rangePortScanRadioButton,
                                   value: ScanType.range,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {
@@ -335,6 +345,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: ElevatedButton(
+                                key: Keys.portScanButton,
                                 onPressed: _completed
                                     ? () {
                                         if (_formKey.currentState!.validate()) {
@@ -372,32 +383,54 @@ class _PortScanPageState extends State<PortScanPage>
                                 children: [
                                   Wrap(
                                     children: [
-                                      _getDomainChip('192.168.1.1'),
-                                      _getDomainChip('google.com'),
-                                      _getDomainChip('youtube.com'),
-                                      _getDomainChip('apple.com'),
-                                      _getDomainChip('amazon.com'),
-                                      _getDomainChip('cloudflare.com'),
+                                      _getDomainChip(
+                                        Keys.localIpChip,
+                                        '192.168.1.1',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.googleChip,
+                                        'google.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.youtubeChip,
+                                        'youtube.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.appleChip,
+                                        'apple.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.amazonChip,
+                                        'amazon.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.cloudflareChip,
+                                        'cloudflare.com',
+                                      ),
                                     ],
                                   ),
                                   Wrap(
                                     children: [
                                       _getCustomRangeChip(
+                                        Keys.knownPortChip,
                                         '0-1024 (known)',
                                         '0',
                                         '1024',
                                       ),
                                       _getCustomRangeChip(
+                                        Keys.shortPortChip,
                                         '0-100 (short)',
                                         '0',
                                         '100',
                                       ),
                                       _getCustomRangeChip(
+                                        Keys.veryShortPortChip,
                                         '0-10 (very short)',
                                         '0',
                                         '10',
                                       ),
                                       _getCustomRangeChip(
+                                        Keys.fullPortChip,
                                         '0-65535 (Full)',
                                         '0',
                                         '65535',
@@ -505,7 +538,7 @@ class _PortScanPageState extends State<PortScanPage>
             );
           } else {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Text('Loading...'),
             );
           }
         },
