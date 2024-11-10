@@ -48,7 +48,7 @@ void main() {
 
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
-      await tester.pumpAndSettle();
+      await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
       await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));

@@ -25,6 +25,7 @@ class HostScanWidget extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const CircularProgressIndicator(),
                     const SizedBox(
                       height: 30,
                     ),
