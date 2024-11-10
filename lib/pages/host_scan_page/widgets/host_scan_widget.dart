@@ -94,7 +94,9 @@ class HostScanWidget extends StatelessWidget {
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
                 trailing: IconButton(
-                  key: ValueKey(host.deviceMake ?? ''),
+                  key: host.deviceMake == 'Router/Gateway'
+                      ? Keys.routerOrGatewayTileIconButton
+                      : null,
                   tooltip: TooltipMessages.currentDevicePortScan,
                   icon: const Icon(Icons.radar),
                   onPressed: () {

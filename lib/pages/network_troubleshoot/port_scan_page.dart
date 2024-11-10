@@ -387,7 +387,7 @@ class _PortScanPageState extends State<PortScanPage>
                                   Wrap(
                                     children: [
                                       _getCustomRangeChip(
-                                        Keys.knowPortChip,
+                                        Keys.knownPortChip,
                                         '0-1024 (known)',
                                         '0',
                                         '1024',

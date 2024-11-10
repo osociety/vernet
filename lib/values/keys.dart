@@ -8,7 +8,7 @@ class Keys {
       ValueKey('Router/Gateway');
   static const ValueKey rangePortScanRadioButton =
       ValueKey('rangePortScanRadioButton');
-  static const ValueKey knowPortChip = ValueKey('knowPortChip');
+  static const ValueKey knownPortChip = ValueKey('knowPortChip');
   static const ValueKey shortPortChip = ValueKey('shortPortChip');
   static const ValueKey veryShortPortChip = ValueKey('veryShortPortChip');
   static const ValueKey fullPortChip = ValueKey('fullPortChip');
