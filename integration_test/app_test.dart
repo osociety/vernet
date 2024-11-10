@@ -18,7 +18,7 @@ import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
-  int port = 0;
+  int port = 999;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   late ServerSocket server;
   setUpAll(() async {
@@ -73,14 +73,14 @@ void main() {
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
-      final fullRangeChip = find.byKey(Keys.fullPortChip);
+      final portChip = find.byKey(Keys.knownPortChip);
 
-      await tester.tap(fullRangeChip);
+      await tester.tap(portChip);
       await tester.pumpAndSettle();
 
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(minutes: 2));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
       expect(find.byType(AdaptiveListTile), findsAny);
       // expect(find.text('$port'), findsOne);
