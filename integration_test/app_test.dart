@@ -36,8 +36,6 @@ void main() {
 
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
-      final appDocDirectory = await getApplicationDocumentsDirectory();
-      await configureNetworkToolsFlutter(appDocDirectory.path);
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
@@ -50,7 +48,7 @@ void main() {
 
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAny);
       await tester.pumpAndSettle();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
@@ -73,6 +71,39 @@ void main() {
       final portScanButton = find.byKey(Keys.portScanButton);
       await tester.tap(portScanButton);
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('port scan returns open port for google.com', (tester) async {
+      // Load app widget.
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+
+      // Verify that there are 4 widgets at homepage
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+
+      // Finds the open ports button to tap on.
+      final scanForOpenPortsButton = find.byKey(Keys.scanForOpenPortsButton);
+
+      await tester.tap(scanForOpenPortsButton);
+      await tester.pumpAndSettle();
+      expect(find.byType(AppBar), findsOne);
+
+      final googleChip = find.byKey(Keys.googleChip);
+      await tester.tap(googleChip);
+      await tester.pumpAndSettle();
+
+      final radioButton = find.byKey(Keys.rangePortScanRadioButton);
+      await tester.tap(radioButton);
+      await tester.pumpAndSettle();
+
+      final portChip = find.byKey(Keys.knownPortChip);
+      await tester.tap(portChip);
+      await tester.pumpAndSettle();
+
+      final portScanButton = find.byKey(Keys.portScanButton);
+      await tester.tap(portScanButton);
+      await tester.pumpAndSettle(const Duration(seconds: 20));
+      expect(find.text('80'), findsOne);
     });
   });
 }

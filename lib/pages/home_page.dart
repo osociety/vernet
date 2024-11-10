@@ -223,6 +223,7 @@ class _WifiDetailState extends State<HomePage> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton.icon(
+                        key: Keys.scanForOpenPortsButton,
                         onPressed: () {
                           Navigator.push(
                             context,

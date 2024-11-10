@@ -155,8 +155,9 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 
-  Widget _getDomainChip(String label) {
+  Widget _getDomainChip(Key key, String label) {
     return PopularChip(
+      key: key,
       label: label,
       onPressed: () {
         _targetIPEditingController.text = label;
@@ -376,12 +377,30 @@ class _PortScanPageState extends State<PortScanPage>
                                 children: [
                                   Wrap(
                                     children: [
-                                      _getDomainChip('192.168.1.1'),
-                                      _getDomainChip('google.com'),
-                                      _getDomainChip('youtube.com'),
-                                      _getDomainChip('apple.com'),
-                                      _getDomainChip('amazon.com'),
-                                      _getDomainChip('cloudflare.com'),
+                                      _getDomainChip(
+                                        Keys.localIpChip,
+                                        '192.168.1.1',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.googleChip,
+                                        'google.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.youtubeChip,
+                                        'youtube.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.appleChip,
+                                        'apple.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.amazonChip,
+                                        'amazon.com',
+                                      ),
+                                      _getDomainChip(
+                                        Keys.cloudflareChip,
+                                        'cloudflare.com',
+                                      ),
                                     ],
                                   ),
                                   Wrap(
