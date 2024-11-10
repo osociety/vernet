@@ -71,6 +71,11 @@ class _PortScanPageState extends State<PortScanPage>
       _completed = true;
     });
     if (_completed && _openPorts.isEmpty) _showSnackBar('No open ports found');
+    debugPrint(
+      _completed && _openPorts.isEmpty
+          ? 'No open ports found'
+          : 'Port Scan ended',
+    );
   }
 
   StreamSubscription<ActiveHost>? _streamSubscription;
