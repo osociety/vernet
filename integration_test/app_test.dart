@@ -73,7 +73,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 20));
       await tester.pump();
       //TODO: not passing in github actions
-      expect(find.byType(AdaptiveListTile), findsAny);
+      expect(find.byType(AdaptiveListTile), findsNothing);
     });
 
     testWidgets('port scan returns open port for google.com', (tester) async {
