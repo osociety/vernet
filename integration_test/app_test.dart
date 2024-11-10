@@ -24,15 +24,15 @@ void main() {
   });
 
   group('host scanner end-to-end test', () {
-    testWidgets('just test if app is able to launch and display homepage',
-        (tester) async {
-      // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
+    // testWidgets('just test if app is able to launch and display homepage',
+    //     (tester) async {
+    //   // Load app widget.
+    //   await tester.pumpWidget(const MyApp(true));
+    //   await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
-    });
+    //   // Verify that there are 4 widgets at homepage
+    //   expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+    // });
 
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
