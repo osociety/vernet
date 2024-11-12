@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
@@ -27,8 +26,6 @@ class _PortScanPageState extends State<PortScanPage>
     with SingleTickerProviderStateMixin {
   final Set<OpenPort> _openPorts = {};
 
-  double _progress = 0;
-
   final TextEditingController _targetIPEditingController =
       TextEditingController();
   final TextEditingController _singlePortEditingController =
@@ -49,14 +46,6 @@ class _PortScanPageState extends State<PortScanPage>
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  void _handleProgress(double progress) {
-    if (mounted) {
-      setState(() {
-        _progress = progress;
-      });
-    }
   }
 
   void _handleEvent(ActiveHost? host) {
@@ -100,7 +89,6 @@ class _PortScanPageState extends State<PortScanPage>
           .customDiscover(
             _targetIPEditingController.text,
             timeout: Duration(milliseconds: appSettings.socketTimeout),
-            progressCallback: _handleProgress,
             async: true,
           )
           .listen(_handleEvent, onDone: _handleOnDone);
@@ -111,7 +99,6 @@ class _PortScanPageState extends State<PortScanPage>
             startPort: int.parse(_startPortEditingController.text),
             endPort: int.parse(_endPortEditingController.text),
             timeout: Duration(milliseconds: appSettings.socketTimeout),
-            progressCallback: _handleProgress,
             async: true,
           )
           .listen(_handleEvent, onDone: _handleOnDone);

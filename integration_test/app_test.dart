@@ -93,7 +93,7 @@ void main() {
         WidgetKey.amazonChip.key,
         WidgetKey.appleChip.key,
         WidgetKey.cloudflareChip.key,
-        WidgetKey.youtubeChip.key
+        WidgetKey.youtubeChip.key,
       ];
 
       final googleChip = find.byKey(chips[Random().nextInt(5)]);
