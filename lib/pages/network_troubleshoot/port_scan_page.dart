@@ -161,6 +161,7 @@ class _PortScanPageState extends State<PortScanPage>
   Widget _getFields() {
     if (_type == ScanType.single) {
       return TextFormField(
+        key: WidgetKey.enterPortTextField.key,
         keyboardType: TextInputType.number,
         validator: validatePorts,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -302,6 +303,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Expanded(
                               child: CustomTile(
                                 leading: Radio<ScanType>(
+                                  key: WidgetKey.singlePortScanRadioButton.key,
                                   value: ScanType.single,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {

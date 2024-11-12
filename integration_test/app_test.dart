@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,11 +12,19 @@ import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
+  late ServerSocket server;
+  int port = 0;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     configureDependencies(Env.test);
     final appDocDirectory = await getApplicationDocumentsDirectory();
     await configureNetworkToolsFlutter(appDocDirectory.path);
+    //open a port in shared way because of portscanner using same,
+    //if passed false then two hosts come up in search and breaks test.
+    server =
+        await ServerSocket.bind(InternetAddress.anyIPv4, port, shared: true);
+    port = server.port;
+    debugPrint("Opened port in this machine at $port");
   });
 
   group('host scanner end-to-end test', () {
@@ -50,26 +59,27 @@ void main() {
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
 
       final routerIconButton =
-          find.byKey(WidgetKey.routerOrGatewayTileIconButton.key);
+          find.byKey(WidgetKey.thisDeviceTileIconButton.key);
 
       await tester.tap(routerIconButton);
       await tester.pumpAndSettle();
       expect(find.byType(AppBar), findsOne);
 
-      final radioButton = find.byKey(WidgetKey.rangePortScanRadioButton.key);
+      final radioButton = find.byKey(WidgetKey.singlePortScanRadioButton.key);
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
-      final portChip = find.byKey(WidgetKey.knownPortChip.key);
-
-      await tester.tap(portChip);
+      await tester.enterText(
+        find.byKey(WidgetKey.enterPortTextField.key),
+        port.toString(),
+      );
       await tester.pumpAndSettle();
 
       final portScanButton = find.byKey(WidgetKey.portScanButton.key);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
       await tester.pump();
-      expect(find.byType(AdaptiveListTile), findsNothing);
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
 
     testWidgets('port scan returns open port for popular domains',
@@ -112,8 +122,12 @@ void main() {
       await tester.tap(portScanButton);
       await tester.pumpAndSettle(const Duration(seconds: 4));
       await tester.pump();
-      //TODO: not passing in github actions
-      expect(find.byType(AdaptiveListTile), findsNothing);
+      // TODO: not passing in github actions
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
+  });
+
+  tearDownAll(() {
+    server.close();
   });
 }

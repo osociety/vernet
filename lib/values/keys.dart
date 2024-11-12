@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 enum WidgetKey implements Comparable<WidgetKey> {
-  routerOrGatewayTileIconButton('routerOrGatewayTileIconButton'),
+  thisDeviceTileIconButton('thisDeviceTileIconButton'),
   rangePortScanRadioButton('rangePortScanRadioButton'),
+  singlePortScanRadioButton('singlePortScanRadioButton'),
   scanForOpenPortsButton('scanForOpenPortsButton'),
   scanForDevicesButton('scanForDevicesButton'),
+  enterPortTextField('enterPortTextField'),
   veryShortPortChip('veryShortPortChip'),
   rescanIconButton('rescanIconButton'),
   portScanButton('portScanButton'),
