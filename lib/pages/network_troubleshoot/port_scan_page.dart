@@ -311,7 +311,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Expanded(
                               child: CustomTile(
                                 leading: Radio<ScanType>(
-                                  key: Keys.rangePortScanRadioButton,
+                                  key: WidgetKey.rangePortScanRadioButton.key,
                                   value: ScanType.range,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {
@@ -345,7 +345,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: ElevatedButton(
-                                key: Keys.portScanButton,
+                                key: WidgetKey.portScanButton.key,
                                 onPressed: _completed
                                     ? () {
                                         if (_formKey.currentState!.validate()) {
@@ -384,27 +384,27 @@ class _PortScanPageState extends State<PortScanPage>
                                   Wrap(
                                     children: [
                                       _getDomainChip(
-                                        Keys.localIpChip,
+                                        WidgetKey.localIpChip.key,
                                         '192.168.1.1',
                                       ),
                                       _getDomainChip(
-                                        Keys.googleChip,
+                                        WidgetKey.googleChip.key,
                                         'google.com',
                                       ),
                                       _getDomainChip(
-                                        Keys.youtubeChip,
+                                        WidgetKey.youtubeChip.key,
                                         'youtube.com',
                                       ),
                                       _getDomainChip(
-                                        Keys.appleChip,
+                                        WidgetKey.appleChip.key,
                                         'apple.com',
                                       ),
                                       _getDomainChip(
-                                        Keys.amazonChip,
+                                        WidgetKey.amazonChip.key,
                                         'amazon.com',
                                       ),
                                       _getDomainChip(
-                                        Keys.cloudflareChip,
+                                        WidgetKey.cloudflareChip.key,
                                         'cloudflare.com',
                                       ),
                                     ],
@@ -412,25 +412,25 @@ class _PortScanPageState extends State<PortScanPage>
                                   Wrap(
                                     children: [
                                       _getCustomRangeChip(
-                                        Keys.knownPortChip,
+                                        WidgetKey.knownPortChip.key,
                                         '0-1024 (known)',
                                         '0',
                                         '1024',
                                       ),
                                       _getCustomRangeChip(
-                                        Keys.shortPortChip,
+                                        WidgetKey.shortPortChip.key,
                                         '0-100 (short)',
                                         '0',
                                         '100',
                                       ),
                                       _getCustomRangeChip(
-                                        Keys.veryShortPortChip,
+                                        WidgetKey.veryShortPortChip.key,
                                         '0-10 (very short)',
                                         '0',
                                         '10',
                                       ),
                                       _getCustomRangeChip(
-                                        Keys.fullPortChip,
+                                        WidgetKey.fullPortChip.key,
                                         '0-65535 (Full)',
                                         '0',
                                         '65535',

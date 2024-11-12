@@ -73,7 +73,7 @@ class HostScanWidget extends StatelessWidget {
           trailing: loading
               ? const SizedBox()
               : IconButton(
-                  key: Keys.rescanIconButton,
+                  key: WidgetKey.rescanIconButton.key,
                   onPressed: () {
                     context
                         .read<HostScanBloc>()
@@ -95,7 +95,7 @@ class HostScanWidget extends StatelessWidget {
                 ),
                 trailing: IconButton(
                   key: host.deviceMake == 'Router/Gateway'
-                      ? Keys.routerOrGatewayTileIconButton
+                      ? WidgetKey.routerOrGatewayTileIconButton.key
                       : null,
                   tooltip: TooltipMessages.currentDevicePortScan,
                   icon: const Icon(Icons.radar),

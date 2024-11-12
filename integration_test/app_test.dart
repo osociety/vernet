@@ -1,10 +1,3 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -44,7 +37,7 @@ void main() {
       expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
 
       // Finds the scan for devices button to tap on.
-      final devicesButton = find.byKey(Keys.scanForDevicesButton);
+      final devicesButton = find.byKey(WidgetKey.scanForDevicesButton.key);
 
       // Emulate a tap on the button.
       await tester.tap(devicesButton);
@@ -54,22 +47,23 @@ void main() {
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
 
-      final routerIconButton = find.byKey(Keys.routerOrGatewayTileIconButton);
+      final routerIconButton =
+          find.byKey(WidgetKey.routerOrGatewayTileIconButton.key);
 
       await tester.tap(routerIconButton);
       await tester.pumpAndSettle();
       expect(find.byType(AppBar), findsOne);
 
-      final radioButton = find.byKey(Keys.rangePortScanRadioButton);
+      final radioButton = find.byKey(WidgetKey.rangePortScanRadioButton.key);
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
-      final portChip = find.byKey(Keys.knownPortChip);
+      final portChip = find.byKey(WidgetKey.knownPortChip.key);
 
       await tester.tap(portChip);
       await tester.pumpAndSettle();
 
-      final portScanButton = find.byKey(Keys.portScanButton);
+      final portScanButton = find.byKey(WidgetKey.portScanButton.key);
       await tester.tap(portScanButton);
       await tester.pumpAndSettle();
     });
@@ -83,25 +77,26 @@ void main() {
       expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
 
       // Finds the open ports button to tap on.
-      final scanForOpenPortsButton = find.byKey(Keys.scanForOpenPortsButton);
+      final scanForOpenPortsButton =
+          find.byKey(WidgetKey.scanForOpenPortsButton.key);
 
       await tester.tap(scanForOpenPortsButton);
       await tester.pumpAndSettle();
       expect(find.byType(AppBar), findsOne);
 
-      final googleChip = find.byKey(Keys.googleChip);
+      final googleChip = find.byKey(WidgetKey.googleChip.key);
       await tester.tap(googleChip);
       await tester.pumpAndSettle();
 
-      final radioButton = find.byKey(Keys.rangePortScanRadioButton);
+      final radioButton = find.byKey(WidgetKey.rangePortScanRadioButton.key);
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
-      final portChip = find.byKey(Keys.knownPortChip);
+      final portChip = find.byKey(WidgetKey.knownPortChip.key);
       await tester.tap(portChip);
       await tester.pumpAndSettle();
 
-      final portScanButton = find.byKey(Keys.portScanButton);
+      final portScanButton = find.byKey(WidgetKey.portScanButton.key);
       await tester.tap(portScanButton);
       await tester.pumpAndSettle(const Duration(seconds: 20));
       await tester.pump();

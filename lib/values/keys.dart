@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 
-class Keys {
-  static const ValueKey scanForDevicesButton = ValueKey('scanForDevicesButton');
-  static const ValueKey scanForOpenPortsButton =
-      ValueKey('scanForOpenPortsButton');
-  static const ValueKey rescanIconButton = ValueKey('rescanIconButton');
-  static const ValueKey portScanButton = ValueKey('portScanButton');
-  static const ValueKey routerOrGatewayTileIconButton =
-      ValueKey('Router/Gateway');
-  static const ValueKey rangePortScanRadioButton =
-      ValueKey('rangePortScanRadioButton');
-  static const ValueKey knownPortChip = ValueKey('knowPortChip');
-  static const ValueKey shortPortChip = ValueKey('shortPortChip');
-  static const ValueKey veryShortPortChip = ValueKey('veryShortPortChip');
-  static const ValueKey fullPortChip = ValueKey('fullPortChip');
-  static const ValueKey localIpChip = ValueKey('localIpChip');
-  static const ValueKey googleChip = ValueKey('googleChip');
-  static const ValueKey youtubeChip = ValueKey('youtubeChip');
-  static const ValueKey appleChip = ValueKey('appleChip');
-  static const ValueKey amazonChip = ValueKey('amazonChip');
-  static const ValueKey cloudflareChip = ValueKey('cloudflareChip');
+enum WidgetKey implements Comparable<WidgetKey> {
+  routerOrGatewayTileIconButton('routerOrGatewayTileIconButton'),
+  rangePortScanRadioButton('rangePortScanRadioButton'),
+  scanForOpenPortsButton('scanForOpenPortsButton'),
+  scanForDevicesButton('scanForDevicesButton'),
+  veryShortPortChip('veryShortPortChip'),
+  rescanIconButton('rescanIconButton'),
+  portScanButton('portScanButton'),
+  cloudflareChip('cloudflareChip'),
+  knownPortChip('knownPortChip'),
+  shortPortChip('shortPortChip'),
+  fullPortChip('fullPortChip'),
+  youtubeChip('youtubeChip'),
+  localIpChip('localIpChip'),
+  googleChip('googleChip'),
+  amazonChip('amazonChip'),
+  appleChip('appleChip');
+
+  const WidgetKey(this.value);
+  final String value;
+  ValueKey get key => ValueKey(value);
+
+  @override
+  int compareTo(WidgetKey other) => value.compareTo(other.value);
 }

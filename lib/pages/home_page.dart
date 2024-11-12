@@ -169,7 +169,7 @@ class _WifiDetailState extends State<HomePage> {
                               width: 4,
                             ),
                             ElevatedButton(
-                              key: Keys.scanForDevicesButton,
+                              key: WidgetKey.scanForDevicesButton.key,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -223,7 +223,7 @@ class _WifiDetailState extends State<HomePage> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton.icon(
-                        key: Keys.scanForOpenPortsButton,
+                        key: WidgetKey.scanForOpenPortsButton.key,
                         onPressed: () {
                           Navigator.push(
                             context,
