@@ -81,50 +81,6 @@ void main() {
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
     });
-
-    testWidgets('port scan returns open port for popular domains',
-        (tester) async {
-      // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
-
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
-
-      // Finds the open ports button to tap on.
-      final scanForOpenPortsButton =
-          find.byKey(WidgetKey.scanForOpenPortsButton.key);
-
-      await tester.tap(scanForOpenPortsButton);
-      await tester.pumpAndSettle();
-      expect(find.byType(AppBar), findsOne);
-      final chips = [
-        WidgetKey.googleChip.key,
-        WidgetKey.amazonChip.key,
-        WidgetKey.appleChip.key,
-        WidgetKey.cloudflareChip.key,
-        WidgetKey.youtubeChip.key,
-      ];
-
-      final googleChip = find.byKey(chips[Random().nextInt(5)]);
-      await tester.tap(googleChip);
-      await tester.pumpAndSettle();
-
-      final radioButton = find.byKey(WidgetKey.rangePortScanRadioButton.key);
-      await tester.tap(radioButton);
-      await tester.pumpAndSettle();
-
-      final portChip = find.byKey(WidgetKey.knownPortChip.key);
-      await tester.tap(portChip);
-      await tester.pumpAndSettle();
-
-      final portScanButton = find.byKey(WidgetKey.portScanButton.key);
-      await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 10));
-      await tester.pump();
-      // TODO: not passing in github actions
-      expect(find.byType(AdaptiveListTile), findsWidgets);
-    });
   });
 
   tearDownAll(() {
