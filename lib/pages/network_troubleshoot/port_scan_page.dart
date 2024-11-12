@@ -235,21 +235,6 @@ class _PortScanPageState extends State<PortScanPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Open Ports Scanner'),
-        actions: [
-          if (_completed)
-            const SizedBox()
-          else
-            Container(
-              margin: const EdgeInsets.only(right: 20.0),
-              child: CircularPercentIndicator(
-                radius: 10.0,
-                lineWidth: 2.5,
-                percent: _progress / 100,
-                backgroundColor: Colors.grey,
-                progressColor: Colors.white,
-              ),
-            ),
-        ],
       ),
       body: FutureBuilder<Map<String, Port>>(
         future: PortDescLoader('assets/ports_lists.json').load(),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -43,7 +45,7 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 20));
+      await tester.pumpAndSettle();
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
 
@@ -65,10 +67,13 @@ void main() {
 
       final portScanButton = find.byKey(WidgetKey.portScanButton.key);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.pump();
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
 
-    testWidgets('port scan returns open port for google.com', (tester) async {
+    testWidgets('port scan returns open port for popular domains',
+        (tester) async {
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
@@ -83,8 +88,15 @@ void main() {
       await tester.tap(scanForOpenPortsButton);
       await tester.pumpAndSettle();
       expect(find.byType(AppBar), findsOne);
+      final chips = [
+        WidgetKey.googleChip.key,
+        WidgetKey.amazonChip.key,
+        WidgetKey.appleChip.key,
+        WidgetKey.cloudflareChip.key,
+        WidgetKey.youtubeChip.key
+      ];
 
-      final googleChip = find.byKey(WidgetKey.googleChip.key);
+      final googleChip = find.byKey(chips[Random().nextInt(5)]);
       await tester.tap(googleChip);
       await tester.pumpAndSettle();
 
@@ -98,7 +110,7 @@ void main() {
 
       final portScanButton = find.byKey(WidgetKey.portScanButton.key);
       await tester.tap(portScanButton);
-      await tester.pumpAndSettle(const Duration(seconds: 20));
+      await tester.pumpAndSettle(const Duration(seconds: 4));
       await tester.pump();
       //TODO: not passing in github actions
       expect(find.byType(AdaptiveListTile), findsAny);
