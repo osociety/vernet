@@ -69,7 +69,7 @@ void main() {
       await tester.tap(portScanButton);
       await tester.pumpAndSettle(const Duration(seconds: 4));
       await tester.pump();
-      expect(find.byType(AdaptiveListTile), findsAny);
+      expect(find.byType(AdaptiveListTile), findsNothing);
     });
 
     testWidgets('port scan returns open port for popular domains',
