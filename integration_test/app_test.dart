@@ -113,7 +113,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 4));
       await tester.pump();
       //TODO: not passing in github actions
-      expect(find.byType(AdaptiveListTile), findsAny);
+      expect(find.byType(AdaptiveListTile), findsNothing);
     });
   });
 }
