@@ -61,8 +61,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     String? wifiGatewayIP;
     try {
       wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
-    } on Exception catch (e) {
-      debugPrint("Not implemented $e");
+    } catch (e) {
+      debugPrint('Unimplemented error $e');
     }
     ip = await NetworkInfo().getWifiIP();
     if (appSettings.customSubnet.isNotEmpty) {

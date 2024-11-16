@@ -48,7 +48,7 @@ class _WifiDetailState extends State<HomePage> {
     String? wifiGatewayIP;
     try {
       wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
-    } on Exception catch (e) {
+    } catch (e) {
       debugPrint('Unimplemented error $e');
     }
     final gatewayIp = appSettings.customSubnet.isNotEmpty
