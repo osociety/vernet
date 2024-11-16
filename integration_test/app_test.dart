@@ -53,7 +53,7 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
 
