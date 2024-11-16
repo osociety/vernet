@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 concurrency: 
-  group: ${{ github.head_ref }}
+  group: ${{ github.head_ref || github.run_id}}
   cancel-in-progress: true
 
 jobs:
@@ -93,11 +93,19 @@ jobs:
         run: flutter pub run build_runner build
       - name: Run analyzer
         run: flutter analyze
+      - name: Install coverage tools
+        run: flutter pub global activate coverage
       - name: Run tests
         run: flutter test
       - name: Run integration tests
         if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
-        run: flutter test integration_test -d macos
+        run: flutter test integration_test --coverage -d macos
+      - name: Upload Coverage to CodeCov
+        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: coverage/lcov.info
 
   android-linux-build:
     name: 'Build Android + Linux'
