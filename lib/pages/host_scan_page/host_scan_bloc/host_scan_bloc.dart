@@ -9,7 +9,6 @@ import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/device_in_the_network.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/isar/scan.dart';
 import 'package:vernet/repository/notification_service.dart';
@@ -38,7 +37,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   String? subnet;
 
   /// List of all ActiveHost devices that got found in the current scan
-  final List<DeviceInTheNetwork> deviceInTheNetworkList = [];
+  final Set<Device> devicesSet = {};
 
   /// mDNS for each ip
   final Map<String, MdnsInfo> mDnsDevices = {};
@@ -47,7 +46,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Initialized event,
     Emitter<HostScanState> emit,
   ) async {
-    deviceInTheNetworkList.clear();
+    devicesSet.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
     await initializeWifiParameters(emit);
@@ -82,16 +81,16 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   ) async {
     emit(const HostScanState.loadInProgress());
 
-    final Set<Device> devices = {};
     final deviceStream =
         getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
     await for (final Device device in deviceStream) {
-      devices.add(device);
-      emit(HostScanState.foundNewDevice(devices));
+      devicesSet.add(device);
+      emit(const HostScanState.loadInProgress());
+      emit(HostScanState.foundNewDevice(devicesSet));
     }
 
     await NotificationService.showNotificationWithActions();
-    emit(HostScanState.loadSuccess(devices));
+    emit(HostScanState.loadSuccess(devicesSet));
   }
 
   Future<void> _loadScanAndShowResults(
@@ -100,10 +99,10 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   ) async {
     emit(const HostScanState.loadInProgress());
 
-    final Set<Device> devicesSet = {};
     final deviceStream = await getIt<DeviceScannerService>().getOnGoingScan();
     deviceStream.listen((devices) {
       devicesSet.addAll(devices);
+      emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(devicesSet));
     });
 
