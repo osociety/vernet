@@ -1,0 +1,2 @@
+Compatibility issues fixed for windows
+Scan slowness improved

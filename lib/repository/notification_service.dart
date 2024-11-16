@@ -50,6 +50,7 @@ class NotificationService {
       StreamController<String?>.broadcast();
 
   static Future<void> initNotification() async {
+    if (Platform.isWindows) return Future.value();
     await _configureLocalTimeZone();
     final NotificationAppLaunchDetails? notificationAppLaunchDetails =
         !kIsWeb && Platform.isLinux
@@ -141,6 +142,7 @@ class NotificationService {
   }
 
   static Future<void> showNotificationWithActions() async {
+    if (Platform.isWindows) return Future.value();
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       'your channel id',
@@ -193,6 +195,7 @@ class NotificationService {
   }
 
   static Future<void> grantPermissions() async {
+    if (Platform.isWindows) return Future.value();
     await _isAndroidPermissionGranted();
     await _requestPermissions();
   }

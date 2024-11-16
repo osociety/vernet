@@ -23,6 +23,18 @@ platform :android do
 
   desc "Submit a new Beta Build to Crashlytics Beta"
   lane :beta do
+    upload_to_play_store(skip_upload_metadata: true,
+    skip_upload_changelogs: true,
+    skip_upload_images: true,
+    skip_upload_screenshots: true,
+    track: 'beta', aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab')
+  
+    # sh "your_script.sh"
+    # You can also use other beta testing services here
+  end
+
+  desc "Submit a new Beta Build to Crashlytics Beta"
+  lane :beta_full do
     upload_to_play_store(track: 'beta', aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab')
   
     # sh "your_script.sh"

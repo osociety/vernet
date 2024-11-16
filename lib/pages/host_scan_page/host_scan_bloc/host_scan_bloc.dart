@@ -58,7 +58,12 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   }
 
   Future<void> initializeWifiParameters(Emitter<HostScanState> emit) async {
-    final wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
+    String? wifiGatewayIP;
+    try {
+      wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
+    } on Exception catch (e) {
+      debugPrint("Not implemented $e");
+    }
     ip = await NetworkInfo().getWifiIP();
     if (appSettings.customSubnet.isNotEmpty) {
       gatewayIp = appSettings.customSubnet;
