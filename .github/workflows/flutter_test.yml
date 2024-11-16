@@ -7,7 +7,7 @@ on:
   workflow_call:
 
 concurrency: 
-  group: ${{ github.head_ref }}
+  group: ${{ github.head_ref || github.run_id}}
   cancel-in-progress: true
 
 jobs:
@@ -51,10 +51,14 @@ jobs:
     name: 'Flutter Analyze + Test'
     needs: changes
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.yaml == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
       - name: Setup Java JDK
         uses: actions/setup-java@v4.2.1
         with:
@@ -85,14 +89,23 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Run analyzer
         run: flutter analyze
+      - name: Install coverage tools
+        run: flutter pub global activate coverage
       - name: Run tests
         run: flutter test
+      - name: Run integration tests
+        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
+        run: flutter test integration_test --coverage -d macos
+      - name: Upload Coverage to CodeCov
+        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: coverage/lcov.info
 
   android-linux-build:
     name: 'Build Android + Linux'
@@ -130,8 +143,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build Android
@@ -186,8 +197,6 @@ jobs:
             ${{ runner.os }}-pods-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build macos
@@ -224,8 +233,6 @@ jobs:
             build-runner-
       - name: Download pub dependencies
         run: flutter pub get
-      - name: Upgrade pub dependencies
-        run: flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build windows

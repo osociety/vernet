@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/values/keys.dart';
 
 class PortScanPage extends StatefulWidget {
   const PortScanPage({this.target = '', this.runDefaultScan = false});
@@ -25,8 +25,6 @@ enum ScanType { single, top, range }
 class _PortScanPageState extends State<PortScanPage>
     with SingleTickerProviderStateMixin {
   final Set<OpenPort> _openPorts = {};
-
-  double _progress = 0;
 
   final TextEditingController _targetIPEditingController =
       TextEditingController();
@@ -50,17 +48,10 @@ class _PortScanPageState extends State<PortScanPage>
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _handleProgress(double progress) {
-    if (mounted) {
-      setState(() {
-        _progress = progress;
-      });
-    }
-  }
-
   void _handleEvent(ActiveHost? host) {
+    debugPrint('Found open port : ${host!.openPorts}');
     setState(() {
-      _openPorts.addAll(host!.openPorts);
+      _openPorts.addAll(host.openPorts);
     });
   }
 
@@ -69,6 +60,11 @@ class _PortScanPageState extends State<PortScanPage>
       _completed = true;
     });
     if (_completed && _openPorts.isEmpty) _showSnackBar('No open ports found');
+    debugPrint(
+      _completed && _openPorts.isEmpty
+          ? 'No open ports found'
+          : 'Port Scan ended',
+    );
   }
 
   StreamSubscription<ActiveHost>? _streamSubscription;
@@ -93,7 +89,6 @@ class _PortScanPageState extends State<PortScanPage>
           .customDiscover(
             _targetIPEditingController.text,
             timeout: Duration(milliseconds: appSettings.socketTimeout),
-            progressCallback: _handleProgress,
             async: true,
           )
           .listen(_handleEvent, onDone: _handleOnDone);
@@ -104,7 +99,6 @@ class _PortScanPageState extends State<PortScanPage>
             startPort: int.parse(_startPortEditingController.text),
             endPort: int.parse(_endPortEditingController.text),
             timeout: Duration(milliseconds: appSettings.socketTimeout),
-            progressCallback: _handleProgress,
             async: true,
           )
           .listen(_handleEvent, onDone: _handleOnDone);
@@ -134,8 +128,9 @@ class _PortScanPageState extends State<PortScanPage>
     _streamSubscription?.cancel();
   }
 
-  Widget _getCustomRangeChip(String label, String start, String end) {
+  Widget _getCustomRangeChip(Key key, String label, String start, String end) {
     return PopularChip(
+      key: key,
       label: label,
       onPressed: () {
         _startPortEditingController.text = start;
@@ -153,8 +148,9 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 
-  Widget _getDomainChip(String label) {
+  Widget _getDomainChip(Key key, String label) {
     return PopularChip(
+      key: key,
       label: label,
       onPressed: () {
         _targetIPEditingController.text = label;
@@ -165,6 +161,7 @@ class _PortScanPageState extends State<PortScanPage>
   Widget _getFields() {
     if (_type == ScanType.single) {
       return TextFormField(
+        key: WidgetKey.enterPortTextField.key,
         keyboardType: TextInputType.number,
         validator: validatePorts,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -226,21 +223,6 @@ class _PortScanPageState extends State<PortScanPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Open Ports Scanner'),
-        actions: [
-          if (_completed)
-            const SizedBox()
-          else
-            Container(
-              margin: const EdgeInsets.only(right: 20.0),
-              child: CircularPercentIndicator(
-                radius: 10.0,
-                lineWidth: 2.5,
-                percent: _progress / 100,
-                backgroundColor: Colors.grey,
-                progressColor: Colors.white,
-              ),
-            ),
-        ],
       ),
       body: FutureBuilder<Map<String, Port>>(
         future: PortDescLoader('assets/ports_lists.json').load(),
@@ -302,6 +284,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Expanded(
                               child: CustomTile(
                                 leading: Radio<ScanType>(
+                                  key: WidgetKey.rangePortScanRadioButton.key,
                                   value: ScanType.range,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {
@@ -320,6 +303,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Expanded(
                               child: CustomTile(
                                 leading: Radio<ScanType>(
+                                  key: WidgetKey.singlePortScanRadioButton.key,
                                   value: ScanType.single,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {
@@ -335,6 +319,7 @@ class _PortScanPageState extends State<PortScanPage>
                             Padding(
                               padding: const EdgeInsets.all(3.0),
                               child: ElevatedButton(
+                                key: WidgetKey.portScanButton.key,
                                 onPressed: _completed
                                     ? () {
                                         if (_formKey.currentState!.validate()) {
@@ -372,32 +357,54 @@ class _PortScanPageState extends State<PortScanPage>
                                 children: [
                                   Wrap(
                                     children: [
-                                      _getDomainChip('192.168.1.1'),
-                                      _getDomainChip('google.com'),
-                                      _getDomainChip('youtube.com'),
-                                      _getDomainChip('apple.com'),
-                                      _getDomainChip('amazon.com'),
-                                      _getDomainChip('cloudflare.com'),
+                                      _getDomainChip(
+                                        WidgetKey.localIpChip.key,
+                                        '192.168.1.1',
+                                      ),
+                                      _getDomainChip(
+                                        WidgetKey.googleChip.key,
+                                        'google.com',
+                                      ),
+                                      _getDomainChip(
+                                        WidgetKey.youtubeChip.key,
+                                        'youtube.com',
+                                      ),
+                                      _getDomainChip(
+                                        WidgetKey.appleChip.key,
+                                        'apple.com',
+                                      ),
+                                      _getDomainChip(
+                                        WidgetKey.amazonChip.key,
+                                        'amazon.com',
+                                      ),
+                                      _getDomainChip(
+                                        WidgetKey.cloudflareChip.key,
+                                        'cloudflare.com',
+                                      ),
                                     ],
                                   ),
                                   Wrap(
                                     children: [
                                       _getCustomRangeChip(
+                                        WidgetKey.knownPortChip.key,
                                         '0-1024 (known)',
                                         '0',
                                         '1024',
                                       ),
                                       _getCustomRangeChip(
+                                        WidgetKey.shortPortChip.key,
                                         '0-100 (short)',
                                         '0',
                                         '100',
                                       ),
                                       _getCustomRangeChip(
+                                        WidgetKey.veryShortPortChip.key,
                                         '0-10 (very short)',
                                         '0',
                                         '10',
                                       ),
                                       _getCustomRangeChip(
+                                        WidgetKey.fullPortChip.key,
                                         '0-65535 (Full)',
                                         '0',
                                         '65535',
@@ -505,7 +512,7 @@ class _PortScanPageState extends State<PortScanPage>
             );
           } else {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Text('Loading...'),
             );
           }
         },

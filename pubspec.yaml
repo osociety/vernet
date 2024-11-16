@@ -3,12 +3,10 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.9+28
+version: 1.1.0+29
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
-
-isar_version: &isar_version 3.1.0+1
 
 dependencies:
   # Automatically resizes text to fit perfectly within its bounds.
@@ -41,20 +39,16 @@ dependencies:
   # Convenient code generator for get_it
   injectable: ^2.1.0
   # database for flutter
-  isar: *isar_version
+  isar: ^3.1.0+1
   # contains Isar Core
-  isar_flutter_libs: *isar_version
+  isar_flutter_libs: ^3.1.0+1
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.8.1
   network_info_plus: ^4.0.2
   # Helps you discover open ports, devices on subnet and more.
-  # network_tools_flutter: ^2.0.0
-  network_tools_flutter:
-    git:
-        url: https://github.com/osociety/network_tools_flutter.git
-        ref: dev # branch name
+  network_tools_flutter: ^2.0.2
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^4.1.0
   path_provider: ^2.1.1
@@ -81,7 +75,9 @@ dev_dependencies:
   freezed: ^2.5.0
   # Convenient code generator for get_it.
   injectable_generator: ^2.1.4
-  isar_generator: *isar_version
+  integration_test:
+    sdk: flutter
+  isar_generator: ^3.1.0+1
   # Collection of lint rules for Dart and Flutter projects.
   json_serializable: ^6.7.1
   lint: ^2.0.1

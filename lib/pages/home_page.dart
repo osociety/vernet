@@ -19,6 +19,7 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
+import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 class HomePage extends StatefulWidget {
@@ -168,6 +169,7 @@ class _WifiDetailState extends State<HomePage> {
                               width: 4,
                             ),
                             ElevatedButton(
+                              key: WidgetKey.scanForDevicesButton.key,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -192,7 +194,7 @@ class _WifiDetailState extends State<HomePage> {
                 } else if (snapshot.hasError) {
                   return const Text("Unable to fetch WiFi details");
                 } else {
-                  return const CircularProgressIndicator.adaptive();
+                  return const Text('Loading...');
                 }
               },
             ),
@@ -221,6 +223,7 @@ class _WifiDetailState extends State<HomePage> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton.icon(
+                        key: WidgetKey.scanForOpenPortsButton.key,
                         onPressed: () {
                           Navigator.push(
                             context,
