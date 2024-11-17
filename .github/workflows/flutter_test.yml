@@ -26,6 +26,7 @@ jobs:
       macos: ${{ steps.filter.outputs.macos }}
       yaml: ${{ steps.filter.outputs.yaml }}
       windows: ${{ steps.filter.outputs.windows }}
+      branch: ${{steps.extract_branch.branch}}
     steps:
     # For pull requests it's not necessary to checkout the code
     - name: Extract branch name
@@ -101,10 +102,10 @@ jobs:
       - name: Run tests
         run: flutter test
       - name: Run integration tests
-        if: needs.changes.extract_branch.outputs.branch == 'dev'
+        if: needs.changes.outputs.branch == 'dev'
         run: flutter test integration_test --coverage -d ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }} 
       - name: Upload Coverage to CodeCov
-        if: needs.changes.extract_branch.outputs.branch == 'dev'
+        if: needs.changes.outputs.branch == 'dev'
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
@@ -116,7 +117,7 @@ jobs:
       matrix:
         os: [macos, windows, ubuntu]
     needs: [changes, flutter-test]
-    if: ${{ (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true') && (needs.changes.extract_branch.outputs.branch == 'dev') }}
+    if: ${{ (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true') && (needs.changes.outputs.branch == 'dev') }}
     runs-on: ${{ matrix.os }}-latest 
     steps:
       - name: Checkout
@@ -148,7 +149,7 @@ jobs:
             build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
       - name: Cache pods
-        if: ${{ (matrix.os == 'macos') && (needs.changes.extract_branch.outputs.branch == 'dev') && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true' ) }}
+        if: ${{ (matrix.os == 'macos') && (needs.changes.outputs.branch == 'dev') && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true' ) }}
         uses: actions/cache@v3
         with:
           path: macos/Pods
@@ -161,14 +162,14 @@ jobs:
       - name: Run build_runner
         run: flutter pub run build_runner build
       - name: Build Android
-        if: ${{ (matrix.os == 'ubuntu') && (needs.changes.extract_branch.outputs.branch == 'dev')  && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.yaml == 'true' )}}
+        if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev')  && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.yaml == 'true' )}}
         run: |
           flutter build apk --debug --flavor dev
           
       # Run only if test, lib, and linux folder is changed
       - name: Install Linux dependencies
-        if: ${{ (matrix.os == 'ubuntu') && (needs.changes.extract_branch.outputs.branch == 'dev')  && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true') }}
+        if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev')  && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true') }}
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Build Linux 
-        if: ${{ (needs.changes.extract_branch.outputs.branch == 'dev') && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true') }}
+        if: ${{ (needs.changes.outputs.branch == 'dev') && (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true') }}
         run: flutter build ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }}
