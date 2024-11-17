@@ -121,12 +121,10 @@ class NotificationService {
         switch (notificationResponse.notificationResponseType) {
           case NotificationResponseType.selectedNotification:
             selectNotificationStream.add(notificationResponse.payload);
-            break;
           case NotificationResponseType.selectedNotificationAction:
             if (notificationResponse.actionId == navigationActionId) {
               selectNotificationStream.add(notificationResponse.payload);
             }
-            break;
         }
       },
     );

@@ -6,38 +6,38 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.1.0+32
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
-  bloc: ^8.1.0
+  bloc: ^8.1.4
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.5
-  dart_ping: ^9.0.0
-  external_app_launcher: ^3.1.0
+  cupertino_icons: ^1.0.8
+  dart_ping: ^9.0.1
+  external_app_launcher: ^4.0.0
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
-  flutter_bloc: ^8.1.1
+  flutter_bloc: ^8.1.6
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^17.2.2
+  flutter_local_notifications: ^18.0.1
   # Native splash screen plugin
-  flutter_native_splash: ^2.4.0
+  flutter_native_splash: ^2.4.2
   # A flutter plugin for getting the local timezone of the OS.
-  flutter_timezone: ^3.0.0
+  flutter_timezone: ^3.0.1
   # Annotations for freezed
-  freezed_annotation: ^2.4.1
+  freezed_annotation: ^2.4.4
   # Service locator
-  get_it: ^7.2.0
+  get_it: ^8.0.2
   # A composable, multi-platform, Future-based API for HTTP requests.
-  http: ^1.1.0
+  http: ^1.2.2
   # A Flutter plugin that lets you show a review pop up where users can leave a review
   in_app_review: ^2.0.9
   # Convenient code generator for get_it
-  injectable: ^2.1.0
+  injectable: ^2.5.0
   # database for flutter
   isar: ^3.1.0+1
   # contains Isar Core
@@ -45,25 +45,25 @@ dependencies:
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
-  json_annotation: ^4.8.1
-  network_info_plus: ^4.0.2
+  json_annotation: ^4.9.0
+  network_info_plus: ^6.1.1
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^2.0.2
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^4.1.0
-  path_provider: ^2.1.1
+  package_info_plus: ^8.1.1
+  path_provider: ^2.1.5
   # Allows you to display progress widgets based on percentage.
-  percent_indicator: ^4.2.2
+  percent_indicator: ^4.2.3
   # Popup that ask for the requested permission
-  permission_handler: ^11.0.0
+  permission_handler: ^11.3.1
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
-  provider: ^6.0.4
+  provider: ^6.1.2
   # Reading and writing simple key-value pairs
-  shared_preferences: ^2.0.15
+  shared_preferences: ^2.3.3
   # Time zone database and time zone aware DateTime.
-  timezone: ^0.9.4
+  timezone: ^0.10.0
   # Plugin for launching a URL
-  url_launcher: ^6.1.6
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
@@ -72,15 +72,18 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^2.5.0
+  freezed: ^2.5.7
   # Convenient code generator for get_it.
-  injectable_generator: ^2.1.4
+  injectable_generator: ^2.6.2
   integration_test:
     sdk: flutter
   isar_generator: ^3.1.0+1
   # Collection of lint rules for Dart and Flutter projects.
-  json_serializable: ^6.7.1
-  lint: ^2.0.1
+  json_serializable: ^6.8.0
+  lint: ^2.3.0
+  
+dependency_overrides:
+  analyzer: ^6.3.0
 
 flutter:
 
