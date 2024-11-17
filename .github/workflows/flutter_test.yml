@@ -49,9 +49,12 @@ jobs:
   
   flutter-test:
     name: 'Flutter Analyze + Test'
+    strategy:
+      matrix:
+        os: [macos, ubuntu, windows]
     needs: changes
     if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.yaml == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.windows == 'true' }}
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -99,7 +102,7 @@ jobs:
         run: flutter test
       - name: Run integration tests
         if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
-        run: flutter test integration_test --coverage -d macos
+        run: flutter test integration_test --coverage -d ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }} 
       - name: Upload Coverage to CodeCov
         if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
         uses: codecov/codecov-action@v3
