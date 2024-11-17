@@ -28,6 +28,10 @@ jobs:
       windows: ${{ steps.filter.outputs.windows }}
     steps:
     # For pull requests it's not necessary to checkout the code
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
     - uses: dorny/paths-filter@v3
       id: filter
       with:
@@ -58,10 +62,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
       - name: Setup Java JDK
         uses: actions/setup-java@v4.2.1
         with:
@@ -101,10 +101,10 @@ jobs:
       - name: Run tests
         run: flutter test
       - name: Run integration tests
-        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
+        if: needs.changes.extract_branch.outputs.branch == 'dev'
         run: flutter test integration_test --coverage -d ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }} 
       - name: Upload Coverage to CodeCov
-        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
+        if: needs.changes.extract_branch.outputs.branch == 'dev'
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}}
@@ -113,7 +113,7 @@ jobs:
   android-linux-build:
     name: 'Build Android + Linux'
     needs: [changes, flutter-test]
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true' }}
+    if: ${{ (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.android == 'true' || needs.changes.outputs.linux == 'true' || needs.changes.outputs.yaml == 'true') && (needs.changes.extract_branch.outputs.branch == 'dev') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -164,7 +164,7 @@ jobs:
   macos-build:
     name: 'Build Macos'
     needs: [changes, flutter-test]
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true' }}
+    if: ${{ (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.macos == 'true' || needs.changes.outputs.yaml == 'true') && (needs.changes.extract_branch.outputs.branch == 'dev') }}
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -208,7 +208,7 @@ jobs:
   windows-build:
     name: 'Build Windows'
     needs: [changes, flutter-test]
-    if: ${{ needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true' }}
+    if: ${{ (needs.changes.outputs.lib == 'true' || needs.changes.outputs.test == 'true' || needs.changes.outputs.windows == 'true' || needs.changes.outputs.yaml == 'true') && (needs.changes.extract_branch.outputs.branch == 'dev') }}
     runs-on: windows-latest
     steps:
       - name: Checkout
