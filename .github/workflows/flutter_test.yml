@@ -26,7 +26,7 @@ jobs:
       macos: ${{ steps.filter.outputs.macos == 'true' }}
       yaml: ${{ steps.filter.outputs.yaml == 'true' }}
       windows: ${{ steps.filter.outputs.windows == 'true'}}
-      branch: ${{steps.extract_branch.branch}}
+      branch: ${{steps.extract_branch.outputs.branch}}
     steps:
     # For pull requests it's not necessary to checkout the code
     - name: Extract branch name
