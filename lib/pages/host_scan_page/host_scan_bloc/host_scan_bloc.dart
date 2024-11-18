@@ -62,7 +62,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     } else if (wifiGatewayIP != null) {
       gatewayIp = wifiGatewayIP;
       debugPrint(
-          'Taking gatewayIp from NetworkInfo().getWifiGatewayIP(): $gatewayIp');
+        'Taking gatewayIp from NetworkInfo().getWifiGatewayIP(): $gatewayIp',
+      );
     } else {
       // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
       // to NetworkInfo().getWifiIP()
