@@ -57,6 +57,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       debugPrint('Unimplemented error $e');
     }
     ip = await info.getWifiIP();
+    final interface = await NetInterface.localInterface();
     if (appSettings.customSubnet.isNotEmpty) {
       gatewayIp = appSettings.customSubnet;
       debugPrint('Taking gatewayIp from appSettings: $gatewayIp');
@@ -65,11 +66,16 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       debugPrint(
         'Taking gatewayIp from NetworkInfo().getWifiGatewayIP(): $gatewayIp',
       );
-    } else {
+    } else if (ip != null) {
       // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
       // to NetworkInfo().getWifiIP()
       gatewayIp = ip;
       debugPrint('Taking gatewayIp from NetworkInfo().getWifiIP(): $gatewayIp');
+    } else if (interface != null) {
+      gatewayIp = interface.ipAddress;
+      debugPrint(
+        'Taking gatewayIp from NetInterface.localInterface(): $gatewayIp',
+      );
     }
     if (gatewayIp == null) {
       emit(const HostScanState.error());
