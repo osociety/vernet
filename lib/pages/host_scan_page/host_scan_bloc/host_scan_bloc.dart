@@ -76,6 +76,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     }
     if (gatewayIp == null) {
       emit(const HostScanState.error());
+      return;
     }
     subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
   }
