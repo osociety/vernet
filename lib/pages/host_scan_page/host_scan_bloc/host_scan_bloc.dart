@@ -49,15 +49,6 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     devicesSet.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
-    await initializeWifiParameters(emit);
-    if (appSettings.runScanOnStartup) {
-      add(const HostScanEvent.loadScan());
-    } else {
-      add(const HostScanEvent.startNewScan());
-    }
-  }
-
-  Future<void> initializeWifiParameters(Emitter<HostScanState> emit) async {
     String? wifiGatewayIP;
     try {
       wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
@@ -79,6 +70,11 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       return;
     }
     subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
+    if (appSettings.runScanOnStartup) {
+      add(const HostScanEvent.loadScan());
+    } else {
+      add(const HostScanEvent.startNewScan());
+    }
   }
 
   Future<void> _startNewScanBuiltInIsolate(
