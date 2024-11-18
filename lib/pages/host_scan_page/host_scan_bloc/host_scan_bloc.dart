@@ -46,16 +46,17 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Initialized event,
     Emitter<HostScanState> emit,
   ) async {
+    final info = NetworkInfo();
     devicesSet.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
     String? wifiGatewayIP;
     try {
-      wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
+      wifiGatewayIP = await info.getWifiGatewayIP();
     } catch (e) {
       debugPrint('Unimplemented error $e');
     }
-    ip = await NetworkInfo().getWifiIP();
+    ip = await info.getWifiIP();
     if (appSettings.customSubnet.isNotEmpty) {
       gatewayIp = appSettings.customSubnet;
       debugPrint('Taking gatewayIp from appSettings: $gatewayIp');
