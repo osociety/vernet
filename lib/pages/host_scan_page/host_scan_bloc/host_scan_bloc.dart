@@ -46,33 +46,51 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Initialized event,
     Emitter<HostScanState> emit,
   ) async {
+    final info = NetworkInfo();
     devicesSet.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
-    await initializeWifiParameters(emit);
+    String? wifiGatewayIP;
+    try {
+      wifiGatewayIP = await info.getWifiGatewayIP();
+    } catch (e) {
+      debugPrint('Unimplemented error $e');
+    }
+    ip = await info.getWifiIP();
+    final interface = await NetInterface.localInterface();
+    if (appSettings.customSubnet.isNotEmpty) {
+      gatewayIp = appSettings.customSubnet;
+      debugPrint('Taking gatewayIp from appSettings: $gatewayIp');
+    } else if (wifiGatewayIP != null) {
+      gatewayIp = wifiGatewayIP;
+      debugPrint(
+        'Taking gatewayIp from NetworkInfo().getWifiGatewayIP(): $gatewayIp',
+      );
+    } else if (ip != null) {
+      // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
+      // to NetworkInfo().getWifiIP()
+      gatewayIp = ip;
+      debugPrint('Taking gatewayIp from NetworkInfo().getWifiIP(): $gatewayIp');
+    } else if (interface != null) {
+      gatewayIp = interface.ipAddress;
+      debugPrint(
+        'Taking gatewayIp from NetInterface.localInterface(): $gatewayIp',
+      );
+    }
+    if (gatewayIp == null) {
+      emit(const HostScanState.error());
+      return Future.error('Can not get wifi details');
+    }
+    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
+    if (subnet == null) {
+      emit(const HostScanState.error());
+      return Future.error('Can not get wifi details');
+    }
     if (appSettings.runScanOnStartup) {
       add(const HostScanEvent.loadScan());
     } else {
       add(const HostScanEvent.startNewScan());
     }
-  }
-
-  Future<void> initializeWifiParameters(Emitter<HostScanState> emit) async {
-    final wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
-    ip = await NetworkInfo().getWifiIP();
-    if (appSettings.customSubnet.isNotEmpty) {
-      gatewayIp = appSettings.customSubnet;
-    } else if (wifiGatewayIP != null) {
-      gatewayIp = wifiGatewayIP;
-    } else {
-      // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
-      // to NetworkInfo().getWifiIP()
-      gatewayIp = ip;
-    }
-    if (gatewayIp == null) {
-      emit(const HostScanState.error());
-    }
-    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
   }
 
   Future<void> _startNewScanBuiltInIsolate(

@@ -52,12 +52,19 @@ Note: macOS build hasn't been notarized yet.
 4. Extract downloaded zip file.
 5. Go to bundle folder and double click vernet file.
 
+### Instruction for Windows
+1. Star this repository.
+2. Download vernet-windows.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+3. Extract downloaded zip file.
+4. Run vernet.exe
+5. Click on more info, tap on 'Run anyway'.
+5. Give permission if asked.
+
 ## Contributors Required
 
-1. Linux/Windows Tester
-2. Documenter
+1. Technical writer
 
-Drop mail at fs0c19ty@protonmail.com
+Write us at fs0c19ty@protonmail.com
 
 ## Publishing to F-droid
 You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html

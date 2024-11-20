@@ -45,9 +45,15 @@ class _WifiDetailState extends State<HomePage> {
     final wifiIP = await NetworkInfo().getWifiIP();
     final wifiBSSID = await NetworkInfo().getWifiBSSID();
     final wifiName = await NetworkInfo().getWifiName();
+    String? wifiGatewayIP;
+    try {
+      wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
+    } catch (e) {
+      debugPrint('Unimplemented error $e');
+    }
     final gatewayIp = appSettings.customSubnet.isNotEmpty
         ? appSettings.customSubnet
-        : await NetworkInfo().getWifiGatewayIP() ?? '';
+        : (wifiGatewayIP ?? wifiIP) ?? '';
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
     _wifiInfo = WifiInfo(

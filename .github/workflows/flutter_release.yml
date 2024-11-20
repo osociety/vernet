@@ -159,7 +159,6 @@ jobs:
           type: 'zip'
           filename: ${{ env.MACOS_ZIP }}
           directory: ${{ env.MACOS_BUILD_PATH }}
-          path: vernet.app
 
       - name: Install Node 18
         uses: actions/setup-node@v4
@@ -210,7 +209,6 @@ jobs:
           type: 'zip'
           filename: ${{ env.WINDOWS_ZIP }}
           directory: ${{  env.WINDOWS_BUILD_PATH }}
-          path: vernet.exe
 
       - name: Publish Windows Release
         uses: softprops/action-gh-release@v1
