@@ -4,7 +4,7 @@ PODS:
   - flutter_timezone (0.1.0):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
-  - in_app_review (0.2.0):
+  - in_app_review (2.0.0):
     - FlutterMacOS
   - isar_flutter_libs (1.0.0):
     - FlutterMacOS
@@ -64,7 +64,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 7062189aabf7f50938a7b8b6614ffa97656eb0bf
   flutter_timezone: 6b906d1740654acb16e50b639835628fea851037
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  in_app_review: a850789fad746e89bce03d4aeee8078b45a53fd0
+  in_app_review: a6a031b9acd03c7d103e341aa334adf2c493fb93
   isar_flutter_libs: 43385c99864c168fadba7c9adeddc5d38838ca6a
   network_info_plus: 2cb02d8435635eae13b3b79279681985121cf30c
   nsd_macos: 1a38a38a33adbb396b4c6f303bc076073514cadc
