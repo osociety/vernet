@@ -104,9 +104,8 @@ jobs:
       - name: Install Linux dependencies
         if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev')  && (needs.changes.outputs.lib  || needs.changes.outputs.test  || needs.changes.outputs.linux  || needs.changes.outputs.yaml ) }}
         run: | 
-         sudo apt-get update -y && sudo apt-get upgrade -y
-         sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
-         sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+         sudo apt-get update -y 
+         sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
       - name: Run integration tests
         if: needs.changes.outputs.branch == 'dev'
         run: flutter test integration_test --coverage -d ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }} 
