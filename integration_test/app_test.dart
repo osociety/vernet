@@ -53,13 +53,19 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 20));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
-
       final routerIconButton =
           find.byKey(WidgetKey.thisDeviceTileIconButton.key);
 
+      await tester.scrollUntilVisible(
+        routerIconButton,
+        500.0,
+        scrollable: find.byType(Scrollable),
+      );
+
+      expect(routerIconButton, findsOne);
       await tester.tap(routerIconButton);
       await tester.pumpAndSettle();
       expect(find.byType(AppBar), findsOne);
