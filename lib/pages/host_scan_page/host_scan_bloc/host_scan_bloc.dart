@@ -56,8 +56,11 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     } catch (e) {
       debugPrint('Unimplemented error $e');
     }
+
     ip = await info.getWifiIP();
     final interface = await NetInterface.localInterface();
+    debugPrint(
+        'Local Network Id: ${interface?.networkId} and ip: ${interface?.ipAddress}');
     if (appSettings.customSubnet.isNotEmpty) {
       gatewayIp = appSettings.customSubnet;
       debugPrint('Taking gatewayIp from appSettings: $gatewayIp');
