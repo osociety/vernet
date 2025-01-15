@@ -98,6 +98,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Emitter<HostScanState> emit,
   ) async {
     emit(const HostScanState.loadInProgress());
+    debugPrint(
+      'Starting new scan with subnet: $subnet, ip: $ip, gatewayIp: $gatewayIp',
+    );
 
     final deviceStream =
         getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
