@@ -14,6 +14,7 @@ import 'package:vernet/models/isar/scan.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/scan_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/values/globals.dart' as globals;
 
 part 'host_scan_bloc.freezed.dart';
 part 'host_scan_event.dart';
@@ -113,8 +114,16 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(devicesSet));
     }
+    debugPrint(
+      'Testing mode enabled ${globals.testingActive}',
+    );
 
-    await NotificationService.showNotificationWithActions();
+    if (!globals.testingActive) {
+      // Because notification is not working in test mode in github actions
+      await NotificationService.showNotificationWithActions();
+      return;
+    }
+
     emit(HostScanState.loadSuccess(devicesSet));
   }
 
