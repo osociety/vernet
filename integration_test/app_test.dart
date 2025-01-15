@@ -7,6 +7,7 @@ import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -18,6 +19,7 @@ void main() {
     configureDependencies(Env.test);
     final appDocDirectory = await getApplicationDocumentsDirectory();
     await configureNetworkToolsFlutter(appDocDirectory.path);
+    await NotificationService.initNotification();
     //open a port in shared way because of portscanner using same,
     //if passed false then two hosts come up in search and breaks test.
     server =
