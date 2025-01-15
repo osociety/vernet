@@ -185,4 +185,4 @@ jobs:
         run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Build Linux 
         if: ${{ (needs.changes.outputs.branch == 'dev') && (needs.changes.outputs.lib  || needs.changes.outputs.test  || needs.changes.outputs.linux  || needs.changes.outputs.macos  || needs.changes.outputs.windows  || needs.changes.outputs.yaml ) }}
-        run: flutter build ${{ matrix.os == 'ubuntu' && 'Linux' || matrix.os }}
+        run: flutter build ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }}
