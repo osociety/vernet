@@ -50,6 +50,7 @@ class NotificationService {
       StreamController<String?>.broadcast();
 
   static Future<void> initNotification() async {
+    if (Platform.isWindows) return Future.value();
     await _configureLocalTimeZone();
     final NotificationAppLaunchDetails? notificationAppLaunchDetails =
         !kIsWeb && Platform.isLinux
@@ -88,17 +89,6 @@ class NotificationService {
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
-      onDidReceiveLocalNotification:
-          (int id, String? title, String? body, String? payload) async {
-        didReceiveLocalNotificationStream.add(
-          ReceivedNotification(
-            id: id,
-            title: title,
-            body: body,
-            payload: payload,
-          ),
-        );
-      },
       notificationCategories: darwinNotificationCategories,
     );
     final LinuxInitializationSettings initializationSettingsLinux =
@@ -120,12 +110,10 @@ class NotificationService {
         switch (notificationResponse.notificationResponseType) {
           case NotificationResponseType.selectedNotification:
             selectNotificationStream.add(notificationResponse.payload);
-            break;
           case NotificationResponseType.selectedNotificationAction:
             if (notificationResponse.actionId == navigationActionId) {
               selectNotificationStream.add(notificationResponse.payload);
             }
-            break;
         }
       },
     );
@@ -141,6 +129,7 @@ class NotificationService {
   }
 
   static Future<void> showNotificationWithActions() async {
+    if (Platform.isWindows) return Future.value();
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       'your channel id',
@@ -193,6 +182,7 @@ class NotificationService {
   }
 
   static Future<void> grantPermissions() async {
+    if (Platform.isWindows) return Future.value();
     await _isAndroidPermissionGranted();
     await _requestPermissions();
   }

@@ -14,6 +14,7 @@ import 'package:vernet/models/isar/scan.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/scan_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/values/globals.dart' as globals;
 
 part 'host_scan_bloc.freezed.dart';
 part 'host_scan_event.dart';
@@ -46,10 +47,50 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Initialized event,
     Emitter<HostScanState> emit,
   ) async {
+    final info = NetworkInfo();
     devicesSet.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
-    await initializeWifiParameters(emit);
+    String? wifiGatewayIP;
+    try {
+      wifiGatewayIP = await info.getWifiGatewayIP();
+    } catch (e) {
+      debugPrint('Unimplemented error $e');
+    }
+
+    final interface = await NetInterface.localInterface();
+    ip = (await info.getWifiIP()) ?? interface?.ipAddress;
+    debugPrint(
+      'Local Network Id: ${interface?.networkId} and ip: ${interface?.ipAddress}',
+    );
+    if (appSettings.customSubnet.isNotEmpty) {
+      gatewayIp = appSettings.customSubnet;
+      debugPrint('Taking gatewayIp from appSettings: $gatewayIp');
+    } else if (wifiGatewayIP != null) {
+      gatewayIp = wifiGatewayIP;
+      debugPrint(
+        'Taking gatewayIp from NetworkInfo().getWifiGatewayIP(): $gatewayIp',
+      );
+    } else if (ip != null) {
+      // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
+      // to NetworkInfo().getWifiIP()
+      gatewayIp = ip;
+      debugPrint('Taking gatewayIp from NetworkInfo().getWifiIP(): $gatewayIp');
+    } else if (interface != null) {
+      gatewayIp = interface.ipAddress;
+      debugPrint(
+        'Taking gatewayIp from NetInterface.localInterface(): $gatewayIp',
+      );
+    }
+    if (gatewayIp == null) {
+      emit(const HostScanState.error());
+      return Future.error('Can not get wifi details');
+    }
+    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
+    if (subnet == null) {
+      emit(const HostScanState.error());
+      return Future.error('Can not get wifi details');
+    }
     if (appSettings.runScanOnStartup) {
       add(const HostScanEvent.loadScan());
     } else {
@@ -57,29 +98,14 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     }
   }
 
-  Future<void> initializeWifiParameters(Emitter<HostScanState> emit) async {
-    final wifiGatewayIP = await NetworkInfo().getWifiGatewayIP();
-    ip = await NetworkInfo().getWifiIP();
-    if (appSettings.customSubnet.isNotEmpty) {
-      gatewayIp = appSettings.customSubnet;
-    } else if (wifiGatewayIP != null) {
-      gatewayIp = wifiGatewayIP;
-    } else {
-      // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
-      // to NetworkInfo().getWifiIP()
-      gatewayIp = ip;
-    }
-    if (gatewayIp == null) {
-      emit(const HostScanState.error());
-    }
-    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
-  }
-
   Future<void> _startNewScanBuiltInIsolate(
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
     emit(const HostScanState.loadInProgress());
+    debugPrint(
+      'Starting new scan with subnet: $subnet, ip: $ip, gatewayIp: $gatewayIp',
+    );
 
     final deviceStream =
         getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
@@ -88,8 +114,16 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(devicesSet));
     }
+    debugPrint(
+      'Testing mode enabled ${globals.testingActive}',
+    );
 
-    await NotificationService.showNotificationWithActions();
+    if (!globals.testingActive) {
+      // Because notification is not working in test mode in github actions
+      await NotificationService.showNotificationWithActions();
+      return;
+    }
+
     emit(HostScanState.loadSuccess(devicesSet));
   }
 

@@ -8,9 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 void main() {
+  globals.testingActive = true;
   late ServerSocket server;
   int port = 0;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -53,13 +55,19 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 10));
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
-
       final routerIconButton =
           find.byKey(WidgetKey.thisDeviceTileIconButton.key);
 
+      await tester.scrollUntilVisible(
+        routerIconButton,
+        500.0,
+        scrollable: find.byType(Scrollable),
+      );
+
+      expect(routerIconButton, findsOne);
       await tester.tap(routerIconButton);
       await tester.pumpAndSettle();
       expect(find.byType(AppBar), findsOne);
