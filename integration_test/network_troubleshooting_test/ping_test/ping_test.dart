@@ -41,8 +41,8 @@ void main() {
       expect(find.byKey(WidgetKey.pingSummaryReceived.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryTotalTime.key), findsOneWidget);
 
-      expect(find.text('Sent: 5'), findsOneWidget);
-      expect(find.text('Received : 5'), findsOneWidget);
+      expect(find.text('Sent: ${appSettings.pingCount}'), findsOneWidget);
+      expect(find.text('Received : ${appSettings.pingCount}'), findsOneWidget);
       expect(
         find.byType(AdaptiveListTile),
         findsAtLeastNWidgets(appSettings.pingCount),
