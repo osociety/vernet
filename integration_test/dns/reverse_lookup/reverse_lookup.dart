@@ -24,8 +24,10 @@ void main() {
       await tester.tap(reverseDnsLookupButton);
       await tester.pumpAndSettle();
 
-      expect(find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
-          findsOneWidget);
+      expect(
+        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        findsOneWidget,
+      );
 
       await tester.enterText(
         find.byType(TextFormField),
