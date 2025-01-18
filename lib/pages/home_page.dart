@@ -113,6 +113,7 @@ class _WifiDetailState extends State<HomePage> {
   Widget _getDeviceCountWidget() {
     if (appSettings.runScanOnStartup) {
       return Row(
+        key: WidgetKey.runScanOnStartup.key,
         children: [
           Text(
             '${devices.length} devices ${scanRunning ? 'found' : 'connected'}',

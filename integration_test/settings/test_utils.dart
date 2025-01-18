@@ -10,6 +10,13 @@ class TestUtils {
     await tapByWidgetKey(WidgetKey.settingsButton, tester, find);
   }
 
+  static Future<void> tapHomeButton(
+    WidgetTester tester,
+    CommonFinders find,
+  ) async {
+    await tapByWidgetKey(WidgetKey.homeButton, tester, find);
+  }
+
   static Future<void> tapByText(
     String text,
     WidgetTester tester,
