@@ -5,10 +5,16 @@ enum WidgetKey implements Comparable<WidgetKey> {
   rangePortScanRadioButton('rangePortScanRadioButton'),
   singlePortScanRadioButton('singlePortScanRadioButton'),
   scanForOpenPortsButton('scanForOpenPortsButton'),
+  reverseDnsLookupButton('reverseDnsLookupButton'),
+  pingSummaryTotalTime('pingSummaryTotalTime'),
   scanForDevicesButton('scanForDevicesButton'),
+  basePageSubmitButton('basePageSubmitButton'),
+  pingSummaryReceived('pingSummaryReceived'),
   enterPortTextField('enterPortTextField'),
   veryShortPortChip('veryShortPortChip'),
   rescanIconButton('rescanIconButton'),
+  pingSummarySent('pingSummarySent'),
+  dnsLookupButton('dnsLookupButton'),
   portScanButton('portScanButton'),
   cloudflareChip('cloudflareChip'),
   knownPortChip('knownPortChip'),
@@ -18,7 +24,8 @@ enum WidgetKey implements Comparable<WidgetKey> {
   localIpChip('localIpChip'),
   googleChip('googleChip'),
   amazonChip('amazonChip'),
-  appleChip('appleChip');
+  appleChip('appleChip'),
+  ping('ping');
 
   const WidgetKey(this.value);
   final String value;

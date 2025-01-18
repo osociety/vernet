@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/strings.dart';
 
 class DNSPage extends StatefulWidget {
   const DNSPage({super.key});
@@ -20,7 +21,7 @@ class _DNSPageState extends BasePage<DNSPage> {
     return _addresses.isEmpty
         ? const Center(
             child: Text(
-              'No addresses found yet.\nAll addresses will appear here.',
+              StringValue.dnsLookupEmptyPlaceholder,
               textAlign: TextAlign.center,
             ),
           )

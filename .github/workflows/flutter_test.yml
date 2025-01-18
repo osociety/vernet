@@ -110,12 +110,12 @@ jobs:
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          flutter test integration_test --coverage -d linux
+          flutter test integration_test/app_test.dart  --coverage -d linux
         shell: bash
 
       - name: Run integration tests for macos/windows
         if: needs.changes.outputs.branch == 'dev' && matrix.os != 'ubuntu'
-        run: flutter test integration_test --coverage -d ${{ matrix.os }} 
+        run: flutter test integration_test/app_test.dart  --coverage -d ${{ matrix.os }} 
           
       - name: Upload Coverage to CodeCov
         if: needs.changes.outputs.branch == 'dev'

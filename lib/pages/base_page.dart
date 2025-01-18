@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/values/keys.dart';
 
 abstract class BasePage<T extends StatefulWidget> extends State<T> {
   TextEditingController textEditingController = TextEditingController();
@@ -82,6 +83,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0),
                       child: ElevatedButton(
+                        key: WidgetKey.basePageSubmitButton.key,
                         onPressed: () {
                           if (_formKey.currentState!.validate()) onPressed();
                         },
