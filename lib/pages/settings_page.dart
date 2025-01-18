@@ -51,6 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: AdaptiveListTile(
               title: const Text('In-App Internet'),
               trailing: Switch(
+                key: WidgetKey.inAppInternetSwitch.key,
                 value: appSettings.inAppInternet,
                 onChanged: (bool? value) async {
                   appSettings.setInAppInternet(value ?? false);
@@ -64,6 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: AdaptiveListTile(
               title: const Text('Run scan on app startup'),
               trailing: Switch(
+                key: WidgetKey.runOnAppStartupSwitch.key,
                 value: appSettings.runScanOnStartup,
                 onChanged: (bool? value) async {
                   appSettings.setRunScanOnStartup(value ?? false);
@@ -187,6 +189,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: AdaptiveListTile(
               title: const Text('Check for Updates'),
               trailing: IconButton(
+                key: WidgetKey.checkForUpdatesButton.key,
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
                   checkForUpdates(context, showIfNoUpdate: true);
