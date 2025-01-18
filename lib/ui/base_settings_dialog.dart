@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
+import 'package:vernet/values/keys.dart';
 
 abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
-  final _fieldKey = GlobalKey();
   String getDialogTitle();
   String getHintText();
   TextInputType getKeyBoardType();
@@ -44,7 +44,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
         key: _formKey,
         child: Platform.isIOS || Platform.isMacOS
             ? CupertinoTextFormFieldRow(
-                key: _fieldKey,
+                key: WidgetKey.settingsTextField.key,
                 controller: _controller,
                 validator: validate,
                 keyboardType: getKeyBoardType(),
@@ -58,7 +58,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
                 ),
               )
             : TextFormField(
-                key: _fieldKey,
+                key: WidgetKey.settingsTextField.key,
                 controller: _controller,
                 validator: validate,
                 keyboardType: getKeyBoardType(),
@@ -71,6 +71,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
   List<Widget> actions(BuildContext context) {
     return [
       AdaptiveDialogAction(
+        key: WidgetKey.settingsSubmitButton.key,
         onPressed: () {
           if (_formKey.currentState!.validate()) {
             onSubmit(_controller.text);

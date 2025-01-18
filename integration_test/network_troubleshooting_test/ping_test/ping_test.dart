@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final appSettings = AppSettings.instance;
   group('Ping integration test', () {
     testWidgets('tap on the ping button, verify ping ended', (tester) async {
+      await appSettings.load();
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
@@ -32,15 +37,18 @@ void main() {
       final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
       await tester.tap(submitButton);
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pumpAndSettle(const Duration(seconds: 6));
 
       expect(find.byKey(WidgetKey.pingSummarySent.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryReceived.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryTotalTime.key), findsOneWidget);
 
-      expect(find.text('Sent: 5'), findsOneWidget);
-      expect(find.text('Received : 5'), findsOneWidget);
-      expect(find.byType(AdaptiveListTile), findsAtLeastNWidgets(5));
+      expect(find.text('Sent: ${appSettings.pingCount}'), findsOneWidget);
+      expect(find.text('Received : ${appSettings.pingCount}'), findsOneWidget);
+      expect(
+        find.byType(AdaptiveListTile),
+        findsAtLeastNWidgets(appSettings.pingCount),
+      );
     });
   });
 }
