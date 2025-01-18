@@ -4,6 +4,8 @@ import 'package:vernet/main.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/values/keys.dart';
 
+import 'test_utils.dart';
+
 void main() {
   group('Test if theme preference is set properly', () {
     testWidgets('dark theme test', (tester) async {
@@ -12,10 +14,7 @@ void main() {
 
       await tester.pumpWidget(const MyApp(true));
 
-      final settingsButton = find.byKey(WidgetKey.settingsButton.key);
-
-      await tester.tap(settingsButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapSettingsButton(tester, find);
 
       final changeThemeButton = find.byKey(WidgetKey.changeThemeTile.key);
       await tester.tap(changeThemeButton);
@@ -26,7 +25,6 @@ void main() {
       await tester.tap(darkThemeTileButton);
       await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.dark);
     });
 
@@ -36,10 +34,7 @@ void main() {
 
       await tester.pumpWidget(const MyApp(true));
 
-      final settingsButton = find.byKey(WidgetKey.settingsButton.key);
-
-      await tester.tap(settingsButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapSettingsButton(tester, find);
 
       final changeThemeButton = find.byKey(WidgetKey.changeThemeTile.key);
       await tester.tap(changeThemeButton);
@@ -50,7 +45,6 @@ void main() {
       await tester.tap(darkThemeTileButton);
       await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.light);
     });
 
@@ -60,10 +54,7 @@ void main() {
 
       await tester.pumpWidget(const MyApp(true));
 
-      final settingsButton = find.byKey(WidgetKey.settingsButton.key);
-
-      await tester.tap(settingsButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapSettingsButton(tester, find);
 
       final changeThemeButton = find.byKey(WidgetKey.changeThemeTile.key);
       await tester.tap(changeThemeButton);
@@ -74,7 +65,6 @@ void main() {
       await tester.tap(darkThemeTileButton);
       await tester.pumpAndSettle();
 
-      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.system);
     });
   });

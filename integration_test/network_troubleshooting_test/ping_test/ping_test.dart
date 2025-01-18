@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
+  final appSettings = AppSettings.instance;
   group('Ping integration test', () {
     testWidgets('tap on the ping button, verify ping ended', (tester) async {
+      await appSettings.load();
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
@@ -40,7 +43,10 @@ void main() {
 
       expect(find.text('Sent: 5'), findsOneWidget);
       expect(find.text('Received : 5'), findsOneWidget);
-      expect(find.byType(AdaptiveListTile), findsAtLeastNWidgets(5));
+      expect(
+        find.byType(AdaptiveListTile),
+        findsAtLeastNWidgets(appSettings.pingCount),
+      );
     });
   });
 }

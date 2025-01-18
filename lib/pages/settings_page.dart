@@ -75,6 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.firstSubnetTile.key,
               title: const Text(StringValue.firstSubnet),
               subtitle: const Text(StringValue.firstSubnetDesc),
               trailing: Text(
@@ -96,6 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.lastSubnetTile.key,
               title: const Text(StringValue.lastSubnet),
               subtitle: const Text(StringValue.lastSubnetDesc),
               trailing: Text(
@@ -117,6 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.socketTimeoutTile.key,
               title: const Text(StringValue.socketTimeout),
               subtitle: const Text(StringValue.socketTimeoutdesc),
               trailing: Text(
@@ -138,6 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.pingCountTile.key,
               title: const Text(StringValue.pingCount),
               subtitle: const Text(StringValue.pingCountDesc),
               trailing: Text(
@@ -159,6 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.customSubnetTile.key,
               title: const Text(StringValue.customSubnet),
               subtitle: const Text(StringValue.customSubnetDesc),
               trailing: Text(
