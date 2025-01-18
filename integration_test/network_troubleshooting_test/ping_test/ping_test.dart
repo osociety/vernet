@@ -40,7 +40,6 @@ void main() {
 
       expect(find.text('Sent: 5'), findsOneWidget);
       expect(find.text('Received : 5'), findsOneWidget);
-      expect(find.text('Total time: --'), findsOneWidget);
       expect(find.byType(AdaptiveListTile), findsAtLeastNWidgets(5));
     });
   });

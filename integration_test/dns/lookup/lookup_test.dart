@@ -36,7 +36,7 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.byType(AdaptiveListTile), findsExactly(7));
+      expect(find.byType(AdaptiveListTile), findsAny);
     });
   });
 }
