@@ -1,12 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:vernet/helper/dark_theme_preference.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   group('Test if theme preference is set properly', () {
     testWidgets('dark theme test', (tester) async {
       final darkThemePreference = DarkThemePreference();
