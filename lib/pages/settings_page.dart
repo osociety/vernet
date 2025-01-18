@@ -13,6 +13,7 @@ import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
+import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -33,6 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.changeThemeTile.key,
               title: const Text('Theme'),
               subtitle: Text(themeChange.themePref.name),
               onTap: () async {
