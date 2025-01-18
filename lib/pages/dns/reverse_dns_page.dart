@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/values/strings.dart';
 
 class ReverseDNSPage extends StatefulWidget {
   const ReverseDNSPage({super.key});
@@ -23,7 +24,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
     if (_address == null) {
       return const Center(
         child: Text(
-          'Host name not found yet.\nHost name will appear here.',
+          StringValue.reverseDnsLookupEmptyPlaceholder,
           textAlign: TextAlign.center,
         ),
       );

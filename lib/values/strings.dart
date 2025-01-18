@@ -22,4 +22,8 @@ class StringValue {
   static const String hostScanPageTitle = 'Scan for devices';
   static const String loadingDevicesMessage =
       'Searching for devices in your local network';
+  static const String dnsLookupEmptyPlaceholder =
+      'No addresses found yet.\nAll addresses will appear here.';
+  static const String reverseDnsLookupEmptyPlaceholder =
+      'Host name not found yet.\nHost name will appear here.';
 }

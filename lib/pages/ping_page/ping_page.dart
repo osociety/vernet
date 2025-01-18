@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/base_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/keys.dart';
 
 class PingPage extends StatefulWidget {
   const PingPage({super.key});
@@ -123,9 +124,18 @@ class _PingPageState extends BasePage<PingPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Sent: ${_pingSummary?.transmitted ?? '--'}'),
-        Text('Received : ${_pingSummary?.transmitted ?? '--'}'),
-        Text('Total time: ${_getTime(_pingSummary?.time)}'),
+        Text(
+          key: WidgetKey.pingSummarySent.key,
+          'Sent: ${_pingSummary?.transmitted ?? '--'}',
+        ),
+        Text(
+          key: WidgetKey.pingSummaryReceived.key,
+          'Received : ${_pingSummary?.transmitted ?? '--'}',
+        ),
+        Text(
+          key: WidgetKey.pingSummaryTotalTime.key,
+          'Total time: ${_getTime(_pingSummary?.time)}',
+        ),
       ],
     );
   }

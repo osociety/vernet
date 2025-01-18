@@ -216,6 +216,7 @@ class _WifiDetailState extends State<HomePage> {
                   Row(
                     children: [
                       ElevatedButton.icon(
+                        key: WidgetKey.ping.key,
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -258,6 +259,7 @@ class _WifiDetailState extends State<HomePage> {
                   Row(
                     children: [
                       ElevatedButton.icon(
+                        key: WidgetKey.dnsLookupButton.key,
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -271,6 +273,7 @@ class _WifiDetailState extends State<HomePage> {
                       ),
                       const SizedBox(width: 10),
                       ElevatedButton.icon(
+                        key: WidgetKey.reverseDnsLookupButton.key,
                         onPressed: () {
                           Navigator.push(
                             context,
