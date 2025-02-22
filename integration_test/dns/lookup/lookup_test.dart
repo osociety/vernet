@@ -36,7 +36,12 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.byType(AdaptiveListTile), findsAny);
+      final pingWidget = find.byKey(WidgetKey.dnsResultTile.key).first;
+      await tester.tap(pingWidget);
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Scaffold), findsOneWidget);
     });
   });
 }

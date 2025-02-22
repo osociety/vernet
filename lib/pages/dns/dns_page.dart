@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 class DNSPage extends StatefulWidget {
@@ -29,6 +30,7 @@ class _DNSPageState extends BasePage<DNSPage> {
             itemCount: _addresses.length,
             itemBuilder: (context, index) {
               return AdaptiveListTile(
+                key: WidgetKey.dnsResultTile.key,
                 onTap: () {
                   Clipboard.setData(
                     ClipboardData(text: _addresses[index].address),

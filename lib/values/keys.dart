@@ -36,6 +36,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   lightThemeRadioButton('lightThemeRadioButton'),
   systemThemeRadioButton('systemThemeRadioButton'),
   shortPortChip('shortPortChip'),
+  dnsResultTile('dnsResultTile'),
   fullPortChip('fullPortChip'),
   youtubeChip('youtubeChip'),
   localIpChip('localIpChip'),
