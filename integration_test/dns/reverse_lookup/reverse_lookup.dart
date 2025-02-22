@@ -40,7 +40,80 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.text("maa03s29-in-f14.1e100.net"), findsOne);
+      final textWidget = find.text("maa03s29-in-f14.1e100.net");
+
+      expect(textWidget, findsOneWidget);
+      await tester.tap(textWidget);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('tap on the reverse DNS lookup button, verify error returned',
+        (tester) async {
+      // Load app widget.
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+
+      // Verify that there are 4 widgets at homepage
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+
+      // Finds the scan for devices button to tap on.
+      final reverseDnsLookupButton =
+          find.byKey(WidgetKey.reverseDnsLookupButton.key);
+
+      // Emulate a tap on the button.
+      await tester.tap(reverseDnsLookupButton);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        findsOneWidget,
+      );
+
+      await tester.enterText(
+        find.byType(TextFormField),
+        '172.217.160.',
+      );
+      await tester.pumpAndSettle();
+
+      final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
+      await tester.tap(submitButton);
+      expect(find.byType(Scaffold), findsOneWidget);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+        'tap on the reverse DNS lookup button, verify reverse address not found returned',
+        (tester) async {
+      // Load app widget.
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+
+      // Verify that there are 4 widgets at homepage
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+
+      // Finds the scan for devices button to tap on.
+      final reverseDnsLookupButton =
+          find.byKey(WidgetKey.reverseDnsLookupButton.key);
+
+      // Emulate a tap on the button.
+      await tester.tap(reverseDnsLookupButton);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        findsOneWidget,
+      );
+
+      await tester.enterText(
+        find.byType(TextFormField),
+        '0.0.0.0',
+      );
+      await tester.pumpAndSettle();
+
+      final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
+      await tester.tap(submitButton);
+      expect(find.byType(Scaffold), findsOneWidget);
+      await tester.pumpAndSettle();
     });
   });
 }
