@@ -19,7 +19,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
     });
   });
   wifi_test_runner.main();

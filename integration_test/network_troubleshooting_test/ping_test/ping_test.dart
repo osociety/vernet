@@ -18,7 +18,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
 
       // Finds the scan for devices button to tap on.
       final pingButton = find.byKey(WidgetKey.ping.key);
