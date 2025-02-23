@@ -121,10 +121,7 @@ class _WifiDetailState extends State<HomePage> {
           const SizedBox(
             width: 8,
           ),
-          if (scanRunning)
-            const CircularProgressIndicator.adaptive()
-          else
-            const SizedBox(),
+          if (scanRunning) const Text('Scanning...') else const SizedBox(),
         ],
       );
     }
