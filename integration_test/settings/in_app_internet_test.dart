@@ -1,10 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 import 'test_utils.dart';
 
 void main() {
+  globals.testingActive = true;
   group('In App Internet Test', () {
     testWidgets('test', (tester) async {
       await tester.pumpWidget(const MyApp(true));

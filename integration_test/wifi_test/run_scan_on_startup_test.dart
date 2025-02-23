@@ -1,10 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 import '../settings/test_utils.dart';
 
 void main() {
+  globals.testingActive = true;
   group('Run device scan on startup', () {
     testWidgets('if settings for startup is on, then it should run',
         (tester) async {

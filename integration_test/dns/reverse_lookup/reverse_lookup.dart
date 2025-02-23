@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 void main() {
+  globals.testingActive = true;
   group('Reverse DNS lookup integration test', () {
     testWidgets('tap on the reverse DNS lookup button, verify lookup ended',
         (tester) async {
