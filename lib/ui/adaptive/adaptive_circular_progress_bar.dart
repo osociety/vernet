@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
-class AdaptiveCircularProgressBar extends StatelessWidget {
-  const AdaptiveCircularProgressBar({super.key});
+class AdaptiveCircularProgressIndicator extends StatelessWidget {
+  const AdaptiveCircularProgressIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
