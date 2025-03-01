@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.0+32
+version: 1.1.0+33
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -17,7 +17,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   dart_ping: ^9.0.1
-  external_app_launcher: ^4.0.0
+  # Remove git url and use pub version once fix is available in source. 
+  external_app_launcher:
+    git:
+      url: https://github.com/thelordzeus/external_app_launcher.git
+      ref: flutter-3.29-fix # branch name
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
