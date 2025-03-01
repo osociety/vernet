@@ -24,9 +24,9 @@ class PortDescLoader {
   final String assetPath;
 
   Future<Map<String, Port>> load() async {
-    return rootBundle.loadStructuredData<Map<String, Port>>(assetPath,
+    return await rootBundle.loadStructuredData<Map<String, Port>>(assetPath,
         (jsonStr) async {
-      return compute(_parsePortDesc, jsonStr);
+      return await compute(_parsePortDesc, jsonStr);
     });
   }
 }

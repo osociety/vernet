@@ -17,6 +17,7 @@ import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/providers/internet_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/values/keys.dart';
@@ -113,6 +114,7 @@ class _WifiDetailState extends State<HomePage> {
   Widget _getDeviceCountWidget() {
     if (appSettings.runScanOnStartup) {
       return Row(
+        key: WidgetKey.runScanOnStartup.key,
         children: [
           Text(
             '${devices.length} devices ${scanRunning ? 'found' : 'connected'}',
@@ -121,7 +123,7 @@ class _WifiDetailState extends State<HomePage> {
             width: 8,
           ),
           if (scanRunning)
-            const CircularProgressIndicator.adaptive()
+            const AdaptiveCircularProgressIndicator()
           else
             const SizedBox(),
         ],

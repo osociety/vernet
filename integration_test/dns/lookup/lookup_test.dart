@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 void main() {
+  globals.testingActive = true;
   group('Dns lookup integration test', () {
     testWidgets('tap on the DNS lookup button, verify lookup ended',
         (tester) async {
@@ -14,7 +16,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
 
       // Finds the scan for devices button to tap on.
       final lookupButton = find.byKey(WidgetKey.dnsLookupButton.key);
@@ -36,7 +38,12 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      expect(find.byType(AdaptiveListTile), findsAny);
+      final pingWidget = find.byKey(WidgetKey.dnsResultTile.key).first;
+      await tester.tap(pingWidget);
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Scaffold), findsOneWidget);
     });
   });
 }

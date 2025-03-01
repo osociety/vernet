@@ -2,11 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 import 'test_utils.dart';
 
 void main() {
+  globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final appSettings = AppSettings.instance;
   group('subnet tests', () {

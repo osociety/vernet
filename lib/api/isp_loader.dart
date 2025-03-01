@@ -17,7 +17,7 @@ class ISPLoader {
   }
 
   Future<InternetProvider> _mimicLoad() async {
-    return rootBundle.loadStructuredData<InternetProvider>(
+    return await rootBundle.loadStructuredData<InternetProvider>(
         'assets/ipwhois.json', (json) async {
       return InternetProvider.fromMap(jsonDecode(json) as Map<String, dynamic>);
     });

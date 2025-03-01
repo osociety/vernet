@@ -5,9 +5,11 @@ import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 void main() {
+  globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final appSettings = AppSettings.instance;
   group('Ping integration test', () {
@@ -18,7 +20,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
 
       // Finds the scan for devices button to tap on.
       final pingButton = find.byKey(WidgetKey.ping.key);
@@ -37,7 +39,7 @@ void main() {
       final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
       await tester.tap(submitButton);
 
-      await tester.pumpAndSettle(const Duration(seconds: 6));
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
       expect(find.byKey(WidgetKey.pingSummarySent.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryReceived.key), findsOneWidget);

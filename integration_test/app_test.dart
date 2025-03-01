@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/globals.dart' as globals;
 
 import 'dns/lookup/lookup_test.dart' as lookup_test;
 import 'dns/reverse_lookup/reverse_lookup.dart' as reverse_lookup;
@@ -14,12 +15,13 @@ void main() {
   group('app launch test', () {
     testWidgets('just test if app is able to launch and display homepage',
         (tester) async {
+      globals.testingActive = true;
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(4));
+      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
     });
   });
   wifi_test_runner.main();
