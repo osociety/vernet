@@ -103,7 +103,7 @@ jobs:
         run: flutter test
       - name: Install Linux dependencies
         if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev')  && (needs.changes.outputs.lib  || needs.changes.outputs.test  || needs.changes.outputs.linux  || needs.changes.outputs.yaml ) }}
-        run: sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libssl-dev keybinder-3.0 libnotify-dev libmpv-dev mpv network-manager
+        run: sudo apt-get update && sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libssl-dev keybinder-3.0 libnotify-dev libmpv-dev mpv network-manager
          
       - name: Run integration tests for Linux
         if: needs.changes.outputs.branch == 'dev' && matrix.os == 'ubuntu'
@@ -182,7 +182,7 @@ jobs:
       # Run only if test, lib, and linux folder is changed
       - name: Install Linux dependencies
         if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev')  && (needs.changes.outputs.lib  || needs.changes.outputs.test  || needs.changes.outputs.linux  || needs.changes.outputs.yaml ) }}
-        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Build Linux 
         if: ${{ (needs.changes.outputs.branch == 'dev') && (needs.changes.outputs.lib  || needs.changes.outputs.test  || needs.changes.outputs.linux  || needs.changes.outputs.macos  || needs.changes.outputs.windows  || needs.changes.outputs.yaml ) }}
         run: flutter build ${{ matrix.os == 'ubuntu' && 'linux' || matrix.os }}

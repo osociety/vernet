@@ -61,7 +61,7 @@ jobs:
         run: mkdir -p artifacts
       
       - name: Install dependencies
-        run: sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
       - name: Build Android App Bundle
         run: flutter build appbundle --flavor store
