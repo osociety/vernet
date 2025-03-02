@@ -91,8 +91,8 @@ jobs:
           restore-keys: |
             build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Run analyzer
@@ -170,8 +170,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
             ${{ runner.os }}-pods-
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Build Android
