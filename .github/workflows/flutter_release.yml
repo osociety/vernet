@@ -117,7 +117,6 @@ jobs:
           directory: ${{  env.LINUX_BUILD_PATH }}
 
       - uses: actions/attest-build-provenance@v2.2.2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
             ${{ env.ANDROID_BUILD_PATH}}/**/Vernet-*.apk
@@ -184,7 +183,6 @@ jobs:
           appdmg ./config.json ./${{ env.MACOS_DMG }}
 
       - uses: actions/attest-build-provenance@v2.2.2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
             ${{ env.MACOS_BUILD_PATH }}/**/Vernet-*macos.zip
@@ -230,7 +228,6 @@ jobs:
           directory: ${{ env.WINDOWS_BUILD_PATH }}
 
       - uses: actions/attest-build-provenance@v2.2.2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
             ${{ env.WINDOWS_BUILD_PATH }}/**/Vernet-*windows.zip
