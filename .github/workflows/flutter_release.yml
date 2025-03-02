@@ -116,12 +116,6 @@ jobs:
           filename: ${{ env.LINUX_ZIP }}
           directory: ${{  env.LINUX_BUILD_PATH }}
 
-      - uses: actions/attest-build-provenance@v2.2.2
-        with:
-          subject-path: |
-            ${{ env.ANDROID_BUILD_PATH}}/**/Vernet-*.apk
-            ${{ env.LINUX_BUILD_PATH}}/**/Vernet-*.zip
-
       - name: Publish Android Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
@@ -141,6 +135,12 @@ jobs:
         with:
           files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
+      - uses: actions/attest-build-provenance@v2.2.2
+        with:
+          subject-path: |
+            ${{ env.ANDROID_BUILD_PATH}}/**/Vernet-*.apk
+            ${{ env.LINUX_BUILD_PATH}}/**/Vernet-*.zip
+  
   release-macos: 
     runs-on: macos-latest
     env:
@@ -182,12 +182,6 @@ jobs:
           npm install -g appdmg
           appdmg ./config.json ./${{ env.MACOS_DMG }}
 
-      - uses: actions/attest-build-provenance@v2.2.2
-        with:
-          subject-path: |
-            ${{ env.MACOS_BUILD_PATH }}/**/Vernet-*macos.zip
-            ${{ env.MACOS_DMG_PATH }}/**/Vernet-*macos.dmg
-
       - name: Publish macOS Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
@@ -197,6 +191,12 @@ jobs:
           files: |
             ${{ env.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
             ${{ env.MACOS_DMG_PATH }}/${{ env.MACOS_DMG }}
+
+      - uses: actions/attest-build-provenance@v2.2.2
+        with:
+          subject-path: |
+            ${{ env.MACOS_BUILD_PATH }}/**/Vernet-*macos.zip
+            ${{ env.MACOS_DMG_PATH }}/**/Vernet-*macos.dmg
 
   release-windows:
     runs-on: windows-latest
@@ -227,11 +227,6 @@ jobs:
           filename: ${{ env.WINDOWS_ZIP }}
           directory: ${{ env.WINDOWS_BUILD_PATH }}
 
-      - uses: actions/attest-build-provenance@v2.2.2
-        with:
-          subject-path: |
-            ${{ env.WINDOWS_BUILD_PATH }}/**/Vernet-*windows.zip
-
       - name: Publish Windows Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
@@ -239,3 +234,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
+
+      - uses: actions/attest-build-provenance@v2.2.2
+        with:
+          subject-path: |
+            ${{ env.WINDOWS_BUILD_PATH }}/**/Vernet-*windows.zip
