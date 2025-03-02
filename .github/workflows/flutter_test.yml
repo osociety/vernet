@@ -33,7 +33,7 @@ jobs:
       shell: bash
       run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       id: extract_branch
-    - uses: dorny/paths-filter@v3
+    - uses: dorny/paths-filter@v3.0.2
       id: filter
       with:
         filters: |
@@ -62,14 +62,14 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.2.2
       - name: Setup Java JDK
-        uses: actions/setup-java@v4.2.1
+        uses: actions/setup-java@v4.7.0
         with:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.16.0
+        uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
           cache: true
@@ -80,7 +80,7 @@ jobs:
       - name: Flutter version
         run: flutter --version
       - name: Cache build runner
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.2
         with:
           path: |
             **/.dart_tool
@@ -91,8 +91,8 @@ jobs:
           restore-keys: |
             build-runner-${{ hashFiles('**/asset_graph.json', '**/*.dart', '**/pubspec.lock', '**/outputs.json') }}
             build-runner-
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Run analyzer
@@ -134,14 +134,14 @@ jobs:
     runs-on: ${{ matrix.os }}-latest 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.2.2
       - name: Setup Java JDK
-        uses: actions/setup-java@v4.2.1
+        uses: actions/setup-java@v4.7.0
         with:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.16.0
+        uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
           cache: true
@@ -150,7 +150,7 @@ jobs:
           pub-cache-key: "flutter-pub-:os:-:channel:-:version:-:arch:-:hash:"
           pub-cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
       - name: Cache build runner
-        uses: actions/cache@v4.0.2
+        uses: actions/cache@v4.2.2
         with:
           path: |
             **/.dart_tool
@@ -170,8 +170,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
             ${{ runner.os }}-pods-
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
       - name: Run build_runner
         run: flutter pub run build_runner build --delete-conflicting-outputs
       - name: Build Android

@@ -31,6 +31,14 @@ Runs all the tests
 
 Submit a new Beta Build to Crashlytics Beta
 
+### android beta_full
+
+```sh
+[bundle exec] fastlane android beta_full
+```
+
+Submit a new Beta Build to Crashlytics Beta
+
 ### android deploy
 
 ```sh

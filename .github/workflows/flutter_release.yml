@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    
+permissions:
+  id-token: write
+  attestations: write
+  contents: write
 
 env:
   ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
@@ -23,29 +28,29 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       # setup java because we are building for android too
       - name: Setup Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.7.0
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
 
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
 
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Download Android keystore
         id: android_keystore
-        uses: timheuer/base64-to-file@v1.1
+        uses: timheuer/base64-to-file@v1.2.4
         with:
           fileName: key.jks
           encodedString: '${{ secrets.ANDROID_KEYSTORE_BASE64 }}'
@@ -63,35 +68,6 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --flavor store
-
-      - name: 'Setup Ruby, JRuby and TruffleRuby'
-        uses: ruby/setup-ruby@v1.115.0
-        with:
-         ruby-version: 3.1.2
-
-      - name: Cache bundle dependencies
-        uses: actions/cache@v2
-        with:
-         path: android/vendor/bundle
-         key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
-         restore-keys: '${{ runner.os }}-gems-'
-
-      - name: Download bundle dependencies
-        working-directory: android/
-        run: |
-         gem install bundler:2.3.20
-         bundle config path vendor/bundle
-         bundle install
-
-      - name: Release to Google Play
-        env:
-          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
-          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
-        working-directory: android/
-        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy' }} 
-
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
         run: |
@@ -105,17 +81,15 @@ jobs:
           mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Linux Archive
-        uses: thedoctor0/zip-release@master
+        uses: TheDoctor0/zip-release@0.7.6
         with:
           type: 'zip'
           filename: ${{ env.LINUX_ZIP }}
           directory: ${{  env.LINUX_BUILD_PATH }}
 
       - name: Publish Android Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
@@ -123,13 +97,41 @@ jobs:
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Publish Linux Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{  env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
+          files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
+      - name: Build Android App Bundle
+        run: flutter build appbundle --flavor store
+  
+      - name: 'Setup Ruby, JRuby and TruffleRuby'
+        uses: ruby/setup-ruby@v1.221.0
+        with:
+          ruby-version: 3.4.2
+          bundler-cache: true
+
+      - name: Cache bundle dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: android/vendor/bundle
+          key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
+          restore-keys: '${{ runner.os }}-gems-'
+
+      - name: Download bundle dependencies
+        working-directory: android/
+        run: |
+          gem install bundler
+          bundle config path vendor/bundle
+          bundle install
+
+      - name: Release to Google Play
+        env:
+          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
+          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
+        working-directory: android/
+        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy' }}           
+  
   release-macos: 
     runs-on: macos-latest
     env:
@@ -137,15 +139,15 @@ jobs:
       MACOS_DMG: Vernet-${{github.ref_name}}-macos.dmg
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
 
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
 
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
@@ -154,14 +156,14 @@ jobs:
         run: flutter build macos --release
 
       - name: Archive macos
-        uses: thedoctor0/zip-release@master
+        uses: TheDoctor0/zip-release@0.7.6
         with:
           type: 'zip'
           filename: ${{ env.MACOS_ZIP }}
           directory: ${{ env.MACOS_BUILD_PATH }}
 
       - name: Install Node 18
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.2.0
         with:
           node-version: 18
           
@@ -172,10 +174,8 @@ jobs:
           appdmg ./config.json ./${{ env.MACOS_DMG }}
 
       - name: Publish macOS Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
             ${{ env.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
@@ -187,15 +187,15 @@ jobs:
       WINDOWS_ZIP: Vernet-${{github.ref_name}}-windows.zip
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
 
       - name: Flutter action
-        uses: subosito/flutter-action@v2.8.0
+        uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
 
-      - name: Download pub dependencies
-        run: flutter pub get
+      - name: Download and upgrade pub dependencies
+        run: flutter pub get && flutter pub upgrade
       
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
@@ -204,16 +204,14 @@ jobs:
         run: flutter build windows --release
 
       - name: Archive windows Release
-        uses: thedoctor0/zip-release@master
+        uses: TheDoctor0/zip-release@0.7.6
         with:
           type: 'zip'
           filename: ${{ env.WINDOWS_ZIP }}
-          directory: ${{  env.WINDOWS_BUILD_PATH }}
+          directory: ${{ env.WINDOWS_BUILD_PATH }}
 
       - name: Publish Windows Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{  env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
+          files: ${{ env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
