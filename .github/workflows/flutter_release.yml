@@ -8,6 +8,7 @@ on:
 permissions:
   id-token: write
   attestations: write
+  contents: write
 
 env:
   ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
@@ -119,8 +120,6 @@ jobs:
       - name: Publish Android Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
@@ -130,8 +129,6 @@ jobs:
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
 
@@ -185,14 +182,13 @@ jobs:
       - name: Publish macOS Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
             ${{ env.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
             ${{ env.MACOS_DMG_PATH }}/${{ env.MACOS_DMG }}
 
       - uses: actions/attest-build-provenance@v2.2.2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
             ${{ env.MACOS_BUILD_PATH }}/**/Vernet-*macos.zip
@@ -230,12 +226,11 @@ jobs:
       - name: Publish Windows Release
         uses: softprops/action-gh-release@v2.2.1
         if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: ${{ env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
 
       - uses: actions/attest-build-provenance@v2.2.2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
             ${{ env.WINDOWS_BUILD_PATH }}/**/Vernet-*windows.zip
