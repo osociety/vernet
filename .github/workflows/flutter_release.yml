@@ -116,12 +116,12 @@ jobs:
           filename: ${{ env.LINUX_ZIP }}
           directory: ${{  env.LINUX_BUILD_PATH }}
 
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v2.2.2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
-            ${{ env.ANDROID_BUILD_PATH}}
-            ${{ env.LINUX_BUILD_PATH}}
+            ${{ env.ANDROID_BUILD_PATH}}/**/Vernet-*.apk
+            ${{ env.LINUX_BUILD_PATH}}/**/Vernet-*.zip
 
       - name: Publish Android Release
         uses: softprops/action-gh-release@v2.2.1
@@ -183,12 +183,12 @@ jobs:
           npm install -g appdmg
           appdmg ./config.json ./${{ env.MACOS_DMG }}
 
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v2.2.2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
-            ${{ env.MACOS_BUILD_PATH }}
-            ${{ env.MACOS_DMG_PATH }}
+            ${{ env.MACOS_BUILD_PATH }}/**/Vernet-*macos.zip
+            ${{ env.MACOS_DMG_PATH }}/**/Vernet-*macos.dmg
 
       - name: Publish macOS Release
         uses: softprops/action-gh-release@v2.2.1
@@ -229,11 +229,11 @@ jobs:
           filename: ${{ env.WINDOWS_ZIP }}
           directory: ${{ env.WINDOWS_BUILD_PATH }}
 
-      - uses: actions/attest-build-provenance@v2
+      - uses: actions/attest-build-provenance@v2.2.2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           subject-path: |
-            ${{ env.WINDOWS_BUILD_PATH }}
+            ${{ env.WINDOWS_BUILD_PATH }}/**/Vernet-*windows.zip
 
       - name: Publish Windows Release
         uses: softprops/action-gh-release@v2.2.1
