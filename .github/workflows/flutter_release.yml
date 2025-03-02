@@ -68,36 +68,6 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --flavor store
-
-      - name: 'Setup Ruby, JRuby and TruffleRuby'
-        uses: ruby/setup-ruby@v1.221.0
-        with:
-         ruby-version: 3.4.2
-         bundler-cache: true
-
-      - name: Cache bundle dependencies
-        uses: actions/cache@v4.2.2
-        with:
-         path: android/vendor/bundle
-         key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
-         restore-keys: '${{ runner.os }}-gems-'
-
-      - name: Download bundle dependencies
-        working-directory: android/
-        run: |
-         gem install bundler:2.3.20
-         bundle config path vendor/bundle
-         bundle install
-
-      - name: Release to Google Play
-        env:
-          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
-          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
-        working-directory: android/
-        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy' }} 
-
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
         run: |
@@ -131,6 +101,36 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
+
+      - name: Build Android App Bundle
+        run: flutter build appbundle --flavor store
+  
+      - name: 'Setup Ruby, JRuby and TruffleRuby'
+        uses: ruby/setup-ruby@v1.221.0
+        with:
+          ruby-version: 3.4.2
+          bundler-cache: true
+
+      - name: Cache bundle dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: android/vendor/bundle
+          key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
+          restore-keys: '${{ runner.os }}-gems-'
+
+      - name: Download bundle dependencies
+        working-directory: android/
+        run: |
+          gem install bundler
+          bundle config path vendor/bundle
+          bundle install
+
+      - name: Release to Google Play
+        env:
+          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
+          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
+        working-directory: android/
+        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy' }}           
   
   release-macos: 
     runs-on: macos-latest
