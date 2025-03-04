@@ -1,0 +1,1 @@
+Added speed test using speedtest.net
