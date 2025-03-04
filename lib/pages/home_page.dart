@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:speed_test_dart/classes/server.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
-import 'package:speedometer/speedometer.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
@@ -23,10 +20,9 @@ import 'package:vernet/providers/internet_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
-import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
-import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
+import 'package:vernet/ui/speed_test_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -51,6 +47,7 @@ class _WifiDetailState extends State<HomePage> {
   // Example function to set the best servers, could be called
   // in an initState()
   Future<void> setBestServers() async {
+    if (!appSettings.inAppInternet) return;
     final settings = await tester.getSettings();
     final servers = settings.servers;
 
@@ -394,99 +391,5 @@ class _WifiDetailState extends State<HomePage> {
         ],
       ),
     );
-  }
-}
-
-class SpeedTestDialog extends StatefulWidget {
-  final SpeedTestDart tester;
-  final List<Server> bestServersList;
-  const SpeedTestDialog({
-    super.key,
-    required this.tester,
-    required this.bestServersList,
-  });
-
-  @override
-  State<SpeedTestDialog> createState() => _SpeedTestDialogState();
-}
-
-class _SpeedTestDialogState extends State<SpeedTestDialog> {
-  double _lowerValue = 100.0;
-  double _upperValue = 300.0;
-  int start = 0;
-  int end = 300;
-
-  int counter = 0;
-
-  Duration _animationDuration = Duration(milliseconds: 100);
-
-  PublishSubject<double> eventObservable = PublishSubject();
-
-  var rng = Random();
-  bool speedTestStarted = false;
-  double currentDownloadSpeed = 10;
-
-  @override
-  Widget build(BuildContext context) {
-    return AdaptiveDialog(
-      title: const Text('Speed Test'),
-      content: SizedBox(
-        width: 500,
-        height: 500,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: SpeedOMeter(
-            start: start,
-            end: end,
-            highlightStart: (_lowerValue / end),
-            highlightEnd: (_upperValue / end),
-            themeData: Theme.of(context),
-            eventObservable: eventObservable,
-            animationDuration: _animationDuration,
-          ),
-        ),
-      ),
-      actions: [
-        AdaptiveDialogAction(
-          key: WidgetKey.settingsSubmitButton.key,
-          onPressed: speedTestStarted
-              ? null
-              : () {
-                  final timer = Timer.periodic(
-                    const Duration(milliseconds: 100),
-                    (Timer t) => eventObservable.add(
-                      currentDownloadSpeed - 10 + Random().nextInt(10),
-                    ),
-                  );
-                  setState(() {
-                    speedTestStarted = true;
-                  });
-                  downloadSpeed(10).listen((data) {
-                    setState(() {
-                      currentDownloadSpeed = data;
-                    });
-                  }).onDone(() {
-                    print("Speed test done");
-                    timer.cancel();
-                    setState(() {
-                      speedTestStarted = false;
-                    });
-                  });
-                },
-          child: const Text('Start'),
-        ),
-      ],
-    );
-  }
-
-  Stream<double> downloadSpeed(int maxCount) async* {
-    int i = 0;
-    while (true) {
-      i++;
-      yield await widget.tester.testDownloadSpeed(
-        servers: widget.bestServersList,
-      );
-      if (i == maxCount) break;
-    }
   }
 }
