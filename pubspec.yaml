@@ -62,8 +62,14 @@ dependencies:
   permission_handler: ^11.3.1
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.1.2
+  # RxDart extends the capabilities of Dart Streams and StreamControllers.
+  rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
   shared_preferences: ^2.3.3
+  # Flutter package to test ping, upload, download using speedtest.net
+  speed_test_dart: ^1.0.5+0
+  # A little widget that given an Observable gives you an updated SpeedOMeter.
+  speedometer: ^1.2.2
   # Time zone database and time zone aware DateTime.
   timezone: ^0.10.0
   # Plugin for launching a URL

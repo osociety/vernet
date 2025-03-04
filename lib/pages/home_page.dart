@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:speed_test_dart/classes/server.dart';
+import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/api/isp_loader.dart';
-import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/isar/device.dart';
@@ -20,6 +22,7 @@ import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
+import 'package:vernet/ui/speed_test_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -34,6 +37,26 @@ class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
   bool scanRunning = false;
   Set<Device> devices = {};
+
+  // Create a tester instance
+  SpeedTestDart tester = SpeedTestDart();
+
+  // And a variable to store the best servers
+  List<Server> bestServersList = [];
+
+  // Example function to set the best servers, could be called
+  // in an initState()
+  Future<void> setBestServers() async {
+    if (!appSettings.inAppInternet) return;
+    final settings = await tester.getSettings();
+    final servers = settings.servers;
+
+    final fbestServersList = await tester.getBestServers(servers: servers);
+
+    setState(() {
+      bestServersList = fbestServersList;
+    });
+  }
 
   Future<WifiInfo?> _getWifiInfo() async {
     if (_wifiInfo != null) {
@@ -90,12 +113,12 @@ class _WifiDetailState extends State<HomePage> {
   }
 
   void _configureSelectNotificationSubject() {
-    NotificationService.selectNotificationStream.stream
-        .listen((String? payload) async {
-      await Navigator.of(context).pushNamedAndRemoveUntil(
-        '/hostscan',
-        ModalRoute.withName('/'),
-      );
+    NotificationService.selectNotificationStream.stream.listen((
+      String? payload,
+    ) async {
+      await Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/hostscan', ModalRoute.withName('/'));
     });
   }
 
@@ -109,6 +132,7 @@ class _WifiDetailState extends State<HomePage> {
   void initState() {
     super.initState();
     _configureSelectNotificationSubject();
+    setBestServers();
   }
 
   Widget _getDeviceCountWidget() {
@@ -119,9 +143,7 @@ class _WifiDetailState extends State<HomePage> {
           Text(
             '${devices.length} devices ${scanRunning ? 'found' : 'connected'}',
           ),
-          const SizedBox(
-            width: 8,
-          ),
+          const SizedBox(width: 8),
           if (scanRunning)
             const AdaptiveCircularProgressIndicator()
           else
@@ -160,10 +182,9 @@ class _WifiDetailState extends State<HomePage> {
                         else
                           Text(
                             'Location should be on to display Wifi name',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall!.copyWith(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
                                 ),
@@ -173,9 +194,7 @@ class _WifiDetailState extends State<HomePage> {
                         Row(
                           children: [
                             _getDeviceCountWidget(),
-                            const SizedBox(
-                              width: 4,
-                            ),
+                            const SizedBox(width: 4),
                             ElevatedButton(
                               key: WidgetKey.scanForDevicesButton.key,
                               onPressed: () {
@@ -350,9 +369,17 @@ class _WifiDetailState extends State<HomePage> {
                     const Text("In-App Internet is off"),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      launchURLWithWarning(context, 'https://fast.com');
-                    },
+                    onPressed: bestServersList.isNotEmpty
+                        ? () async {
+                            await showDialog(
+                              context: context,
+                              builder: (context) => SpeedTestDialog(
+                                tester: tester,
+                                bestServersList: bestServersList,
+                              ),
+                            );
+                          }
+                        : null,
                     icon: const Icon(Icons.speed),
                     label: const Text('Speed Test'),
                   ),
