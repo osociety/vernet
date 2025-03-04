@@ -48,7 +48,8 @@ class _WifiDetailState extends State<HomePage> {
   // in an initState()
   Future<void> setBestServers() async {
     if (!appSettings.inAppInternet) return;
-    final settings = await tester.getSettings();
+    final settings =
+        await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
     final servers = settings.servers;
 
     final fbestServersList = await tester.getBestServers(servers: servers);
