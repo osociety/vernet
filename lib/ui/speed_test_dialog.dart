@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
   static const int variance = 5;
   double currentDownloadSpeed = variance * 2;
   double progress = 0;
-  int numberOfTests = 5;
+  int numberOfTests = 3;
   double currentUploadSpeed = variance * 2;
   late Timer timer;
 
@@ -50,21 +51,26 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
     return AdaptiveDialog(
       title: const Text('Speed Test'),
       content: SizedBox(
-        width: 300,
-        height: 300,
+        width: 400,
+        height: 400,
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SpeedOMeter(
-                start: start,
-                end: end,
-                highlightStart: _lowerValue / end,
-                highlightEnd: _upperValue / end,
-                themeData: Theme.of(context),
-                eventObservable: eventObservable,
-                animationDuration: _animationDuration,
+              Padding(
+                padding: Platform.isAndroid || Platform.isIOS
+                    ? const EdgeInsets.all(20)
+                    : const EdgeInsets.all(5),
+                child: SpeedOMeter(
+                  start: start,
+                  end: end,
+                  highlightStart: _lowerValue / end,
+                  highlightEnd: _upperValue / end,
+                  themeData: Theme.of(context),
+                  eventObservable: eventObservable,
+                  animationDuration: _animationDuration,
+                ),
               ),
               const SizedBox(height: 10),
               if (speedTestStarted)
@@ -74,37 +80,40 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
               else
                 const SizedBox(),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  if (downloadSpeedTestDone)
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.download),
-                          const SizedBox(width: 5),
-                          Text('${currentDownloadSpeed.round()} Mbps'),
-                        ],
-                      ),
-                    )
-                  else
-                    const SizedBox(),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  if (uploadSpeedTestDone)
-                    Expanded(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.upload),
-                          const SizedBox(width: 5),
-                          Text('${currentUploadSpeed.round()} Mbps'),
-                        ],
-                      ),
-                    )
-                  else
-                    const SizedBox(),
-                ],
-              )
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (downloadSpeedTestDone)
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.download),
+                            const SizedBox(width: 5),
+                            Text('${currentDownloadSpeed.round()} Mbps'),
+                          ],
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    if (uploadSpeedTestDone)
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.upload),
+                            const SizedBox(width: 5),
+                            Text('${currentUploadSpeed.round()} Mbps'),
+                          ],
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -117,6 +126,8 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
               : () {
                   setState(() {
                     speedTestStarted = true;
+                    downloadSpeedTestDone = false;
+                    uploadSpeedTestDone = false;
                   });
                   timer = Timer.periodic(
                     const Duration(milliseconds: 100),
