@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.1.0+33
+version: 1.1.0+34
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -67,7 +67,10 @@ dependencies:
   # Reading and writing simple key-value pairs
   shared_preferences: ^2.3.3
   # Flutter package to test ping, upload, download using speedtest.net
-  speed_test_dart: ^1.0.5+0
+  speed_test_dart:
+    git:
+      url: https://github.com/git-elliot/speed_test_dart.git
+      ref: master # branch name  
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
   # Time zone database and time zone aware DateTime.
