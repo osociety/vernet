@@ -26,4 +26,6 @@ class StringValue {
       'No addresses found yet.\nAll addresses will appear here.';
   static const String reverseDnsLookupEmptyPlaceholder =
       'Host name not found yet.\nHost name will appear here.';
+
+  static const String speedTestServer = 'Powered by speedtest.net';
 }

@@ -404,6 +404,10 @@ class _WifiDetailState extends State<HomePage> {
                                   return const Text('Loading ISP details..');
                                 },
                               ),
+                              const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [Text(StringValue.speedTestServer)],
+                              ),
                               // ElevatedButton.icon(
                               //   onPressed: snapshot.data!.servers.isNotEmpty
                               //       ? () async {

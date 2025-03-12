@@ -9,6 +9,7 @@ import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:speedometer/speedometer.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
+import 'package:vernet/values/strings.dart';
 
 class SpeedTestDialog extends StatefulWidget {
   const SpeedTestDialog({
@@ -115,6 +116,10 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                       const SizedBox(),
                   ],
                 ),
+              ),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text(StringValue.speedTestServer)],
               ),
             ],
           ),
