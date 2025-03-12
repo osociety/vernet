@@ -18,10 +18,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
-  external_app_launcher:
-    git:
-      url: https://github.com/thelordzeus/external_app_launcher.git
-      ref: flutter-3.29-fix # branch name
+  external_app_launcher: ^4.0.2
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -30,6 +27,8 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   # Native splash screen plugin
   flutter_native_splash: ^2.4.2
+  # A simple yet fully customizable rating bar for flutter
+  flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
   flutter_timezone: ^3.0.1
   # Annotations for freezed
@@ -70,7 +69,7 @@ dependencies:
   speed_test_dart:
     git:
       url: https://github.com/git-elliot/speed_test_dart.git
-      ref: master # branch name  
+      ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
   # Time zone database and time zone aware DateTime.

@@ -15,9 +15,11 @@ class SpeedTestDialog extends StatefulWidget {
     super.key,
     required this.tester,
     required this.bestServersList,
+    required this.odometerStart,
   });
   final SpeedTestDart tester;
   final List<Server> bestServersList;
+  final double odometerStart;
 
   @override
   State<SpeedTestDialog> createState() => _SpeedTestDialogState();
@@ -129,6 +131,7 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                     downloadSpeedTestDone = false;
                     uploadSpeedTestDone = false;
                   });
+                  currentDownloadSpeed = widget.odometerStart;
                   timer = Timer.periodic(
                     const Duration(milliseconds: 100),
                     (Timer t) => eventObservable.add(
@@ -139,8 +142,8 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                     ),
                   );
                   downloadSpeed(numberOfTests).listen((data) {
+                    currentDownloadSpeed = data[0];
                     setState(() {
-                      currentDownloadSpeed = data[0];
                       progress = data[1] / numberOfTests;
                     });
                   }).onDone(testUploadSpeed);
@@ -152,13 +155,24 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
   }
 
   void testUploadSpeed() {
+    eventObservable.add(0);
+    timer.cancel();
+    timer = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (Timer t) => eventObservable.add(
+        currentUploadSpeed -
+            variance +
+            Random().nextInt(variance) +
+            rng.nextDouble(),
+      ),
+    );
     setState(() {
       downloadSpeedTestDone = true;
       progress = 0;
     });
     uploadSpeed(numberOfTests).listen((data) {
+      currentUploadSpeed = data[0];
       setState(() {
-        currentUploadSpeed = data[0];
         progress = data[1] / numberOfTests;
       });
     }).onDone(() {

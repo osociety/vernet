@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speed_test_dart/classes/server.dart';
+import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
-import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/isar/device.dart';
@@ -16,7 +17,6 @@ import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
-import 'package:vernet/providers/internet_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
@@ -37,27 +37,7 @@ class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
   bool scanRunning = false;
   Set<Device> devices = {};
-
-  // Create a tester instance
   SpeedTestDart tester = SpeedTestDart();
-
-  // And a variable to store the best servers
-  List<Server> bestServersList = [];
-
-  // Example function to set the best servers, could be called
-  // in an initState()
-  Future<void> setBestServers() async {
-    if (!appSettings.inAppInternet) return;
-    final settings =
-        await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
-    final servers = settings.servers;
-
-    final fbestServersList = await tester.getBestServers(servers: servers);
-
-    setState(() {
-      bestServersList = fbestServersList;
-    });
-  }
 
   Future<WifiInfo?> _getWifiInfo() async {
     if (_wifiInfo != null) {
@@ -133,7 +113,6 @@ class _WifiDetailState extends State<HomePage> {
   void initState() {
     super.initState();
     _configureSelectNotificationSubject();
-    setBestServers();
   }
 
   Widget _getDeviceCountWidget() {
@@ -321,11 +300,12 @@ class _WifiDetailState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (appSettings.inAppInternet)
-                    FutureBuilder<InternetProvider?>(
-                      future: ISPLoader().load(),
+                    FutureBuilder<Settings?>(
+                      future: tester
+                          .getSettings(headers: {"User-Agent": "Mozilla/4.0"}),
                       builder: (
                         BuildContext context,
-                        AsyncSnapshot<InternetProvider?> snapshot,
+                        AsyncSnapshot<Settings?> snapshot,
                       ) {
                         if (snapshot.hasData && snapshot.data != null) {
                           return Column(
@@ -337,7 +317,7 @@ class _WifiDetailState extends State<HomePage> {
                                   color:
                                       Theme.of(context).colorScheme.secondary,
                                 ),
-                                child: Text(snapshot.data!.ip),
+                                child: Text(snapshot.data!.client.ip),
                               ),
                               CustomTile(
                                 leading: Icon(
@@ -345,18 +325,104 @@ class _WifiDetailState extends State<HomePage> {
                                   color:
                                       Theme.of(context).colorScheme.secondary,
                                 ),
-                                child: Text(snapshot.data!.isp),
+                                child: Text(snapshot.data!.client.isp),
                               ),
-                              CustomTile(
-                                leading: Icon(
-                                  Icons.location_on,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              RatingBar.builder(
+                                initialRating: snapshot.data!.client.ispRating,
+                                minRating: 1.0,
+                                itemSize: 25,
+                                glowColor: Colors.blue,
+                                allowHalfRating: true,
+                                ignoreGestures: true,
+                                itemPadding:
+                                    const EdgeInsets.symmetric(horizontal: 4.0),
+                                itemBuilder: (context, _) => const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
                                 ),
-                                child: Text(snapshot.data!.location.address),
+                                onRatingUpdate: (rating) {},
                               ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                  'Your ISP is rated ${snapshot.data!.client.ispRating} out of 5'),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              //TODO: add location using client.lat and client.long
+                              // CustomTile(
+                              //   leading: Icon(
+                              //     Icons.location_on,
+                              //     color:
+                              //         Theme.of(context).colorScheme.secondary,
+                              //   ),
+                              //   child: Text(snapshot.data!.location.address),
+                              // ),
                               const SizedBox(height: 5),
                               const Divider(height: 3),
+                              const SizedBox(height: 10),
+
+                              FutureBuilder<List<Server>?>(
+                                future: tester.getBestServers(
+                                    servers: snapshot.data!.servers),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<Server>?>
+                                        serverSnapshot) {
+                                  if (serverSnapshot.hasData &&
+                                      serverSnapshot.data != null) {
+                                    return Row(
+                                      children: [
+                                        ElevatedButton.icon(
+                                          onPressed: () async {
+                                            await showDialog(
+                                              context: context,
+                                              builder: (context) =>
+                                                  SpeedTestDialog(
+                                                tester: tester,
+                                                bestServersList:
+                                                    serverSnapshot.data!,
+                                                odometerStart: snapshot
+                                                        .data!.odometer.start /
+                                                    100000000,
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.speed),
+                                          label: const Text('Speed Test'),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  if (snapshot.hasError) {
+                                    return const Text(
+                                        'Unable to fetch ISP details');
+                                  }
+                                  return const Text('Loading ISP details..');
+                                },
+                              ),
+                              // ElevatedButton.icon(
+                              //   onPressed: snapshot.data!.servers.isNotEmpty
+                              //       ? () async {
+                              //           await showDialog(
+                              //             context: context,
+                              //             builder: (context) => SpeedTestDialog(
+                              //               tester: tester,
+                              //               bestServersList:
+                              //                   snapshot.data!.servers,
+                              //               odometerStart:
+                              //                   snapshot.data!.odometer.start /
+                              //                       1000000000,
+                              //             ),
+                              //           );
+                              //         }
+                              //       : null,
+                              //   icon: const Icon(Icons.speed),
+                              //   label: const Text('Speed Test'),
+                              // ),
                             ],
                           );
                         }
@@ -368,22 +434,6 @@ class _WifiDetailState extends State<HomePage> {
                     )
                   else
                     const Text("In-App Internet is off"),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: bestServersList.isNotEmpty
-                        ? () async {
-                            await showDialog(
-                              context: context,
-                              builder: (context) => SpeedTestDialog(
-                                tester: tester,
-                                bestServersList: bestServersList,
-                              ),
-                            );
-                          }
-                        : null,
-                    icon: const Icon(Icons.speed),
-                    label: const Text('Speed Test'),
-                  ),
                   const SizedBox(height: 5),
                 ],
               ),
