@@ -26,6 +26,7 @@ dependencies:
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^18.0.1
   # Native splash screen plugin
+  flutter_map: ^8.1.1
   flutter_native_splash: ^2.4.2
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
@@ -49,6 +50,7 @@ dependencies:
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
+  latlong2: ^0.9.1
   network_info_plus: ^6.1.1
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^2.0.7

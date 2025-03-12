@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speed_test_dart/classes/server.dart';
@@ -311,57 +313,89 @@ class _WifiDetailState extends State<HomePage> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CustomTile(
-                                leading: Icon(
-                                  Icons.public,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: Text(snapshot.data!.client.ip),
-                              ),
-                              CustomTile(
-                                leading: Icon(
-                                  Icons.dns,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: Text(snapshot.data!.client.isp),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomTile(
+                                          leading: Icon(
+                                            Icons.public,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                          child: Text(snapshot.data!.client.ip),
+                                        ),
+                                        CustomTile(
+                                          leading: Icon(
+                                            Icons.dns,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                          child:
+                                              Text(snapshot.data!.client.isp),
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        RatingBar.builder(
+                                          initialRating:
+                                              snapshot.data!.client.ispRating,
+                                          minRating: 1.0,
+                                          itemSize: 25,
+                                          glowColor: Colors.blue,
+                                          allowHalfRating: true,
+                                          ignoreGestures: true,
+                                          itemPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 4.0),
+                                          itemBuilder: (context, _) =>
+                                              const Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                          ),
+                                          onRatingUpdate: (rating) {},
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                            'Your ISP is rated ${snapshot.data!.client.ispRating} out of 5'),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 100,
+                                      child: FlutterMap(
+                                        options: MapOptions(
+                                          initialCenter: LatLng(
+                                            snapshot.data!.client.latitude,
+                                            snapshot.data!.client.longitude,
+                                          ),
+                                        ),
+                                        children: [
+                                          TileLayer(
+                                            urlTemplate:
+                                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                            userAgentPackageName:
+                                                'com.example.app',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                               const SizedBox(
                                 height: 5,
                               ),
-                              RatingBar.builder(
-                                initialRating: snapshot.data!.client.ispRating,
-                                minRating: 1.0,
-                                itemSize: 25,
-                                glowColor: Colors.blue,
-                                allowHalfRating: true,
-                                ignoreGestures: true,
-                                itemPadding:
-                                    const EdgeInsets.symmetric(horizontal: 4.0),
-                                itemBuilder: (context, _) => const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                ),
-                                onRatingUpdate: (rating) {},
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                  'Your ISP is rated ${snapshot.data!.client.ispRating} out of 5'),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              //TODO: add location using client.lat and client.long
-                              // CustomTile(
-                              //   leading: Icon(
-                              //     Icons.location_on,
-                              //     color:
-                              //         Theme.of(context).colorScheme.secondary,
-                              //   ),
-                              //   child: Text(snapshot.data!.location.address),
-                              // ),
+
                               const SizedBox(height: 5),
                               const Divider(height: 3),
                               const SizedBox(height: 10),
