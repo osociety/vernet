@@ -66,8 +66,11 @@ class IspPageWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 5),
-                  Text(
-                      'Best Server: ${success.bestServers.first.name}, ${success.bestServers.first.country}')
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: Text(
+                        'Best Server: ${success.bestServers.first.name}, ${success.bestServers.first.country}'),
+                  ),
                 ],
               ),
               const Text("List of Servers"),
