@@ -2,12 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:speed_test_dart/classes/server.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/injection.dart';
@@ -17,6 +13,7 @@ import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
+import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/repository/notification_service.dart';
@@ -343,124 +340,60 @@ class _WifiDetailState extends State<HomePage> {
                                         const SizedBox(
                                           height: 5,
                                         ),
-                                        RatingBar.builder(
-                                          initialRating:
-                                              snapshot.data!.client.ispRating,
-                                          minRating: 1.0,
-                                          itemSize: 25,
-                                          glowColor: Colors.blue,
-                                          allowHalfRating: true,
-                                          ignoreGestures: true,
-                                          itemPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 4.0),
-                                          itemBuilder: (context, _) =>
-                                              const Icon(
-                                            Icons.star,
-                                            color: Colors.amber,
-                                          ),
-                                          onRatingUpdate: (rating) {},
-                                        ),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                        Text(
-                                            'Your ISP is rated ${snapshot.data!.client.ispRating} out of 5'),
                                       ],
                                     ),
                                   ),
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 100,
-                                      child: FlutterMap(
-                                        options: MapOptions(
-                                          initialCenter: LatLng(
-                                            snapshot.data!.client.latitude,
-                                            snapshot.data!.client.longitude,
-                                          ),
-                                        ),
-                                        children: [
-                                          TileLayer(
-                                            urlTemplate:
-                                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                            userAgentPackageName:
-                                                'com.example.app',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
                                 ],
                               ),
                               const SizedBox(
                                 height: 5,
                               ),
-
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 3),
                               const Divider(height: 3),
                               const SizedBox(height: 10),
-
-                              FutureBuilder<List<Server>?>(
-                                future: tester.getBestServers(
-                                    servers: snapshot.data!.servers),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<List<Server>?>
-                                        serverSnapshot) {
-                                  if (serverSnapshot.hasData &&
-                                      serverSnapshot.data != null) {
-                                    return Row(
-                                      children: [
-                                        ElevatedButton.icon(
-                                          onPressed: () async {
-                                            await showDialog(
-                                              context: context,
-                                              builder: (context) =>
-                                                  SpeedTestDialog(
-                                                tester: tester,
-                                                bestServersList:
-                                                    serverSnapshot.data!,
-                                                odometerStart: snapshot
-                                                        .data!.odometer.start /
-                                                    100000000,
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.speed),
-                                          label: const Text('Speed Test'),
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (context) => SpeedTestDialog(
+                                          tester: tester,
+                                          servers: snapshot.data!.servers,
+                                          odometerStart:
+                                              snapshot.data!.odometer.start /
+                                                  100000000,
                                         ),
-                                      ],
-                                    );
-                                  }
-                                  if (snapshot.hasError) {
-                                    return const Text(
-                                        'Unable to fetch ISP details');
-                                  }
-                                  return const Text('Loading ISP details..');
-                                },
+                                      );
+                                    },
+                                    icon: const Icon(Icons.speed),
+                                    label: const Text('Speed Test'),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => IspPage(
+                                            tester: tester,
+                                            settings: snapshot.data!,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.cloud_circle),
+                                    label: const Text('ISP Details'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 5,
                               ),
                               const Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [Text(StringValue.speedTestServer)],
                               ),
-                              // ElevatedButton.icon(
-                              //   onPressed: snapshot.data!.servers.isNotEmpty
-                              //       ? () async {
-                              //           await showDialog(
-                              //             context: context,
-                              //             builder: (context) => SpeedTestDialog(
-                              //               tester: tester,
-                              //               bestServersList:
-                              //                   snapshot.data!.servers,
-                              //               odometerStart:
-                              //                   snapshot.data!.odometer.start /
-                              //                       1000000000,
-                              //             ),
-                              //           );
-                              //         }
-                              //       : null,
-                              //   icon: const Icon(Icons.speed),
-                              //   label: const Text('Speed Test'),
-                              // ),
                             ],
                           );
                         }

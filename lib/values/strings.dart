@@ -28,4 +28,6 @@ class StringValue {
       'Host name not found yet.\nHost name will appear here.';
 
   static const String speedTestServer = 'Powered by speedtest.net';
+
+  static const String ispPageTitle = 'Internet Service Provider';
 }

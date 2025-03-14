@@ -10,7 +10,6 @@ import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 import 'package:vernet/values/tooltip_messages.dart';
 
-//TODO: Device doesn't refresh when active scan going on
 class HostScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
