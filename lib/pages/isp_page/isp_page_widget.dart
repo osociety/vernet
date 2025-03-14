@@ -77,6 +77,7 @@ class IspPageWidget extends StatelessWidget {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, item) => AdaptiveListTile(
+                    leading: Text('${item + 1}'),
                     title: Text(
                         '${success.bestServers[item].name}, ${success.bestServers[item].country}'),
                     subtitle: Row(
