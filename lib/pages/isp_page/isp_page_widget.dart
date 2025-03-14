@@ -80,13 +80,18 @@ class IspPageWidget extends StatelessWidget {
                     leading: Text('${item + 1}'),
                     title: Text(
                         '${success.bestServers[item].name}, ${success.bestServers[item].country}'),
-                    subtitle: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                             'Latency: ${success.bestServers[item].latency} ms'),
-                        Text(
-                            'Sponsored by ${success.bestServers[item].sponsor}')
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                                'Sponsored by ${success.bestServers[item].sponsor}')
+                          ],
+                        )
                       ],
                     ),
                   ),

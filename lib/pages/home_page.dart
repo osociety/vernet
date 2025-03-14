@@ -387,6 +387,9 @@ class _WifiDetailState extends State<HomePage> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(
+                                height: 5,
+                              ),
                               const Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [Text(StringValue.speedTestServer)],
