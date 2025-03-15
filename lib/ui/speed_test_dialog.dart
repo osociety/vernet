@@ -59,7 +59,6 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getBestServers().then((value) {
       setState(() {
@@ -73,18 +72,19 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
     if (bestServers != null && bestServers!.isNotEmpty) {
       return AdaptiveDialog(
         title: const Text('Speed Test'),
-        content: SizedBox(
-          width: 400,
-          height: 400,
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: Platform.isAndroid || Platform.isIOS
-                      ? const EdgeInsets.all(20)
-                      : const EdgeInsets.all(5),
+        content: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height *
+                      (Platform.isAndroid || Platform.isIOS ? 0.3 : 0.4),
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: SpeedOMeter(
                     start: start,
                     end: end,
@@ -95,57 +95,53 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                     animationDuration: _animationDuration,
                   ),
                 ),
-                const SizedBox(height: 10),
-                if (speedTestStarted)
-                  LinearProgressIndicator(
-                    value: progress,
-                  )
-                else
-                  const SizedBox(),
-                const SizedBox(height: 10),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (downloadSpeedTestDone)
-                        Expanded(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.download),
-                              const SizedBox(width: 5),
-                              Text('${currentDownloadSpeed.round()} Mbps'),
-                            ],
-                          ),
-                        )
-                      else
-                        const SizedBox(),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      if (uploadSpeedTestDone)
-                        Expanded(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.upload),
-                              const SizedBox(width: 5),
-                              Text('${currentUploadSpeed.round()} Mbps'),
-                            ],
-                          ),
-                        )
-                      else
-                        const SizedBox(),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 5),
+              if (speedTestStarted)
+                LinearProgressIndicator(
+                  value: progress,
+                )
+              else
+                const SizedBox(),
+              const SizedBox(height: 5),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    if (downloadSpeedTestDone)
+                      Row(
+                        children: [
+                          const Icon(Icons.download),
+                          const SizedBox(width: 5),
+                          Text('${currentDownloadSpeed.round()} Mbps'),
+                        ],
+                      )
+                    else
+                      const SizedBox(),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    if (uploadSpeedTestDone)
+                      Row(
+                        children: [
+                          const Icon(Icons.upload),
+                          const SizedBox(width: 5),
+                          Text('${currentUploadSpeed.round()} Mbps'),
+                        ],
+                      )
+                    else
+                      const SizedBox(),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text('Best server: ${bestServers!.first.name}'),
-                Text('Latency: ${bestServers!.first.latency} ms'),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text(StringValue.speedTestServer)],
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 5),
+              Text('Best server: ${bestServers!.first.name}'),
+              Text('Latency: ${bestServers!.first.latency} ms'),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [Text(StringValue.speedTestServer)],
+              ),
+            ],
           ),
         ),
         actions: [
@@ -187,9 +183,16 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
     return const AdaptiveDialog(
       title: Text('Loading Best Servers'),
       actions: [],
-      content: Padding(
-        padding: EdgeInsets.only(top: 10),
-        child: AdaptiveCircularProgressIndicator(),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Center(
+              child: AdaptiveCircularProgressIndicator(),
+            ),
+          )
+        ],
       ),
     );
   }
