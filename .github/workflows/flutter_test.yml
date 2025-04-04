@@ -69,7 +69,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.18.0
+        uses: subosito/flutter-action@v2.19.0
         with:
           channel: stable
           cache: true
@@ -141,7 +141,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Flutter action
-        uses: subosito/flutter-action@v2.18.0
+        uses: subosito/flutter-action@v2.19.0
         with:
           channel: stable
           cache: true
