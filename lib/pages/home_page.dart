@@ -6,9 +6,9 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
@@ -35,7 +35,7 @@ class HomePage extends StatefulWidget {
 class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
   bool scanRunning = false;
-  Set<Device> devices = {};
+  Set<DeviceData> devices = {};
   SpeedTestDart tester = SpeedTestDart();
 
   Future<WifiInfo?> _getWifiInfo() async {

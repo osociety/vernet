@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
@@ -38,7 +39,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   String? subnet;
 
   /// List of all ActiveHost devices that got found in the current scan
-  final Set<Device> devicesSet = {};
+  final Set<DeviceData> devicesSet = {};
 
   /// mDNS for each ip
   final Map<String, MdnsInfo> mDnsDevices = {};
@@ -109,7 +110,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
 
     final deviceStream =
         getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
-    await for (final Device device in deviceStream) {
+    await for (final DeviceData device in deviceStream) {
       devicesSet.add(device);
       emit(const HostScanState.loadInProgress());
       emit(HostScanState.foundNewDevice(devicesSet));

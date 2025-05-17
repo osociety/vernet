@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
+import 'package:injectable/injectable.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/repository/repository.dart';
 
+@Injectable()
 class DeviceRepository extends Repository<DeviceData> {
   final database = AppDatabase();
 
@@ -17,9 +19,8 @@ class DeviceRepository extends Repository<DeviceData> {
 
   @override
   Future<DeviceData> put(DeviceData t) async {
-    await database.into(database.device).insert(t.toCompanion(true));
-    return (database.select(database.device)
-          ..where((dd) => dd.internetAddress.equals(t.internetAddress)))
+    final id = await database.into(database.device).insert(t.toCompanion(true));
+    return (database.select(database.device)..where((dd) => dd.id.equals(id)))
         .getSingle();
   }
 

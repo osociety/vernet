@@ -1,9 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:isar/isar.dart';
+import 'package:vernet/database/database_service.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/models/isar/scan.dart';
 import 'package:vernet/repository/repository.dart';
-import 'package:vernet/database/database_service.dart';
 
 @Injectable()
 class ScanRepository extends Repository<Scan> {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
@@ -58,7 +59,7 @@ class HostScanWidget extends StatelessWidget {
 
   Widget _devicesWidget(
     BuildContext context,
-    List<Device> activeHostList,
+    List<DeviceData> activeHostList,
     bool loading,
   ) {
     return Flex(
@@ -85,30 +86,32 @@ class HostScanWidget extends StatelessWidget {
           child: ListView.builder(
             itemCount: activeHostList.length,
             itemBuilder: (context, index) {
-              final Device host = activeHostList[index];
+              final DeviceData host = activeHostList[index];
               return AdaptiveListTile(
-                leading: Icon(host.iconData),
-                title: Text(host.deviceMake ?? ''),
+                //TODO: fix below errors
+                // leading: Icon(host.iconData),
+                // title: Text(host.deviceMake ?? 'Unknown'),
+                title: const Text("General"),
                 subtitle: Text(
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
-                trailing: IconButton(
-                  key: host.deviceMake == 'This device'
-                      ? WidgetKey.thisDeviceTileIconButton.key
-                      : null,
-                  tooltip: TooltipMessages.currentDevicePortScan,
-                  icon: const Icon(Icons.radar),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PortScanPage(
-                          target: host.internetAddress,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                // trailing: IconButton(
+                //   key: host.deviceMake == 'This device'
+                //       ? WidgetKey.thisDeviceTileIconButton.key
+                //       : null,
+                //   tooltip: TooltipMessages.currentDevicePortScan,
+                //   icon: const Icon(Icons.radar),
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => PortScanPage(
+                //           target: host.internetAddress,
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
                 onLongPress: () {
                   Clipboard.setData(
                     ClipboardData(
