@@ -18,6 +18,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
+  drift: ^2.26.1
+  drift_flutter: ^0.2.4
   external_app_launcher: ^4.0.2
   flutter:
     sdk: flutter
@@ -84,8 +86,9 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: any
+  build_runner: ^2.4.15
 
+  drift_dev: ^2.26.1
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.

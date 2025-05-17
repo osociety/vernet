@@ -6,8 +6,8 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/isar/scan.dart';
-import 'package:vernet/repository/device_repository.dart';
-import 'package:vernet/repository/scan_repository.dart';
+import 'package:vernet/repository/isar/device_repository.dart';
+import 'package:vernet/repository/isar/scan_repository.dart';
 import 'package:vernet/services/scanner_service.dart';
 
 @Injectable()

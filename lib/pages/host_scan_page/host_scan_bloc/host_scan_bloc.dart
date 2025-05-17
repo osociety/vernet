@@ -11,8 +11,8 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/isar/scan.dart';
+import 'package:vernet/repository/isar/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
-import 'package:vernet/repository/scan_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 

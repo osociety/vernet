@@ -3,10 +3,10 @@ import 'package:isar/isar.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/models/isar/scan.dart';
 import 'package:vernet/repository/repository.dart';
-import 'package:vernet/services/database_service.dart';
+import 'package:vernet/database/database_service.dart';
 
 @Injectable()
-class ScanRepository extends IsarRepository<Scan> {
+class ScanRepository extends Repository<Scan> {
   ScanRepository(this._database);
   final DatabaseService _database;
 
@@ -16,7 +16,6 @@ class ScanRepository extends IsarRepository<Scan> {
     return scanDB!.scans.where().findAll();
   }
 
-  @override
   Future<Scan?> get(Id id) async {
     final scanDB = await _database.open();
     return scanDB!.scans.get(id);
