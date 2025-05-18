@@ -61,8 +61,8 @@ dependencies:
   network_tools_flutter: ^2.0.7
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^8.1.1
-  path_provider: ^2.1.5
   path: ^1.9.1
+  path_provider: ^2.1.5
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.3
   # Popup that ask for the requested permission
