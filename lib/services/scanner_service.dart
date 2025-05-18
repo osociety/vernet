@@ -1,11 +1,11 @@
-import 'package:vernet/models/isar/device.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 
 abstract class ScannerService {
-  Stream<Device> startNewScan(
+  Stream<DeviceData> startNewScan(
     String subnet,
     String ip,
     String gatewayIp,
   );
 
-  Future<Stream<List<Device>>> getOnGoingScan();
+  Future<Stream<List<DeviceData>>> getOnGoingScan();
 }

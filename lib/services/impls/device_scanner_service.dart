@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/isar/device.dart';
-import 'package:vernet/models/isar/scan.dart';
-import 'package:vernet/repository/device_repository.dart';
-import 'package:vernet/repository/scan_repository.dart';
+import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/scanner_service.dart';
 
 @Injectable()
@@ -16,13 +15,14 @@ class DeviceScannerService extends ScannerService {
   static final _deviceRepository = getIt<DeviceRepository>();
 
   @override
-  Stream<Device> startNewScan(
+  Stream<DeviceData> startNewScan(
     String subnet,
     String ip,
     String gatewayIp,
   ) async* {
     final scan = await _scanRepository.put(
-      Scan(
+      ScanData(
+        id: DateTime.now().millisecondsSinceEpoch,
         gatewayIp: subnet,
         startTime: DateTime.now(),
         onGoing: true,
@@ -40,7 +40,8 @@ class DeviceScannerService extends ScannerService {
       var device =
           await _deviceRepository.getDevice(scan.id, activeHost.address);
       if (device == null) {
-        device = Device(
+        device = DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch,
           internetAddress: activeHost.address,
           macAddress: (await activeHost.arpData)?.macAddress,
           currentDeviceIp: ip,
@@ -67,7 +68,8 @@ class DeviceScannerService extends ScannerService {
       }
 
       if (device == null) {
-        device = Device(
+        device = DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch,
           internetAddress: activeHost.address,
           macAddress: (await activeHost.arpData)?.macAddress,
           hostMake: await activeHost.deviceName,
@@ -81,14 +83,19 @@ class DeviceScannerService extends ScannerService {
       yield device;
     }
 
-    scan.endTime = DateTime.now();
-    scan.onGoing = false;
-    await _scanRepository.put(scan);
+    await _scanRepository.update(
+      ScanData(
+        id: scan.id,
+        gatewayIp: subnet,
+        onGoing: false,
+        endTime: DateTime.now(),
+      ),
+    );
     debugPrint('Scan ended');
   }
 
   @override
-  Future<Stream<List<Device>>> getOnGoingScan() async {
+  Future<Stream<List<DeviceData>>> getOnGoingScan() async {
     final scan = await _scanRepository.getOnGoingScan();
     if (scan != null) {
       return _deviceRepository.watch(scan.id);

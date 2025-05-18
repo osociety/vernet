@@ -1,15 +1,14 @@
 import 'package:injectable/injectable.dart';
 import 'package:isar/isar.dart';
+import 'package:vernet/database/database_service.dart';
 import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/repository/repository.dart';
-import 'package:vernet/services/database_service.dart';
 
 @Injectable()
-class DeviceRepository extends IsarRepository<Device> {
+class DeviceRepository extends Repository<Device> {
   DeviceRepository(this._database);
-  final DatabaseService _database;
+  final DatabaseService<Isar> _database;
 
-  @override
   Future<Device?> get(Id id) async {
     final deviceDB = await _database.open();
     return deviceDB!.devices.get(id);
