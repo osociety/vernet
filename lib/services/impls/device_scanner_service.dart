@@ -83,7 +83,7 @@ class DeviceScannerService extends ScannerService {
       yield device;
     }
 
-    await _scanRepository.put(
+    await _scanRepository.update(
       ScanData(
         id: scan.id,
         gatewayIp: subnet,

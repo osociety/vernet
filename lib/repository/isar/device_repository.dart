@@ -7,7 +7,7 @@ import 'package:vernet/repository/repository.dart';
 @Injectable()
 class DeviceRepository extends Repository<Device> {
   DeviceRepository(this._database);
-  final DatabaseService _database;
+  final DatabaseService<Isar> _database;
 
   Future<Device?> get(Id id) async {
     final deviceDB = await _database.open();

@@ -10,7 +10,6 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/isar/scan.dart';
 import 'package:vernet/repository/isar/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';

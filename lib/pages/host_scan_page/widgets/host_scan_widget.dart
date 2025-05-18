@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 import 'package:vernet/values/tooltip_messages.dart';
@@ -89,29 +89,28 @@ class HostScanWidget extends StatelessWidget {
               final DeviceData host = activeHostList[index];
               return AdaptiveListTile(
                 //TODO: fix below errors
-                // leading: Icon(host.iconData),
-                // title: Text(host.deviceMake ?? 'Unknown'),
-                title: const Text("General"),
+                leading: Icon(DeviceUtil.getIconData(host)),
+                title: Text(DeviceUtil.getDeviceMake(host) ?? 'Unknown'),
                 subtitle: Text(
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
-                // trailing: IconButton(
-                //   key: host.deviceMake == 'This device'
-                //       ? WidgetKey.thisDeviceTileIconButton.key
-                //       : null,
-                //   tooltip: TooltipMessages.currentDevicePortScan,
-                //   icon: const Icon(Icons.radar),
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => PortScanPage(
-                //           target: host.internetAddress,
-                //         ),
-                //       ),
-                //     );
-                //   },
-                // ),
+                trailing: IconButton(
+                  key: DeviceUtil.getDeviceMake(host) == 'This device'
+                      ? WidgetKey.thisDeviceTileIconButton.key
+                      : null,
+                  tooltip: TooltipMessages.currentDevicePortScan,
+                  icon: const Icon(Icons.radar),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PortScanPage(
+                          target: host.internetAddress,
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 onLongPress: () {
                   Clipboard.setData(
                     ClipboardData(

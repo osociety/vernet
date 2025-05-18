@@ -8,7 +8,7 @@ import 'package:vernet/repository/repository.dart';
 @Injectable()
 class ScanRepository extends Repository<Scan> {
   ScanRepository(this._database);
-  final DatabaseService _database;
+  final DatabaseService<Isar> _database;
 
   @override
   Future<List<Scan>> getList() async {
