@@ -12,7 +12,7 @@ class AdaptiveDialogAction extends StatelessWidget {
     this.isDestructiveAction = false,
   });
   final Widget child;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool isDefaultAction;
   final bool isDestructiveAction;
 

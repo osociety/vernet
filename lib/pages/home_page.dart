@@ -1,25 +1,27 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:vernet/api/isp_loader.dart';
-import 'package:vernet/helper/utils_helper.dart';
+import 'package:speed_test_dart/classes/settings.dart';
+import 'package:speed_test_dart/speed_test_dart.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/isar/device.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
+import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
-import 'package:vernet/providers/internet_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/custom_tile.dart';
+import 'package:vernet/ui/speed_test_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -33,7 +35,8 @@ class HomePage extends StatefulWidget {
 class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
   bool scanRunning = false;
-  Set<Device> devices = {};
+  Set<DeviceData> devices = {};
+  SpeedTestDart tester = SpeedTestDart();
 
   Future<WifiInfo?> _getWifiInfo() async {
     if (_wifiInfo != null) {
@@ -90,12 +93,12 @@ class _WifiDetailState extends State<HomePage> {
   }
 
   void _configureSelectNotificationSubject() {
-    NotificationService.selectNotificationStream.stream
-        .listen((String? payload) async {
-      await Navigator.of(context).pushNamedAndRemoveUntil(
-        '/hostscan',
-        ModalRoute.withName('/'),
-      );
+    NotificationService.selectNotificationStream.stream.listen((
+      String? payload,
+    ) async {
+      await Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/hostscan', ModalRoute.withName('/'));
     });
   }
 
@@ -119,11 +122,13 @@ class _WifiDetailState extends State<HomePage> {
           Text(
             '${devices.length} devices ${scanRunning ? 'found' : 'connected'}',
           ),
-          const SizedBox(
-            width: 8,
-          ),
+          const SizedBox(width: 8),
           if (scanRunning)
-            const AdaptiveCircularProgressIndicator()
+            const SizedBox(
+              height: 30,
+              width: 30,
+              child: AdaptiveCircularProgressIndicator(),
+            )
           else
             const SizedBox(),
         ],
@@ -160,10 +165,9 @@ class _WifiDetailState extends State<HomePage> {
                         else
                           Text(
                             'Location should be on to display Wifi name',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall!.copyWith(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
                                 ),
@@ -173,9 +177,7 @@ class _WifiDetailState extends State<HomePage> {
                         Row(
                           children: [
                             _getDeviceCountWidget(),
-                            const SizedBox(
-                              width: 4,
-                            ),
+                            const SizedBox(width: 4),
                             ElevatedButton(
                               key: WidgetKey.scanForDevicesButton.key,
                               onPressed: () {
@@ -301,42 +303,101 @@ class _WifiDetailState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (appSettings.inAppInternet)
-                    FutureBuilder<InternetProvider?>(
-                      future: ISPLoader().load(),
+                    FutureBuilder<Settings?>(
+                      future: tester
+                          .getSettings(headers: {"User-Agent": "Mozilla/4.0"}),
                       builder: (
                         BuildContext context,
-                        AsyncSnapshot<InternetProvider?> snapshot,
+                        AsyncSnapshot<Settings?> snapshot,
                       ) {
                         if (snapshot.hasData && snapshot.data != null) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CustomTile(
-                                leading: Icon(
-                                  Icons.public,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: Text(snapshot.data!.ip),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomTile(
+                                          leading: Icon(
+                                            Icons.public,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                          child: Text(snapshot.data!.client.ip),
+                                        ),
+                                        CustomTile(
+                                          leading: Icon(
+                                            Icons.dns,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                          ),
+                                          child:
+                                              Text(snapshot.data!.client.isp),
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              CustomTile(
-                                leading: Icon(
-                                  Icons.dns,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: Text(snapshot.data!.isp),
+                              const SizedBox(
+                                height: 5,
                               ),
-                              CustomTile(
-                                leading: Icon(
-                                  Icons.location_on,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: Text(snapshot.data!.location.address),
-                              ),
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 3),
                               const Divider(height: 3),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (context) => SpeedTestDialog(
+                                          tester: tester,
+                                          servers: snapshot.data!.servers,
+                                          odometerStart:
+                                              snapshot.data!.odometer.start /
+                                                  100000000,
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.speed),
+                                    label: const Text('Speed Test'),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => IspPage(
+                                            tester: tester,
+                                            settings: snapshot.data!,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.cloud_circle),
+                                    label: const Text('ISP Details'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [Text(StringValue.speedTestServer)],
+                              ),
                             ],
                           );
                         }
@@ -348,14 +409,6 @@ class _WifiDetailState extends State<HomePage> {
                     )
                   else
                     const Text("In-App Internet is off"),
-                  const SizedBox(height: 10),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      launchURLWithWarning(context, 'https://fast.com');
-                    },
-                    icon: const Icon(Icons.speed),
-                    label: const Text('Speed Test'),
-                  ),
                   const SizedBox(height: 5),
                 ],
               ),
