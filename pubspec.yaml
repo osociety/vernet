@@ -95,7 +95,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
-  json_serializable: ^6.8.0
+  json_serializable: ^6.9.5
   lint: ^2.3.0
   
 dependency_overrides:
