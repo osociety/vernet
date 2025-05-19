@@ -10,8 +10,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/isar/scan.dart';
-import 'package:vernet/repository/isar/scan_repository.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -144,7 +143,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     final currentScanId = await getCurrentScanId();
     if (currentScanId != null) {
       final scanStream = await getIt<ScanRepository>().watch(currentScanId);
-      await for (final List<Scan> scanList in scanStream) {
+      await for (final List<ScanData> scanList in scanStream) {
         final scan = scanList.first;
         if (scan.onGoing == false) {
           emit(HostScanState.loadSuccess(devicesSet));

@@ -47,10 +47,6 @@ dependencies:
   in_app_review: ^2.0.9
   # Convenient code generator for get_it
   injectable: ^2.5.0
-  # database for flutter
-  isar: ^3.1.0+1
-  # contains Isar Core
-  isar_flutter_libs: ^3.1.0+1
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^2.0.0+1
   # Discover network info and configure themselves accordingly
@@ -98,7 +94,6 @@ dev_dependencies:
   injectable_generator: ^2.6.2
   integration_test:
     sdk: flutter
-  isar_generator: ^3.1.0+1
   # Collection of lint rules for Dart and Flutter projects.
   json_serializable: ^6.8.0
   lint: ^2.3.0
