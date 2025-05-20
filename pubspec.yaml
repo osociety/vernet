@@ -89,7 +89,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^2.5.7
+  freezed: ^2.5.8
   # Convenient code generator for get_it.
   injectable_generator: ^2.6.2
   integration_test:
