@@ -38,7 +38,7 @@ dependencies:
   # A flutter plugin for getting the local timezone of the OS.
   flutter_timezone: ^4.1.0
   # Annotations for freezed
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.0.0
   # Service locator
   get_it: ^8.0.2
   # A composable, multi-platform, Future-based API for HTTP requests.
@@ -89,7 +89,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^2.5.8
+  freezed: ^3.0.6
   # Convenient code generator for get_it.
   injectable_generator: ^2.6.2
   integration_test:
