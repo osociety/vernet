@@ -624,10 +624,10 @@ packages:
     dependency: "direct main"
     description:
       name: isolate_contactor
-      sha256: e6afce524574cd16a4370dfae75a1718e561ea24175e0b2db5db4ba82d86662f
+      sha256: "6ba8434ceb58238a1389d6365111a3efe7baa1c68a66f4db6d63d351cf6c3a0f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "4.1.0"
   js:
     dependency: transitive
     description:

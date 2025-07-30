@@ -48,7 +48,7 @@ dependencies:
   # Convenient code generator for get_it
   injectable: ^2.5.0
   # An easy way to create a new isolate, keep it running and communicate with it.
-  isolate_contactor: ^2.0.0+1
+  isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
   latlong2: ^0.9.1
