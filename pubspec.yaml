@@ -26,7 +26,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^19.2.1
   # A versatile mapping package for Flutter
   flutter_map: ^7.0.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
@@ -48,7 +48,7 @@ dependencies:
   # Convenient code generator for get_it
   injectable: ^2.5.0
   # An easy way to create a new isolate, keep it running and communicate with it.
-  isolate_contactor: ^2.0.0+1
+  isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
   latlong2: ^0.9.1
