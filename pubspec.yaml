@@ -12,7 +12,7 @@ dependencies:
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
-  bloc: ^8.1.4
+  bloc: ^9.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -24,9 +24,9 @@ dependencies:
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
-  flutter_bloc: ^8.1.6
+  flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^19.2.1
   # A versatile mapping package for Flutter
   flutter_map: ^7.0.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
@@ -36,7 +36,7 @@ dependencies:
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
-  flutter_timezone: ^4.1.0
+  flutter_timezone: ^4.1.1
   # Annotations for freezed
   freezed_annotation: ^3.0.0
   # Service locator
@@ -48,7 +48,7 @@ dependencies:
   # Convenient code generator for get_it
   injectable: ^2.5.0
   # An easy way to create a new isolate, keep it running and communicate with it.
-  isolate_contactor: ^2.0.0+1
+  isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
   latlong2: ^0.9.1
