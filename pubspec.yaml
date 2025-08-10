@@ -26,7 +26,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^19.2.1
+  flutter_local_notifications: ^19.4.0
   # A versatile mapping package for Flutter
   flutter_map: ^7.0.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
