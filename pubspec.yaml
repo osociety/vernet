@@ -97,9 +97,6 @@ dev_dependencies:
   # Collection of lint rules for Dart and Flutter projects.
   json_serializable: ^6.8.0
   lint: ^2.3.0
-  
-dependency_overrides:
-  analyzer: ^6.3.0
 
 flutter:
 
