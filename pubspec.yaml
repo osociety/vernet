@@ -18,8 +18,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
-  drift: ^2.26.1
-  drift_flutter: ^0.2.4
+  drift: ^2.28.1
+  drift_flutter: ^0.2.5
   external_app_launcher: ^4.0.2
   flutter:
     sdk: flutter
@@ -38,7 +38,7 @@ dependencies:
   # A flutter plugin for getting the local timezone of the OS.
   flutter_timezone: ^4.1.1
   # Annotations for freezed
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.1.0
   # Service locator
   get_it: ^8.0.2
   # A composable, multi-platform, Future-based API for HTTP requests.
@@ -62,7 +62,7 @@ dependencies:
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.3
   # Popup that ask for the requested permission
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.1.2
   # RxDart extends the capabilities of Dart Streams and StreamControllers.
@@ -85,11 +85,11 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.4.15
 
-  drift_dev: ^2.26.1
+  drift_dev: ^2.28.1
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^2.5.8
+  freezed: ^3.2.0
   # Convenient code generator for get_it.
   injectable_generator: ^2.6.2
   integration_test:
@@ -97,9 +97,6 @@ dev_dependencies:
   # Collection of lint rules for Dart and Flutter projects.
   json_serializable: ^6.8.0
   lint: ^2.3.0
-  
-dependency_overrides:
-  analyzer: ^6.3.0
 
 flutter:
 
