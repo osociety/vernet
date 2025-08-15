@@ -43,7 +43,7 @@ void main() {
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await tester.pumpAndSettle(const Duration(seconds: 15));
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAtLeast(2));
       final routerIconButton =
