@@ -54,7 +54,7 @@ dependencies:
   latlong2: ^0.9.1
   network_info_plus: ^6.1.4
   # Helps you discover open ports, devices on subnet and more.
-  network_tools_flutter: ^2.0.7
+  network_tools_flutter: ^3.0.0
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^8.3.1
   path: ^1.9.1

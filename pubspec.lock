@@ -787,18 +787,18 @@ packages:
     dependency: transitive
     description:
       name: network_tools
-      sha256: c48cb49b0e20e968c83147725e1d941544296b8414987a8a4bb7dd9dd664d443
+      sha256: "2534f1de5223ea7e418f53ecc407a3e9d641020c2c75b451532d4ad7222c3a93"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.6"
+    version: "6.0.1"
   network_tools_flutter:
     dependency: "direct main"
     description:
       name: network_tools_flutter
-      sha256: e4d21034764a11ba5c98fbbf25511f7b00806ede213ed9f6113830985a8f0707
+      sha256: b72c225dd5fe56e1229da2fa7ef7765099dd7826f9ea95b8af10cb3be2dfab5e
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.7"
+    version: "3.0.0"
   nm:
     dependency: transitive
     description:
@@ -1095,14 +1095,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.26.0"
-  sembast:
-    dependency: transitive
-    description:
-      name: sembast
-      sha256: "7119cf6f79bd1d48c8ec7943f4facd96c15ab26823021ed0792a487c7cd34441"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.8.5+1"
   shared_preferences:
     dependency: "direct main"
     description:
