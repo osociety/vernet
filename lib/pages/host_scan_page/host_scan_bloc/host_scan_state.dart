@@ -1,7 +1,7 @@
 part of 'host_scan_bloc.dart';
 
 @freezed
-class HostScanState with _$HostScanState {
+abstract class HostScanState with _$HostScanState {
   factory HostScanState.initial() = _Initial;
 
   const factory HostScanState.loadInProgress() = _LoadInProgress;

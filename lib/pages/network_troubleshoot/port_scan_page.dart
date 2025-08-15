@@ -6,6 +6,7 @@ import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/adaptive/adaptive_radio.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 import 'package:vernet/values/keys.dart';
@@ -268,7 +269,7 @@ class _PortScanPageState extends State<PortScanPage>
                           children: [
                             Expanded(
                               child: CustomTile(
-                                leading: Radio<ScanType>(
+                                leading: AdaptiveRadioButton<ScanType>(
                                   value: ScanType.top,
                                   groupValue: _type,
                                   onChanged: (ScanType? value) {
@@ -283,7 +284,7 @@ class _PortScanPageState extends State<PortScanPage>
                             ),
                             Expanded(
                               child: CustomTile(
-                                leading: Radio<ScanType>(
+                                leading: AdaptiveRadioButton<ScanType>(
                                   key: WidgetKey.rangePortScanRadioButton.key,
                                   value: ScanType.range,
                                   groupValue: _type,
@@ -302,7 +303,7 @@ class _PortScanPageState extends State<PortScanPage>
                             ),
                             Expanded(
                               child: CustomTile(
-                                leading: Radio<ScanType>(
+                                leading: AdaptiveRadioButton<ScanType>(
                                   key: WidgetKey.singlePortScanRadioButton.key,
                                   value: ScanType.single,
                                   groupValue: _type,

@@ -6,8 +6,6 @@ PODS:
   - FlutterMacOS (1.0.0)
   - in_app_review (2.0.0):
     - FlutterMacOS
-  - isar_flutter_libs (1.0.0):
-    - FlutterMacOS
   - network_info_plus (0.0.1):
     - FlutterMacOS
   - nsd_macos (0.0.1):
@@ -20,28 +18,31 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sqlite3 (3.49.1):
-    - sqlite3/common (= 3.49.1)
-  - sqlite3/common (3.49.1)
-  - sqlite3/dbstatvtab (3.49.1):
+  - sqlite3 (3.50.4):
+    - sqlite3/common (= 3.50.4)
+  - sqlite3/common (3.50.4)
+  - sqlite3/dbstatvtab (3.50.4):
     - sqlite3/common
-  - sqlite3/fts5 (3.49.1):
+  - sqlite3/fts5 (3.50.4):
     - sqlite3/common
-  - sqlite3/math (3.49.1):
+  - sqlite3/math (3.50.4):
     - sqlite3/common
-  - sqlite3/perf-threadsafe (3.49.1):
+  - sqlite3/perf-threadsafe (3.50.4):
     - sqlite3/common
-  - sqlite3/rtree (3.49.1):
+  - sqlite3/rtree (3.50.4):
+    - sqlite3/common
+  - sqlite3/session (3.50.4):
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
     - FlutterMacOS
-    - sqlite3 (~> 3.49.1)
+    - sqlite3 (~> 3.50.4)
     - sqlite3/dbstatvtab
     - sqlite3/fts5
     - sqlite3/math
     - sqlite3/perf-threadsafe
     - sqlite3/rtree
+    - sqlite3/session
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
 
@@ -50,7 +51,6 @@ DEPENDENCIES:
   - flutter_timezone (from `Flutter/ephemeral/.symlinks/plugins/flutter_timezone/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - in_app_review (from `Flutter/ephemeral/.symlinks/plugins/in_app_review/macos`)
-  - isar_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/isar_flutter_libs/macos`)
   - network_info_plus (from `Flutter/ephemeral/.symlinks/plugins/network_info_plus/macos`)
   - nsd_macos (from `Flutter/ephemeral/.symlinks/plugins/nsd_macos/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
@@ -72,8 +72,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   in_app_review:
     :path: Flutter/ephemeral/.symlinks/plugins/in_app_review/macos
-  isar_flutter_libs:
-    :path: Flutter/ephemeral/.symlinks/plugins/isar_flutter_libs/macos
   network_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/network_info_plus/macos
   nsd_macos:
@@ -90,20 +88,19 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
 
 SPEC CHECKSUMS:
-  flutter_local_notifications: 13862b132e32eb858dea558a86d45d08daeacfe7
-  flutter_timezone: bed4b9a391e5727a612e722d7f518882c5da205d
-  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
+  flutter_timezone: d59eea86178cbd7943cd2431cc2eaa9850f935d8
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   in_app_review: 0599bccaed5e02f6bed2b0d30d16f86b63ed8638
-  isar_flutter_libs: a65381780401f81ad6bf3f2e7cd0de5698fb98c4
   network_info_plus: 21d1cd6a015ccb2fdff06a1fbfa88d54b4e92f61
   nsd_macos: a472240e770b92f6c6df1022403aa29c90d012e3
   package_info_plus: f0052d280d17aa382b932f399edf32507174e870
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  sqlite3: fc1400008a9b3525f5914ed715a5d1af0b8f4983
-  sqlite3_flutter_libs: f6acaa2172e6bb3e2e70c771661905080e8ebcf2
+  sqlite3: 73513155ec6979715d3904ef53a8d68892d4032b
+  sqlite3_flutter_libs: 83f8e9f5b6554077f1d93119fe20ebaa5f3a9ef1
   url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
 
-PODFILE CHECKSUM: 4d1ddd58dcd1dc92dd2b397bbacb622f345603ab
+PODFILE CHECKSUM: 789d767b20c86c09b0434cf23e52250e040dce33
 
 COCOAPODS: 1.16.2
