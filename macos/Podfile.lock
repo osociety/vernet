@@ -90,7 +90,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
   flutter_timezone: d59eea86178cbd7943cd2431cc2eaa9850f935d8
-  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   in_app_review: 0599bccaed5e02f6bed2b0d30d16f86b63ed8638
   network_info_plus: 21d1cd6a015ccb2fdff06a1fbfa88d54b4e92f61
   nsd_macos: a472240e770b92f6c6df1022403aa29c90d012e3
@@ -101,6 +101,6 @@ SPEC CHECKSUMS:
   sqlite3_flutter_libs: 83f8e9f5b6554077f1d93119fe20ebaa5f3a9ef1
   url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
 
-PODFILE CHECKSUM: 4d1ddd58dcd1dc92dd2b397bbacb622f345603ab
+PODFILE CHECKSUM: 789d767b20c86c09b0434cf23e52250e040dce33
 
 COCOAPODS: 1.16.2

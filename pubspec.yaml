@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1+37
+version: 1.3.0+38
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -20,7 +20,7 @@ dependencies:
   # Remove git url and use pub version once fix is available in source. 
   drift: ^2.28.1
   drift_flutter: ^0.2.5
-  external_app_launcher: ^4.0.2
+  external_app_launcher: ^4.0.3
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -28,11 +28,11 @@ dependencies:
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^19.4.0
   # A versatile mapping package for Flutter
-  flutter_map: ^7.0.2
+  flutter_map: ^8.2.1
   # A Dart implementation of Leaflet.makercluster for Flutter apps
-  flutter_map_marker_cluster: ^1.4.0
+  flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
-  flutter_native_splash: ^2.4.2
+  flutter_native_splash: ^2.4.6
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
@@ -40,35 +40,35 @@ dependencies:
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
-  get_it: ^8.0.2
+  get_it: ^8.2.0
   # A composable, multi-platform, Future-based API for HTTP requests.
-  http: ^1.2.2
+  http: ^1.5.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
-  in_app_review: ^2.0.9
+  in_app_review: ^2.0.10
   # Convenient code generator for get_it
-  injectable: ^2.5.0
+  injectable: ^2.5.1
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
   latlong2: ^0.9.1
-  network_info_plus: ^6.1.1
+  network_info_plus: ^6.1.4
   # Helps you discover open ports, devices on subnet and more.
-  network_tools_flutter: ^2.0.7
+  network_tools_flutter: ^3.0.0
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^8.1.1
+  package_info_plus: ^8.3.1
   path: ^1.9.1
   path_provider: ^2.1.5
   # Allows you to display progress widgets based on percentage.
-  percent_indicator: ^4.2.3
+  percent_indicator: ^4.2.5
   # Popup that ask for the requested permission
   permission_handler: ^12.0.1
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
-  provider: ^6.1.2
+  provider: ^6.1.5
   # RxDart extends the capabilities of Dart Streams and StreamControllers.
   rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
-  shared_preferences: ^2.3.3
+  shared_preferences: ^2.5.3
   # Flutter package to test ping, upload, download using speedtest.net
   speed_test_dart:
     git:
@@ -79,11 +79,11 @@ dependencies:
   # Time zone database and time zone aware DateTime.
   timezone: ^0.10.0
   # Plugin for launching a URL
-  url_launcher: ^6.3.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.4.15
+  build_runner: ^2.6.0
 
   drift_dev: ^2.28.1
   flutter_test:
@@ -91,12 +91,12 @@ dev_dependencies:
   # Code generator for unions/pattern-matching/copy.
   freezed: ^3.2.0
   # Convenient code generator for get_it.
-  injectable_generator: ^2.6.2
+  injectable_generator: ^2.8.1
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
-  json_serializable: ^6.8.0
-  lint: ^2.3.0
+  json_serializable: ^6.10.0
+  lint: ^2.8.0
 
 flutter:
 
