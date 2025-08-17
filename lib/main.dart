@@ -23,7 +23,7 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
   final appDocDirectory = await getApplicationDocumentsDirectory();
-  await configureNetworkToolsFlutter(appDocDirectory.path);
+  await configureNetworkToolsFlutter(appDocDirectory.path, rebuildData: true);
 
   final bool allowed = await ConsentLoader.isConsentPageShown();
   await appSettings.load();
