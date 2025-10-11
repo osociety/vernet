@@ -375,10 +375,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "20ca0a9c82ce0c855ac62a2e580ab867f3fbea82680a90647f7953832d0850ae"
+      sha256: "7ed76be64e8a7d01dfdf250b8434618e2a028c9dfa2a3c41dc9b531d4b3fc8a5"
       url: "https://pub.dev"
     source: hosted
-    version: "19.4.0"
+    version: "19.4.2"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -399,10 +399,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_local_notifications_windows
-      sha256: ed46d7ae4ec9d19e4c8fa2badac5fe27ba87a3fe387343ce726f927af074ec98
+      sha256: "8d658f0d367c48bd420e7cf2d26655e2d1130147bca1eea917e576ca76668aaf"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   flutter_map:
     dependency: "direct main"
     description:
@@ -550,10 +550,10 @@ packages:
     dependency: "direct main"
     description:
       name: in_app_review
-      sha256: "36a06771b88fb0e79985b15e7f2ac0f1142e903fe72517f3c055d78bc3bc1819"
+      sha256: ab26ac54dbd802896af78c670b265eaeab7ecddd6af4d0751e9604b60574817f
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.10"
+    version: "2.0.11"
   in_app_review_platform_interface:
     dependency: transitive
     description:
