@@ -19,7 +19,7 @@ dependencies:
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
   drift: ^2.29.0
-  drift_flutter: ^0.2.5
+  drift_flutter: ^0.2.7
   external_app_launcher: ^4.0.3
   flutter:
     sdk: flutter
@@ -85,7 +85,7 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.9.0
 
-  drift_dev: ^2.28.1
+  drift_dev: ^2.28.3
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
