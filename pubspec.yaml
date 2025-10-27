@@ -32,7 +32,7 @@ dependencies:
   # A Dart implementation of Leaflet.makercluster for Flutter apps
   flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
-  flutter_native_splash: ^2.4.6
+  flutter_native_splash: ^2.4.7
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
