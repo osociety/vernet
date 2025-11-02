@@ -28,7 +28,7 @@ dependencies:
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^19.4.2
   # A versatile mapping package for Flutter
-  flutter_map: ^8.2.1
+  flutter_map: ^8.2.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
   flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
