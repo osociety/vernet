@@ -125,7 +125,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_timezone: 7c838e17ffd4645d261e87037e5bebf6d38fe544
-  in_app_review: 5596fe56fab799e8edb3561c03d053363ab13457
+  in_app_review: 7dd1ea365263f834b8464673f9df72c80c17c937
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   network_info_plus: cf61925ab5205dce05a4f0895989afdb6aade5fc
   nsd_ios: 596ad79109ddd3e52d665f650f36428049e3653e
