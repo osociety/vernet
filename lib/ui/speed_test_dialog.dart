@@ -1,15 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:speed_test_dart/classes/server.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
-import 'package:speedometer/speedometer.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
+import 'package:vernet/ui/speedometer.dart';
 import 'package:vernet/values/strings.dart';
 
 class SpeedTestDialog extends StatefulWidget {
@@ -27,28 +25,32 @@ class SpeedTestDialog extends StatefulWidget {
   State<SpeedTestDialog> createState() => _SpeedTestDialogState();
 }
 
+// 0 5 10 50 100 250 500 750 1000
 class _SpeedTestDialogState extends State<SpeedTestDialog> {
-  final double _lowerValue = 100.0;
-  final double _upperValue = 300.0;
-  int start = 0;
-  int end = 300;
-
-  int counter = 0;
-
-  final Duration _animationDuration = const Duration(milliseconds: 100);
-
-  PublishSubject<double> eventObservable = PublishSubject();
-
+  final double _start = 0.0;
+  final double _end = 1000.0;
+  // Adjusted gradients for better clarity and accessibility
+  final downloadGradient = const SweepGradient(
+    colors: <Color>[Color(0xFF43EA6A), Color(0xFF1E90FF), Color(0xFFF80759)],
+    stops: <double>[0.0, 0.5, 1.0],
+  );
+  final uploadGradient = const SweepGradient(
+    colors: <Color>[Color(0xFFFFD700), Color(0xFF43EA6A), Color(0xFF1E90FF)],
+    stops: <double>[0.0, 0.5, 1.0],
+  );
   final rng = Random();
+  static const int variance = 5;
+
   bool speedTestStarted = false;
   bool downloadSpeedTestDone = false;
   bool uploadSpeedTestDone = false;
-  static const int variance = 5;
+
+  double currentSpeed = 0;
   double currentDownloadSpeed = variance * 2;
   double progress = 0;
-  int numberOfTests = 5;
+  int numberOfTests = 4;
   double currentUploadSpeed = variance * 2;
-  late Timer timer;
+  Timer? timer;
   List<Server>? bestServers;
 
   Future<List<Server>?> getBestServers() async {
@@ -72,50 +74,44 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
   Widget build(BuildContext context) {
     if (bestServers != null && bestServers!.isNotEmpty) {
       return AdaptiveDialog(
-        title: const Text('Speed Test'),
+        onClose: () {
+          if (timer != null && timer!.isActive) {
+            timer?.cancel();
+          }
+          Navigator.of(context).pop();
+        },
         content: SizedBox(
           width: 400,
-          height: 400,
+          height: 450,
           child: Padding(
             padding: const EdgeInsets.all(5),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: Platform.isAndroid || Platform.isIOS
-                      ? const EdgeInsets.all(20)
-                      : const EdgeInsets.all(5),
-                  child: SpeedOMeter(
-                    start: start,
-                    end: end,
-                    highlightStart: _lowerValue / end,
-                    highlightEnd: _upperValue / end,
-                    themeData: Theme.of(context),
-                    eventObservable: eventObservable,
-                    animationDuration: _animationDuration,
-                  ),
+                SpeedometerWidget(
+                  currentSpeed: currentSpeed,
+                  rangeValues: RangeValues(_start, _end),
+                  gradient: speedTestStarted
+                      ? downloadSpeedTestDone
+                          ? uploadGradient
+                          : downloadGradient
+                      : null,
                 ),
-                const SizedBox(height: 10),
-                if (speedTestStarted)
-                  LinearProgressIndicator(
-                    value: progress,
-                  )
-                else
-                  const SizedBox(),
-                const SizedBox(height: 10),
                 Center(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       if (downloadSpeedTestDone)
-                        Expanded(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.download),
-                              const SizedBox(width: 5),
-                              Text('${currentDownloadSpeed.round()} Mbps'),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.download,
+                              color: Color(
+                                  0xFF43EA6A), // Matches start of downloadGradient
+                            ),
+                            const SizedBox(width: 5),
+                            Text('${currentDownloadSpeed.round()} Mbps'),
+                          ],
                         )
                       else
                         const SizedBox(),
@@ -123,21 +119,23 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                         width: 15,
                       ),
                       if (uploadSpeedTestDone)
-                        Expanded(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.upload),
-                              const SizedBox(width: 5),
-                              Text('${currentUploadSpeed.round()} Mbps'),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.upload,
+                              color: Color(
+                                  0xFFFFD700), // Matches start of uploadGradient
+                            ),
+                            const SizedBox(width: 5),
+                            Text('${currentUploadSpeed.round()} Mbps'),
+                          ],
                         )
                       else
                         const SizedBox(),
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 Text('Best server: ${bestServers!.first.name}'),
                 Text('Latency: ${bestServers!.first.latency} ms'),
                 const Row(
@@ -162,12 +160,12 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                     currentDownloadSpeed = widget.odometerStart;
                     timer = Timer.periodic(
                       const Duration(milliseconds: 100),
-                      (Timer t) => eventObservable.add(
-                        currentDownloadSpeed -
+                      (Timer t) => setState(() {
+                        currentSpeed = currentDownloadSpeed -
                             variance +
                             Random().nextInt(variance) +
-                            rng.nextDouble(),
-                      ),
+                            rng.nextDouble();
+                      }),
                     );
                     downloadSpeed(numberOfTests, bestServers!).listen((data) {
                       setState(() {
@@ -178,7 +176,13 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                       testUploadSpeed(bestServers!);
                     });
                   },
-            child: const Text('Start'),
+            child: Text(
+              'Start',
+              style: TextStyle(
+                color: Theme.of(context).buttonTheme.colorScheme?.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       );
@@ -195,16 +199,19 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
   }
 
   void testUploadSpeed(List<Server> bestServerList) {
-    eventObservable.add(0);
-    timer.cancel();
+    setState(() {
+      currentSpeed = 0;
+    });
+
+    timer?.cancel();
     timer = Timer.periodic(
       const Duration(milliseconds: 100),
-      (Timer t) => eventObservable.add(
-        currentUploadSpeed -
+      (Timer t) => setState(() {
+        currentSpeed = currentUploadSpeed -
             variance +
             Random().nextInt(variance) +
-            rng.nextDouble(),
-      ),
+            rng.nextDouble();
+      }),
     );
     setState(() {
       downloadSpeedTestDone = true;
@@ -216,8 +223,10 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
         progress = data[1] / numberOfTests;
       });
     }).onDone(() {
-      eventObservable.add(0);
-      timer.cancel();
+      setState(() {
+        currentSpeed = 0;
+      });
+      timer?.cancel();
       setState(() {
         speedTestStarted = false;
         uploadSpeedTestDone = true;

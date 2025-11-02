@@ -76,6 +76,7 @@ dependencies:
       ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
+  syncfusion_flutter_gauges: ^31.2.4
   # Time zone database and time zone aware DateTime.
   timezone: ^0.10.0
   # Plugin for launching a URL
