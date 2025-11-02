@@ -15,14 +15,15 @@ Vernet - Network Analyzer and Monitoring Tool
 2. Scans for devices(or hosts) on network
 3. Scans for open ports of target IP
 4. Shows ISP details
+5. Internet Speed Test using speedtest.net
 
 ## Screenshots
 
 |Vernet|Home|Devices|Open Ports|
 |-|-|-|-|
 |<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "200">|
-|Ping|DNS|Reverse DNS|Settings|
-|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "200">|
+|Ping|DNS|Speed test|Settings|
+|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "225">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "200">|
 
 ## Download
 
