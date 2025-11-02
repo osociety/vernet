@@ -83,67 +83,69 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
         content: SizedBox(
           width: 400,
           height: 450,
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SpeedometerWidget(
-                  currentSpeed: currentSpeed,
-                  rangeValues: RangeValues(_start, _end),
-                  gradient: speedTestStarted
-                      ? downloadSpeedTestDone
-                          ? uploadGradient
-                          : downloadGradient
-                      : null,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SpeedometerWidget(
+                currentSpeed: currentSpeed,
+                rangeValues: RangeValues(_start, _end),
+                gradient: speedTestStarted
+                    ? downloadSpeedTestDone
+                        ? uploadGradient
+                        : downloadGradient
+                    : null,
+              ),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    if (downloadSpeedTestDone)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.download,
+                            color: Color(
+                                0xFF43EA6A), // Matches start of downloadGradient
+                          ),
+                          const SizedBox(width: 5),
+                          Text('${currentDownloadSpeed.round()} Mbps'),
+                        ],
+                      )
+                    else
+                      const SizedBox(),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    if (uploadSpeedTestDone)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.upload,
+                            color: Color(
+                                0xFFFFD700), // Matches start of uploadGradient
+                          ),
+                          const SizedBox(width: 5),
+                          Text('${currentUploadSpeed.round()} Mbps'),
+                        ],
+                      )
+                    else
+                      const SizedBox(),
+                  ],
                 ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      if (downloadSpeedTestDone)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.download,
-                              color: Color(
-                                  0xFF43EA6A), // Matches start of downloadGradient
-                            ),
-                            const SizedBox(width: 5),
-                            Text('${currentDownloadSpeed.round()} Mbps'),
-                          ],
-                        )
-                      else
-                        const SizedBox(),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      if (uploadSpeedTestDone)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.upload,
-                              color: Color(
-                                  0xFFFFD700), // Matches start of uploadGradient
-                            ),
-                            const SizedBox(width: 5),
-                            Text('${currentUploadSpeed.round()} Mbps'),
-                          ],
-                        )
-                      else
-                        const SizedBox(),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text('Best server: ${bestServers!.first.name}'),
-                Text('Latency: ${bestServers!.first.latency} ms'),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text(StringValue.speedTestServer)],
-                ),
-              ],
-            ),
+              ),
+              Text('Best server: ${bestServers!.first.name}'),
+              Text('Latency: ${bestServers!.first.latency} ms'),
+              const SizedBox(height: 5),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    StringValue.speedTestServer,
+                    style: TextStyle(fontSize: 8),
+                  )
+                ],
+              ),
+            ],
           ),
         ),
         actions: [
