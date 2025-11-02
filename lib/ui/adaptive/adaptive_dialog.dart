@@ -11,11 +11,13 @@ class AdaptiveDialog extends StatelessWidget {
     this.title,
     this.content,
     required this.actions,
+    this.onClose,
   });
 
   final Widget? title;
   final Widget? content;
   final List<Widget> actions;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +35,12 @@ class AdaptiveDialog extends StatelessWidget {
               actions: [
                 CupertinoDialogAction(
                   isDefaultAction: true,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: onClose ??
+                      () {
+                        Navigator.pop(context);
+                      },
                   child: const Text(
                     "Close",
-                    style: TextStyle(color: Colors.blueAccent),
                   ),
                 ),
                 ...actions,
@@ -50,9 +52,10 @@ class AdaptiveDialog extends StatelessWidget {
             content: content,
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: onClose ??
+                    () {
+                      Navigator.pop(context);
+                    },
                 child: const Text("Close"),
               ),
               ...actions,
