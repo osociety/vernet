@@ -193,7 +193,13 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
       actions: [],
       content: Padding(
         padding: EdgeInsets.only(top: 10),
-        child: AdaptiveCircularProgressIndicator(),
+        child: SizedBox(
+          height: 50,
+          width: 50,
+          child: Center(
+            child: AdaptiveCircularProgressIndicator(),
+          ),
+        ),
       ),
     );
   }
