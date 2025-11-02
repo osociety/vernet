@@ -28,11 +28,11 @@ dependencies:
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^19.4.2
   # A versatile mapping package for Flutter
-  flutter_map: ^8.2.1
+  flutter_map: ^8.2.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
   flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
-  flutter_native_splash: ^2.4.6
+  flutter_native_splash: ^2.4.7
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
@@ -52,11 +52,11 @@ dependencies:
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
   latlong2: ^0.9.1
-  network_info_plus: ^6.1.4
+  network_info_plus: ^7.0.0
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^3.0.0
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^8.3.1
+  package_info_plus: ^9.0.0
   path: ^1.9.1
   path_provider: ^2.1.5
   # Allows you to display progress widgets based on percentage.
@@ -84,7 +84,7 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.9.0
+  build_runner: ^2.10.1
 
   drift_dev: ^2.28.3
   flutter_test:
