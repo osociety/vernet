@@ -46,7 +46,7 @@ dependencies:
   # A Flutter plugin that lets you show a review pop up where users can leave a review
   in_app_review: ^2.0.11
   # Convenient code generator for get_it
-  injectable: ^2.5.1
+  injectable: ^2.5.2
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
