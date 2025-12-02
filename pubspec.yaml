@@ -26,7 +26,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^19.4.2
+  flutter_local_notifications: ^19.5.0
   # A versatile mapping package for Flutter
   flutter_map: ^8.2.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
@@ -40,13 +40,13 @@ dependencies:
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
-  get_it: ^8.2.0
+  get_it: ^8.3.0
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^1.5.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
   in_app_review: ^2.0.11
   # Convenient code generator for get_it
-  injectable: ^2.5.1
+  injectable: ^2.6.0
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
@@ -76,7 +76,7 @@ dependencies:
       ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
-  syncfusion_flutter_gauges: ^31.2.4
+  syncfusion_flutter_gauges: ^31.2.5
   # Time zone database and time zone aware DateTime.
   timezone: ^0.10.0
   # Plugin for launching a URL
