@@ -42,7 +42,7 @@ dependencies:
   # Service locator
   get_it: ^8.3.0
   # A composable, multi-platform, Future-based API for HTTP requests.
-  http: ^1.5.0
+  http: ^1.6.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
   in_app_review: ^2.0.11
   # Convenient code generator for get_it
