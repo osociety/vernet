@@ -109,10 +109,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: a9461b8e586bf018dd4afd2e13b49b08c6a844a4b226c8d1d10f3a723cdd78c3
+      sha256: "110c56ef29b5eb367b4d17fc79375fa8c18a6cd7acd92c05bb3986c17a079057"
       url: "https://pub.dev"
     source: hosted
-    version: "2.10.1"
+    version: "2.10.4"
   built_collection:
     dependency: transitive
     description:
@@ -293,10 +293,10 @@ packages:
     dependency: "direct main"
     description:
       name: drift_flutter
-      sha256: b7534bf320aac5213259aac120670ba67b63a1fd010505babc436ff86083818f
+      sha256: c07120854742a0cae2f7501a0da02493addde550db6641d284983c08762e60a7
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.7"
+    version: "0.2.8"
   equatable:
     dependency: transitive
     description:
@@ -526,10 +526,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: bb2ce4590bc2667c96f318d68cac1b5a7987ec819351d32b1c987239a815e007
+      sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.6.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -574,10 +574,10 @@ packages:
     dependency: "direct main"
     description:
       name: injectable
-      sha256: "29559f7e3daebf0084597de86a825ae7f149d9e30264b7fbc71d1069ae82697d"
+      sha256: "8fc24421cfeff76d1d38484d8b9617beeb54a58b6edfd002b10cc896b8b8f3fe"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.1+2"
   injectable_generator:
     dependency: "direct dev"
     description:

@@ -19,7 +19,7 @@ dependencies:
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
   drift: ^2.30.0
-  drift_flutter: ^0.2.7
+  drift_flutter: ^0.2.8
   external_app_launcher: ^4.0.3
   flutter:
     sdk: flutter
@@ -42,11 +42,11 @@ dependencies:
   # Service locator
   get_it: ^8.3.0
   # A composable, multi-platform, Future-based API for HTTP requests.
-  http: ^1.5.0
+  http: ^1.6.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
   in_app_review: ^2.0.11
   # Convenient code generator for get_it
-  injectable: ^2.6.0
+  injectable: ^2.7.1+2
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
@@ -84,7 +84,7 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.10.1
+  build_runner: ^2.10.4
 
   drift_dev: ^2.28.3
   flutter_test:
