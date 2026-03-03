@@ -11,7 +11,8 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('load returns InternetProvider in debug mode using bundled asset', () async {
+    test('load returns InternetProvider in debug mode using bundled asset',
+        () async {
       final loader = ISPLoader();
 
       final InternetProvider? provider = await loader.load();
@@ -23,4 +24,3 @@ void main() {
     });
   });
 }
-

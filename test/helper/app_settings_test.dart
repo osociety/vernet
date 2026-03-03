@@ -15,7 +15,7 @@ void main() {
       await settings.load();
     });
 
-    test('has correct default values', () async {
+    test('has correct default values', () {
       expect(settings.firstSubnet, 1);
       expect(settings.lastSubnet, 254);
       expect(settings.socketTimeout, 500);
@@ -49,4 +49,3 @@ void main() {
     });
   });
 }
-

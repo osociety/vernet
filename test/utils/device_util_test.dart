@@ -31,7 +31,6 @@ void main() {
     test('returns "This device" when current device IP matches', () {
       final device = _device(
         internetAddress: '192.168.0.10',
-        currentIp: '192.168.0.10',
       );
 
       expect(DeviceUtil.getDeviceMake(device), 'This device');
@@ -40,7 +39,6 @@ void main() {
     test('returns "Router/Gateway" when gateway IP matches', () {
       final device = _device(
         internetAddress: '192.168.0.1',
-        gatewayIp: '192.168.0.1',
       );
 
       expect(DeviceUtil.getDeviceMake(device), 'Router/Gateway');
@@ -67,7 +65,6 @@ void main() {
     test('returns desktop icon for current device on desktop platforms', () {
       final device = _device(
         internetAddress: '192.168.0.10',
-        currentIp: '192.168.0.10',
       );
 
       // On CI / dev machine this will typically be true.
@@ -79,7 +76,6 @@ void main() {
     test('returns router icon when internetAddress equals gatewayIp', () {
       final device = _device(
         internetAddress: '192.168.0.1',
-        gatewayIp: '192.168.0.1',
       );
 
       expect(DeviceUtil.getIconData(device), Icons.router);
@@ -92,4 +88,3 @@ void main() {
     });
   });
 }
-

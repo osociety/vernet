@@ -19,7 +19,8 @@ void main() {
       expect(provider.themePref, ThemePreference.system);
     });
 
-    test('setting themePref to dark notifies listeners and darkTheme is true', () {
+    test('setting themePref to dark notifies listeners and darkTheme is true',
+        () {
       int notifyCount = 0;
       provider.addListener(() {
         notifyCount++;
@@ -50,4 +51,3 @@ void main() {
     });
   });
 }
-
