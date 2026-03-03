@@ -574,10 +574,10 @@ packages:
     dependency: "direct main"
     description:
       name: injectable
-      sha256: "29559f7e3daebf0084597de86a825ae7f149d9e30264b7fbc71d1069ae82697d"
+      sha256: "8fc24421cfeff76d1d38484d8b9617beeb54a58b6edfd002b10cc896b8b8f3fe"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.1+2"
   injectable_generator:
     dependency: "direct dev"
     description:
