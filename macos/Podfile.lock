@@ -89,7 +89,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
-  flutter_timezone: d59eea86178cbd7943cd2431cc2eaa9850f935d8
+  flutter_timezone: d272288c69082ad571630e0d17140b3d6b93dc0c
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   in_app_review: 66e7680752b632d83f4f0e88b34d52ed303fbff4
   network_info_plus: 21d1cd6a015ccb2fdff06a1fbfa88d54b4e92f61
