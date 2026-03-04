@@ -1,39 +1,39 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:network_tools_flutter/network_tools_flutter.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
-import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
+import '../app_test.dart' show port;
+
 void main() {
-  globals.testingActive = true;
-  late ServerSocket server;
-  int port = 0;
-  setUpAll(() async {
-    configureDependencies(Env.test);
-    final appDocDirectory = await getApplicationDocumentsDirectory();
-    await configureNetworkToolsFlutter(appDocDirectory.path);
-    //open a port in shared way because of portscanner using same,
-    //if passed false then two hosts come up in search and breaks test.
-    server =
-        await ServerSocket.bind(InternetAddress.anyIPv4, port, shared: true);
-    port = server.port;
-    debugPrint("Opened port in this machine at $port");
-  });
+  // globals.testingActive = true;
+  // late ServerSocket server;
+  // int port = 0;
+  // setUpAll(() async {
+  //   configureDependencies(Env.test);
+  //   final appDocDirectory = await getApplicationDocumentsDirectory();
+  //   await configureNetworkToolsFlutter(appDocDirectory.path);
+  //   //open a port in shared way because of portscanner using same,
+  //   //if passed false then two hosts come up in search and breaks test.
+  //   server =
+  //       await ServerSocket.bind(InternetAddress.anyIPv4, port, shared: true);
+  //   port = server.port;
+  //   debugPrint("Opened port in this machine at $port");
+  // });
 
   group('host scanner end-to-end test', () {
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
+      // Use a longer timeout to allow platform channels to respond
+      // In CI environments, this might timeout quickly if WiFi info isn't available
+      await tester.pumpAndSettle(const Duration(seconds: 10));
+
+      // Verify that there are at least 3 tiles on homepage (including scan button)
       expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
 
       // Finds the scan for devices button to tap on.
@@ -56,11 +56,31 @@ void main() {
       );
 
       expect(routerIconButton, findsOne);
-      await tester.tap(routerIconButton);
+
+      // Ensure widget is fully visible and tap in center
+      await tester.ensureVisible(routerIconButton);
       await tester.pumpAndSettle();
+      await tester.tap(routerIconButton, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 2));
       expect(find.byType(AppBar), findsOne);
 
+      // Wait for port scan page to fully load and radio button to be visible
+      await tester.pumpAndSettle(const Duration(seconds: 3));
       final radioButton = find.byKey(WidgetKey.singlePortScanRadioButton.key);
+
+      // Verify radio button exists before tapping
+      if (find
+          .byKey(WidgetKey.singlePortScanRadioButton.key)
+          .evaluate()
+          .isEmpty) {
+        debugPrint('Radio button not found, scrolling to find it');
+        await tester.scrollUntilVisible(
+          radioButton,
+          500.0,
+          scrollable: find.byType(Scrollable),
+        );
+      }
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
@@ -78,7 +98,7 @@ void main() {
     });
   });
 
-  tearDownAll(() {
-    server.close();
-  });
+  // tearDownAll(() {
+  //   server.close();
+  // });
 }

@@ -10,11 +10,18 @@ import 'package:vernet/helper/utils_helper.dart';
 
 import 'package:vernet/main.dart';
 
-Future<bool> _checkUpdates(String v) async {
-  final Uri url = Uri.parse(
-    'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1',
-  );
-  final response = await http.get(url);
+@visibleForTesting
+Future<bool> checkUpdates(
+  String v, {
+  http.Client? client,
+  Uri? url,
+}) async {
+  final Uri target = url ??
+      Uri.parse(
+        'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1',
+      );
+  final c = client ?? http.Client();
+  final response = await c.get(target);
   if (response.statusCode == HttpStatus.ok) {
     final List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
     if (res.isNotEmpty) {
@@ -33,6 +40,16 @@ Future<bool> _checkUpdates(String v) async {
   return false;
 }
 
+// exposed for testing so we can inject a client or URL without running
+// the compute helper.
+Future<bool> checkUpdatesForTest(
+  String v, {
+  http.Client? client,
+  Uri? url,
+}) {
+  return checkUpdates(v, client: client, url: url);
+}
+
 Future<void> checkForUpdates(
   BuildContext context, {
   bool showIfNoUpdate = false,
@@ -42,7 +59,7 @@ Future<void> checkForUpdates(
     final String v = '${info.version}+${info.buildNumber}';
     bool available = false;
     if (appSettings.inAppInternet) {
-      available = await compute(_checkUpdates, v);
+      available = await compute(checkUpdates, v);
     }
     ScaffoldMessenger.of(context).clearSnackBars();
     Widget? content;

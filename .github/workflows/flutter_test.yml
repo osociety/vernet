@@ -100,10 +100,21 @@ jobs:
       - name: Install coverage tools
         run: flutter pub global activate coverage
       - name: Run tests
-        run: flutter test
+        run: flutter test --coverage
+      - name: Preserve unit test coverage
+        if: needs.changes.outputs.branch == 'dev'
+        shell: bash
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            mv coverage/lcov.info coverage/unit.lcov.info
+          fi
       - name: Install Linux dependencies
         if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev')  && (needs.changes.outputs.lib  || needs.changes.outputs.test  || needs.changes.outputs.linux  || needs.changes.outputs.yaml ) }}
         run: sudo apt-get update && sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libssl-dev keybinder-3.0 libnotify-dev libmpv-dev mpv network-manager
+      
+      - name: Install coverage tools for Linux
+        if: ${{ (matrix.os == 'ubuntu') && (needs.changes.outputs.branch == 'dev') }}
+        run: sudo apt-get install -y lcov
          
       - name: Run integration tests for Linux
         if: needs.changes.outputs.branch == 'dev' && matrix.os == 'ubuntu'
@@ -116,6 +127,24 @@ jobs:
       - name: Run integration tests for macos/windows
         if: needs.changes.outputs.branch == 'dev' && matrix.os != 'ubuntu'
         run: flutter test integration_test/app_test.dart  --coverage -d ${{ matrix.os }} 
+      - name: Combine unit and integration coverage
+        if: needs.changes.outputs.branch == 'dev'
+        shell: bash
+        run: |
+          if [ -f coverage/unit.lcov.info ] && [ -f coverage/lcov.info ]; then
+            mv coverage/lcov.info coverage/integration.lcov.info
+            cat coverage/unit.lcov.info coverage/integration.lcov.info > coverage/lcov.info
+            # Exclude generated files (.g.dart, .freezed.dart, .mocks.dart) from coverage
+            # Only if lcov is available
+            if command -v lcov &> /dev/null; then
+              lcov --remove coverage/lcov.info \
+                '**/*.g.dart' \
+                'lib/models/drift/*' \
+                -o coverage/lcov.info
+            else
+              echo "lcov not available; skipping coverage filtering."
+            fi
+          fi
           
       - name: Upload Coverage to CodeCov
         if: needs.changes.outputs.branch == 'dev'
