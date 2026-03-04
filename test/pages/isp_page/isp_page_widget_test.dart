@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 import 'package:speed_test_dart/classes/classes.dart';
 import 'package:speed_test_dart/classes/odometer.dart';
@@ -139,7 +140,7 @@ void main() {
       expect(find.text('Error'), findsWidgets);
     });
 
-    testWidgets('IspPageWidget displays servers on LoadSuccess',
+    testWidgets('IspPageWidget displays servers on LoadSuccess via bloc',
         (WidgetTester tester) async {
       final servers = [
         createTestServer(id: 1, name: 'Test Server 1', latency: 10),
@@ -148,25 +149,24 @@ void main() {
 
       await tester.pumpWidget(_wrapWithProviders(
         Scaffold(
-          body: IspPageContent(
-            client: testClient,
-            childrens: [
-              const Text('List of Servers'),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  itemBuilder: (context, item) => Text(servers[item].name),
-                  itemCount: servers.length,
-                ),
-              ),
-            ],
+          body: BlocProvider<IspPageBloc>.value(
+            value: ispPageBloc,
+            child: IspPageWidget(client: testClient),
           ),
         ),
       ));
 
-      // Should display server information
+      // Emit LoadSuccess state through bloc
+      ispPageBloc.emit(IspPageState.loadSuccess(servers));
+      await tester.pumpAndSettle();
+
+      // Should render map and server details
+      expect(find.byType(FlutterMap), findsOneWidget);
+      expect(find.byIcon(Icons.pin_drop), findsOneWidget);
       expect(find.text('List of Servers'), findsOneWidget);
-      expect(find.byType(ListView), findsOneWidget);
+      // tiles include name and country
+      expect(find.text('Test Server 1, US'), findsOneWidget);
+      expect(find.text('Test Server 2, US'), findsOneWidget);
     });
 
     testWidgets('IspPageContent displays ISP information',
