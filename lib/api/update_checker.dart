@@ -11,7 +11,7 @@ import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 
 @visibleForTesting
-Future<bool> _checkUpdates(
+Future<bool> checkUpdates(
   String v, {
   http.Client? client,
   Uri? url,
@@ -42,13 +42,12 @@ Future<bool> _checkUpdates(
 
 // exposed for testing so we can inject a client or URL without running
 // the compute helper.
-@visibleForTesting
 Future<bool> checkUpdatesForTest(
   String v, {
   http.Client? client,
   Uri? url,
 }) {
-  return _checkUpdates(v, client: client, url: url);
+  return checkUpdates(v, client: client, url: url);
 }
 
 Future<void> checkForUpdates(
@@ -60,7 +59,7 @@ Future<void> checkForUpdates(
     final String v = '${info.version}+${info.buildNumber}';
     bool available = false;
     if (appSettings.inAppInternet) {
-      available = await compute(_checkUpdates, v);
+      available = await compute(checkUpdates, v);
     }
     ScaffoldMessenger.of(context).clearSnackBars();
     Widget? content;

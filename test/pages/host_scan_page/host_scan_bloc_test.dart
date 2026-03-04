@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vernet/database/drift/drift_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart' as di;
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
@@ -13,11 +13,10 @@ import 'package:vernet/values/globals.dart' as globals;
 /// a predetermined list of devices and allows callers to supply an
 /// ongoing-scan stream.
 class FakeScannerService implements DeviceScannerService {
+  FakeScannerService({required this.devices});
   final List<DeviceData> devices;
   final StreamController<List<DeviceData>> ongoingController =
       StreamController<List<DeviceData>>();
-
-  FakeScannerService({required this.devices});
 
   @override
   Stream<DeviceData> startNewScan(String subnet, String ip, String gatewayIp) {
@@ -48,8 +47,6 @@ class FakeScanRepository implements ScanRepository {
 
   // other methods are not used in these tests
   @override
-  Future<int> add(ScanData data) async => throw UnimplementedError();
-  @override
   Future<List<ScanData>> getList() async => throw UnimplementedError();
   @override
   Future<ScanData?> get(int id) async => throw UnimplementedError();
@@ -75,7 +72,7 @@ void main() {
       await di.getIt.reset();
 
       scanner = FakeScannerService(devices: [
-        DeviceData(
+        const DeviceData(
           id: 1,
           internetAddress: '1',
           macAddress: '',
@@ -84,7 +81,7 @@ void main() {
           gatewayIp: '',
           scanId: 0,
         ),
-        DeviceData(
+        const DeviceData(
           id: 2,
           internetAddress: '2',
           macAddress: '',
@@ -146,7 +143,7 @@ void main() {
       // schedule devices and completion after event
       Future<void>.delayed(const Duration(milliseconds: 10), () {
         scanner.ongoingController.add([
-          DeviceData(
+          const DeviceData(
             id: 3,
             internetAddress: 'foo',
             macAddress: '',
@@ -173,7 +170,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
       // expecting at least one progress, a device found, and eventual success
-      expect(collected.any((s) => s is HostScanState), isTrue);
+      expect(collected, isNotEmpty);
       expect(collected.any((s) => s is FoundNewDevice), isTrue);
       expect(collected.any((s) => s is LoadSuccess), isTrue);
 
