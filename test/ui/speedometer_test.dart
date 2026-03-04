@@ -53,5 +53,26 @@ void main() {
 
       expect(widget, isA<SpeedometerWidget>());
     });
+
+    testWidgets('renders gauge title and current speed text', (tester) async {
+      const currentSpeed = 42.7;
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SpeedometerWidget(
+              currentSpeed: currentSpeed,
+              rangeValues: RangeValues(0, 100),
+              gradient: null,
+            ),
+          ),
+        ),
+      );
+
+      // Title from GaugeTitle should be visible as text.
+      expect(find.text('Internet Speed Test'), findsOneWidget);
+
+      // Annotation text uses floor() in the widget.
+      expect(find.text('42 Mbps'), findsOneWidget);
+    });
   });
 }

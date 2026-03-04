@@ -6,9 +6,11 @@ import 'package:speed_test_dart/classes/classes.dart';
 import 'package:speed_test_dart/classes/coordinate.dart';
 import 'package:speed_test_dart/classes/odometer.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
+import 'package:vernet/injection.dart' as di;
 import 'package:vernet/pages/isp_page/bloc/isp_page_bloc.dart';
 import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/isp_page/isp_page_widget.dart';
+import 'package:vernet/values/strings.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
 // Create mock Settings and Client for testing
@@ -235,20 +237,27 @@ void main() {
   });
 
   group('IspPage Integration', () {
-    test('IspPage is a StatelessWidget', () {
-      final settings = createTestSettings();
-      final tester = SpeedTestDart();
-      expect(
-        IspPage(tester: tester, settings: settings),
-        isA<StatelessWidget>(),
-      );
+    setUp(() async {
+      await di.getIt.reset();
+      di.getIt.registerFactory<IspPageBloc>(() => IspPageBloc());
     });
 
-    test('IspPage has correct title', () {
+    testWidgets('IspPage builds Scaffold with correct title and widget',
+        (WidgetTester tester) async {
       final settings = createTestSettings();
-      final tester = SpeedTestDart();
-      final page = IspPage(tester: tester, settings: settings);
-      expect(page, isNotNull);
+      final speedTester = SpeedTestDart();
+
+      await tester.pumpWidget(
+        _wrapWithProviders(
+          IspPage(tester: speedTester, settings: settings),
+        ),
+      );
+
+      // App bar title from IspPage.
+      expect(find.text(StringValue.ispPageTitle), findsOneWidget);
+
+      // Body contains IspPageWidget wired with settings.client.
+      expect(find.byType(IspPageWidget), findsOneWidget);
     });
   });
 }
