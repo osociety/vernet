@@ -202,57 +202,9 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                   );
                 } else if (snapshot.hasError) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text("Unable to fetch WiFi details"),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          _getDeviceCountWidget(),
-                          const SizedBox(width: 4),
-                          ElevatedButton(
-                            key: WidgetKey.scanForDevicesButton.key,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HostScanPage(),
-                                ),
-                              );
-                            },
-                            child: const Text(StringValue.hostScanPageTitle),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
+                  return const Text("Unable to fetch WiFi details");
                 } else {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Loading...'),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          _getDeviceCountWidget(),
-                          const SizedBox(width: 4),
-                          ElevatedButton(
-                            key: WidgetKey.scanForDevicesButton.key,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => HostScanPage(),
-                                ),
-                              );
-                            },
-                            child: const Text(StringValue.hostScanPageTitle),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
+                  return const Text('Loading...');
                 }
               },
             ),

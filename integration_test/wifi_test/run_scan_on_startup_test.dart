@@ -23,7 +23,9 @@ void main() {
 
       await TestUtils.tapHomeButton(tester, find);
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      // pump with a longer timeout to rebuild HomePage after navigation
+      // and allow platform channels to respond
+      await tester.pumpAndSettle(const Duration(seconds: 10));
 
       expect(find.byKey(WidgetKey.runScanOnStartup.key), findsOne);
     });

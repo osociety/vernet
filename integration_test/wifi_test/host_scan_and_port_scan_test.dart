@@ -31,9 +31,12 @@ void main() {
         (tester) async {
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
+      // Use a longer timeout to allow platform channels to respond
+      // In CI environments, this might timeout quickly if WiFi info isn't available
+      await tester.pumpAndSettle(const Duration(seconds: 10));
+
+      // Verify that there are at least 3 tiles on homepage (including scan button)
       expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
 
       // Finds the scan for devices button to tap on.

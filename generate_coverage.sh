@@ -19,7 +19,7 @@ echo "Running integration tests with coverage (macOS desktop)..."
 # a different device (e.g. linux, windows, chrome).
 # Run integration tests but do not exit on failure — capture exit code.
 INTEG_EXIT=0
-flutter test integration_test/app_test.dart --coverage -d macos -j 1 || INTEG_EXIT=$?
+flutter test integration_test/app_test.dart --coverage -d macos || INTEG_EXIT=$?
 if [ $INTEG_EXIT -ne 0 ]; then
   echo "Integration tests failed with exit code $INTEG_EXIT — will continue and generate coverage from available results."
 fi

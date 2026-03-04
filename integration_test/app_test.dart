@@ -18,9 +18,12 @@ void main() {
       globals.testingActive = true;
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
+      // Use a longer timeout to allow platform channels to respond
+      // In CI environments, this might timeout quickly if WiFi info isn't available
+      await tester.pumpAndSettle(const Duration(seconds: 10));
+
+      // Verify that there are at least 3 widgets at homepage
       expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
     });
   });
