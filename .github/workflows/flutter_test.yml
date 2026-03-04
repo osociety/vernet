@@ -139,8 +139,7 @@ jobs:
             if command -v lcov &> /dev/null; then
               lcov --remove coverage/lcov.info \
                 '**/*.g.dart' \
-                '**/*.freezed.dart' \
-                '**/*.mocks.dart' \
+                'lib/models/drift/*' \
                 -o coverage/lcov.info
             else
               echo "lcov not available; skipping coverage filtering."
