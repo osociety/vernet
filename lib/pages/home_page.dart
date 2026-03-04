@@ -206,7 +206,25 @@ class _WifiDetailState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text("Unable to fetch WiFi details"),
-                      _getDeviceCountWidget(),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _getDeviceCountWidget(),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            key: WidgetKey.scanForDevicesButton.key,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HostScanPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(StringValue.hostScanPageTitle),
+                          ),
+                        ],
+                      ),
                     ],
                   );
                 } else {
@@ -214,7 +232,25 @@ class _WifiDetailState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('Loading...'),
-                      _getDeviceCountWidget(),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _getDeviceCountWidget(),
+                          const SizedBox(width: 4),
+                          ElevatedButton(
+                            key: WidgetKey.scanForDevicesButton.key,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HostScanPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(StringValue.hostScanPageTitle),
+                          ),
+                        ],
+                      ),
                     ],
                   );
                 }
