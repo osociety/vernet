@@ -46,11 +46,27 @@ fi
 cat $COMBINE_FILES > coverage/lcov.info
 
 echo "Excluding generated files from coverage (.g.dart)..."
-lcov --remove coverage/lcov.info \
-  '**/*.g.dart' \
-  'lib/models/drift/*' \
-  -o coverage/lcov.info
+# Check if lcov is available; if not, skip filtering
+if command -v lcov &> /dev/null; then
+  lcov --remove coverage/lcov.info \
+    '**/*.g.dart' \
+    'lib/models/drift/*' \
+    -o coverage/lcov.info
+  echo "Coverage filtered successfully."
+else
+  echo "lcov not found; skipping coverage filtering. Coverage report will include generated files."
+fi
 
 echo "Generating HTML coverage report..."
-genhtml coverage/lcov.info -o coverage/html
-open coverage/html/index.html
+# Check if genhtml is available; if not, skip HTML generation
+if command -v genhtml &> /dev/null; then
+  genhtml coverage/lcov.info -o coverage/html
+  echo "HTML coverage report generated at coverage/html/index.html"
+  # Only try to open on macOS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    open coverage/html/index.html
+  fi
+else
+  echo "genhtml not found; skipping HTML report generation."
+  echo "Coverage data available at coverage/lcov.info"
+fi
