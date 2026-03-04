@@ -1,8 +1,5 @@
-import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/providers/internet_provider.dart';

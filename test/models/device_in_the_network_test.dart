@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/models/device_in_the_network.dart';
 
 void main() {
@@ -11,7 +10,7 @@ void main() {
 
   group('DeviceInTheNetwork', () {
     final testIp = InternetAddress.tryParse('192.168.1.100')!;
-    final testPingData = const PingData();
+    const testPingData = PingData();
 
     test('can be created with basic constructor', () {
       final device = DeviceInTheNetwork(

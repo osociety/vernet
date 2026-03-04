@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -19,10 +19,10 @@ void main() {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (_) => AdaptiveDialog(
-                      title: const Text('T'),
-                      content: const Text('C'),
-                      actions: const [],
+                    builder: (_) => const AdaptiveDialog(
+                      title: Text('T'),
+                      content: Text('C'),
+                      actions: [],
                     ),
                   );
                 },

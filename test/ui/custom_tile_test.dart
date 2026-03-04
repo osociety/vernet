@@ -7,7 +7,7 @@ void main() {
     testWidgets('renders with leading and child widgets',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTile(
               leading: Icon(Icons.info),
@@ -29,7 +29,7 @@ void main() {
             body: CustomTile(
               leading: SizedBox(
                   width: 50, height: 50, child: Container(color: Colors.red)),
-              child: Text('Content'),
+              child: const Text('Content'),
             ),
           ),
         ),
@@ -42,7 +42,7 @@ void main() {
 
     testWidgets('has correct spacing', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomTile(
               leading: SizedBox(width: 24, height: 24),

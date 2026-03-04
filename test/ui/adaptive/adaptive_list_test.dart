@@ -13,10 +13,10 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<DarkThemeProvider>(
         create: (_) => DarkThemeProvider(),
-        child: MaterialApp(
+        child: const MaterialApp(
           home: Scaffold(
             body: AdaptiveListTile(
-              title: const Text('Hello'),
+              title: Text('Hello'),
             ),
           ),
         ),

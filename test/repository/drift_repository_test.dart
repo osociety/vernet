@@ -1,10 +1,10 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vernet/database/drift/drift_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
   _InMemoryDatabaseService(this.db);
@@ -21,7 +21,7 @@ void main() {
   late DeviceRepository deviceRepo;
   late ScanRepository scanRepo;
 
-  setUp(() async {
+  setUp(() {
     // Prepare in-memory shared preferences so getCurrentScanId() won't crash.
     SharedPreferences.setMockInitialValues({});
 
@@ -50,7 +50,6 @@ void main() {
       internetAddress: '192.168.0.2',
       macAddress: '00:11:22:33:44:55',
       hostMake: 'UnitTest',
-      mdnsDomainName: null,
       currentDeviceIp: '192.168.0.10',
       gatewayIp: '192.168.0.1',
       scanId: scan.id,
@@ -84,6 +83,6 @@ void main() {
 
     final ongoing = await scanRepo.getOnGoingScan();
     // getOnGoingScan may return the one we created
-    expect(ongoing == null || ongoing.id != null, isTrue);
+    expect(ongoing != null, isTrue);
   });
 }

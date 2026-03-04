@@ -76,7 +76,7 @@ void main() {
 
       final Container container =
           find.byType(Container).evaluate().first.widget as Container;
-      expect(container.margin, EdgeInsets.all(2.0));
+      expect(container.margin, const EdgeInsets.all(2.0));
     });
   });
 }
