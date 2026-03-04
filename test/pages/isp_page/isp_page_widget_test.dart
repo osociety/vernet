@@ -89,9 +89,11 @@ void main() {
     testWidgets('IspPageWidget displays Container on initial state',
         (WidgetTester tester) async {
       await tester.pumpWidget(_wrapWithProviders(
-        BlocProvider<IspPageBloc>.value(
-          value: ispPageBloc,
-          child: IspPageWidget(client: testClient),
+        Scaffold(
+          body: BlocProvider<IspPageBloc>.value(
+            value: ispPageBloc,
+            child: IspPageWidget(client: testClient),
+          ),
         ),
       ));
 
@@ -102,9 +104,11 @@ void main() {
     testWidgets('IspPageWidget displays loading indicator on LoadInProgress',
         (WidgetTester tester) async {
       await tester.pumpWidget(_wrapWithProviders(
-        BlocProvider<IspPageBloc>.value(
-          value: ispPageBloc,
-          child: IspPageWidget(client: testClient),
+        Scaffold(
+          body: BlocProvider<IspPageBloc>.value(
+            value: ispPageBloc,
+            child: IspPageWidget(client: testClient),
+          ),
         ),
       ));
 
@@ -119,9 +123,11 @@ void main() {
     testWidgets('IspPageWidget displays error message on LoadFailure',
         (WidgetTester tester) async {
       await tester.pumpWidget(_wrapWithProviders(
-        BlocProvider<IspPageBloc>.value(
-          value: ispPageBloc,
-          child: IspPageWidget(client: testClient),
+        Scaffold(
+          body: BlocProvider<IspPageBloc>.value(
+            value: ispPageBloc,
+            child: IspPageWidget(client: testClient),
+          ),
         ),
       ));
 
