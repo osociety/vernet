@@ -3,6 +3,7 @@ include: package:lint/analysis_options.yaml
 
 analyzer:
   errors:
+    depend_on_referenced_packages: ignore
     missing_required_param: error
     missing_return: error
     must_be_immutable: error

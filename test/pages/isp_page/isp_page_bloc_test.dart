@@ -1,21 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:speed_test_dart/classes/classes.dart';
-import 'package:speed_test_dart/classes/coordinate.dart';
 import 'package:speed_test_dart/classes/odometer.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/pages/isp_page/bloc/isp_page_bloc.dart';
 
 // Mock SpeedTestDart for testing
 class MockSpeedTestDart extends SpeedTestDart {
-  final List<Server>? mockServers;
-  final Exception? mockException;
-  final bool shouldFail;
 
   MockSpeedTestDart({
     this.mockServers,
     this.mockException,
     this.shouldFail = false,
   });
+  final List<Server>? mockServers;
+  final Exception? mockException;
+  final bool shouldFail;
 
   @override
   Future<List<Server>> getBestServers({
@@ -116,7 +115,6 @@ void main() {
     test('handles Started event successfully', () async {
       final mockTester = MockSpeedTestDart(
         mockServers: [createMockServer(id: 1, name: 'Server 1', latency: 10)],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();
@@ -140,7 +138,6 @@ void main() {
     test('emits LoadInProgress when Started event is added', () async {
       final mockTester = MockSpeedTestDart(
         mockServers: [],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();
@@ -178,7 +175,6 @@ void main() {
       // Return servers in unsorted order
       final mockTester = MockSpeedTestDart(
         mockServers: [server1, server2, server3],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();
@@ -273,7 +269,6 @@ void main() {
         mockServers: [
           createMockServer(id: 1, name: 'Server', latency: 20),
         ],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();
@@ -318,7 +313,6 @@ void main() {
     test('handles empty server list from getBestServers', () async {
       final mockTester = MockSpeedTestDart(
         mockServers: [],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();
@@ -363,7 +357,6 @@ void main() {
 
       final mockTester = MockSpeedTestDart(
         mockServers: [server3, server1, server2],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();
@@ -398,7 +391,6 @@ void main() {
     test('adds Completed event after successful retrieval', () async {
       final mockTester = MockSpeedTestDart(
         mockServers: [createMockServer(id: 1, name: 'Server', latency: 15)],
-        shouldFail: false,
       );
 
       final settings = createMockSettings();

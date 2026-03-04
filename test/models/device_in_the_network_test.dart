@@ -4,7 +4,6 @@ import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_tools/src/injection.dart' as nt_injection;
-import 'package:network_tools/src/models/arp_data.dart';
 import 'package:network_tools/src/models/vendor.dart' as nt_vendor;
 import 'package:network_tools/src/repository/repository.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
@@ -13,7 +12,7 @@ import 'package:vernet/models/device_in_the_network.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() async {
+  setUpAll(() {
     // Register minimal in-memory repositories so ActiveHost can resolve ARP/vendor
     // data without touching the real database or network.
     if (!nt_injection.getIt.isRegistered<Repository<ARPData>>()) {
@@ -32,8 +31,8 @@ void main() {
 
   group('DeviceInTheNetwork', () {
     final testIp = InternetAddress.tryParse('192.168.1.100')!;
-    final currentDeviceIp = '192.168.1.50';
-    final gatewayIp = '192.168.1.1';
+    const currentDeviceIp = '192.168.1.50';
+    const gatewayIp = '192.168.1.1';
     const testPingData = PingData();
 
     test('can be created with basic constructor', () {
@@ -281,7 +280,7 @@ void main() {
   group('DeviceInTheNetwork.createWithAllNecessaryFields', () {
     test('creates device with correct icon for current device', () {
       final ip = InternetAddress.tryParse('192.168.1.100')!;
-      final currentIp = '192.168.1.100';
+      const currentIp = '192.168.1.100';
 
       final device = DeviceInTheNetwork.createWithAllNecessaryFields(
         internetAddress: ip,
@@ -367,7 +366,6 @@ void main() {
         currentDeviceIp: '192.168.1.100',
         gatewayIp: '192.168.1.1',
         mac: 'aa:bb:cc:dd:ee:ff',
-        mdns: null,
       );
 
       expect(device.internetAddress.address, '192.168.1.150');
@@ -388,7 +386,6 @@ void main() {
         currentDeviceIp: '192.168.1.100',
         gatewayIp: '192.168.1.1',
         mac: null,
-        mdns: null,
       );
 
       // Should be computer or smartphone for current device
@@ -408,7 +405,6 @@ void main() {
         currentDeviceIp: '192.168.1.100',
         gatewayIp: '192.168.1.1',
         mac: null,
-        mdns: null,
       );
 
       expect(device.iconData, Icons.router);

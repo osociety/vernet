@@ -3,15 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:speed_test_dart/classes/classes.dart';
-import 'package:speed_test_dart/classes/coordinate.dart';
 import 'package:speed_test_dart/classes/odometer.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/injection.dart' as di;
 import 'package:vernet/pages/isp_page/bloc/isp_page_bloc.dart';
 import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/isp_page/isp_page_widget.dart';
-import 'package:vernet/values/strings.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/values/strings.dart';
 
 // Create mock Settings and Client for testing
 Settings createTestSettings() {
@@ -230,7 +229,7 @@ void main() {
 
     test('IspPageContent is a StatelessWidget', () {
       expect(
-        IspPageContent(client: testClient, childrens: []),
+        IspPageContent(client: testClient, childrens: const []),
         isA<StatelessWidget>(),
       );
     });

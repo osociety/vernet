@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:speed_test_dart/classes/classes.dart';
-import 'package:speed_test_dart/classes/coordinate.dart';
-import 'package:speed_test_dart/classes/server.dart';
 import 'package:speed_test_dart/enums/file_size.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -155,4 +153,3 @@ void main() {
     });
   });
 }
-
