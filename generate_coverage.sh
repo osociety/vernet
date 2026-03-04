@@ -48,6 +48,7 @@ cat $COMBINE_FILES > coverage/lcov.info
 echo "Excluding generated files from coverage (.g.dart)..."
 lcov --remove coverage/lcov.info \
   '**/*.g.dart' \
+  'lib/models/drift/*' \
   -o coverage/lcov.info
 
 echo "Generating HTML coverage report..."
