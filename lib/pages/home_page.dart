@@ -202,9 +202,21 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                   );
                 } else if (snapshot.hasError) {
-                  return const Text("Unable to fetch WiFi details");
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Unable to fetch WiFi details"),
+                      _getDeviceCountWidget(),
+                    ],
+                  );
                 } else {
-                  return const Text('Loading...');
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Loading...'),
+                      _getDeviceCountWidget(),
+                    ],
+                  );
                 }
               },
             ),
