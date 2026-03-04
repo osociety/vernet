@@ -50,18 +50,18 @@ class DeviceRepository extends Repository<DeviceData> {
 
   Future<int> countByScanId(int scanId) async {
     final database = await _database.open();
-    return int.parse(
-      (database!.selectOnly(database.device)
-            ..addColumns(
-              [countAll(filter: database.device.scanId.equals(scanId))],
-            ))
-          .map(
-            (row) => row.read(
-              countAll(filter: database.device.id.equals(scanId)),
-            ),
-          )
-          .getSingle()
-          .toString(),
+    // Use a proper count query on the scanId column and read it as an int.
+    final row = await (database!.selectOnly(database.device)
+          ..addColumns([
+            countAll(filter: database.device.scanId.equals(scanId)),
+          ])
+          ..where(database.device.scanId.equals(scanId)))
+        .getSingle();
+
+    // Read the same count expression we added above.
+    final int? count = row.read<int>(
+      countAll(filter: database.device.scanId.equals(scanId)),
     );
+    return count ?? 0;
   }
 }
