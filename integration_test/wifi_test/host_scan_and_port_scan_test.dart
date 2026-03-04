@@ -56,11 +56,31 @@ void main() {
       );
 
       expect(routerIconButton, findsOne);
-      await tester.tap(routerIconButton);
+
+      // Ensure widget is fully visible and tap in center
+      await tester.ensureVisible(routerIconButton);
       await tester.pumpAndSettle();
+      await tester.tap(routerIconButton, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 2));
       expect(find.byType(AppBar), findsOne);
 
+      // Wait for port scan page to fully load and radio button to be visible
+      await tester.pumpAndSettle(const Duration(seconds: 3));
       final radioButton = find.byKey(WidgetKey.singlePortScanRadioButton.key);
+
+      // Verify radio button exists before tapping
+      if (find
+          .byKey(WidgetKey.singlePortScanRadioButton.key)
+          .evaluate()
+          .isEmpty) {
+        debugPrint('Radio button not found, scrolling to find it');
+        await tester.scrollUntilVisible(
+          radioButton,
+          500.0,
+          scrollable: find.byType(Scrollable),
+        );
+      }
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
