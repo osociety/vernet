@@ -1,5 +1,9 @@
+import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/api/isp_loader.dart';
 import 'package:vernet/providers/internet_provider.dart';
@@ -12,28 +16,53 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('load returns InternetProvider in debug mode using bundled asset',
-        () async {
+    test('loadIP returns body when client returns success', () async {
+      final client = MockClient((_) async => http.Response('1.2.3.4', 200));
+      final ip = await ISPLoader.loadIP('http://foo', client);
+      expect(ip, '1.2.3.4');
+    });
+
+    test('loadIP returns empty when client fails', () async {
+      final client = MockClient((_) async => http.Response('err', 500));
+      final ip = await ISPLoader.loadIP('http://foo', client);
+      expect(ip, '');
+    });
+
+    test('loadISP returns body when client returns success', () async {
+      final client = MockClient(
+          (_) async => http.Response(jsonEncode({'isp': 'abc'}), 200));
+      final isp = await ISPLoader.loadISP('http://foo', client);
+      expect(isp, contains('isp'));
+    });
+
+    test('loadISP returns empty on error', () async {
+      final client = MockClient((_) async => http.Response('nope', 404));
+      final isp = await ISPLoader.loadISP('http://foo', client);
+      expect(isp, '');
+    });
+
+    test('load() returns provider from bundled asset in debug mode', () async {
+      // intercept asset requests
+      const fakeJson =
+          '{"isp":"fake","country":"Z","region":"R","city":"C","ip":"1.2.3.4","type":"ipv4","latitude":"0","longitude":"0","country_flag":"url"}';
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMessageHandler('flutter/assets',
+          (ByteData? message) async {
+        if (message == null) return null;
+        final key = const Utf8Decoder().convert(message.buffer.asUint8List());
+        if (key == 'assets/ipwhois.json') {
+          final bytes = utf8.encoder.convert(fakeJson);
+          return ByteData.view(Uint8List.fromList(bytes).buffer);
+        }
+        return null;
+      });
+
       final loader = ISPLoader();
-
-      final InternetProvider? provider = await loader.load();
-
+      final provider = await loader.load();
       expect(provider, isNotNull);
-      expect(provider!.isp, isNotEmpty);
-      expect(provider.ip, isNotEmpty);
-      expect(provider.location.address, isNotEmpty);
-    });
-
-    test('loadIP returns response body on success', () async {
-      final ip = await ISPLoader.loadIP('https://api.ipify.org/');
-      // Should return some response (could be valid or empty depending on network)
-      expect(ip, isA<String>());
-    });
-
-    test('loadISP returns response body on success', () async {
-      final isp = await ISPLoader.loadISP('https://api.example.com/');
-      // Should return some response
-      expect(isp, isA<String>());
+      expect(provider!.isp, 'fake');
+      expect(provider.location.address, contains('Z'));
     });
 
     test('ISPLoader instance can be created', () {

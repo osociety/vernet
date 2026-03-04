@@ -8,8 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/providers/internet_provider.dart';
 
 class ISPLoader {
-  static Future<String> loadIP(String url) async {
-    final response = await http.get(Uri.parse(url));
+  static Future<String> loadIP(String url, [http.Client? client]) async {
+    final c = client ?? http.Client();
+    final response = await c.get(Uri.parse(url));
     if (response.statusCode == HttpStatus.ok) {
       return response.body;
     }
@@ -23,8 +24,9 @@ class ISPLoader {
     });
   }
 
-  static Future<String> loadISP(String url) async {
-    final response = await http.get(Uri.parse(url));
+  static Future<String> loadISP(String url, [http.Client? client]) async {
+    final c = client ?? http.Client();
+    final response = await c.get(Uri.parse(url));
     if (response.statusCode == HttpStatus.ok) {
       return response.body;
     }
