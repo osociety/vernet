@@ -1,70 +1,78 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher_platform_interface/link.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/external_link_dialog.dart';
 
-class _FakeUrlLauncherPlatform extends UrlLauncherPlatform {
-  String? lastLaunchedUrl;
+class MockUrlLauncherPlatform extends Mock
+    with MockPlatformInterfaceMixin
+    implements UrlLauncherPlatform {}
 
-  @override
-  LinkDelegate? get linkDelegate => null;
-
-  @override
-  Future<bool> canLaunch(String url) async => true;
-
-  @override
-  Future<bool> launchUrl(
-    String url,
-    LaunchOptions options,
-  ) async {
-    lastLaunchedUrl = url;
-    return true;
-  }
-}
+class FakeLaunchOptions extends Fake implements LaunchOptions {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUpAll(() {
+    registerFallbackValue(FakeLaunchOptions());
+  });
+
   group('ExternalLinkWarningDialog', () {
-    late UrlLauncherPlatform originalPlatform;
-    late _FakeUrlLauncherPlatform fakePlatform;
+    late MockUrlLauncherPlatform mockPlatform;
 
     setUp(() {
-      originalPlatform = UrlLauncherPlatform.instance;
-      fakePlatform = _FakeUrlLauncherPlatform();
-      UrlLauncherPlatform.instance = fakePlatform;
-    });
+      mockPlatform = MockUrlLauncherPlatform();
+      UrlLauncherPlatform.instance = mockPlatform;
 
-    tearDown(() {
-      UrlLauncherPlatform.instance = originalPlatform;
+      when(() => mockPlatform.canLaunch(any())).thenAnswer((_) async => true);
+      when(() => mockPlatform.launch(
+            any(),
+            useSafariVC: any(named: 'useSafariVC'),
+            useWebView: any(named: 'useWebView'),
+            enableJavaScript: any(named: 'enableJavaScript'),
+            enableDomStorage: any(named: 'enableDomStorage'),
+            universalLinksOnly: any(named: 'universalLinksOnly'),
+            headers: any(named: 'headers'),
+            webOnlyWindowName: any(named: 'webOnlyWindowName'),
+          )).thenAnswer((_) async => true);
+      when(() => mockPlatform.launchUrl(any(), any()))
+          .thenAnswer((_) async => true);
     });
 
     testWidgets('renders title, link and triggers launch on action tap',
         (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
       const url = 'https://example.com';
 
+      // Use showAdaptiveDialog directly in the test.
       await tester.pumpWidget(
         ChangeNotifierProvider<DarkThemeProvider>(
           create: (_) => DarkThemeProvider(),
           child: const MaterialApp(
-            home: Scaffold(
-              body: ExternalLinkWarningDialog(link: url),
-            ),
+            home: Scaffold(body: SizedBox()),
           ),
         ),
       );
+      final BuildContext context = tester.element(find.byType(Scaffold));
+      showAdaptiveDialog(
+        context: context,
+        builder: (context) => const ExternalLinkWarningDialog(link: url),
+      );
+      await tester.pumpAndSettle();
 
       expect(find.text('Confirm external link'), findsOneWidget);
       expect(find.text(url), findsOneWidget);
-      expect(find.text('Open Link'), findsOneWidget);
 
       await tester.tap(find.text('Open Link'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(fakePlatform.lastLaunchedUrl, url);
+      verify(() => mockPlatform.canLaunch(url)).called(1);
+      verify(() => mockPlatform.launchUrl(url, any())).called(1);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 }

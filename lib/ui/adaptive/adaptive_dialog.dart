@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +20,8 @@ class AdaptiveDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
-    return Platform.isIOS || Platform.isMacOS
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.iOS || platform == TargetPlatform.macOS
         ? CupertinoTheme(
             data: CupertinoThemeData(
               brightness: Theme.of(context).brightness,

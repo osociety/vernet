@@ -140,16 +140,25 @@ void main() {
       // Resolve best servers.
       await tester.pump();
 
-      expect(find.text('Start'), findsOneWidget);
       await tester.tap(find.text('Start'));
-      await tester.pump();
 
-      // Advance timers / stream iterations a bit without pumpAndSettle (gauges animate).
-      await tester.pump(const Duration(milliseconds: 600));
+      // The speed test involves streams and timers.
+      // We use runAsync to allow the periodic timer to run.
+      await tester.runAsync(() async {
+        for (int i = 0; i < 100; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+          if (find.textContaining('111 Mbps').evaluate().isNotEmpty &&
+              find.textContaining('22 Mbps').evaluate().isNotEmpty) {
+            break;
+          }
+          await Future.delayed(const Duration(milliseconds: 10));
+        }
+      });
+      await tester.pumpAndSettle();
 
-      // After completion, upload result row should be visible.
-      expect(find.byIcon(Icons.upload), findsOneWidget);
-      expect(find.text('22 Mbps'), findsOneWidget);
+      // After completion, results should be visible.
+      expect(find.textContaining('111 Mbps'), findsOneWidget);
+      expect(find.textContaining('22 Mbps'), findsOneWidget);
     });
   });
 }

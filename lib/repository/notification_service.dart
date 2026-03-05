@@ -23,8 +23,11 @@ class ReceivedNotification {
 
 class NotificationService {
   static int id = 1;
-  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  @visibleForTesting
+  static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  @visibleForTesting
+  static bool debugIgnorePlatformCheck = false;
 
   /// Defines a iOS/MacOS notification category for text input actions.
   static const String darwinNotificationCategoryText = 'textCategory';
@@ -50,8 +53,8 @@ class NotificationService {
       StreamController<String?>.broadcast();
 
   static Future<void> initNotification() async {
-    if (Platform.isWindows) return Future.value();
-    await _configureLocalTimeZone();
+    if (Platform.isWindows && !debugIgnorePlatformCheck) return Future.value();
+    await configureLocalTimeZone();
     final NotificationAppLaunchDetails? notificationAppLaunchDetails =
         !kIsWeb && Platform.isLinux
             ? null
@@ -119,17 +122,21 @@ class NotificationService {
     );
   }
 
-  static Future<void> _configureLocalTimeZone() async {
+  static Future<void> configureLocalTimeZone() async {
     if (kIsWeb || Platform.isLinux) {
       return;
     }
     tz.initializeTimeZones();
     final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneInfo.toString()));
+    String timeZoneName = timeZoneInfo.toString();
+    if (timeZoneName.contains('(')) {
+      timeZoneName = timeZoneName.split('(')[1].split(',')[0].trim();
+    }
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
   static Future<void> showNotificationWithActions() async {
-    if (Platform.isWindows) return Future.value();
+    if (Platform.isWindows && !debugIgnorePlatformCheck) return Future.value();
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       'your channel id',
@@ -182,12 +189,12 @@ class NotificationService {
   }
 
   static Future<void> grantPermissions() async {
-    if (Platform.isWindows) return Future.value();
-    await _isAndroidPermissionGranted();
-    await _requestPermissions();
+    if (Platform.isWindows && !debugIgnorePlatformCheck) return Future.value();
+    await isAndroidPermissionGranted();
+    await requestPermissions();
   }
 
-  static Future<bool> _isAndroidPermissionGranted() async {
+  static Future<bool> isAndroidPermissionGranted() async {
     if (Platform.isAndroid) {
       return await flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
@@ -198,7 +205,7 @@ class NotificationService {
     return false;
   }
 
-  static Future<bool?> _requestPermissions() async {
+  static Future<bool?> requestPermissions() async {
     if (Platform.isIOS || Platform.isMacOS) {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<

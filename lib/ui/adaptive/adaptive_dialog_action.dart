@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +16,8 @@ class AdaptiveDialogAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Platform.isIOS || Platform.isMacOS
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.iOS || platform == TargetPlatform.macOS
         ? CupertinoDialogAction(
             onPressed: onPressed,
             isDefaultAction: isDefaultAction,
