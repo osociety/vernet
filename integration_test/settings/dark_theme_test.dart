@@ -24,19 +24,25 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.darkThemeRadioButton.key));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.dark);
 
-      // Change to Light (from Dark)
+      // Change to Light
       await tester.tap(find.byKey(WidgetKey.changeThemeTile.key));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.lightThemeRadioButton.key));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.light);
 
-      // Change to System (from Light)
+      // Change to System
       await tester.tap(find.byKey(WidgetKey.changeThemeTile.key));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.systemThemeRadioButton.key));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.system);
     });

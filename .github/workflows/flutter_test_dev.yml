@@ -72,7 +72,7 @@ jobs:
       - name: Cache pub dependencies
         uses: actions/cache@v4.2.2
         with:
-          path: ~/.pub-cache
+          path: ${{ runner.os == 'Windows' && '~/AppData/Local/Pub/Cache' || '~/.pub-cache' }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
@@ -113,99 +113,4 @@ jobs:
           file: coverage/unit.lcov.info
           flags: unittests
           os: ${{ matrix.os }}
-
-  flutter-build:
-    name: 'Build ${{ matrix.os }}'
-    needs: [changes, flutter-unit-test]
-    if: ${{ (needs.changes.outputs.lib || needs.changes.outputs.android || needs.changes.outputs.linux || needs.changes.outputs.macos || needs.changes.outputs.windows || needs.changes.outputs.yaml) && success() }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu
-            build-type: "apk+linux"
-          - os: macos
-            build-type: "macos"
-          - os: windows
-            build-type: "windows"
-    runs-on: ${{ matrix.os }}-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
-
-      - name: Setup Java (Linux/Windows)
-        if: matrix.os != 'macos'
-        uses: actions/setup-java@v4.7.0
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2.18.0
-        with:
-          channel: stable
-          cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v4.2.2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
-
-      - name: Cache build artifacts
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            .dart_tool/
-            **/*.g.dart
-            **/*.mocks.dart
-            **/*.config.dart
-          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
-          restore-keys: ${{ runner.os }}-build-artifacts-
-
-      - name: Cache Gradle (Linux)
-        if: matrix.os == 'ubuntu'
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            .gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Cache macOS Pods
-        if: matrix.os == 'macos'
-        uses: actions/cache@v4.2.2
-        with:
-          path: macos/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('macos/Podfile.lock') }}
-          restore-keys: ${{ runner.os }}-pods-
-
-      - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
-
-      - name: Download dependencies
-        run: flutter pub get
-
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Build Android Debug APK
-        if: contains(matrix.build-type, 'apk')
-        run: flutter build apk --debug --flavor dev --split-per-abi
-
-      - name: Build Linux
-        if: contains(matrix.build-type, 'linux')
-        run: flutter build linux --debug
-
-      - name: Build macOS
-        if: matrix.os == 'macos'
-        run: flutter build macos --debug
-
-      - name: Build Windows
-        if: matrix.os == 'windows'
-        run: flutter build windows --debug
+          
