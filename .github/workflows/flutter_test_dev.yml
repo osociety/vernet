@@ -196,7 +196,7 @@ jobs:
 
       - name: Build Android Debug APK
         if: contains(matrix.build-type, 'apk')
-        run: flutter build apk --debug --flavor dev --split-per-abi
+        run: flutter build apk --debug --flavor dev
 
       - name: Build Linux
         if: contains(matrix.build-type, 'linux')
