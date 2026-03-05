@@ -68,6 +68,7 @@ void main() {
     setUp(() {
       mockPlugin = MockFlutterLocalNotificationsPlugin();
       NotificationService.flutterLocalNotificationsPlugin = mockPlugin;
+      NotificationService.debugIgnorePlatformCheck = true;
     });
 
     test('id starts at 1 and increments', () {
