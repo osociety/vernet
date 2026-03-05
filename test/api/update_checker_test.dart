@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/api/update_checker.dart';
@@ -83,7 +82,7 @@ void main() {
           child: MaterialApp(
             home: Scaffold(
               body: Builder(
-                builder: (context) => Center(
+                builder: (context) => const Center(
                   child: Text('Test'),
                 ),
               ),

@@ -49,7 +49,7 @@ void main() {
       verify(() => mockUrlLauncher.launchUrl(url, any())).called(1);
     });
 
-    test('launchURL throws error if canLaunch returns false', () async {
+    test('launchURL throws error if canLaunch returns false', () {
       const url = 'invalid_url';
       when(() => mockUrlLauncher.canLaunch(url)).thenAnswer((_) async => false);
 
