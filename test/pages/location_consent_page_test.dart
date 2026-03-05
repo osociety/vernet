@@ -1,22 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
-
-class MockPermissionHandler extends Mock with MockPlatformInterfaceMixin {}
-
-class MockDarkThemeProvider extends Mock implements DarkThemeProvider {
-  @override
-  ThemePreference get themePref => ThemePreference.light;
-  @override
-  bool get darkTheme => false;
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

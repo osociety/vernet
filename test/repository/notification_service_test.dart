@@ -8,19 +8,6 @@ import 'package:vernet/repository/notification_service.dart';
 class MockFlutterLocalNotificationsPlugin extends Mock
     implements FlutterLocalNotificationsPlugin {}
 
-class MockAndroidFlutterLocalNotificationsPlugin extends Mock
-    implements AndroidFlutterLocalNotificationsPlugin {}
-
-class MockIOSFlutterLocalNotificationsPlugin extends Mock
-    implements IOSFlutterLocalNotificationsPlugin {}
-
-class MockMacOSFlutterLocalNotificationsPlugin extends Mock
-    implements MacOSFlutterLocalNotificationsPlugin {}
-
-class MockFlutterTimezone extends Mock {
-  static const MethodChannel channel = MethodChannel('flutter_timezone');
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

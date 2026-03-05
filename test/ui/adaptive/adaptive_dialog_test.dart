@@ -43,7 +43,6 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest(
       title: const Text('T'),
       content: const Text('C'),
-      platform: TargetPlatform.android,
     ));
 
     await tester.tap(find.text('open'));
