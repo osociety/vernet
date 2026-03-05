@@ -55,8 +55,13 @@ class DeviceScannerService extends ScannerService {
       yield device;
     }
 
-    final activeMdnsHostList =
-        await MdnsScannerService.instance.searchMdnsDevices();
+    List<ActiveHost> activeMdnsHostList = [];
+    try {
+      activeMdnsHostList =
+          await MdnsScannerService.instance.searchMdnsDevices();
+    } catch (e) {
+      debugPrint('Error searching mdns devices: $e');
+    }
 
     for (final ActiveHost activeHost in activeMdnsHostList) {
       var device =

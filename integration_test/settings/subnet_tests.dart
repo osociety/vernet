@@ -162,7 +162,7 @@ void main() {
 
       await TestUtils.enterTextByKey(
         WidgetKey.settingsTextField,
-        '6',
+        '4',
         tester,
         find,
       );
@@ -174,7 +174,7 @@ void main() {
       );
       await appSettings.load();
 
-      expect(appSettings.pingCount, 6);
+      expect(appSettings.pingCount, 4);
     });
   });
 }
