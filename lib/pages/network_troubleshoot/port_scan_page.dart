@@ -50,10 +50,12 @@ class _PortScanPageState extends State<PortScanPage>
   }
 
   void _handleEvent(ActiveHost? host) {
-    debugPrint('Found open port : ${host!.openPorts}');
-    setState(() {
-      _openPorts.addAll(host.openPorts);
-    });
+    if (host != null) {
+      debugPrint('Found open port : ${host.openPorts}');
+      setState(() {
+        _openPorts.addAll(host.openPorts);
+      });
+    }
   }
 
   void _handleOnDone() {
