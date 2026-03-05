@@ -26,6 +26,6 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 10));
 
       expect(find.byKey(WidgetKey.runScanOnStartup.key), findsOne);
-    }, skip: true);
+    });
   });
 }

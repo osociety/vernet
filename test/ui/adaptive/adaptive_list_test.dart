@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +15,10 @@ void main() {
           home: Scaffold(
             body: AdaptiveListTile(
               title: Text('Hello'),
+              subtitle: Text('Subtitle'),
+              leading: Icon(Icons.add),
+              trailing: Icon(Icons.chevron_right),
+              platform: 'android',
             ),
           ),
         ),
@@ -24,25 +26,57 @@ void main() {
     );
 
     await tester.pumpAndSettle();
-    if (Platform.isIOS || Platform.isMacOS) {
-      expect(find.byType(CupertinoListTile), findsOneWidget);
-    } else {
-      expect(find.byType(ListTile), findsOneWidget);
-    }
+    expect(find.byType(ListTile), findsOneWidget);
     expect(find.text('Hello'), findsOneWidget);
+    expect(find.text('Subtitle'), findsOneWidget);
+    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
   });
 
-  testWidgets('AdaptiveListTile onTap is triggered', (tester) async {
+  testWidgets('AdaptiveListTile renders CupertinoListTile on iOS',
+      (tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: const MaterialApp(
+          home: Scaffold(
+            body: AdaptiveListTile(
+              title: Text('Hello'),
+              subtitle: Text('Subtitle'),
+              leading: Icon(Icons.add),
+              trailing: Icon(Icons.chevron_right),
+              platform: 'ios',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    expect(find.byType(CupertinoListTile), findsOneWidget);
+    expect(find.text('Hello'), findsOneWidget);
+    expect(find.text('Subtitle'), findsOneWidget);
+    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+  });
+
+  testWidgets('AdaptiveListTile onTap and onLongPress are triggered',
+      (tester) async {
     var tapped = false;
+    var longPressed = false;
     await tester.pumpWidget(
       ChangeNotifierProvider<DarkThemeProvider>(
         create: (_) => DarkThemeProvider(),
         child: MaterialApp(
           home: Scaffold(
             body: AdaptiveListTile(
-              title: const Text('TapMe'),
+              title: const Text('ActionMe'),
+              platform: 'android',
               onTap: () {
                 tapped = true;
+              },
+              onLongPress: () {
+                longPressed = true;
               },
             ),
           ),
@@ -51,8 +85,36 @@ void main() {
     );
 
     await tester.pumpAndSettle();
-    await tester.tap(find.text('TapMe'));
+    await tester.tap(find.text('ActionMe'));
     await tester.pumpAndSettle();
     expect(tapped, isTrue);
+
+    await tester.longPress(find.text('ActionMe'));
+    await tester.pumpAndSettle();
+    expect(longPressed, isTrue);
+  });
+
+  testWidgets('AdaptiveListTile respects dense and contentPadding',
+      (tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: const MaterialApp(
+          home: Scaffold(
+            body: AdaptiveListTile(
+              title: Text('Dense'),
+              dense: true,
+              contentPadding: EdgeInsets.all(20),
+              platform: 'android',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    final listTile = tester.widget<ListTile>(find.byType(ListTile));
+    expect(listTile.dense, isTrue);
+    expect(listTile.contentPadding, const EdgeInsets.all(20));
   });
 }
