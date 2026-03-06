@@ -107,6 +107,17 @@ jobs:
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Run unit tests with coverage
+        run: flutter test --coverage
+
+      - name: Preserve unit test coverage
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            mv coverage/lcov.info coverage/unit_${{ matrix.os }}.lcov.info
+          else
+            echo "Unit coverage not produced; aborting." && exit 1
+          fi
+
       - name: Run integration tests - Linux
         if: matrix.os == 'ubuntu'
         run: |
@@ -124,11 +135,37 @@ jobs:
         if: matrix.os == 'windows'
         run: flutter test integration_test/app_test.dart --coverage -d windows
 
-      - name: Upload integration test coverage to CodeCov
+      - name: Preserve integration test coverage
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
+          else
+            echo "No integration coverage produced; skipping integration coverage step."
+          fi
+
+      - name: Combine coverage files
+        run: |
+          # Combine unit and integration coverage
+          cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/lcov.info
+
+      - name: Remove generated files from coverage
+        run: |
+          # Check if lcov is available; if not, skip filtering
+          if command -v lcov &> /dev/null; then
+            lcov --remove coverage/lcov.info \
+              '**/*.g.dart' \
+              'lib/models/drift/*' \
+              -o coverage/lcov.info
+            echo "Coverage filtered successfully."
+          else
+            echo "lcov not found; skipping coverage filtering. Coverage report will include generated files."
+          fi
+
+      - name: Upload combined coverage to CodeCov
         if: always()
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage/lcov.info
-          flags: integration,${{ matrix.os }}
+          flags: combined,${{ matrix.os }}
           fail_ci_if_error: false
