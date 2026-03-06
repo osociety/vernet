@@ -56,11 +56,6 @@ jobs:
           - os: windows
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - name: Disable macOS Firewall
-        if: matrix.os == 'macos'
-        run: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-        # Use sudo as this requires administrator privileges
-
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
@@ -154,7 +149,9 @@ jobs:
       
       - name: Combine coverage files on windows
         if: matrix.os == 'windows'
-        run: copy /b coverage/unit_${{ matrix.os }}.lcov.info + coverage/integration_${{ matrix.os }}.lcov.info coverage/lcov.info
+        shell: cmd
+        run: |
+          copy /b coverage\unit_windows.lcov.info + coverage\integration_windows.lcov.info coverage\combined.lcov.info
     
       - name: Remove generated files from coverage
         run: lcov --remove coverage/lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/lcov.info
