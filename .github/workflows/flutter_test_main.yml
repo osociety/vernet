@@ -56,11 +56,6 @@ jobs:
           - os: windows
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - name: Disable macOS Firewall
-        if: matrix.os == 'macos'
-        run: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
-        # Use sudo as this requires administrator privileges
-
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
@@ -100,6 +95,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.packages }}
+      - name: Setup LCOV
+        uses: hrishikesh-kadam/setup-lcov@v1
 
       - name: Download dependencies
         run: flutter pub get
@@ -111,12 +108,7 @@ jobs:
         run: flutter test --coverage
 
       - name: Preserve unit test coverage
-        run: |
-          if [ -f coverage/lcov.info ]; then
-            mv coverage/lcov.info coverage/unit_${{ matrix.os }}.lcov.info
-          else
-            echo "Unit coverage not produced; aborting." && exit 1
-          fi
+        run: mv coverage/lcov.info coverage/unit_${{ matrix.os }}.lcov.info
 
       - name: Run integration tests - Linux
         if: matrix.os == 'ubuntu'
@@ -136,36 +128,26 @@ jobs:
         run: flutter test integration_test/app_test.dart --coverage -d windows
 
       - name: Preserve integration test coverage
-        run: |
-          if [ -f coverage/lcov.info ]; then
-            mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
-          else
-            echo "No integration coverage produced; skipping integration coverage step."
-          fi
+        run: mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
 
-      - name: Combine coverage files
+      - name: Combine coverage files on macos/ubuntu
+        if: matrix.os == 'macos' || matrix.os == 'ubuntu'
+        run: cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/${{ matrix.os }}_lcov.info
+      
+      - name: Combine coverage files on windows
+        if: matrix.os == 'windows'
+        shell: cmd
         run: |
-          # Combine unit and integration coverage
-          cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/lcov.info
-
-      - name: Remove generated files from coverage
-        run: |
-          # Check if lcov is available; if not, skip filtering
-          if command -v lcov &> /dev/null; then
-            lcov --remove coverage/lcov.info \
-              '**/*.g.dart' \
-              'lib/models/drift/*' \
-              -o coverage/lcov.info
-            echo "Coverage filtered successfully."
-          else
-            echo "lcov not found; skipping coverage filtering. Coverage report will include generated files."
-          fi
+          copy /b coverage\unit_${{ matrix.os }}.lcov.info + coverage\integration_${{ matrix.os }}.lcov.info coverage\${{ matrix.os }}_lcov.info
+    
+      - name: Remove generated files from coverage  
+        run: lcov --remove coverage/${{ matrix.os }}_lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/${{ matrix.os }}_lcov.info
 
       - name: Upload combined coverage to CodeCov
         if: always()
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage/lcov.info
-          flags: combined,${{ matrix.os }}
+          file: coverage/${{ matrix.os }}_lcov.info
+          flags: ${{ matrix.os }}
           fail_ci_if_error: false
