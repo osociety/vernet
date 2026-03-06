@@ -148,19 +148,14 @@ jobs:
       - name: Preserve integration test coverage
         run: mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
 
-      - name: Combine coverage files
-        run: |
-          # Combine unit and integration coverage
-          if [ -f coverage/unit_${{ matrix.os }}.lcov.info ] && [ -f coverage/integration_${{ matrix.os }}.lcov.info ]; then
-            cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/lcov.info
-          elif [ -f coverage/unit_${{ matrix.os }}.lcov.info ]; then
-            cp coverage/unit_${{ matrix.os }}.lcov.info coverage/lcov.info
-          elif [ -f coverage/integration_${{ matrix.os }}.lcov.info ]; then
-            cp coverage/integration_${{ matrix.os }}.lcov.info coverage/lcov.info
-          else
-            echo "No coverage files to combine; skipping combination step."
-          fi
-
+      - name: Combine coverage files on macos/ubuntu
+        if: matrix.os == 'macos' || matrix.os == 'ubuntu'
+        run: cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/lcov.info
+      
+      - name: Combine coverage files on windows
+        if: matrix.os == 'windows'
+        run: copy /b coverage/unit_${{ matrix.os }}.lcov.info + coverage/integration_${{ matrix.os }}.lcov.info coverage/lcov.info
+    
       - name: Remove generated files from coverage
         run: lcov --remove coverage/lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/lcov.info
 
