@@ -132,22 +132,22 @@ jobs:
 
       - name: Combine coverage files on macos/ubuntu
         if: matrix.os == 'macos' || matrix.os == 'ubuntu'
-        run: cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/lcov.info
+        run: cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/${{ matrix.os }}_lcov.info
       
       - name: Combine coverage files on windows
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-          copy /b coverage\unit_windows.lcov.info + coverage\integration_windows.lcov.info coverage\lcov.info
+          copy /b coverage\unit_${{ matrix.os }}.lcov.info + coverage\integration_${{ matrix.os }}.lcov.info coverage\${{ matrix.os }}_lcov.info
     
-      - name: Remove generated files from coverage
-        run: lcov --remove coverage/lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/lcov.info
+      - name: Remove generated files from coverage  
+        run: lcov --remove coverage/${{ matrix.os }}_lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/${{ matrix.os }}_lcov.info
 
       - name: Upload combined coverage to CodeCov
         if: always()
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage/lcov.info
-          flags: combined,${{ matrix.os }}
+          file: coverage/${{ matrix.os }}_lcov.info
+          flags: ${{ matrix.os }}
           fail_ci_if_error: false
