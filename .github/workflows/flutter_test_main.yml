@@ -138,7 +138,7 @@ jobs:
         if: matrix.os == 'windows'
         shell: cmd
         run: |
-          copy /b coverage\unit_windows.lcov.info + coverage\integration_windows.lcov.info coverage\combined.lcov.info
+          copy /b coverage\unit_windows.lcov.info + coverage\integration_windows.lcov.info coverage\lcov.info
     
       - name: Remove generated files from coverage
         run: lcov --remove coverage/lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/lcov.info
