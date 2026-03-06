@@ -10,63 +10,40 @@ import 'test_utils.dart';
 void main() {
   globals.testingActive = true;
   group('Test if theme preference is set properly', () {
-    testWidgets('dark theme test', (tester) async {
+    testWidgets('theme preference cycle test', (tester) async {
       final darkThemePreference = DarkThemePreference();
+      // Ensure it starts as system
       expect(await darkThemePreference.getTheme(), ThemePreference.system);
 
       await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
 
+      // Change to Dark
       await TestUtils.tapSettingsButton(tester, find);
-
-      final changeThemeButton = find.byKey(WidgetKey.changeThemeTile.key);
-      await tester.tap(changeThemeButton);
+      await tester.tap(find.byKey(WidgetKey.changeThemeTile.key));
       await tester.pumpAndSettle();
-
-      final darkThemeTileButton =
-          find.byKey(WidgetKey.darkThemeRadioButton.key);
-      await tester.tap(darkThemeTileButton);
+      await tester.tap(find.byKey(WidgetKey.darkThemeRadioButton.key));
       await tester.pumpAndSettle();
-
-      expect(await darkThemePreference.getTheme(), ThemePreference.dark);
-    });
-
-    testWidgets('light theme test', (tester) async {
-      final darkThemePreference = DarkThemePreference();
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.dark);
 
-      await tester.pumpWidget(const MyApp(true));
-
-      await TestUtils.tapSettingsButton(tester, find);
-
-      final changeThemeButton = find.byKey(WidgetKey.changeThemeTile.key);
-      await tester.tap(changeThemeButton);
+      // Change to Light
+      await tester.tap(find.byKey(WidgetKey.changeThemeTile.key));
       await tester.pumpAndSettle();
-
-      final darkThemeTileButton =
-          find.byKey(WidgetKey.lightThemeRadioButton.key);
-      await tester.tap(darkThemeTileButton);
+      await tester.tap(find.byKey(WidgetKey.lightThemeRadioButton.key));
       await tester.pumpAndSettle();
-
-      expect(await darkThemePreference.getTheme(), ThemePreference.light);
-    });
-
-    testWidgets('system theme test', (tester) async {
-      final darkThemePreference = DarkThemePreference();
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.light);
 
-      await tester.pumpWidget(const MyApp(true));
-
-      await TestUtils.tapSettingsButton(tester, find);
-
-      final changeThemeButton = find.byKey(WidgetKey.changeThemeTile.key);
-      await tester.tap(changeThemeButton);
+      // Change to System
+      await tester.tap(find.byKey(WidgetKey.changeThemeTile.key));
       await tester.pumpAndSettle();
-
-      final darkThemeTileButton =
-          find.byKey(WidgetKey.systemThemeRadioButton.key);
-      await tester.tap(darkThemeTileButton);
+      await tester.tap(find.byKey(WidgetKey.systemThemeRadioButton.key));
       await tester.pumpAndSettle();
-
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
       expect(await darkThemePreference.getTheme(), ThemePreference.system);
     });
   });

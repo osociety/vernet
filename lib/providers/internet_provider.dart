@@ -21,8 +21,8 @@ class Location {
       : _country = json['country'] as String,
         _region = json['region'] as String,
         _city = json['city'] as String,
-        _lat = json['latitude'] as String,
-        _lng = json['longitude'] as String,
+        _lat = json['latitude'].toString(),
+        _lng = json['longitude'].toString(),
         _flagUrl = json['country_flag'] as String;
 
   final String _country;

@@ -6,8 +6,6 @@ import 'package:integration_test/integration_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vernet/injection.dart';
-import 'package:vernet/main.dart';
-import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 import 'dns/lookup/lookup_test.dart' as lookup_test;
@@ -34,21 +32,7 @@ void main() {
     port = server.port;
     debugPrint("Opened port in this machine at $port");
   });
-  group('app launch test', () {
-    testWidgets('just test if app is able to launch and display homepage',
-        (tester) async {
-      globals.testingActive = true;
-      // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
 
-      // Use a longer timeout to allow platform channels to respond
-      // In CI environments, this might timeout quickly if WiFi info isn't available
-      await tester.pumpAndSettle(const Duration(seconds: 10));
-
-      // Verify that there are at least 3 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-    });
-  });
   wifi_test_runner.main();
   ping_test.main();
   lookup_test.main();

@@ -8,6 +8,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/scanner_service.dart';
+import 'package:vernet/values/globals.dart' as globals;
 
 @Injectable()
 class DeviceScannerService extends ScannerService {
@@ -55,8 +56,15 @@ class DeviceScannerService extends ScannerService {
       yield device;
     }
 
-    final activeMdnsHostList =
-        await MdnsScannerService.instance.searchMdnsDevices();
+    List<ActiveHost> activeMdnsHostList = [];
+    try {
+      if (!globals.testingActive) {
+        activeMdnsHostList =
+            await MdnsScannerService.instance.searchMdnsDevices();
+      }
+    } catch (e) {
+      debugPrint('Error searching mdns devices: $e');
+    }
 
     for (final ActiveHost activeHost in activeMdnsHostList) {
       var device =

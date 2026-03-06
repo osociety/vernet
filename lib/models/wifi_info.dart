@@ -17,7 +17,9 @@ class WifiInfo {
   int totalDevices = 0;
   final String gatewayIp;
   final bool isLocationOn;
-  String get subnet => gatewayIp.substring(0, gatewayIp.lastIndexOf('.'));
+  String get subnet => gatewayIp.contains('.')
+      ? gatewayIp.substring(0, gatewayIp.lastIndexOf('.'))
+      : gatewayIp;
 
   static const String noWifiName = 'Wi-Fi';
 

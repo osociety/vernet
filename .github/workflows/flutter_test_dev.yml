@@ -1,0 +1,116 @@
+name: Flutter Test - Dev Branch
+
+on:
+  pull_request:
+    branches: ["dev"]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency: 
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: 'Detect changes'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      lib: ${{ steps.filter.outputs.lib == 'true' }}
+      test: ${{ steps.filter.outputs.test == 'true' }}
+      android: ${{ steps.filter.outputs.android == 'true' }}
+      linux: ${{ steps.filter.outputs.linux == 'true' }}
+      macos: ${{ steps.filter.outputs.macos == 'true' }}
+      yaml: ${{ steps.filter.outputs.yaml == 'true' }}
+      windows: ${{ steps.filter.outputs.windows == 'true' }}
+    steps:
+      - uses: dorny/paths-filter@v3.0.2
+        id: filter
+        with:
+          filters: |
+            lib:
+              - 'lib/**'
+            android:
+              - 'android/**'
+            test:
+              - 'test/**'
+            linux:
+              - 'linux/**'
+            macos:
+              - 'macos/**'
+            yaml:
+              - '*.yaml'
+            windows:
+              - 'windows/**'
+
+  flutter-unit-test:
+    name: 'Unit Tests on ${{ matrix.os }}'
+    strategy:
+      matrix:
+        os: [ubuntu, macos, windows]
+    needs: changes
+    if: ${{ needs.changes.outputs.lib || needs.changes.outputs.test || needs.changes.outputs.yaml }}
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Java (Linux/Windows)
+        if: matrix.os != 'macos'
+        uses: actions/setup-java@v4.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.18.0
+        with:
+          channel: stable
+          cache: true
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: ${{ runner.os == 'Windows' && '~/AppData/Local/Pub/Cache' || '~/.pub-cache' }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4.2.2
+        with:
+          path: |
+            .dart_tool/
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
+          restore-keys: ${{ runner.os }}-build-artifacts-
+
+      - name: Download dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run analyzer
+        run: flutter analyze
+
+      - name: Run unit tests with coverage
+        run: flutter test --coverage
+
+      - name: Preserve unit test coverage
+        shell: bash
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            mv coverage/lcov.info coverage/unit.lcov.info
+          fi
+
+      - name: Upload coverage to CodeCov
+        uses: codecov/codecov-action@v4.5.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage/unit.lcov.info
+          flags: unittests
+          os: ${{ matrix.os }}
+          

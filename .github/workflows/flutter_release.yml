@@ -30,20 +30,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      # setup java because we are building for android too
       - name: Setup Java JDK
         uses: actions/setup-java@v4.7.0
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Flutter action
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
+          cache: true
 
-      - name: Download and upgrade pub dependencies
-        run: flutter pub get && flutter pub upgrade
+      - name: Cache pub dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4.2.2
+        with:
+          path: |
+            .dart_tool/
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
+          restore-keys: ${{ runner.os }}-build-artifacts-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4.2.2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            .gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Download pub dependencies
+        run: flutter pub get
 
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
@@ -141,13 +169,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Flutter action
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
+          cache: true
 
-      - name: Download and upgrade pub dependencies
-        run: flutter pub get && flutter pub upgrade
+      - name: Cache pub dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4.2.2
+        with:
+          path: |
+            .dart_tool/
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
+          restore-keys: ${{ runner.os }}-build-artifacts-
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4.2.2
+        with:
+          path: macos/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('macos/Podfile.lock') }}
+          restore-keys: ${{ runner.os }}-pods-
+
+      - name: Download pub dependencies
+        run: flutter pub get
 
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
@@ -162,10 +216,12 @@ jobs:
           filename: ${{ env.MACOS_ZIP }}
           directory: ${{ env.MACOS_BUILD_PATH }}
 
-      - name: Install Node 18
+      - name: Setup Node 18
         uses: actions/setup-node@v4.2.0
         with:
           node-version: 18
+          cache: 'npm'
+          cache-dependency-path: '${{ env.MACOS_DMG_PATH }}/package-lock.json'
           
       - name: Install Appdmg and Create dmg
         working-directory: ${{ env.MACOS_DMG_PATH }}
@@ -189,13 +245,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Flutter action
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2.18.0
         with:
           channel: stable
+          cache: true
 
-      - name: Download and upgrade pub dependencies
-        run: flutter pub get && flutter pub upgrade
+      - name: Cache pub dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4.2.2
+        with:
+          path: |
+            .dart_tool/
+            **/*.g.dart
+            **/*.mocks.dart
+            **/*.config.dart
+          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
+          restore-keys: ${{ runner.os }}-build-artifacts-
+      
+      - name: Download pub dependencies
+        run: flutter pub get
       
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs

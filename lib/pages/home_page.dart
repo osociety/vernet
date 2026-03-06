@@ -69,9 +69,9 @@ class _WifiDetailState extends State<HomePage> {
       isLocationOn,
     );
 
-    if (appSettings.runScanOnStartup) {
+    if (appSettings.runScanOnStartup && wifiIP != null) {
       getIt<DeviceScannerService>()
-          .startNewScan(_wifiInfo!.subnet, wifiIP!, gatewayIp)
+          .startNewScan(_wifiInfo!.subnet, wifiIP, gatewayIp)
           .listen((device) {
         if (mounted) {
           setState(() {

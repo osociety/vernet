@@ -17,6 +17,7 @@ class AdaptiveListTile extends StatelessWidget {
     this.dense,
     this.onLongPress,
     this.contentPadding,
+    this.platform,
   });
 
   final Widget title;
@@ -28,11 +29,13 @@ class AdaptiveListTile extends StatelessWidget {
   final double? minVerticalPadding;
   final bool? dense;
   final EdgeInsetsGeometry? contentPadding;
+  final String? platform;
 
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
-    return Platform.isIOS || Platform.isMacOS
+    final String currentPlatform = platform ?? Platform.operatingSystem;
+    return currentPlatform == 'ios' || currentPlatform == 'macos'
         ? CupertinoTheme(
             data: CupertinoThemeData(
               brightness: Theme.of(context).brightness,
