@@ -95,25 +95,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.packages }}
-
-      - name: Install lcov (Linux)
-        if: matrix.os == 'ubuntu'
-        run: |
-          sudo apt-get install -y lcov
-
-      - name: Install lcov (macOS)
-        if: matrix.os == 'macos'
-        run: |
-          brew install lcov
-
-      - name: Install lcov (Windows)
-        if: matrix.os == 'windows'
-        run: |
-          choco install lcov -y
-
-      - name: Add Choco Bin to Path
-        if: matrix.os == 'windows'
-        run: echo "C:\ProgramData\chocolatey\bin" >> $env:GITHUB_PATH
+      - name: Setup LCOV
+        uses: hrishikesh-kadam/setup-lcov@v1
 
       - name: Download dependencies
         run: flutter pub get
