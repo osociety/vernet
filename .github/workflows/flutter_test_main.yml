@@ -56,6 +56,11 @@ jobs:
           - os: windows
     runs-on: ${{ matrix.os }}-latest
     steps:
+      - name: Disable macOS Firewall
+        if: matrix.os == 'macos'
+        run: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate off
+        # Use sudo as this requires administrator privileges
+
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
