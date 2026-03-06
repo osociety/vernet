@@ -109,7 +109,11 @@ jobs:
       - name: Install lcov (Windows)
         if: matrix.os == 'windows'
         run: |
-          choco install lcov
+          choco install lcov -y
+
+      - name: Add Choco Bin to Path
+        if: matrix.os == 'windows'
+        run: echo "C:\ProgramData\chocolatey\bin" >> $env:GITHUB_PATH
 
       - name: Download dependencies
         run: flutter pub get
