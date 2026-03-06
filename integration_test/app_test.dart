@@ -6,8 +6,6 @@ import 'package:integration_test/integration_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vernet/injection.dart';
-import 'package:vernet/main.dart';
-import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 import 'dns/lookup/lookup_test.dart' as lookup_test;
