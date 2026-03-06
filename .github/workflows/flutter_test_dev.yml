@@ -96,21 +96,6 @@ jobs:
       - name: Run analyzer
         run: flutter analyze
 
-      - name: Run unit tests with coverage
-        run: flutter test --coverage
-
-      - name: Preserve unit test coverage
-        shell: bash
-        run: |
-          if [ -f coverage/lcov.info ]; then
-            mv coverage/lcov.info coverage/unit.lcov.info
-          fi
-
-      - name: Upload coverage to CodeCov
-        uses: codecov/codecov-action@v4.5.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage/unit.lcov.info
-          flags: unittests
-          os: ${{ matrix.os }}
+      - name: Run unit tests
+        run: flutter test
           

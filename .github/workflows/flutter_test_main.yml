@@ -111,12 +111,7 @@ jobs:
         run: flutter test --coverage
 
       - name: Preserve unit test coverage
-        run: |
-          if [ -f coverage/lcov.info ]; then
-            mv coverage/lcov.info coverage/unit_${{ matrix.os }}.lcov.info
-          else
-            echo "Unit coverage not produced; aborting." && exit 1
-          fi
+        run: mv coverage/lcov.info coverage/unit_${{ matrix.os }}.lcov.info
 
       - name: Run integration tests - Linux
         if: matrix.os == 'ubuntu'
@@ -136,12 +131,7 @@ jobs:
         run: flutter test integration_test/app_test.dart --coverage -d windows
 
       - name: Preserve integration test coverage
-        run: |
-          if [ -f coverage/lcov.info ]; then
-            mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
-          else
-            echo "No integration coverage produced; skipping integration coverage step."
-          fi
+        run: mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
 
       - name: Combine coverage files
         run: |
@@ -149,17 +139,7 @@ jobs:
           cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/lcov.info
 
       - name: Remove generated files from coverage
-        run: |
-          # Check if lcov is available; if not, skip filtering
-          if command -v lcov &> /dev/null; then
-            lcov --remove coverage/lcov.info \
-              '**/*.g.dart' \
-              'lib/models/drift/*' \
-              -o coverage/lcov.info
-            echo "Coverage filtered successfully."
-          else
-            echo "lcov not found; skipping coverage filtering. Coverage report will include generated files."
-          fi
+        run: lcov --remove coverage/lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/lcov.info
 
       - name: Upload combined coverage to CodeCov
         if: always()
