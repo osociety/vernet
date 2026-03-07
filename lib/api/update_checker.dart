@@ -69,7 +69,7 @@ Future<void> checkForUpdates(
       action = SnackBarAction(
         label: 'Update',
         onPressed: () {
-          _navigateToStore(context);
+          navigateToStore(context);
         },
       );
     } else {
@@ -94,7 +94,7 @@ Future<void> checkForUpdates(
   }
 }
 
-Future<void> _navigateToStore(BuildContext context) async {
+Future<void> navigateToStore(BuildContext context) async {
   String url = 'https://github.com/git-elliot/vernet/releases/latest';
 
   if (Platform.isAndroid) {
