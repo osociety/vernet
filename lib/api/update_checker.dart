@@ -23,21 +23,42 @@ Future<bool> checkUpdates(
   final c = client ?? http.Client();
   final response = await c.get(target);
   if (response.statusCode == HttpStatus.ok) {
-    final List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
-    if (res.isNotEmpty) {
-      String tag = res[0]['name'] as String;
-      if (tag.contains('v')) {
-        tag = tag.substring(1);
+    try {
+      // Handle empty response body
+      if (response.body.isEmpty) {
+        return false;
       }
-      String tempV = v;
-      if (tempV.contains('-store')) {
-        final List<String> sp = tempV.split('-store');
-        tempV = sp[0] + sp[1];
+
+      final List<dynamic> res = jsonDecode(response.body) as List<dynamic>;
+      if (res.isNotEmpty) {
+        String tag = res[0]['name'] as String;
+        if (tag.contains('v')) {
+          tag = tag.substring(1);
+        }
+        String tempV = v;
+        if (tempV.contains('-store')) {
+          final List<String> sp = tempV.split('-store');
+          tempV = sp[0];
+        }
+
+        // Handle malformed version strings
+        if (!_isValidVersion(tag) || !_isValidVersion(tempV)) {
+          return false;
+        }
+
+        return tempV.compareTo(tag) < 0;
       }
-      return tempV.compareTo(tag) < 0;
+    } catch (e) {
+      // Handle JSON parsing errors gracefully
+      return false;
     }
   }
   return false;
+}
+
+/// Validates if a string is a valid version (contains numbers and dots)
+bool _isValidVersion(String version) {
+  return RegExp(r'^\d+(\.\d+)*').hasMatch(version);
 }
 
 // exposed for testing so we can inject a client or URL without running
