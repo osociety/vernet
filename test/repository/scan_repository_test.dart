@@ -29,6 +29,23 @@ void main() {
     await db.close();
   });
 
+  test('ScanRepository put/get/getOnGoingScan works', () async {
+    final scan = await scanRepo.put(
+      ScanData(
+        id: DateTime.now().millisecondsSinceEpoch,
+        gatewayIp: '10.0.0.0',
+        startTime: DateTime.now(),
+        onGoing: true,
+      ),
+    );
+
+    final fetched = await scanRepo.get(scan.id);
+    expect(fetched, isNotNull);
+
+    final ongoing = await scanRepo.getOnGoingScan();
+    expect(ongoing != null, isTrue);
+  });
+
   group('ScanRepository additional tests', () {
     test('get returns null for non-existent scan', () async {
       final result = await scanRepo.get(999999);

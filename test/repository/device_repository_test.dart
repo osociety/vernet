@@ -32,6 +32,39 @@ void main() {
     await db.close();
   });
 
+  test('DeviceRepository put/get/getList/countByScanId works', () async {
+    final scan = await scanRepo.put(
+      ScanData(
+        id: DateTime.now().millisecondsSinceEpoch,
+        gatewayIp: '192.168.0.0',
+        startTime: DateTime.now(),
+        onGoing: true,
+      ),
+    );
+
+    final device = DeviceData(
+      id: DateTime.now().millisecondsSinceEpoch,
+      internetAddress: '192.168.0.2',
+      macAddress: '00:11:22:33:44:55',
+      hostMake: 'UnitTest',
+      currentDeviceIp: '192.168.0.10',
+      gatewayIp: '192.168.0.1',
+      scanId: scan.id,
+    );
+
+    final inserted = await deviceRepo.put(device);
+    expect(inserted.internetAddress, device.internetAddress);
+
+    final list = await deviceRepo.getList();
+    expect(list, isNotEmpty);
+
+    final fetched = await deviceRepo.getDevice(scan.id, device.internetAddress);
+    expect(fetched, isNotNull);
+
+    final count = await deviceRepo.countByScanId(scan.id);
+    expect(count, greaterThanOrEqualTo(1));
+  });
+
   group('DeviceRepository additional tests', () {
     test('get returns null for non-existent device', () async {
       final result = await deviceRepo.get(999999);
