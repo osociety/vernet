@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -67,7 +67,9 @@ Widget wrapWithDarkThemeProvider({
   return ChangeNotifierProvider(
     create: (_) {
       final provider = DarkThemeProvider();
-      provider.themePref = initialDarkTheme;
+      provider.themePref = initialDarkTheme
+          ? ThemePreference.dark
+          : ThemePreference.light;
       return provider;
     },
     child: child,
