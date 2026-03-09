@@ -14,6 +14,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+
     // Mock PackageInfo
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
@@ -67,6 +68,62 @@ void main() {
       final result = await checkUpdatesForTest('0.0.1', client: client);
       expect(result, isFalse);
     });
+
+    test('returns false when no tags in response', () async {
+      final payload = jsonEncode([]);
+      final client = MockClient((_) async => http.Response(payload, 200));
+
+      final result = await checkUpdatesForTest('1.0.0', client: client);
+      expect(result, isFalse);
+    });
+
+    test('handles version comparison correctly for same versions', () async {
+      final payload = jsonEncode([
+        {'name': 'v1.0.0'}
+      ]);
+      final client = MockClient((_) async => http.Response(payload, 200));
+
+      final result = await checkUpdatesForTest('1.0.0', client: client);
+      expect(result, isFalse);
+    });
+
+    test('handles version comparison correctly for older remote version',
+        () async {
+      final payload = jsonEncode([
+        {'name': 'v0.9.0'}
+      ]);
+      final client = MockClient((_) async => http.Response(payload, 200));
+
+      final result = await checkUpdatesForTest('1.0.0', client: client);
+      expect(result, isFalse);
+    });
+
+    test('handles complex version strings with -store suffix', () async {
+      final payload = jsonEncode([
+        {'name': 'v2.0.0'}
+      ]);
+      final client = MockClient((_) async => http.Response(payload, 200));
+
+      final result = await checkUpdatesForTest('1.9.9-store', client: client);
+      expect(result, isTrue);
+    });
+
+    test('handles malformed version strings gracefully', () async {
+      final payload = jsonEncode([
+        {'name': 'invalid_version'}
+      ]);
+      final client = MockClient((_) async => http.Response(payload, 200));
+
+      final result = await checkUpdatesForTest('1.0.0', client: client);
+      // Should handle gracefully and return false
+      expect(result, isFalse);
+    });
+
+    test('handles empty response body', () async {
+      final client = MockClient((_) async => http.Response('', 200));
+      final result = await checkUpdatesForTest('1.0.0', client: client);
+      expect(result, isFalse);
+    });
   });
 
   group('checkForUpdates widget tests', () {
@@ -98,6 +155,61 @@ void main() {
       await tester.pump();
 
       // Verification of snackbar would go here if we could mock compute/appSettings
+    });
+
+    testWidgets('handles exception in package info gracefully', (tester) async {
+      // Override the package info method channel to throw an exception
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+              const MethodChannel('dev.fluttercommunity.plus/package_info'),
+              (MethodCall methodCall) async {
+        if (methodCall.method == 'getAll') {
+          throw Exception('Package info error');
+        }
+        return null;
+      });
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => const Center(
+                  child: Text('Test'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final context = tester.element(find.text('Test'));
+      // Should not throw exception
+      expect(() => checkForUpdates(context), returnsNormally);
+    });
+
+    testWidgets('shows "no updates" message when requested', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => const Center(
+                  child: Text('Test'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final context = tester.element(find.text('Test'));
+      // Should not throw exception
+      expect(() => checkForUpdates(context, showIfNoUpdate: true),
+          returnsNormally);
+      await tester.pump();
     });
   });
 }

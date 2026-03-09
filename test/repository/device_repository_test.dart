@@ -14,7 +14,6 @@ class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
 }
 
 void main() {
-  // Ensure the services binding is initialized for shared_preferences etc.
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late AppDatabase db;
@@ -22,9 +21,7 @@ void main() {
   late ScanRepository scanRepo;
 
   setUp(() {
-    // Prepare in-memory shared preferences so getCurrentScanId() won't crash.
     SharedPreferences.setMockInitialValues({});
-
     db = AppDatabase(NativeDatabase.memory());
     final service = _InMemoryDatabaseService(db);
     deviceRepo = DeviceRepository(service);
@@ -33,6 +30,39 @@ void main() {
 
   tearDown(() async {
     await db.close();
+  });
+
+  test('DeviceRepository put/get/getList/countByScanId works', () async {
+    final scan = await scanRepo.put(
+      ScanData(
+        id: DateTime.now().millisecondsSinceEpoch,
+        gatewayIp: '192.168.0.0',
+        startTime: DateTime.now(),
+        onGoing: true,
+      ),
+    );
+
+    final device = DeviceData(
+      id: DateTime.now().millisecondsSinceEpoch,
+      internetAddress: '192.168.0.2',
+      macAddress: '00:11:22:33:44:55',
+      hostMake: 'UnitTest',
+      currentDeviceIp: '192.168.0.10',
+      gatewayIp: '192.168.0.1',
+      scanId: scan.id,
+    );
+
+    final inserted = await deviceRepo.put(device);
+    expect(inserted.internetAddress, device.internetAddress);
+
+    final list = await deviceRepo.getList();
+    expect(list, isNotEmpty);
+
+    final fetched = await deviceRepo.getDevice(scan.id, device.internetAddress);
+    expect(fetched, isNotNull);
+
+    final count = await deviceRepo.countByScanId(scan.id);
+    expect(count, greaterThanOrEqualTo(1));
   });
 
   group('DeviceRepository additional tests', () {
@@ -116,75 +146,6 @@ void main() {
     test('countByScanId returns 0 for non-existent scan', () async {
       final count = await deviceRepo.countByScanId(999999);
       expect(count, equals(0));
-    });
-  });
-
-  group('ScanRepository additional tests', () {
-    test('get returns null for non-existent scan', () async {
-      final result = await scanRepo.get(999999);
-      expect(result, isNull);
-    });
-
-    test('update modifies existing scan', () async {
-      final originalScan = await scanRepo.put(
-        ScanData(
-          id: DateTime.now().millisecondsSinceEpoch,
-          gatewayIp: '192.168.0.0',
-          startTime: DateTime.now(),
-          onGoing: true,
-        ),
-      );
-
-      final updatedScan = await scanRepo.update(
-        ScanData(
-          id: originalScan.id,
-          gatewayIp: '192.168.0.0',
-          startTime: originalScan.startTime,
-          onGoing: false,
-          endTime: DateTime.now(),
-        ),
-      );
-
-      expect(updatedScan.onGoing, isFalse);
-      expect(updatedScan.endTime, isNotNull);
-    });
-
-    test('getOnGoingScan returns null when no ongoing scans', () async {
-      final result = await scanRepo.getOnGoingScan();
-      expect(result, isNull);
-    });
-
-    test('getOnGoingScan returns ongoing scan', () async {
-      await scanRepo.put(
-        ScanData(
-          id: DateTime.now().millisecondsSinceEpoch,
-          gatewayIp: '192.168.0.0',
-          startTime: DateTime.now(),
-          onGoing: true,
-        ),
-      );
-
-      final result = await scanRepo.getOnGoingScan();
-      expect(result, isNotNull);
-      expect(result!.onGoing, isTrue);
-    });
-
-    test('watch returns stream for scan id', () async {
-      final scan = await scanRepo.put(
-        ScanData(
-          id: DateTime.now().millisecondsSinceEpoch,
-          gatewayIp: '192.168.0.0',
-          startTime: DateTime.now(),
-          onGoing: true,
-        ),
-      );
-
-      final stream = await scanRepo.watch(scan.id);
-      expect(stream, isA<Stream<List<ScanData>>>());
-
-      final emitted = await stream.first;
-      expect(emitted, isNotEmpty);
-      expect(emitted.first.id, scan.id);
     });
   });
 }

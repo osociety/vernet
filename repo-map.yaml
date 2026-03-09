@@ -1,0 +1,61 @@
+# repo-map.yaml
+# High level map of the repository used by coding agents (Roo Code / Cline / etc.)
+# Update paths based on your actual project structure.
+
+version: 1
+
+project:
+  name: sample-project
+  description: High level repository structure for AI code navigation
+
+structure:
+  - path: src/
+    description: Main application source code
+    contains:
+      - api/
+      - services/
+      - utils/
+      - models/
+
+  - path: tests/
+    description: Unit and integration tests
+
+  - path: docs/
+    description: Project documentation including architecture and guides
+
+  - path: scripts/
+    description: Automation scripts and developer utilities
+
+  - path: configs/
+    description: Configuration files for environments and tools
+
+  - path: coverage/
+    description: Coverage reports for code quality
+
+important_files:
+  - path: ARCHITECTURE.md
+    description: Overall system architecture and design decisions
+
+  - path: AGENTS.md
+    description: Instructions for AI coding agents working in the repository
+
+  - path: README.md
+    description: Project overview and setup instructions
+
+agent_guidelines:
+  entrypoints:
+    - src/main.cpp
+    - src/app.ts
+    - src/index.js
+
+  ignore:
+    - node_modules/
+    - build/
+    - dist/
+    - .git/
+    - .cache/
+    - .idea/
+
+notes:
+  - Keep this file updated when the repository structure changes.
+  - Helps AI tools quickly understand project layout.
