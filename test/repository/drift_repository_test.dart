@@ -35,54 +35,156 @@ void main() {
     await db.close();
   });
 
-  test('DeviceRepository put/get/getList/countByScanId works', () async {
-    final scan = await scanRepo.put(
-      ScanData(
+  group('DeviceRepository additional tests', () {
+    test('get returns null for non-existent device', () async {
+      final result = await deviceRepo.get(999999);
+      expect(result, isNull);
+    });
+
+    test('getDevice returns null for non-existent device', () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+
+      final result = await deviceRepo.getDevice(scan.id, '192.168.0.999');
+      expect(result, isNull);
+    });
+
+    test('watch returns stream of devices for scanId', () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+
+      final device = DeviceData(
         id: DateTime.now().millisecondsSinceEpoch,
-        gatewayIp: '192.168.0.0',
-        startTime: DateTime.now(),
-        onGoing: true,
-      ),
-    );
+        internetAddress: '192.168.0.2',
+        macAddress: '00:11:22:33:44:55',
+        hostMake: 'UnitTest',
+        currentDeviceIp: '192.168.0.10',
+        gatewayIp: '192.168.0.1',
+        scanId: scan.id,
+      );
 
-    final device = DeviceData(
-      id: DateTime.now().millisecondsSinceEpoch,
-      internetAddress: '192.168.0.2',
-      macAddress: '00:11:22:33:44:55',
-      hostMake: 'UnitTest',
-      currentDeviceIp: '192.168.0.10',
-      gatewayIp: '192.168.0.1',
-      scanId: scan.id,
-    );
+      await deviceRepo.put(device);
 
-    final inserted = await deviceRepo.put(device);
-    expect(inserted.internetAddress, device.internetAddress);
+      final stream = await deviceRepo.watch(scan.id);
+      expect(stream, isA<Stream<List<DeviceData>>>());
 
-    final list = await deviceRepo.getList();
-    expect(list, isNotEmpty);
+      final emitted = await stream.first;
+      expect(emitted, isNotEmpty);
+      expect(emitted.first.internetAddress, '192.168.0.2');
+    });
 
-    final fetched = await deviceRepo.getDevice(scan.id, device.internetAddress);
-    expect(fetched, isNotNull);
+    test('countByScanId returns correct count', () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
 
-    final count = await deviceRepo.countByScanId(scan.id);
-    expect(count, greaterThanOrEqualTo(1));
+      // Add multiple devices
+      for (int i = 1; i <= 3; i++) {
+        final device = DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch + i,
+          internetAddress: '192.168.0.$i',
+          macAddress: '00:11:22:33:44:5$i',
+          hostMake: 'UnitTest',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: scan.id,
+        );
+        await deviceRepo.put(device);
+      }
+
+      final count = await deviceRepo.countByScanId(scan.id);
+      expect(count, equals(3));
+    });
+
+    test('countByScanId returns 0 for non-existent scan', () async {
+      final count = await deviceRepo.countByScanId(999999);
+      expect(count, equals(0));
+    });
   });
 
-  test('ScanRepository put/get/getOnGoingScan works', () async {
-    final scan = await scanRepo.put(
-      ScanData(
-        id: DateTime.now().millisecondsSinceEpoch,
-        gatewayIp: '10.0.0.0',
-        startTime: DateTime.now(),
-        onGoing: true,
-      ),
-    );
+  group('ScanRepository additional tests', () {
+    test('get returns null for non-existent scan', () async {
+      final result = await scanRepo.get(999999);
+      expect(result, isNull);
+    });
 
-    final fetched = await scanRepo.get(scan.id);
-    expect(fetched, isNotNull);
+    test('update modifies existing scan', () async {
+      final originalScan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
 
-    final ongoing = await scanRepo.getOnGoingScan();
-    // getOnGoingScan may return the one we created
-    expect(ongoing != null, isTrue);
+      final updatedScan = await scanRepo.update(
+        ScanData(
+          id: originalScan.id,
+          gatewayIp: '192.168.0.0',
+          startTime: originalScan.startTime,
+          onGoing: false,
+          endTime: DateTime.now(),
+        ),
+      );
+
+      expect(updatedScan.onGoing, isFalse);
+      expect(updatedScan.endTime, isNotNull);
+    });
+
+    test('getOnGoingScan returns null when no ongoing scans', () async {
+      final result = await scanRepo.getOnGoingScan();
+      expect(result, isNull);
+    });
+
+    test('getOnGoingScan returns ongoing scan', () async {
+      await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+
+      final result = await scanRepo.getOnGoingScan();
+      expect(result, isNotNull);
+      expect(result!.onGoing, isTrue);
+    });
+
+    test('watch returns stream for scan id', () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+
+      final stream = await scanRepo.watch(scan.id);
+      expect(stream, isA<Stream<List<ScanData>>>());
+
+      final emitted = await stream.first;
+      expect(emitted, isNotEmpty);
+      expect(emitted.first.id, scan.id);
+    });
   });
 }
