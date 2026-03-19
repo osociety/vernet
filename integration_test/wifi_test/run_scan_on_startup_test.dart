@@ -5,12 +5,16 @@ import 'package:vernet/main.dart';
 import 'package:vernet/values/keys.dart';
 
 import '../settings/test_utils.dart';
+import 'wifi_test_runner.dart' show clearDatabase;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    // Clear database before each test to prevent stale scan records
+    await clearDatabase();
+    
     // Mock NetworkInfo
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
