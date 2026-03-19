@@ -36,7 +36,7 @@ dependencies:
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
-  flutter_timezone: ^5.0.1
+  flutter_timezone: ^5.0.2
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
@@ -76,7 +76,7 @@ dependencies:
       ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
-  syncfusion_flutter_gauges: ^31.2.5
+  syncfusion_flutter_gauges: ^33.1.44
   # Time zone database and time zone aware DateTime.
   timezone: ^0.10.0
   # Plugin for launching a URL
@@ -84,7 +84,7 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.10.4
+  build_runner: ^2.12.2
 
   drift_dev: ^2.28.3
   flutter_test:
