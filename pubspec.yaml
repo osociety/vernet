@@ -84,7 +84,7 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.12.2
+  build_runner: ^2.13.1
 
   drift_dev: ^2.28.3
   flutter_test:
