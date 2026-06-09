@@ -12,7 +12,7 @@ dependencies:
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
-  bloc: ^9.1.0
+  bloc: ^9.2.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.9
@@ -26,7 +26,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^20.1.0
   # A versatile mapping package for Flutter
   flutter_map: ^8.2.2
   # A Dart implementation of Leaflet.makercluster for Flutter apps
@@ -50,13 +50,13 @@ dependencies:
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
-  json_annotation: ^4.9.0
+  json_annotation: ^4.12.0
   latlong2: ^0.9.1
-  network_info_plus: ^7.0.0
+  network_info_plus: ^8.1.0
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^3.0.0
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^9.0.1
+  package_info_plus: ^10.1.0
   path: ^1.9.1
   path_provider: ^2.1.5
   # Allows you to display progress widgets based on percentage.
