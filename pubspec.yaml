@@ -52,11 +52,11 @@ dependencies:
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.9.0
   latlong2: ^0.9.1
-  network_info_plus: ^7.0.0
+  network_info_plus: ^8.1.0
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^3.0.0
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^9.0.1
+  package_info_plus: ^10.1.0
   path: ^1.9.1
   path_provider: ^2.1.5
   # Allows you to display progress widgets based on percentage.
