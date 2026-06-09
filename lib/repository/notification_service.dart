@@ -107,7 +107,7 @@ class NotificationService {
       linux: initializationSettingsLinux,
     );
     await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
         switch (notificationResponse.notificationResponseType) {
@@ -180,10 +180,10 @@ class NotificationService {
       linux: linuxNotificationDetails,
     );
     await flutterLocalNotificationsPlugin.show(
-      id++,
-      'Scan completed',
-      'Your devices scan has been completed successfully',
-      notificationDetails,
+      id: id++,
+      title: 'Scan completed',
+      body: 'Your devices scan has been completed successfully',
+      notificationDetails: notificationDetails,
       payload: 'item z',
     );
   }
