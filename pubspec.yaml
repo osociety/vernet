@@ -50,7 +50,7 @@ dependencies:
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
-  json_annotation: ^4.9.0
+  json_annotation: ^4.12.0
   latlong2: ^0.9.1
   network_info_plus: ^8.1.0
   # Helps you discover open ports, devices on subnet and more.
