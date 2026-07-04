@@ -18,8 +18,8 @@ dependencies:
   cupertino_icons: ^1.0.9
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
-  drift: ^2.30.0
-  drift_flutter: ^0.2.8
+  drift: ^2.34.0
+  drift_flutter: ^0.3.0
   external_app_launcher: ^4.0.3
   flutter:
     sdk: flutter
@@ -28,7 +28,7 @@ dependencies:
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^22.0.1
   # A versatile mapping package for Flutter
-  flutter_map: ^8.2.2
+  flutter_map: ^8.3.0
   # A Dart implementation of Leaflet.makercluster for Flutter apps
   flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
@@ -40,7 +40,7 @@ dependencies:
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
-  get_it: ^8.3.0
+  get_it: ^9.2.1
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^1.6.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
@@ -62,7 +62,7 @@ dependencies:
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.5
   # Popup that ask for the requested permission
-  permission_handler: ^12.0.1
+  permission_handler: ^12.0.3
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.1.5
   # RxDart extends the capabilities of Dart Streams and StreamControllers.
@@ -86,7 +86,7 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.13.1
 
-  drift_dev: ^2.28.3
+  drift_dev: ^2.34.0
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
@@ -98,7 +98,7 @@ dev_dependencies:
   # Collection of lint rules for Dart and Flutter projects.
   json_serializable: ^6.13.1
   lint: ^2.8.0
-  mocktail: ^1.0.4
+  mocktail: ^1.0.5
 
 flutter:
 
