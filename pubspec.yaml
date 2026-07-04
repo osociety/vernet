@@ -18,8 +18,8 @@ dependencies:
   cupertino_icons: ^1.0.9
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
-  drift: ^2.30.0
-  drift_flutter: ^0.2.8
+  drift: ^2.34.0
+  drift_flutter: ^0.3.0
   external_app_launcher: ^4.0.3
   flutter:
     sdk: flutter
@@ -40,7 +40,7 @@ dependencies:
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
-  get_it: ^8.3.0
+  get_it: ^9.2.1
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^1.6.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
@@ -86,7 +86,7 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.13.1
 
-  drift_dev: ^2.28.3
+  drift_dev: ^2.34.0
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
