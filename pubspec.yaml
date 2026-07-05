@@ -26,7 +26,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^20.1.0
+  flutter_local_notifications: ^22.0.1
   # A versatile mapping package for Flutter
   flutter_map: ^8.3.0
   # A Dart implementation of Leaflet.makercluster for Flutter apps
@@ -78,7 +78,7 @@ dependencies:
   speedometer: ^1.2.2
   syncfusion_flutter_gauges: ^33.1.45
   # Time zone database and time zone aware DateTime.
-  timezone: ^0.10.0
+  timezone: ^0.11.0
   # Plugin for launching a URL
   url_launcher: ^6.3.2
 

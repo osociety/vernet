@@ -28,6 +28,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   @visibleForTesting
   static bool debugIgnorePlatformCheck = false;
+  @visibleForTesting
+  static bool skipPermissionRequests = false;
 
   /// Defines a iOS/MacOS notification category for text input actions.
   static const String darwinNotificationCategoryText = 'textCategory';
@@ -190,6 +192,7 @@ class NotificationService {
 
   static Future<void> grantPermissions() async {
     if (Platform.isWindows && !debugIgnorePlatformCheck) return Future.value();
+    if (skipPermissionRequests) return Future.value();
     await isAndroidPermissionGranted();
     await requestPermissions();
   }
