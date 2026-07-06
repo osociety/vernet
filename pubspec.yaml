@@ -78,7 +78,7 @@ dependencies:
   speedometer: ^1.2.2
   syncfusion_flutter_gauges: ^33.1.45
   # Time zone database and time zone aware DateTime.
-  timezone: ^0.11.0
+  timezone: ^0.11.1
   # Plugin for launching a URL
   url_launcher: ^6.3.2
 
