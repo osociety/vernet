@@ -68,7 +68,7 @@ dependencies:
   # RxDart extends the capabilities of Dart Streams and StreamControllers.
   rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.5
   # Flutter package to test ping, upload, download using speedtest.net
   speed_test_dart:
     git:
