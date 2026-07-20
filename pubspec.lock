@@ -1353,18 +1353,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: cdc9f865a2447b75446c6583e68b2800411687cc1a36df83769b66f96ed70df1
+      sha256: "1997047ac91baa1e3c626394fa77e56d86bb00ab0d5de755ca73d617500aa948"
       url: "https://pub.dev"
     source: hosted
-    version: "33.1.45"
+    version: "34.1.31"
   syncfusion_flutter_gauges:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_gauges
-      sha256: "68ea4803ec9ec1f108e51598694b563077ed60e7e2b5fe02307b79dd77aca7e9"
+      sha256: bebafcb207b3a4b56580e9f4580c2bdbdac2dd9320605db0d3215c30d5436df3
       url: "https://pub.dev"
     source: hosted
-    version: "33.1.45"
+    version: "34.1.31"
   synchronized:
     dependency: transitive
     description:
