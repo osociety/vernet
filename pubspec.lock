@@ -606,10 +606,10 @@ packages:
     dependency: "direct main"
     description:
       name: in_app_review
-      sha256: ab26ac54dbd802896af78c670b265eaeab7ecddd6af4d0751e9604b60574817f
+      sha256: "364db0c160b37fe7fad9cdaa18f968473924b17368869010af902760421b6bf8"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.11"
+    version: "2.0.12"
   in_app_review_platform_interface:
     dependency: transitive
     description:
