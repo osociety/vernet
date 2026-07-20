@@ -46,7 +46,7 @@ dependencies:
   # A Flutter plugin that lets you show a review pop up where users can leave a review
   in_app_review: ^2.0.12
   # Convenient code generator for get_it
-  injectable: ^2.7.1+2
+  injectable: ^3.0.0
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
@@ -86,13 +86,13 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.15.0
 
-  drift_dev: ^2.34.0
+  drift_dev: ^2.34.4
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^3.2.0
+  freezed: ^4.0.0-dev.3
   # Convenient code generator for get_it.
-  injectable_generator: ^2.8.1
+  injectable_generator: ^3.1.0
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
