@@ -18,7 +18,7 @@ dependencies:
   cupertino_icons: ^1.0.9
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
-  drift: ^2.34.0
+  drift: ^2.34.2
   drift_flutter: ^0.3.0
   external_app_launcher: ^4.0.3
   flutter:
