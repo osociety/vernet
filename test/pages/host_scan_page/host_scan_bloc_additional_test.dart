@@ -124,7 +124,7 @@ void main() {
       );
     });
 
-    test('FoundNewDevice state contains correct devices', () async {
+    test('FoundNewDevice state contains correct devices', () {
       final devices = <DeviceData>{
         const DeviceData(
           id: 1,
@@ -151,7 +151,7 @@ void main() {
           isTrue);
     });
 
-    test('LoadSuccess state contains correct devices', () async {
+    test('LoadSuccess state contains correct devices', () {
       final devices = <DeviceData>{
         const DeviceData(
           id: 1,
@@ -169,7 +169,7 @@ void main() {
           isTrue);
     });
 
-    test('HostScanBloc devicesSet can be populated and cleared', () async {
+    test('HostScanBloc devicesSet can be populated and cleared', () {
       // Add devices to set
       bloc.devicesSet.add(const DeviceData(
         id: 1,
@@ -188,7 +188,7 @@ void main() {
       expect(bloc.devicesSet.length, equals(0));
     });
 
-    test('HostScanBloc mDnsDevices can be populated and cleared', () async {
+    test('HostScanBloc mDnsDevices can be populated and cleared', () {
       // Note: This test just verifies the map can be used
       // Full mDNS testing requires platform channels
       expect(bloc.mDnsDevices, isA<Map<String, dynamic>>());

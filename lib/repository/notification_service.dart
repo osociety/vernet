@@ -130,11 +130,12 @@ class NotificationService {
     }
     tz.initializeTimeZones();
     final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
-    String timeZoneName = timeZoneInfo.toString();
-    if (timeZoneName.contains('(')) {
-      timeZoneName = timeZoneName.split('(')[1].split(',')[0].trim();
+    final String timeZoneName = timeZoneInfo.identifier;
+    try {
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } catch (_) {
+      tz.setLocalLocation(tz.getLocation('UTC'));
     }
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
   static Future<void> showNotificationWithActions() async {
