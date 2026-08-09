@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/strings.dart';
 
 class ReverseDNSPage extends StatefulWidget {
@@ -73,7 +74,9 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
     final InternetAddress? lookupAddress = InternetAddress.tryParse(input);
     if (lookupAddress != null) {
       try {
-        final InternetAddress address = await lookupAddress.reverse();
+        final InternetAddress address = globals.testingActive
+            ? InternetAddress('maa03s29-in-f14.1e100.net')
+            : await lookupAddress.reverse();
         setState(() {
           _address = address;
         });
