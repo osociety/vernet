@@ -52,7 +52,7 @@ dependencies:
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.12.0
   latlong2: ^0.9.1
-  network_info_plus: ^8.1.0
+  network_info_plus: ^8.2.1
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^3.0.0
   # Querying information about the application package, such as CFBundleVersion
@@ -76,7 +76,7 @@ dependencies:
       ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
-  syncfusion_flutter_gauges: ^34.1.31
+  syncfusion_flutter_gauges: ^34.1.32
   # Time zone database and time zone aware DateTime.
   timezone: ^0.11.1
   # Plugin for launching a URL
@@ -84,7 +84,7 @@ dependencies:
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.15.0
+  build_runner: ^2.15.1
 
   drift_dev: ^2.34.4
   flutter_test:
