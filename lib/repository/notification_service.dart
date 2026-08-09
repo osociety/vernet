@@ -211,6 +211,9 @@ class NotificationService {
 
   static Future<bool?> requestPermissions() async {
     if (Platform.isIOS || Platform.isMacOS) {
+      if (!_isNotificationsPlatformAvailable()) {
+        return false;
+      }
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin>()
@@ -228,6 +231,9 @@ class NotificationService {
             sound: true,
           );
     } else if (Platform.isAndroid) {
+      if (!_isNotificationsPlatformAvailable()) {
+        return false;
+      }
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
           flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
@@ -235,5 +241,14 @@ class NotificationService {
       return await androidImplementation?.requestNotificationsPermission();
     }
     return false;
+  }
+
+  static bool _isNotificationsPlatformAvailable() {
+    try {
+      FlutterLocalNotificationsPlatform.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }
