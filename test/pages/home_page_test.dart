@@ -119,5 +119,80 @@ void main() {
       expect(find.text('Internet Service Provider (ISP)'), findsOneWidget);
       expect(find.text("In-App Internet is off"), findsOneWidget);
     });
+
+    testWidgets('tapping Ping button finds widget with ping key',
+        (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+
+      // Verify ping button exists
+      expect(find.byKey(WidgetKey.ping.key), findsOneWidget);
+    });
+
+    testWidgets('tapping DNS Lookup button finds widget with key',
+        (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+
+      // Verify DNS lookup button exists
+      expect(find.byKey(WidgetKey.dnsLookupButton.key), findsOneWidget);
+    });
+
+    testWidgets('tapping Reverse DNS Lookup button finds widget with key',
+        (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+
+      // Verify reverse DNS lookup button exists
+      expect(find.byKey(WidgetKey.reverseDnsLookupButton.key), findsOneWidget);
+    });
+
+    testWidgets('tapping Scan Open Ports button finds widget with key',
+        (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+
+      // Verify scan open ports button exists
+      expect(
+        find.byKey(WidgetKey.scanForOpenPortsButton.key),
+        findsOneWidget,
+      );
+    });
   });
 }

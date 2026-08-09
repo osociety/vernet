@@ -843,18 +843,18 @@ packages:
     dependency: transitive
     description:
       name: network_tools
-      sha256: "4de817779597f1addfddcf063e4ac19082992ec26e38d0ee8ab93f5aaa0e88ff"
+      sha256: "524c667e906b8527908ce37fc2d4071eb30aede18f39207fc6b538eb76d4d351"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.8"
+    version: "6.0.9"
   network_tools_flutter:
     dependency: "direct main"
     description:
       name: network_tools_flutter
-      sha256: "9b1470c842c52c01c56eebc035faea34f6a63d87398367e0664b0220a5dcf3ed"
+      sha256: ecae6114e5cce0acf1247adf59cc3d8d6d39acf9c4a4e2142bfdee2a44f657bb
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.3"
+    version: "3.0.4"
   nm:
     dependency: transitive
     description:

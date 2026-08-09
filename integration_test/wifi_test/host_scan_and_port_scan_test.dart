@@ -5,8 +5,16 @@ import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 import '../app_test.dart' show port;
+import 'wifi_test_runner.dart' show clearDatabase;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    // Clear database before each test to prevent stale scan records
+    await clearDatabase();
+  });
+
   // globals.testingActive = true;
   // late ServerSocket server;
   // int port = 0;
