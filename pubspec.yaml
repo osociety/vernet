@@ -92,7 +92,7 @@ dev_dependencies:
   # Code generator for unions/pattern-matching/copy.
   freezed: ^4.0.0-dev.3
   # Convenient code generator for get_it.
-  injectable_generator: ^3.1.0
+  injectable_generator: ^3.1.1
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
