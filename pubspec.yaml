@@ -20,7 +20,7 @@ dependencies:
   # Remove git url and use pub version once fix is available in source. 
   drift: ^2.34.2
   drift_flutter: ^0.3.1
-  external_app_launcher: ^4.0.3
+  external_app_launcher: ^4.0.4
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
