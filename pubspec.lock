@@ -638,10 +638,10 @@ packages:
     dependency: "direct dev"
     description:
       name: injectable_generator
-      sha256: f4489d28a0147d47fd9f16955fa62f84aab88a63e3b89418e6e2467c8e783e9a
+      sha256: "424ea884e3adc9585df0af408cb3b0de19fc2faf52b62bed8b73f3fb15a63115"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.1"
   integration_test:
     dependency: "direct dev"
     description: flutter
