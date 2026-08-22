@@ -48,7 +48,7 @@ cat $COMBINE_FILES > coverage/lcov.info
 echo "Excluding generated files from coverage (.g.dart)..."
 # Check if lcov is available; if not, skip filtering
 if command -v lcov &> /dev/null; then
-  lcov --remove coverage/lcov.info \
+  lcov --ignore-errors empty --remove coverage/lcov.info \
     '**/*.g.dart' \
     'lib/models/drift/*' \
     -o coverage/lcov.info
