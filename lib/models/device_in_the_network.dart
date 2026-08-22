@@ -49,7 +49,7 @@ class DeviceInTheNetwork {
     required InternetAddress internetAddress,
     required String hostId,
     required Future<String?> make,
-    required PingData pingData,
+    required PingResponse? pingData,
     required String currentDeviceIp,
     required String gatewayIp,
     required MdnsInfo? mdns,
@@ -89,7 +89,7 @@ class DeviceInTheNetwork {
   late Future<String?> make;
   String? _mac;
 
-  final PingData pingData;
+  final PingResponse? pingData;
   final IconData iconData;
   MdnsInfo? _mdns;
 

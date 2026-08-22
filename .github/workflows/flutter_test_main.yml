@@ -141,7 +141,7 @@ jobs:
           copy /b coverage\unit_${{ matrix.os }}.lcov.info + coverage\integration_${{ matrix.os }}.lcov.info coverage\${{ matrix.os }}_lcov.info
     
       - name: Remove generated files from coverage  
-        run: lcov --remove coverage/${{ matrix.os }}_lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/${{ matrix.os }}_lcov.info
+        run: lcov --ignore-errors empty --remove coverage/${{ matrix.os }}_lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/${{ matrix.os }}_lcov.info
 
       - name: Upload combined coverage to CodeCov
         if: always()

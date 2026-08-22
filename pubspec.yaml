@@ -3,7 +3,7 @@ description: A Network Analyzer
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.3.2+40
+version: 1.3.3+41
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -12,63 +12,63 @@ dependencies:
   # Automatically resizes text to fit perfectly within its bounds.
   auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
-  bloc: ^9.1.0
+  bloc: ^9.2.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.9
   dart_ping: ^9.0.1
   # Remove git url and use pub version once fix is available in source. 
-  drift: ^2.30.0
-  drift_flutter: ^0.2.8
-  external_app_launcher: ^4.0.3
+  drift: ^2.34.3
+  drift_flutter: ^0.3.1
+  external_app_launcher: ^4.0.4
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^22.3.0
   # A versatile mapping package for Flutter
-  flutter_map: ^8.2.2
+  flutter_map: ^8.3.1
   # A Dart implementation of Leaflet.makercluster for Flutter apps
   flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
-  flutter_native_splash: ^2.4.7
+  flutter_native_splash: ^2.4.8
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
-  flutter_timezone: ^5.0.1
+  flutter_timezone: ^5.1.0
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
-  get_it: ^8.3.0
+  get_it: ^9.2.1
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^1.6.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review
-  in_app_review: ^2.0.11
+  in_app_review: ^2.0.12
   # Convenient code generator for get_it
-  injectable: ^2.7.1+2
+  injectable: ^3.0.0
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
-  json_annotation: ^4.9.0
+  json_annotation: ^4.12.0
   latlong2: ^0.9.1
-  network_info_plus: ^7.0.0
+  network_info_plus: ^8.2.1
   # Helps you discover open ports, devices on subnet and more.
-  network_tools_flutter: ^3.0.0
+  network_tools_flutter: ^3.0.4
   # Querying information about the application package, such as CFBundleVersion
-  package_info_plus: ^9.0.0
+  package_info_plus: ^10.2.1
   path: ^1.9.1
-  path_provider: ^2.1.5
+  path_provider: ^2.1.6
   # Allows you to display progress widgets based on percentage.
   percent_indicator: ^4.2.5
   # Popup that ask for the requested permission
-  permission_handler: ^12.0.1
+  permission_handler: ^13.0.1
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.1.5
   # RxDart extends the capabilities of Dart Streams and StreamControllers.
   rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.5
   # Flutter package to test ping, upload, download using speedtest.net
   speed_test_dart:
     git:
@@ -76,29 +76,29 @@ dependencies:
       ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
-  syncfusion_flutter_gauges: ^31.2.5
+  syncfusion_flutter_gauges: ^34.2.3
   # Time zone database and time zone aware DateTime.
-  timezone: ^0.10.0
+  timezone: ^0.11.1
   # Plugin for launching a URL
   url_launcher: ^6.3.2
 
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.10.4
+  build_runner: ^2.16.0
 
-  drift_dev: ^2.28.3
+  drift_dev: ^2.34.5
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
-  freezed: ^3.2.0
+  freezed: ^4.0.0-dev.3
   # Convenient code generator for get_it.
-  injectable_generator: ^2.8.1
+  injectable_generator: ^3.1.1
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
-  json_serializable: ^6.11.1
+  json_serializable: ^6.13.1
   lint: ^2.8.0
-  mocktail: ^1.0.4
+  mocktail: ^1.0.5
 
 flutter:
 

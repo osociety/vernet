@@ -33,7 +33,7 @@ void main() {
     final testIp = InternetAddress.tryParse('192.168.1.100')!;
     const currentDeviceIp = '192.168.1.50';
     const gatewayIp = '192.168.1.1';
-    const testPingData = PingData();
+    const testPingData = PingResponse();
 
     test('can be created with basic constructor', () {
       final device = DeviceInTheNetwork(
@@ -286,7 +286,7 @@ void main() {
         internetAddress: ip,
         hostId: 'host1',
         make: Future.value('Device'),
-        pingData: const PingData(),
+        pingData: const PingResponse(),
         currentDeviceIp: currentIp,
         gatewayIp: '192.168.1.1',
         mdns: null,
@@ -307,7 +307,7 @@ void main() {
         internetAddress: ip,
         hostId: 'gateway',
         make: Future.value('Router'),
-        pingData: const PingData(),
+        pingData: const PingResponse(),
         currentDeviceIp: '192.168.1.100',
         gatewayIp: '192.168.1.1',
         mdns: null,
@@ -324,7 +324,7 @@ void main() {
         internetAddress: ip,
         hostId: 'printer',
         make: Future.value('HP Printer'),
-        pingData: const PingData(),
+        pingData: const PingResponse(),
         currentDeviceIp: '192.168.1.100',
         gatewayIp: '192.168.1.1',
         mdns: null,
@@ -344,7 +344,7 @@ void main() {
         internetAddress: ip,
         hostId: 'other',
         make: Future.value('Some Device'),
-        pingData: const PingData(),
+        pingData: const PingResponse(),
         currentDeviceIp: '192.168.1.100',
         gatewayIp: '192.168.1.1',
         mdns: null,

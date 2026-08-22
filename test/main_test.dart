@@ -8,12 +8,14 @@ import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
+    NotificationService.skipPermissionRequests = true;
     SharedPreferences.setMockInitialValues({});
 
     // Mock PackageInfo
@@ -56,6 +58,10 @@ void main() {
         return null;
       },
     );
+  });
+
+  tearDown(() {
+    NotificationService.skipPermissionRequests = false;
   });
 
   group('MyApp', () {

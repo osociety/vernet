@@ -30,11 +30,11 @@ class ScanRepository extends Repository<ScanData> {
         .getSingle();
   }
 
-  Future<ScanData> update(ScanData t) async {
+  Future<ScanData?> update(ScanData t) async {
     final database = await _database.open();
     await database!.update(database.scan).replace(t.toCompanion(true));
     return (database.select(database.scan)..where((dd) => dd.id.equals(t.id)))
-        .getSingle();
+        .getSingleOrNull();
   }
 
   Future<ScanData?> getOnGoingScan() async {

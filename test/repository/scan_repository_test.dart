@@ -72,8 +72,23 @@ void main() {
         ),
       );
 
-      expect(updatedScan.onGoing, isFalse);
+      expect(updatedScan, isNotNull);
+      expect(updatedScan!.onGoing, isFalse);
       expect(updatedScan.endTime, isNotNull);
+    });
+
+    test('update returns null when scan was removed', () async {
+      final updatedScan = await scanRepo.update(
+        ScanData(
+          id: 999999,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: false,
+          endTime: DateTime.now(),
+        ),
+      );
+
+      expect(updatedScan, isNull);
     });
 
     test('getOnGoingScan returns null when no ongoing scans', () async {

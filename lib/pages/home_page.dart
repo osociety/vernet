@@ -104,7 +104,6 @@ class _WifiDetailState extends State<HomePage> {
 
   @override
   void dispose() {
-    NotificationService.selectNotificationStream.close();
     super.dispose();
   }
 

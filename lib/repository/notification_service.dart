@@ -28,6 +28,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   @visibleForTesting
   static bool debugIgnorePlatformCheck = false;
+  @visibleForTesting
+  static bool skipPermissionRequests = false;
 
   /// Defines a iOS/MacOS notification category for text input actions.
   static const String darwinNotificationCategoryText = 'textCategory';
@@ -107,7 +109,7 @@ class NotificationService {
       linux: initializationSettingsLinux,
     );
     await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
         switch (notificationResponse.notificationResponseType) {
@@ -117,6 +119,8 @@ class NotificationService {
             if (notificationResponse.actionId == navigationActionId) {
               selectNotificationStream.add(notificationResponse.payload);
             }
+          case NotificationResponseType.notificationDismissed:
+            break;
         }
       },
     );
@@ -128,11 +132,12 @@ class NotificationService {
     }
     tz.initializeTimeZones();
     final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
-    String timeZoneName = timeZoneInfo.toString();
-    if (timeZoneName.contains('(')) {
-      timeZoneName = timeZoneName.split('(')[1].split(',')[0].trim();
+    final String timeZoneName = timeZoneInfo.identifier;
+    try {
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } catch (_) {
+      tz.setLocalLocation(tz.getLocation('UTC'));
     }
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
   static Future<void> showNotificationWithActions() async {
@@ -180,16 +185,17 @@ class NotificationService {
       linux: linuxNotificationDetails,
     );
     await flutterLocalNotificationsPlugin.show(
-      id++,
-      'Scan completed',
-      'Your devices scan has been completed successfully',
-      notificationDetails,
+      id: id++,
+      title: 'Scan completed',
+      body: 'Your devices scan has been completed successfully',
+      notificationDetails: notificationDetails,
       payload: 'item z',
     );
   }
 
   static Future<void> grantPermissions() async {
     if (Platform.isWindows && !debugIgnorePlatformCheck) return Future.value();
+    if (skipPermissionRequests) return Future.value();
     await isAndroidPermissionGranted();
     await requestPermissions();
   }
@@ -207,6 +213,9 @@ class NotificationService {
 
   static Future<bool?> requestPermissions() async {
     if (Platform.isIOS || Platform.isMacOS) {
+      if (!_isNotificationsPlatformAvailable()) {
+        return false;
+      }
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin>()
@@ -224,6 +233,9 @@ class NotificationService {
             sound: true,
           );
     } else if (Platform.isAndroid) {
+      if (!_isNotificationsPlatformAvailable()) {
+        return false;
+      }
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
           flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
@@ -231,5 +243,14 @@ class NotificationService {
       return await androidImplementation?.requestNotificationsPermission();
     }
     return false;
+  }
+
+  static bool _isNotificationsPlatformAvailable() {
+    try {
+      FlutterLocalNotificationsPlatform.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }
