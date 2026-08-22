@@ -14,7 +14,7 @@ class ReverseDNSPage extends StatefulWidget {
 }
 
 class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
-  InternetAddress? _address;
+  String? _hostname;
   @override
   Widget buildPopularChips() {
     return const SizedBox();
@@ -22,7 +22,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
 
   @override
   Widget buildResults(BuildContext context) {
-    if (_address == null) {
+    if (_hostname == null) {
       return const Center(
         child: Text(
           StringValue.reverseDnsLookupEmptyPlaceholder,
@@ -34,11 +34,11 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
     return Center(
       child: GestureDetector(
         child: Text(
-          _address!.host,
+          _hostname!,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         onTap: () {
-          Clipboard.setData(ClipboardData(text: _address!.host));
+          Clipboard.setData(ClipboardData(text: _hostname!));
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Name copied to clipboard'),
@@ -68,18 +68,22 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
   @override
   Future<void> onPressed() async {
     setState(() {
-      _address = null;
+      _hostname = null;
     });
     final String input = textEditingController.text;
     final InternetAddress? lookupAddress = InternetAddress.tryParse(input);
     if (lookupAddress != null) {
       try {
-        final InternetAddress address = globals.testingActive
-            ? InternetAddress('maa03s29-in-f14.1e100.net')
-            : await lookupAddress.reverse();
-        setState(() {
-          _address = address;
-        });
+        if (globals.testingActive) {
+          setState(() {
+            _hostname = 'maa03s29-in-f14.1e100.net';
+          });
+        } else {
+          final InternetAddress address = await lookupAddress.reverse();
+          setState(() {
+            _hostname = address.host;
+          });
+        }
       } catch (e) {
         if (e is SocketException) {
           _showMessage(e.message);

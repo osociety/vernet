@@ -13,6 +13,7 @@ import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 AppSettings appSettings = AppSettings.instance;
@@ -35,12 +36,13 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp(this.allowed, {super.key});
+  const MyApp(this.allowed, {super.key, this.testing = false});
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
   // static const Color mainColor = Colors.deepPurple;
 
   final bool allowed;
+  final bool testing;
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -52,6 +54,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    if (widget.testing) globals.testingActive = true;
     NotificationService.grantPermissions();
     getCurrentAppTheme();
   }

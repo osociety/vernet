@@ -12,7 +12,7 @@ void main() {
     testWidgets('tap on the reverse DNS lookup button, verify lookup ended',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(true, testing: true));
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
@@ -42,17 +42,17 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      final textWidget = find.text("maa03s29-in-f14.1e100.net");
+      final resultText = find.text("maa03s29-in-f14.1e100.net");
 
-      expect(textWidget, findsOneWidget);
-      await tester.tap(textWidget);
+      expect(resultText, findsOneWidget);
+      await tester.tap(resultText);
       await tester.pumpAndSettle();
     });
 
     testWidgets('tap on the reverse DNS lookup button, verify error returned',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(true, testing: true));
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
@@ -87,7 +87,7 @@ void main() {
         'tap on the reverse DNS lookup button, verify reverse address not found returned',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(true, testing: true));
       await tester.pumpAndSettle();
 
       // Verify that there are 4 widgets at homepage
