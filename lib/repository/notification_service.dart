@@ -119,6 +119,8 @@ class NotificationService {
             if (notificationResponse.actionId == navigationActionId) {
               selectNotificationStream.add(notificationResponse.payload);
             }
+          case NotificationResponseType.notificationDismissed:
+            break;
         }
       },
     );
