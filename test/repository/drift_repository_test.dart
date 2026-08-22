@@ -145,7 +145,8 @@ void main() {
         ),
       );
 
-      expect(updatedScan.onGoing, isFalse);
+      expect(updatedScan, isNotNull);
+      expect(updatedScan!.onGoing, isFalse);
       expect(updatedScan.endTime, isNotNull);
     });
 
