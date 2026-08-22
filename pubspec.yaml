@@ -100,6 +100,12 @@ dev_dependencies:
   lint: ^2.8.0
   mocktail: ^1.0.5
 
+dependency_overrides:
+  flutter_isolate:
+    git:
+      url: https://github.com/git-elliot/flutter_isolate.git
+      ref: 95983262e86d34a24b699a878ee5b965ae0743db
+
 flutter:
 
   # The following line ensures that the Material Icons font is

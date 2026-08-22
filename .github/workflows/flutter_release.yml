@@ -42,6 +42,12 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Install Android SDK 37
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"
+          ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
+
       - name: Cache pub dependencies
         uses: actions/cache@v4.2.2
         with:
@@ -67,7 +73,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             .gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/settings.gradle', '**/gradle.properties', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Download pub dependencies
@@ -216,10 +222,10 @@ jobs:
           filename: ${{ env.MACOS_ZIP }}
           directory: ${{ env.MACOS_BUILD_PATH }}
 
-      - name: Setup Node 18
+      - name: Setup Node 24
         uses: actions/setup-node@v4.2.0
         with:
-          node-version: 18
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: '${{ env.MACOS_DMG_PATH }}/package-lock.json'
           
