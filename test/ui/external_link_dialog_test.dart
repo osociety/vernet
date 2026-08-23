@@ -64,10 +64,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Confirm external link'), findsOneWidget);
+      expect(find.text('Open this link?'), findsOneWidget);
       expect(find.text(url), findsOneWidget);
 
-      await tester.tap(find.text('Open Link'));
+      await tester.tap(find.text('Open link'));
       await tester.pumpAndSettle();
 
       verify(() => mockPlatform.canLaunch(url)).called(1);

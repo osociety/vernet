@@ -86,19 +86,19 @@ Future<void> checkForUpdates(
     Widget? content;
     SnackBarAction? action;
     if (available) {
-      content = const Text('There is an update available');
+      content = const Text('A newer version is available');
       action = SnackBarAction(
-        label: 'Update',
+        label: 'Get update',
         onPressed: () {
           navigateToStore(context);
         },
       );
     } else {
       if (showIfNoUpdate) {
-        content = const Text('No updates found');
+        content = const Text('You are using the latest version');
         if (!appSettings.inAppInternet) {
-          content =
-              const Text('Please turn on In-App Internet to check updates.');
+          content = const Text(
+              'Allow internet access in Settings to check for updates.');
         }
       }
     }

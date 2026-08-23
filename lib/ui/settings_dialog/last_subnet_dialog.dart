@@ -36,14 +36,14 @@ class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
 
   @override
   String? validate(String? value) {
-    if (value == null) return 'Value required';
+    if (value == null) return 'Please enter a value';
     try {
       final int val = int.parse(value);
       if (val < 1) {
         return 'Value must be a natural number';
       }
       if (val < appSettings.firstSubnet) {
-        return 'Value must be greater than first subnet';
+        return 'Choose a value after the search start';
       }
     } catch (e) {
       return 'Must be a number';

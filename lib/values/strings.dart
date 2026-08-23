@@ -1,33 +1,34 @@
 class StringValue {
-  static const String firstSubnet = 'First Subnet';
+  static const String firstSubnet = 'Start of device search';
   static const String firstSubnetDesc =
-      'Scanning for hosts on the network will start from this value';
+      'Choose the first number to check when looking for devices nearby';
 
-  static const String lastSubnet = 'Last Subnet';
+  static const String lastSubnet = 'End of device search';
   static const String lastSubnetDesc =
-      'Scanning for hosts on the network will end on this value';
+      'Choose the last number to check when looking for devices nearby';
 
-  static const String socketTimeout = 'Socket Timeout';
+  static const String socketTimeout = 'Wait time for a check';
   static const String socketTimeoutdesc =
-      'Connects for this much time to a port';
+      'How long to wait for a device or service to respond';
 
-  static const String pingCount = 'Ping Count';
+  static const String pingCount = 'Number of connection checks';
   static const String pingCountDesc =
-      'Number of times ping request should be sent';
+      'How many times to check whether a website or device responds';
 
-  static const String customSubnet = 'Custom Subnet';
+  static const String customSubnet = 'Search a different network';
   static const String customSubnetDesc =
-      'Scan a custom subnet instead of local one.';
-  static const String customSubnetHint = 'e.g., 10.102.200.1';
-  static const String hostScanPageTitle = 'Scan';
+      'Use this only if you want to look for devices on another local network';
+  static const String customSubnetHint = 'e.g., 10.0.0.1';
+  static const String hostScanPageTitle = 'Find devices';
   static const String loadingDevicesMessage =
-      'Searching for devices in your local network';
+      'Looking for devices connected to your local network';
   static const String dnsLookupEmptyPlaceholder =
-      'No addresses found yet.\nAll addresses will appear here.';
+      'No results yet.\nThe addresses for this website will appear here.';
   static const String reverseDnsLookupEmptyPlaceholder =
-      'Host name not found yet.\nHost name will appear here.';
+      'No name found yet.\nThe device name will appear here.';
 
-  static const String speedTestServer = 'Powered by speedtest.net';
+  static const String speedTestServer =
+      'Speed results provided by speedtest.net';
 
-  static const String ispPageTitle = 'Internet Service Provider';
+  static const String ispPageTitle = 'Internet provider';
 }

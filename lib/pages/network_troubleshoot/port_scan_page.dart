@@ -37,9 +37,9 @@ class _PortScanPageState extends State<PortScanPage>
       TextEditingController();
   late TabController _tabController;
   final List<Tab> _tabs = [
-    const Tab(text: 'Popular Targets'),
+    const Tab(text: 'Common websites'),
     const Tab(text: 'Custom Ranges'),
-    const Tab(text: 'Popular Ports'),
+    const Tab(text: 'Common services'),
   ];
   final _formKey = GlobalKey<FormState>();
 
@@ -62,11 +62,13 @@ class _PortScanPageState extends State<PortScanPage>
     setState(() {
       _completed = true;
     });
-    if (_completed && _openPorts.isEmpty) _showSnackBar('No open ports found');
+    if (_completed && _openPorts.isEmpty) {
+      _showSnackBar('Security check complete: no reachable services found');
+    }
     debugPrint(
       _completed && _openPorts.isEmpty
-          ? 'No open ports found'
-          : 'Port Scan ended',
+          ? 'Security check found no reachable services'
+          : 'Security check complete',
     );
   }
 
@@ -169,7 +171,10 @@ class _PortScanPageState extends State<PortScanPage>
         validator: validatePorts,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         controller: _singlePortEditingController,
-        decoration: const InputDecoration(filled: true, hintText: 'Enter Port'),
+        decoration: const InputDecoration(
+          filled: true,
+          hintText: 'Enter a service number',
+        ),
       );
     } else if (_type == ScanType.range) {
       return Row(
@@ -180,8 +185,10 @@ class _PortScanPageState extends State<PortScanPage>
               validator: validatePorts,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               controller: _startPortEditingController,
-              decoration:
-                  const InputDecoration(filled: true, hintText: 'Start Port'),
+              decoration: const InputDecoration(
+                filled: true,
+                hintText: 'First service number',
+              ),
             ),
           ),
           const SizedBox(width: 3),
@@ -191,8 +198,10 @@ class _PortScanPageState extends State<PortScanPage>
               validator: validatePorts,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               controller: _endPortEditingController,
-              decoration:
-                  const InputDecoration(filled: true, hintText: 'End Port'),
+              decoration: const InputDecoration(
+                filled: true,
+                hintText: 'Last service number',
+              ),
             ),
           ),
         ],
@@ -203,12 +212,12 @@ class _PortScanPageState extends State<PortScanPage>
 
   String? validatePorts(String? value) {
     if (value != null) {
-      if (value.isEmpty) return 'Required';
+      if (value.isEmpty) return 'Please enter a service number';
       try {
         final int port = int.parse(value.trim());
-        if (port < 0 || port > 65535) return 'Invalid port';
+        if (port < 0 || port > 65535) return 'Enter a number from 0 to 65535';
       } catch (e) {
-        return 'Not a number';
+        return 'Please enter a number';
       }
     }
     return null;
@@ -216,7 +225,7 @@ class _PortScanPageState extends State<PortScanPage>
 
   String? validateIP(String? value) {
     if (value != null) {
-      if (value.isEmpty) return 'Required';
+      if (value.isEmpty) return 'Please enter a website or device address';
     }
     return null;
   }
@@ -225,7 +234,7 @@ class _PortScanPageState extends State<PortScanPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Open Ports Scanner'),
+        title: const Text('Find security gaps'),
       ),
       body: FutureBuilder<Map<String, Port>>(
         future: PortDescLoader('assets/ports_lists.json').load(),
@@ -255,7 +264,8 @@ class _PortScanPageState extends State<PortScanPage>
                                   controller: _targetIPEditingController,
                                   decoration: const InputDecoration(
                                     filled: true,
-                                    hintText: 'Enter a domain or IP',
+                                    hintText:
+                                        'Enter a website or device address',
                                   ),
                                 ),
                               ),
@@ -281,7 +291,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     });
                                   },
                                 ),
-                                child: const Text('Top'),
+                                child: const Text('Common services'),
                               ),
                             ),
                             Expanded(
@@ -298,7 +308,7 @@ class _PortScanPageState extends State<PortScanPage>
                                   },
                                 ),
                                 child: const Text(
-                                  'Range',
+                                  'Choose a range',
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -316,7 +326,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     });
                                   },
                                 ),
-                                child: const Text('Single'),
+                                child: const Text('One service'),
                               ),
                             ),
                             Padding(
@@ -330,7 +340,7 @@ class _PortScanPageState extends State<PortScanPage>
                                         }
                                       }
                                     : null,
-                                child: Text(_completed ? 'Scan' : 'Scanning'),
+                                child: Text(_completed ? 'Check' : 'Checking'),
                               ),
                             ),
                           ],
@@ -345,91 +355,112 @@ class _PortScanPageState extends State<PortScanPage>
                       padding: const EdgeInsets.all(5.0),
                       child: DefaultTabController(
                         length: _tabs.length,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            TabBar(
-                              controller: _tabController,
-                              tabs: _tabs,
-                              labelColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                            Flexible(
-                              child: TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  Wrap(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final tabs = Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                TabBar(
+                                  controller: _tabController,
+                                  tabs: _tabs,
+                                  labelColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                Flexible(
+                                  child: TabBarView(
+                                    controller: _tabController,
                                     children: [
-                                      _getDomainChip(
-                                        WidgetKey.localIpChip.key,
-                                        '192.168.1.1',
+                                      Wrap(
+                                        children: [
+                                          _getDomainChip(
+                                            WidgetKey.localIpChip.key,
+                                            '192.168.1.1',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.googleChip.key,
+                                            'google.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.youtubeChip.key,
+                                            'youtube.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.appleChip.key,
+                                            'apple.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.amazonChip.key,
+                                            'amazon.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.cloudflareChip.key,
+                                            'cloudflare.com',
+                                          ),
+                                        ],
                                       ),
-                                      _getDomainChip(
-                                        WidgetKey.googleChip.key,
-                                        'google.com',
+                                      Wrap(
+                                        children: [
+                                          _getCustomRangeChip(
+                                            WidgetKey.knownPortChip.key,
+                                            '0-1024 (known)',
+                                            '0',
+                                            '1024',
+                                          ),
+                                          _getCustomRangeChip(
+                                            WidgetKey.shortPortChip.key,
+                                            '0-100 (short)',
+                                            '0',
+                                            '100',
+                                          ),
+                                          _getCustomRangeChip(
+                                            WidgetKey.veryShortPortChip.key,
+                                            '0-10 (very short)',
+                                            '0',
+                                            '10',
+                                          ),
+                                          _getCustomRangeChip(
+                                            WidgetKey.fullPortChip.key,
+                                            '0-65535 (Full)',
+                                            '0',
+                                            '65535',
+                                          ),
+                                        ],
                                       ),
-                                      _getDomainChip(
-                                        WidgetKey.youtubeChip.key,
-                                        'youtube.com',
-                                      ),
-                                      _getDomainChip(
-                                        WidgetKey.appleChip.key,
-                                        'apple.com',
-                                      ),
-                                      _getDomainChip(
-                                        WidgetKey.amazonChip.key,
-                                        'amazon.com',
-                                      ),
-                                      _getDomainChip(
-                                        WidgetKey.cloudflareChip.key,
-                                        'cloudflare.com',
+                                      Wrap(
+                                        children: [
+                                          _getSinglePortChip(
+                                            '20 (FTP Data)',
+                                            '20',
+                                          ),
+                                          _getSinglePortChip(
+                                            '21 (FTP Control)',
+                                            '21',
+                                          ),
+                                          _getSinglePortChip('22 (SSH)', '22'),
+                                          _getSinglePortChip('80 (HTTP)', '80'),
+                                          _getSinglePortChip(
+                                            '443 (HTTPS)',
+                                            '443',
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Wrap(
-                                    children: [
-                                      _getCustomRangeChip(
-                                        WidgetKey.knownPortChip.key,
-                                        '0-1024 (known)',
-                                        '0',
-                                        '1024',
-                                      ),
-                                      _getCustomRangeChip(
-                                        WidgetKey.shortPortChip.key,
-                                        '0-100 (short)',
-                                        '0',
-                                        '100',
-                                      ),
-                                      _getCustomRangeChip(
-                                        WidgetKey.veryShortPortChip.key,
-                                        '0-10 (very short)',
-                                        '0',
-                                        '10',
-                                      ),
-                                      _getCustomRangeChip(
-                                        WidgetKey.fullPortChip.key,
-                                        '0-65535 (Full)',
-                                        '0',
-                                        '65535',
-                                      ),
-                                    ],
-                                  ),
-                                  Wrap(
-                                    children: [
-                                      _getSinglePortChip('20 (FTP Data)', '20'),
-                                      _getSinglePortChip(
-                                        '21 (FTP Control)',
-                                        '21',
-                                      ),
-                                      _getSinglePortChip('22 (SSH)', '22'),
-                                      _getSinglePortChip('80 (HTTP)', '80'),
-                                      _getSinglePortChip('443 (HTTPS)', '443'),
-                                    ],
-                                  ),
-                                ],
+                                ),
+                              ],
+                            );
+                            if (constraints.maxHeight >= kTextTabBarHeight) {
+                              return tabs;
+                            }
+                            return FittedBox(
+                              alignment: Alignment.topCenter,
+                              child: SizedBox(
+                                width: constraints.maxWidth,
+                                height: kTextTabBarHeight + 48,
+                                child: tabs,
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -440,7 +471,8 @@ class _PortScanPageState extends State<PortScanPage>
                   child: _openPorts.isEmpty
                       ? const Center(
                           child: Text(
-                            'No open ports found yet.\nOpen ports will appear here.',
+                            'Security check results will appear here.\n'
+                            'Reachable services may be worth reviewing.',
                             textAlign: TextAlign.center,
                           ),
                         )
@@ -478,7 +510,7 @@ class _PortScanPageState extends State<PortScanPage>
                                   title: port == null
                                       ? const SizedBox()
                                       : Text(
-                                          port.desc,
+                                          'Finding: ${port.desc}',
                                         ),
                                   subtitle: port == null
                                       ? const SizedBox()
@@ -504,18 +536,28 @@ class _PortScanPageState extends State<PortScanPage>
                           },
                         ),
                 ),
+                if (_completed && _openPorts.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      'Security check complete: found ${_openPorts.length} '
+                      'reachable service${_openPorts.length == 1 ? '' : 's'}. '
+                      'Review anything you do not recognize.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
               ],
             );
           } else if (snapshot.hasError) {
             return const Center(
               child: Text(
-                'There is an error while loading..\nPlease try again after sometime.',
+                'We could not load the service list.\nPlease try again later.',
                 textAlign: TextAlign.center,
               ),
             );
           } else {
             return const Center(
-              child: Text('Loading...'),
+              child: Text('Getting things ready...'),
             );
           }
         },

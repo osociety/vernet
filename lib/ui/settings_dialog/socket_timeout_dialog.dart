@@ -37,7 +37,7 @@ class _SocketTimeoutDialogState
 
   @override
   String? validate(String? value) {
-    if (value == null) return 'Value required';
+    if (value == null) return 'Please enter a value';
     try {
       final int val = int.parse(value);
       if (val < 1) {

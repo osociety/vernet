@@ -79,7 +79,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
           }
         },
         isDestructiveAction: true,
-        child: const Text('Submit'),
+        child: const Text('Save'),
       ),
     ];
   }

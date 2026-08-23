@@ -35,9 +35,8 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 const Padding(
                   padding: EdgeInsets.only(left: 50, right: 50),
                   child: Text(
-                    'This app needs location in order to retrieve wifi name '
-                    'only and does not share your location information '
-                    'outside the app.',
+                    'Location access lets the app show the name of your Wi-Fi '
+                    'network. Your location is not shared outside the app.',
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -46,14 +45,14 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                   onPressed: () {
                     _grantLocationPermission(context);
                   },
-                  child: const Text('Grant Location Permission'),
+                  child: const Text('Allow location access'),
                 ),
                 const SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
                     _navigate(context);
                   },
-                  child: const Text('Continue without permission'),
+                  child: const Text('Continue without it'),
                 ),
               ],
             ),

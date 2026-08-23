@@ -137,7 +137,8 @@ void main() {
       await tester.pump();
 
       // Should display error text
-      expect(find.text('Error'), findsWidgets);
+      expect(find.text('We could not load internet service details'),
+          findsWidgets);
     });
 
     testWidgets('IspPageWidget displays servers on LoadSuccess via bloc',
@@ -163,7 +164,7 @@ void main() {
       // Should render map and server details
       expect(find.byType(FlutterMap), findsOneWidget);
       expect(find.byIcon(Icons.pin_drop), findsOneWidget);
-      expect(find.text('List of Servers'), findsOneWidget);
+      expect(find.text('Available test servers'), findsOneWidget);
       // tiles include name and country
       expect(find.text('Test Server 1, US'), findsOneWidget);
       expect(find.text('Test Server 2, US'), findsOneWidget);
@@ -185,7 +186,8 @@ void main() {
       // Should display ISP name
       expect(find.text(testClient.isp), findsWidgets);
       // Should display rating text
-      expect(find.text('Your ISP is rated ${testClient.ispRating} out of 5'),
+      expect(
+          find.text('Your provider rating: ${testClient.ispRating} out of 5'),
           findsWidgets);
       // Should display child widget
       expect(find.text('Test Child'), findsWidgets);

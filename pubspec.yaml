@@ -1,5 +1,5 @@
 name: vernet
-description: A Network Analyzer
+description: A simple way to understand and check your internet connection
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -100,6 +100,12 @@ dev_dependencies:
   lint: ^2.8.0
   mocktail: ^1.0.5
 
+dependency_overrides:
+  flutter_isolate:
+    git:
+      url: https://github.com/git-elliot/flutter_isolate.git
+      ref: 95983262e86d34a24b699a878ee5b965ae0743db
+
 flutter:
 
   # The following line ensures that the Material Icons font is
@@ -109,6 +115,4 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/secrets.json
-    - assets/ipwhois.json
     - assets/ports_lists.json

@@ -117,4 +117,14 @@ class AppSettings {
   Future<bool> clearAll() async {
     return (await SharedPreferences.getInstance()).clear();
   }
+
+  void resetForTesting() {
+    _firstSubnet = 1;
+    _lastSubnet = 254;
+    _socketTimeout = 500;
+    _pingCount = 5;
+    _inAppInternet = false;
+    _runScanOnStartup = false;
+    _customSubnet = '';
+  }
 }

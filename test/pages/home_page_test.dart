@@ -51,8 +51,8 @@ void main() {
 
       await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
 
-      // Initial loading state
-      expect(find.text('Loading...'), findsOneWidget);
+      // Initial fallback state
+      expect(find.text('Wi-Fi'), findsOneWidget);
     });
 
     testWidgets('renders Network Troubleshooting card with buttons',
@@ -71,7 +71,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Network Troubleshooting card
-      expect(find.text('Network Troubleshooting'), findsOneWidget);
+      expect(find.text('Check your connection'), findsOneWidget);
       expect(find.byKey(WidgetKey.ping.key), findsOneWidget);
       expect(
         find.byKey(WidgetKey.scanForOpenPortsButton.key),
@@ -95,7 +95,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // DNS card
-      expect(find.text('Domain Name System (DNS)'), findsOneWidget);
+      expect(find.text('Website and address tools'), findsOneWidget);
       expect(find.byKey(WidgetKey.dnsLookupButton.key), findsOneWidget);
       expect(find.byKey(WidgetKey.reverseDnsLookupButton.key), findsOneWidget);
     });
@@ -116,8 +116,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // ISP card should be present
-      expect(find.text('Internet Service Provider (ISP)'), findsOneWidget);
-      expect(find.text("In-App Internet is off"), findsOneWidget);
+      expect(find.text('Your internet service'), findsOneWidget);
+      expect(find.text('Internet access in the app is turned off'),
+          findsOneWidget);
     });
 
     testWidgets('tapping Ping button finds widget with ping key',

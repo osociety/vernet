@@ -1,10 +1,17 @@
-Vernet - Network Analyzer and monitoring tool.
+Vernet helps you understand what is happening with your internet connection.
 
 Features
-1. Shows wifi details
-2. Scans for devices(or hosts) on network
-3. Scans for open ports of target IP
-4. Shows ISP details
+1. See the Wi-Fi network you are using.
+2. Find devices connected to your local network.
+3. Check whether a website or device responds.
+4. Find services that may be reachable from a device.
+5. Find website addresses and device names.
+6. Test your download and upload speed.
+7. View information about your internet provider.
+
+Vernet helps you spot possible connection and security concerns. It does not
+replace a professional security audit, but it gives you useful findings to
+review, such as devices and services that are reachable on your network.
 
 Vernet is an open source project hosted at github - https://github.com/git-elliot/vernet
 

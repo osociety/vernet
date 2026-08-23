@@ -31,7 +31,7 @@ class HostScanWidget extends StatelessWidget {
                     ),
                     Text(
                       appSettings.gatewayIP.isNotEmpty
-                          ? 'Searching for devices in ${appSettings.gatewayIP} network'
+                          ? 'Looking for devices connected through ${appSettings.gatewayIP}'
                           : StringValue.loadingDevicesMessage,
                       textAlign: TextAlign.center,
                     ),
@@ -44,13 +44,13 @@ class HostScanWidget extends StatelessWidget {
             return _devicesWidget(context, value.activeHosts.toList(), true);
           },
           loadFailure: (value) {
-            return const Text('Failure');
+            return const Text('We could not finish looking for devices');
           },
           loadSuccess: (value) {
             return _devicesWidget(context, value.activeHosts.toList(), false);
           },
           error: (Error value) {
-            return const Text('Error');
+            return const Text('Something went wrong while looking for devices');
           },
         );
       },
@@ -67,7 +67,7 @@ class HostScanWidget extends StatelessWidget {
       children: [
         AdaptiveListTile(
           title: Text(
-            "Found ${activeHostList.length} devices",
+            "Found ${activeHostList.length} connected devices",
             textAlign: TextAlign.center,
           ),
           trailing: loading
@@ -90,7 +90,7 @@ class HostScanWidget extends StatelessWidget {
               return AdaptiveListTile(
                 //TODO: fix below errors
                 leading: Icon(DeviceUtil.getIconData(host)),
-                title: Text(DeviceUtil.getDeviceMake(host) ?? 'Unknown'),
+                title: Text(DeviceUtil.getDeviceMake(host) ?? 'Unknown device'),
                 subtitle: Text(
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
@@ -119,7 +119,7 @@ class HostScanWidget extends StatelessWidget {
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('IP copied to clipboard'),
+                      content: Text('Device address copied'),
                     ),
                   );
                 },

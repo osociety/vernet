@@ -1,1 +1,1 @@
-Host and Port scanner. Ping IP or domain.
+See connected devices, check websites, and test your internet speed.

@@ -17,32 +17,31 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      lib: ${{ steps.filter.outputs.lib == 'true' }}
-      test: ${{ steps.filter.outputs.test == 'true' }}
-      android: ${{ steps.filter.outputs.android == 'true' }}
-      linux: ${{ steps.filter.outputs.linux == 'true' }}
-      macos: ${{ steps.filter.outputs.macos == 'true' }}
-      yaml: ${{ steps.filter.outputs.yaml == 'true' }}
-      windows: ${{ steps.filter.outputs.windows == 'true' }}
+      run: ${{ steps.filter.outputs.run == 'true' }}
     steps:
       - uses: dorny/paths-filter@v3.0.2
         id: filter
         with:
           filters: |
-            lib:
+            run:
               - 'lib/**'
-            android:
-              - 'android/**'
-            test:
               - 'test/**'
-            linux:
+              - 'integration_test/**'
+              - 'android/**'
+              - 'ios/**'
               - 'linux/**'
-            macos:
               - 'macos/**'
-            yaml:
-              - '*.yaml'
-            windows:
+              - 'web/**'
               - 'windows/**'
+              - 'assets/**'
+              - '.github/workflows/**'
+              - '.metadata'
+              - 'analysis_options.yaml'
+              - 'devtools_options.yaml'
+              - 'flutter_native_splash.yaml'
+              - 'generate_coverage.sh'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
 
   flutter-unit-test:
     name: 'Unit Tests on ${{ matrix.os }}'
@@ -50,7 +49,7 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
     needs: changes
-    if: ${{ needs.changes.outputs.lib || needs.changes.outputs.test || needs.changes.outputs.yaml }}
+    if: ${{ needs.changes.outputs.run == 'true' }}
     runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Checkout
@@ -75,17 +74,6 @@ jobs:
           path: ${{ runner.os == 'Windows' && '~/AppData/Local/Pub/Cache' || '~/.pub-cache' }}
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
-
-      - name: Cache build artifacts
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            .dart_tool/
-            **/*.g.dart
-            **/*.mocks.dart
-            **/*.config.dart
-          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
-          restore-keys: ${{ runner.os }}-build-artifacts-
 
       - name: Download dependencies
         run: flutter pub get

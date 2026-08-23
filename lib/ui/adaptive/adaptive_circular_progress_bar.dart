@@ -7,7 +7,7 @@ class AdaptiveCircularProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (globals.testingActive) {
-      return const Text('Loading..');
+      return const Text('Getting things ready...');
     }
     return const CircularProgressIndicator.adaptive();
   }

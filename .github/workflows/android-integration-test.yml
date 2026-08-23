@@ -1,0 +1,80 @@
+name: Android Integration Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: android-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-integration-test:
+    name: Android integration tests
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Cache Flutter pub packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.yaml') }}-${{ hashFiles('android/build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('pubspec.yaml') }}-${{ hashFiles('android/build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Run Android integration tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86_64
+          profile: Pixel_2
+          disable-animations: true
+          script: |
+            adb shell settings put secure show_ime_with_hard_keyboard 0
+            flutter test integration_test/app_test.dart --flavor fdroid -d emulator-5554 &
+            test_pid=$!
+            for attempt in $(seq 1 30); do
+              if adb shell pm list packages | grep -q 'org.fsociety.vernet'; then
+                break
+              fi
+              sleep 1
+            done
+            adb shell pm grant org.fsociety.vernet android.permission.ACCESS_FINE_LOCATION || true
+            adb shell pm grant org.fsociety.vernet android.permission.ACCESS_COARSE_LOCATION || true
+            adb shell settings put secure location_mode 3
+            wait "$test_pid"
