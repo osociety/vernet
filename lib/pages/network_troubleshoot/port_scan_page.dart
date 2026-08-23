@@ -453,7 +453,6 @@ class _PortScanPageState extends State<PortScanPage>
                               return tabs;
                             }
                             return FittedBox(
-                              fit: BoxFit.contain,
                               alignment: Alignment.topCenter,
                               child: SizedBox(
                                 width: constraints.maxWidth,

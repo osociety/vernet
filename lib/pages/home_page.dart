@@ -245,6 +245,7 @@ class _WifiDetailState extends State<HomePage> {
               title: const Text('Check your connection'),
               minVerticalPadding: 10,
               subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
                   Wrap(
@@ -289,6 +290,7 @@ class _WifiDetailState extends State<HomePage> {
               title: const Text('Website and address tools'),
               minVerticalPadding: 10,
               subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
                   Wrap(
