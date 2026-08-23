@@ -204,8 +204,6 @@ jobs:
         uses: actions/setup-node@v4.2.0
         with:
           node-version: 24
-          cache: 'npm'
-          cache-dependency-path: '${{ env.MACOS_DMG_PATH }}/package-lock.json'
           
       - name: Install Appdmg and Create dmg
         working-directory: ${{ env.MACOS_DMG_PATH }}
