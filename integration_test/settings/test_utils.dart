@@ -33,16 +33,56 @@ class TestUtils {
             for (final permission in permissions) permission as int: 1,
           };
         }
+        if (methodCall.method == 'checkPermissionStatus' ||
+            methodCall.method == 'checkServiceStatus') {
+          return 1;
+        }
         return 1;
       },
     );
     messenger.setMockMethodCallHandler(
       const MethodChannel('dev.fluttercommunity.plus/package_info'),
-      (methodCall) async => <String, dynamic>{
-        'appName': 'vernet',
-        'packageName': 'org.fsociety.vernet',
-        'version': '1.0.0',
-        'buildNumber': '1',
+      (methodCall) async {
+        if (methodCall.method == 'getAll') {
+          return <String, dynamic>{
+            'appName': 'vernet',
+            'packageName': 'org.fsociety.vernet',
+            'version': '1.0.0',
+            'buildNumber': '1',
+          };
+        }
+        return <String, dynamic>{
+          'appName': 'vernet',
+          'packageName': 'org.fsociety.vernet',
+          'version': '1.0.0',
+          'buildNumber': '1',
+        };
+      },
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('dev.demine/in_app_review'),
+      (methodCall) async {
+        if (methodCall.method == 'isAvailable') {
+          return true;
+        }
+        return null;
+      },
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('dexterous.com/flutter/local_notifications'),
+      (methodCall) async {
+        switch (methodCall.method) {
+          case 'areNotificationsEnabled':
+            return true;
+          case 'requestNotificationsPermission':
+          case 'requestPermission':
+          case 'requestExactAlarmsPermission':
+            return true;
+          case 'initialize':
+            return true;
+          default:
+            return true;
+        }
       },
     );
   }

@@ -355,91 +355,113 @@ class _PortScanPageState extends State<PortScanPage>
                       padding: const EdgeInsets.all(5.0),
                       child: DefaultTabController(
                         length: _tabs.length,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            TabBar(
-                              controller: _tabController,
-                              tabs: _tabs,
-                              labelColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                            Flexible(
-                              child: TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  Wrap(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final tabs = Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                TabBar(
+                                  controller: _tabController,
+                                  tabs: _tabs,
+                                  labelColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                Flexible(
+                                  child: TabBarView(
+                                    controller: _tabController,
                                     children: [
-                                      _getDomainChip(
-                                        WidgetKey.localIpChip.key,
-                                        '192.168.1.1',
+                                      Wrap(
+                                        children: [
+                                          _getDomainChip(
+                                            WidgetKey.localIpChip.key,
+                                            '192.168.1.1',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.googleChip.key,
+                                            'google.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.youtubeChip.key,
+                                            'youtube.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.appleChip.key,
+                                            'apple.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.amazonChip.key,
+                                            'amazon.com',
+                                          ),
+                                          _getDomainChip(
+                                            WidgetKey.cloudflareChip.key,
+                                            'cloudflare.com',
+                                          ),
+                                        ],
                                       ),
-                                      _getDomainChip(
-                                        WidgetKey.googleChip.key,
-                                        'google.com',
+                                      Wrap(
+                                        children: [
+                                          _getCustomRangeChip(
+                                            WidgetKey.knownPortChip.key,
+                                            '0-1024 (known)',
+                                            '0',
+                                            '1024',
+                                          ),
+                                          _getCustomRangeChip(
+                                            WidgetKey.shortPortChip.key,
+                                            '0-100 (short)',
+                                            '0',
+                                            '100',
+                                          ),
+                                          _getCustomRangeChip(
+                                            WidgetKey.veryShortPortChip.key,
+                                            '0-10 (very short)',
+                                            '0',
+                                            '10',
+                                          ),
+                                          _getCustomRangeChip(
+                                            WidgetKey.fullPortChip.key,
+                                            '0-65535 (Full)',
+                                            '0',
+                                            '65535',
+                                          ),
+                                        ],
                                       ),
-                                      _getDomainChip(
-                                        WidgetKey.youtubeChip.key,
-                                        'youtube.com',
-                                      ),
-                                      _getDomainChip(
-                                        WidgetKey.appleChip.key,
-                                        'apple.com',
-                                      ),
-                                      _getDomainChip(
-                                        WidgetKey.amazonChip.key,
-                                        'amazon.com',
-                                      ),
-                                      _getDomainChip(
-                                        WidgetKey.cloudflareChip.key,
-                                        'cloudflare.com',
+                                      Wrap(
+                                        children: [
+                                          _getSinglePortChip(
+                                            '20 (FTP Data)',
+                                            '20',
+                                          ),
+                                          _getSinglePortChip(
+                                            '21 (FTP Control)',
+                                            '21',
+                                          ),
+                                          _getSinglePortChip('22 (SSH)', '22'),
+                                          _getSinglePortChip('80 (HTTP)', '80'),
+                                          _getSinglePortChip(
+                                            '443 (HTTPS)',
+                                            '443',
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                  Wrap(
-                                    children: [
-                                      _getCustomRangeChip(
-                                        WidgetKey.knownPortChip.key,
-                                        '0-1024 (known)',
-                                        '0',
-                                        '1024',
-                                      ),
-                                      _getCustomRangeChip(
-                                        WidgetKey.shortPortChip.key,
-                                        '0-100 (short)',
-                                        '0',
-                                        '100',
-                                      ),
-                                      _getCustomRangeChip(
-                                        WidgetKey.veryShortPortChip.key,
-                                        '0-10 (very short)',
-                                        '0',
-                                        '10',
-                                      ),
-                                      _getCustomRangeChip(
-                                        WidgetKey.fullPortChip.key,
-                                        '0-65535 (Full)',
-                                        '0',
-                                        '65535',
-                                      ),
-                                    ],
-                                  ),
-                                  Wrap(
-                                    children: [
-                                      _getSinglePortChip('20 (FTP Data)', '20'),
-                                      _getSinglePortChip(
-                                        '21 (FTP Control)',
-                                        '21',
-                                      ),
-                                      _getSinglePortChip('22 (SSH)', '22'),
-                                      _getSinglePortChip('80 (HTTP)', '80'),
-                                      _getSinglePortChip('443 (HTTPS)', '443'),
-                                    ],
-                                  ),
-                                ],
+                                ),
+                              ],
+                            );
+                            if (constraints.maxHeight >= kTextTabBarHeight) {
+                              return tabs;
+                            }
+                            return FittedBox(
+                              fit: BoxFit.contain,
+                              alignment: Alignment.topCenter,
+                              child: SizedBox(
+                                width: constraints.maxWidth,
+                                height: kTextTabBarHeight + 48,
+                                child: tabs,
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ),
                     ),

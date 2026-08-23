@@ -346,40 +346,29 @@ class _WifiDetailState extends State<HomePage> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 4,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        CustomTile(
-                                          leading: Icon(
-                                            Icons.public,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                          child: Text(snapshot.data!.client.ip),
-                                        ),
-                                        CustomTile(
-                                          leading: Icon(
-                                            Icons.dns,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                          child:
-                                              Text(snapshot.data!.client.isp),
-                                        ),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-                                      ],
+                                  CustomTile(
+                                    leading: Icon(
+                                      Icons.public,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
                                     ),
+                                    child: Text(snapshot.data!.client.ip),
+                                  ),
+                                  CustomTile(
+                                    leading: Icon(
+                                      Icons.dns,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                    ),
+                                    child: Text(snapshot.data!.client.isp),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
                                   ),
                                 ],
                               ),

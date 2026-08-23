@@ -10,14 +10,18 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
+import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 import '../settings/test_utils.dart';
 
 void main() {
+  globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
+    NotificationService.skipPermissionRequests = true;
     // Only initialize if not already initialized
     if (!getIt.isRegistered<DatabaseService<AppDatabase>>()) {
       configureDependencies(Env.test);
@@ -27,6 +31,8 @@ void main() {
   });
 
   setUp(() {
+    globals.testingActive = true;
+    NotificationService.skipPermissionRequests = true;
     SharedPreferences.setMockInitialValues({});
     TestUtils.configureAndroidChannelMocks();
 

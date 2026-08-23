@@ -11,15 +11,18 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
-import 'dns/lookup/lookup_test.dart' as lookup_test;
+import 'dns/lookup/lookup.dart' as lookup_test;
 import 'dns/reverse_lookup/reverse_lookup.dart' as reverse_lookup;
-import 'home_page/home_page_test.dart' as home_page_test;
-import 'network_troubleshooting_test/ping_test/ping_test.dart' as ping_test;
-import 'settings/settings_test.dart' as settings_test;
+import 'home_page/home_page.dart' as home_page_test;
+import 'network_troubleshooting_test/ping_test/ping.dart' as ping_test;
+import 'settings/settings.dart' as settings_test;
+import 'settings/test_utils.dart';
+import 'test_port.dart';
 import 'wifi_test/wifi_test_runner.dart' as wifi_test_runner;
 
-int port = 0;
-
+/// Single integration-test entry point. Nested suites omit the `_test.dart`
+/// suffix so `flutter test integration_test` does not launch a separate app
+/// per file (which fails on macOS with "Unable to start the app on the device").
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   globals.testingActive = true;
@@ -29,6 +32,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     AppSettings.instance.resetForTesting();
+    TestUtils.configureAndroidChannelMocks();
   });
 
   setUpAll(() async {

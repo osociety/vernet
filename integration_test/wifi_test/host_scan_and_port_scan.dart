@@ -1,36 +1,58 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/database/database_service.dart';
+import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
-import '../app_test.dart' show port;
 import '../settings/test_utils.dart';
+import '../test_port.dart' as test_port;
 import 'wifi_test_runner.dart' show clearDatabase;
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  globals.testingActive = true;
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  ServerSocket? server;
+
+  setUpAll(() async {
+    globals.testingActive = true;
+    NotificationService.skipPermissionRequests = true;
+    if (!getIt.isRegistered<DatabaseService<AppDatabase>>()) {
+      configureDependencies(Env.test);
+      final appDocDirectory = await getApplicationDocumentsDirectory();
+      await configureNetworkToolsFlutter(appDocDirectory.path);
+    }
+    if (test_port.port == 0) {
+      server = await ServerSocket.bind(InternetAddress.anyIPv4, 0, shared: true);
+      test_port.port = server!.port;
+      debugPrint("Opened port in this machine at ${test_port.port}");
+    }
+  });
 
   setUp(() async {
+    globals.testingActive = true;
+    NotificationService.skipPermissionRequests = true;
+    SharedPreferences.setMockInitialValues({});
+    AppSettings.instance.resetForTesting();
     TestUtils.configureAndroidChannelMocks();
     // Clear database before each test to prevent stale scan records
     await clearDatabase();
   });
 
-  // globals.testingActive = true;
-  // late ServerSocket server;
-  // int port = 0;
-  // setUpAll(() async {
-  //   configureDependencies(Env.test);
-  //   final appDocDirectory = await getApplicationDocumentsDirectory();
-  //   await configureNetworkToolsFlutter(appDocDirectory.path);
-  //   //open a port in shared way because of portscanner using same,
-  //   //if passed false then two hosts come up in search and breaks test.
-  //   server =
-  //       await ServerSocket.bind(InternetAddress.anyIPv4, port, shared: true);
-  //   port = server.port;
-  //   debugPrint("Opened port in this machine at $port");
-  // });
+  tearDownAll(() async {
+    await server?.close();
+  });
 
   group('host scanner end-to-end test', () {
     testWidgets('tap on the scan for devices button, verify device found',
@@ -119,7 +141,7 @@ void main() {
 
       await tester.enterText(
         find.byKey(WidgetKey.enterPortTextField.key),
-        port.toString(),
+        test_port.port.toString(),
       );
       await tester.pumpAndSettle();
 

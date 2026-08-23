@@ -55,7 +55,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     if (widget.testing) globals.testingActive = true;
-    NotificationService.grantPermissions();
+    if (!globals.testingActive) {
+      NotificationService.grantPermissions();
+    }
     getCurrentAppTheme();
   }
 
