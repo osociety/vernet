@@ -38,7 +38,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
+          key: avd-default
 
       - name: Setup Java
         uses: actions/setup-java@v4
