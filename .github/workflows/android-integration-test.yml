@@ -46,6 +46,16 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      - name: Cache pub dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+      
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+      
       - name: Run Android integration tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
