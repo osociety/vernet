@@ -61,9 +61,8 @@ jobs:
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
       
-      - name: Run Android integration tests
-        uses: ReactiveCircus/android-emulator-runner@v2
-        working-directory: ./android
+      - name: Android Emulator Runner
+        uses: ReactiveCircus/android-emulator-runner@v2.38.0
         with:
           api-level: 33
           target: default
