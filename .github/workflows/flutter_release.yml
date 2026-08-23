@@ -55,17 +55,6 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: Cache build artifacts
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            .dart_tool/
-            **/*.g.dart
-            **/*.mocks.dart
-            **/*.config.dart
-          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
-          restore-keys: ${{ runner.os }}-build-artifacts-
-
       - name: Cache Gradle
         uses: actions/cache@v4.2.2
         with:
@@ -188,17 +177,6 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: Cache build artifacts
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            .dart_tool/
-            **/*.g.dart
-            **/*.mocks.dart
-            **/*.config.dart
-          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
-          restore-keys: ${{ runner.os }}-build-artifacts-
-
       - name: Cache CocoaPods
         uses: actions/cache@v4.2.2
         with:
@@ -264,17 +242,6 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: Cache build artifacts
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            .dart_tool/
-            **/*.g.dart
-            **/*.mocks.dart
-            **/*.config.dart
-          key: ${{ runner.os }}-build-artifacts-${{ hashFiles('pubspec.lock', '**/pubspec.yaml') }}
-          restore-keys: ${{ runner.os }}-build-artifacts-
-      
       - name: Download pub dependencies
         run: flutter pub get
       
