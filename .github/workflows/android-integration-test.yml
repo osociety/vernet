@@ -28,6 +28,18 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v5
+        
+      - name: AVD cache
+        uses: actions/cache@v5
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -43,15 +55,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Flutter pub get
-        run: flutter pub get
-
       - name: Cache pub dependencies
         uses: actions/cache@v4.2.2
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
+
+      - name: Flutter pub get
+        run: flutter pub get
       
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
