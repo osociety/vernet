@@ -75,7 +75,7 @@ jobs:
               if adb shell pm list packages | grep -q 'org.fsociety.vernet'; then
                 break
               fi
-              sleep 1
+              sleep 5
             done
             
             adb shell pm grant org.fsociety.vernet android.permission.ACCESS_FINE_LOCATION || true
