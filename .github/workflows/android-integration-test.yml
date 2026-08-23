@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     branches:
       - main
-      - develop
   workflow_dispatch:
 
 concurrency:
@@ -18,11 +16,29 @@ concurrency:
 jobs:
   android-integration-test:
     name: Android integration tests
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm-4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v5
+        
+      - name: AVD cache
+        uses: actions/cache@v5
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-default
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -34,47 +50,25 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Cache Flutter pub packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.yaml') }}-${{ hashFiles('android/build.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('pubspec.yaml') }}-${{ hashFiles('android/build.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Flutter pub get
         run: flutter pub get
-
-      - name: Run Android integration tests
-        uses: ReactiveCircus/android-emulator-runner@v2
+      
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+      
+      - name: Android Emulator Runner
+        uses: ReactiveCircus/android-emulator-runner@v2.38.0
         with:
-          api-level: 29
+          api-level: 33
           target: default
           arch: x86_64
-          profile: Pixel_2
+          profile: pixel_2
+          force-avd-creation: false
+          emulator-options: -no-snapshot-load -no-window -no-boot-anim -camera-back none
           disable-animations: true
-          script: |
-            adb shell settings put secure show_ime_with_hard_keyboard 0
-            flutter test integration_test/app_test.dart --flavor fdroid -d emulator-5554 &
-            test_pid=$!
-            for attempt in $(seq 1 30); do
-              if adb shell pm list packages | grep -q 'org.fsociety.vernet'; then
-                break
-              fi
-              sleep 1
-            done
-            adb shell pm grant org.fsociety.vernet android.permission.ACCESS_FINE_LOCATION || true
-            adb shell pm grant org.fsociety.vernet android.permission.ACCESS_COARSE_LOCATION || true
-            adb shell settings put secure location_mode 3
-            wait "$test_pid"
+          script: chmod +x ./android_integration && ./android_integration

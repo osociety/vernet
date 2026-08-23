@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+adb shell settings put secure show_ime_with_hard_keyboard 0
+flutter test integration_test/app_test.dart --flavor fdroid &
+test_pid=$!
+
+for attempt in $(seq 1 60); do
+    if adb shell pm list packages | grep -q 'org.fsociety.vernet'; then
+    break
+    fi
+    sleep 5
+done
+
+adb shell pm grant org.fsociety.vernet android.permission.ACCESS_FINE_LOCATION || true
+adb shell pm grant org.fsociety.vernet android.permission.ACCESS_COARSE_LOCATION || true
+adb shell settings put secure location_mode 3
+wait "$test_pid"
