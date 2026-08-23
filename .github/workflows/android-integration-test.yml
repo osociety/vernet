@@ -71,7 +71,7 @@ jobs:
       - name: Run Android integration tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 37
+          api-level: 33
           target: default
           arch: x86_64
           profile: pixel_2
