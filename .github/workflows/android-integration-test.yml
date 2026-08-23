@@ -71,11 +71,11 @@ jobs:
       - name: Run Android integration tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 37
           target: default
           arch: x86_64
           profile: pixel_2
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-window -no-boot-anim -camera-back none
           disable-animations: true
-          script: android_integration.sh
+          script: ./android_integration

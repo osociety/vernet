@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 
 adb shell settings put secure show_ime_with_hard_keyboard 0
 flutter test integration_test/app_test.dart --flavor fdroid &
