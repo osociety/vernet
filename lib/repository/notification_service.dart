@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:vernet/values/globals.dart' as globals;
 
 class ReceivedNotification {
   ReceivedNotification({
@@ -146,7 +147,7 @@ class NotificationService {
         AndroidNotificationDetails(
       'your channel id',
       'your channel name',
-      channelDescription: 'your channel description',
+      channelDescription: 'Notifications about device searches',
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
@@ -186,8 +187,8 @@ class NotificationService {
     );
     await flutterLocalNotificationsPlugin.show(
       id: id++,
-      title: 'Scan completed',
-      body: 'Your devices scan has been completed successfully',
+      title: 'Device search complete',
+      body: 'Vernet finished looking for devices on your network',
       notificationDetails: notificationDetails,
       payload: 'item z',
     );
@@ -195,7 +196,7 @@ class NotificationService {
 
   static Future<void> grantPermissions() async {
     if (Platform.isWindows && !debugIgnorePlatformCheck) return Future.value();
-    if (skipPermissionRequests) return Future.value();
+    if (skipPermissionRequests || globals.testingActive) return Future.value();
     await isAndroidPermissionGranted();
     await requestPermissions();
   }

@@ -1,6 +1,6 @@
 # Vernet
 
-Vernet - Network Analyzer and Monitoring Tool
+Vernet - Check Your Connection
 
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/git-elliot/vernet?include_prereleases)](https://github.com/git-elliot/vernet/releases/latest)
@@ -11,15 +11,21 @@ Vernet - Network Analyzer and Monitoring Tool
 
 ## Features
 
-1. Shows Wi-Fi details such as BSSID and MAC Address.
-2. Scans for devices(or hosts) on network
-3. Scans for open ports of target IP
-4. Shows ISP details
-5. Internet Speed Test using speedtest.net
+1. See which Wi-Fi network you are using.
+2. Find devices connected to your local network.
+3. Check whether a website or device responds.
+4. Find services that may be reachable from a device.
+5. Find website addresses and device names.
+6. Test your download and upload speed.
+7. View information about your internet provider.
+
+Vernet helps you spot possible connection and security concerns. It does not
+replace a professional security audit, but it gives you useful findings to
+review, such as devices and services that are reachable on your network.
 
 ## Screenshots
 
-|Vernet|Home|Devices|Open Ports|
+|Vernet|Home|Connected Devices|Security Findings|
 |-|-|-|-|
 |<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "200">|
 |Ping|DNS|Speed test|Settings|

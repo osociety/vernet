@@ -1,3 +1,4 @@
 class TooltipMessages {
-  static const currentDevicePortScan = 'Scan open ports for this target';
+  static const currentDevicePortScan =
+      'Look for reachable services on this device';
 }

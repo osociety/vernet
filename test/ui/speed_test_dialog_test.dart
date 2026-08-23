@@ -100,13 +100,13 @@ void main() {
       );
 
       // First frame: best servers not loaded yet.
-      expect(find.text('Loading Best Servers'), findsOneWidget);
+      expect(find.text('Finding the best test server'), findsOneWidget);
 
       // Resolve getBestServers + rebuild.
       await tester.pump();
 
-      expect(find.textContaining('Best server:'), findsOneWidget);
-      expect(find.textContaining('Latency:'), findsOneWidget);
+      expect(find.textContaining('Test server:'), findsOneWidget);
+      expect(find.textContaining('Response time:'), findsOneWidget);
     });
 
     testWidgets('start button runs download+upload and shows final speeds',
@@ -140,7 +140,7 @@ void main() {
       // Resolve best servers.
       await tester.pump();
 
-      await tester.tap(find.text('Start'));
+      await tester.tap(find.text('Start test'));
 
       // The speed test involves streams and timers.
       // We use runAsync to allow the periodic timer to run.

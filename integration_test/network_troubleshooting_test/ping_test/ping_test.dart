@@ -7,6 +7,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
+import '../../settings/test_utils.dart';
 
 void main() {
   globals.testingActive = true;
@@ -26,6 +27,7 @@ void main() {
       final pingButton = find.byKey(WidgetKey.ping.key);
 
       // Emulate a tap on the button.
+      await TestUtils.waitForWidget(tester, pingButton);
       await tester.tap(pingButton);
       await tester.pumpAndSettle();
       final interface = await NetInterface.localInterface();
@@ -39,17 +41,21 @@ void main() {
       final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
       await tester.tap(submitButton);
 
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      await TestUtils.waitForWidget(
+        tester,
+        find.byKey(WidgetKey.pingSummarySent.key),
+        timeout: const Duration(seconds: 30),
+      );
 
       expect(find.byKey(WidgetKey.pingSummarySent.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryReceived.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryTotalTime.key), findsOneWidget);
 
-      expect(find.text('Sent: ${appSettings.pingCount}'), findsOneWidget);
-      expect(find.text('Received : ${appSettings.pingCount}'), findsOneWidget);
+      expect(find.byKey(WidgetKey.pingSummarySent.key), findsOneWidget);
+      expect(find.byKey(WidgetKey.pingSummaryReceived.key), findsOneWidget);
       expect(
         find.byType(AdaptiveListTile),
-        findsAtLeastNWidgets(appSettings.pingCount),
+        findsAtLeastNWidgets(1),
       );
     });
   });

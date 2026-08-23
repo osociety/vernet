@@ -17,13 +17,13 @@ class ExternalLinkWarningDialog<T extends Dialog> extends StatelessWidget {
     );
   }
 
-  Widget get title => const Text("Confirm external link");
+  Widget get title => const Text('Open this link?');
   Widget get content => Text(link);
   List<Widget> actions(BuildContext context) {
     return [
       AdaptiveDialogAction(
         isDestructiveAction: true,
-        child: const Text('Open Link'),
+        child: const Text('Open link'),
         onPressed: () {
           launchURL(link);
         },

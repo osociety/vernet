@@ -16,7 +16,7 @@ class SpeedometerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SfRadialGauge(
-      title: const GaugeTitle(text: 'Internet Speed Test'),
+      title: const GaugeTitle(text: 'Internet speed'),
       enableLoadingAnimation: true,
       axes: <RadialAxis>[
         RadialAxis(

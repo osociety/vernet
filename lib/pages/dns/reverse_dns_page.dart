@@ -41,7 +41,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
           Clipboard.setData(ClipboardData(text: _hostname!));
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Name copied to clipboard'),
+              content: Text('Device name copied'),
             ),
           );
         },
@@ -51,12 +51,12 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
 
   @override
   String buttonLabel() {
-    return 'Lookup';
+    return 'Find name';
   }
 
   @override
   String fieldLabel() {
-    return 'Enter IPv4 or IPv6 address';
+    return 'Enter a device address';
   }
 
   void _showMessage(String message) {
@@ -88,17 +88,17 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
         if (e is SocketException) {
           _showMessage(e.message);
         } else {
-          _showMessage('Unable to lookup');
+          _showMessage('We could not find a name for that address');
         }
       }
     } else {
       //Show snackbar with error
-      _showMessage('Address is not in valid IPv4 or IPv6 format');
+      _showMessage('That does not look like a valid device address');
     }
   }
 
   @override
   String title() {
-    return 'Reverse DNS Lookup';
+    return 'Find device name';
   }
 }

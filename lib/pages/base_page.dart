@@ -21,7 +21,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
 
   String? validateIP(String? value) {
     if (value != null) {
-      if (value.isEmpty) return 'Required';
+      if (value.isEmpty) return 'Please enter a website or address';
     }
     return null;
   }
@@ -29,7 +29,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
   Widget buildPopularChips() {
     return Card(
       child: AdaptiveListTile(
-        title: const Text('Popular targets'),
+        title: const Text('Try a website'),
         subtitle: Wrap(
           children: [
             _getDomainChip('google.com'),

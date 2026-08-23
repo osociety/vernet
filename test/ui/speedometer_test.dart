@@ -69,7 +69,7 @@ void main() {
       );
 
       // Title from GaugeTitle should be visible as text.
-      expect(find.text('Internet Speed Test'), findsOneWidget);
+      expect(find.text('Internet speed'), findsOneWidget);
 
       // Annotation text uses floor() in the widget.
       expect(find.text('42 Mbps'), findsOneWidget);

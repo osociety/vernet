@@ -23,7 +23,7 @@ class IspPageWidget extends StatelessWidget {
             childrens: const [AdaptiveCircularProgressIndicator()],
           ),
           loadFailure: (event) => const Center(
-            child: Text('Error'),
+            child: Text('We could not load internet service details'),
           ),
           loadSuccess: (success) => IspPageContent(
             client: client,
@@ -69,11 +69,11 @@ class IspPageWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 5),
                     child: Text(
-                        'Best Server: ${success.bestServers.first.name}, ${success.bestServers.first.country}'),
+                        'Closest test server: ${success.bestServers.first.name}, ${success.bestServers.first.country}'),
                   ),
                 ],
               ),
-              const Text("List of Servers"),
+              const Text('Available test servers'),
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, item) => AdaptiveListTile(
@@ -84,12 +84,12 @@ class IspPageWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            'Latency: ${success.bestServers[item].latency} ms'),
+                            'Response time: ${success.bestServers[item].latency} ms'),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                                'Sponsored by ${success.bestServers[item].sponsor}')
+                                'Provided by ${success.bestServers[item].sponsor}')
                           ],
                         )
                       ],
@@ -137,7 +137,7 @@ class IspPageContent extends StatelessWidget {
               ),
             ],
           ),
-          subtitle: Text('Your ISP is rated ${client.ispRating} out of 5'),
+          subtitle: Text('Your provider rating: ${client.ispRating} out of 5'),
         ),
         ...childrens,
       ],

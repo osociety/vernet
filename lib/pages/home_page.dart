@@ -136,6 +136,35 @@ class _WifiDetailState extends State<HomePage> {
     return const SizedBox();
   }
 
+  Widget _buildWifiFallback(BuildContext context) {
+    return AdaptiveListTile(
+      minVerticalPadding: 10,
+      leading: const Icon(Icons.router),
+      title: const Text(WifiInfo.noWifiName),
+      subtitle: Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        children: [
+          _getDeviceCountWidget(),
+          ElevatedButton(
+            key: WidgetKey.scanForDevicesButton.key,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HostScanPage()),
+              );
+            },
+            child: const Text(StringValue.hostScanPageTitle),
+          ),
+        ],
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.refresh),
+        onPressed: _getWifiInfo,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -144,6 +173,7 @@ class _WifiDetailState extends State<HomePage> {
           Card(
             child: FutureBuilder<WifiInfo?>(
               future: _getWifiInfo(),
+              initialData: WifiInfo(null, null, null, true, '', false),
               builder: (
                 BuildContext context,
                 AsyncSnapshot<WifiInfo?> snapshot,
@@ -157,13 +187,13 @@ class _WifiDetailState extends State<HomePage> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Connected to ${wifiInfo.bssid}'),
+                        Text('Connected through ${wifiInfo.bssid}'),
                         const SizedBox(height: 5),
                         if (wifiInfo.isLocationOn)
                           const SizedBox()
                         else
                           Text(
-                            'Location should be on to display Wifi name',
+                            'Turn on location access to show the Wi-Fi name',
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall!.copyWith(
@@ -173,10 +203,11 @@ class _WifiDetailState extends State<HomePage> {
                           ),
                         const Divider(height: 3),
                         const SizedBox(height: 10),
-                        Row(
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
                           children: [
                             _getDeviceCountWidget(),
-                            const SizedBox(width: 4),
                             ElevatedButton(
                               key: WidgetKey.scanForDevicesButton.key,
                               onPressed: () {
@@ -201,9 +232,9 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                   );
                 } else if (snapshot.hasError) {
-                  return const Text("Unable to fetch WiFi details");
+                  return _buildWifiFallback(context);
                 } else {
-                  return const Text('Loading...');
+                  return _buildWifiFallback(context);
                 }
               },
             ),
@@ -211,12 +242,14 @@ class _WifiDetailState extends State<HomePage> {
           Card(
             child: AdaptiveListTile(
               leading: const Icon(Icons.network_check),
-              title: const Text('Network Troubleshooting'),
+              title: const Text('Check your connection'),
               minVerticalPadding: 10,
               subtitle: Column(
                 children: [
                   const SizedBox(height: 10),
-                  Row(
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 4,
                     children: [
                       ElevatedButton.icon(
                         key: WidgetKey.ping.key,
@@ -229,9 +262,8 @@ class _WifiDetailState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(Icons.trending_up),
-                        label: const Text('Ping'),
+                        label: const Text('Check a website'),
                       ),
-                      const SizedBox(width: 10),
                       ElevatedButton.icon(
                         key: WidgetKey.scanForOpenPortsButton.key,
                         onPressed: () {
@@ -243,7 +275,7 @@ class _WifiDetailState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(Icons.radar),
-                        label: const Text('Scan open ports'),
+                        label: const Text('Find security gaps'),
                       ),
                     ],
                   ),
@@ -254,12 +286,14 @@ class _WifiDetailState extends State<HomePage> {
           Card(
             child: AdaptiveListTile(
               leading: const Icon(Icons.dns),
-              title: const Text('Domain Name System (DNS)'),
+              title: const Text('Website and address tools'),
               minVerticalPadding: 10,
               subtitle: Column(
                 children: [
                   const SizedBox(height: 10),
-                  Row(
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 4,
                     children: [
                       ElevatedButton.icon(
                         key: WidgetKey.dnsLookupButton.key,
@@ -272,9 +306,8 @@ class _WifiDetailState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(Icons.search),
-                        label: const Text('Lookup'),
+                        label: const Text('Find website addresses'),
                       ),
-                      const SizedBox(width: 10),
                       ElevatedButton.icon(
                         key: WidgetKey.reverseDnsLookupButton.key,
                         onPressed: () {
@@ -286,7 +319,7 @@ class _WifiDetailState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(Icons.find_replace),
-                        label: const Text('Reverse Lookup'),
+                        label: const Text('Find a device name'),
                       ),
                     ],
                   ),
@@ -297,7 +330,7 @@ class _WifiDetailState extends State<HomePage> {
           Card(
             child: AdaptiveListTile(
               leading: const Icon(Icons.signal_cellular_alt),
-              title: const Text('Internet Service Provider (ISP)'),
+              title: const Text('Your internet service'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -313,7 +346,9 @@ class _WifiDetailState extends State<HomePage> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
                                 children: [
                                   Expanded(
                                     flex: 2,
@@ -370,7 +405,7 @@ class _WifiDetailState extends State<HomePage> {
                                       );
                                     },
                                     icon: const Icon(Icons.speed),
-                                    label: const Text('Speed Test'),
+                                    label: const Text('Test internet speed'),
                                   ),
                                   const SizedBox(width: 5),
                                   ElevatedButton.icon(
@@ -386,28 +421,31 @@ class _WifiDetailState extends State<HomePage> {
                                       );
                                     },
                                     icon: const Icon(Icons.cloud_circle),
-                                    label: const Text('ISP Details'),
+                                    label: const Text('See provider details'),
                                   ),
                                 ],
                               ),
                               const SizedBox(
                                 height: 5,
                               ),
-                              const Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                              const Wrap(
+                                alignment: WrapAlignment.end,
+                                spacing: 8,
+                                runSpacing: 4,
                                 children: [Text(StringValue.speedTestServer)],
                               ),
                             ],
                           );
                         }
                         if (snapshot.hasError) {
-                          return const Text('Unable to fetch ISP details');
+                          return const Text(
+                              'Internet service details are not available right now');
                         }
                         return const Text('Loading ISP details..');
                       },
                     )
                   else
-                    const Text("In-App Internet is off"),
+                    const Text('Internet access in the app is turned off'),
                   const SizedBox(height: 5),
                 ],
               ),

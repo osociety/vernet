@@ -109,19 +109,16 @@ jobs:
           flutter test integration_test/app_test.dart --coverage -d linux
         shell: bash
 
-      - name: Run integration tests - macOS
-        if: matrix.os == 'macos'
-        run: flutter test integration_test/app_test.dart --coverage -d macos
-
       - name: Run integration tests - Windows
         if: matrix.os == 'windows'
         run: flutter test integration_test/app_test.dart --coverage -d windows
 
       - name: Preserve integration test coverage
+        if: matrix.os != 'macos'
         run: mv coverage/lcov.info coverage/integration_${{ matrix.os }}.lcov.info
 
-      - name: Combine coverage files on macos/ubuntu
-        if: matrix.os == 'macos' || matrix.os == 'ubuntu'
+      - name: Combine coverage files on ubuntu
+        if: matrix.os == 'ubuntu'
         run: cat coverage/unit_${{ matrix.os }}.lcov.info coverage/integration_${{ matrix.os }}.lcov.info > coverage/${{ matrix.os }}_lcov.info
       
       - name: Combine coverage files on windows
@@ -131,10 +128,11 @@ jobs:
           copy /b coverage\unit_${{ matrix.os }}.lcov.info + coverage\integration_${{ matrix.os }}.lcov.info coverage\${{ matrix.os }}_lcov.info
     
       - name: Remove generated files from coverage  
+        if: matrix.os != 'macos'
         run: lcov --ignore-errors empty --remove coverage/${{ matrix.os }}_lcov.info '**/*.g.dart' 'lib/models/drift/*' -o coverage/${{ matrix.os }}_lcov.info
 
       - name: Upload combined coverage to CodeCov
-        if: always()
+        if: matrix.os != 'macos'
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

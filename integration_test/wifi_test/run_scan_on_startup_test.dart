@@ -39,10 +39,15 @@ void main() {
         .setMockMethodCallHandler(
             const MethodChannel('flutter.baseflow.com/permissions/methods'),
             (MethodCall methodCall) async {
-      if (methodCall.method == 'requestPermissions' ||
-          methodCall.method == 'checkPermissionStatus' ||
+      if (methodCall.method == 'requestPermissions') {
+        final permissions = (methodCall.arguments as List<dynamic>?) ?? [];
+        return <int, int>{
+          for (final permission in permissions) permission as int: 1,
+        };
+      }
+      if (methodCall.method == 'checkPermissionStatus' ||
           methodCall.method == 'checkServiceStatus') {
-        return 1; // Granted / Enabled
+        return 1;
       }
       return null;
     });
@@ -84,6 +89,10 @@ void main() {
       // and allow platform channels to respond
       await tester.pumpAndSettle(const Duration(seconds: 10));
 
+      await TestUtils.waitForWidget(
+        tester,
+        find.byKey(WidgetKey.runScanOnStartup.key),
+      );
       expect(find.byKey(WidgetKey.runScanOnStartup.key), findsOne);
     });
   });

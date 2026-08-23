@@ -12,6 +12,8 @@ import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/values/keys.dart';
 
+import '../settings/test_utils.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -26,6 +28,7 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    TestUtils.configureAndroidChannelMocks();
 
     // Mock NetworkInfo
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -52,10 +55,15 @@ void main() {
         .setMockMethodCallHandler(
       const MethodChannel('flutter.baseflow.com/permissions/methods'),
       (MethodCall methodCall) async {
-        if (methodCall.method == 'requestPermissions' ||
-            methodCall.method == 'checkPermissionStatus' ||
+        if (methodCall.method == 'requestPermissions') {
+          final permissions = (methodCall.arguments as List<dynamic>?) ?? [];
+          return <int, int>{
+            for (final permission in permissions) permission as int: 1,
+          };
+        }
+        if (methodCall.method == 'checkPermissionStatus' ||
             methodCall.method == 'checkServiceStatus') {
-          return 1; // Granted / Enabled
+          return 1;
         }
         return null;
       },
@@ -85,7 +93,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap the scan button
-      await tester.tap(find.byKey(WidgetKey.scanForDevicesButton.key));
+      await TestUtils.tapByWidgetKey(
+        WidgetKey.scanForDevicesButton,
+        tester,
+        find,
+      );
       await tester.pumpAndSettle();
 
       // Verify HostScanPage is displayed
@@ -96,7 +108,7 @@ void main() {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
-      // Tap refresh button
+      await TestUtils.waitForWidget(tester, find.byIcon(Icons.refresh));
       await tester.tap(find.byIcon(Icons.refresh));
       await tester.pumpAndSettle();
 

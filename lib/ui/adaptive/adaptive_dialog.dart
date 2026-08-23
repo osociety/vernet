@@ -39,7 +39,7 @@ class AdaptiveDialog extends StatelessWidget {
                         Navigator.pop(context);
                       },
                   child: const Text(
-                    "Close",
+                    'Close',
                   ),
                 ),
                 ...actions,
@@ -55,7 +55,7 @@ class AdaptiveDialog extends StatelessWidget {
                     () {
                       Navigator.pop(context);
                     },
-                child: const Text("Close"),
+                child: const Text('Close'),
               ),
               ...actions,
             ],

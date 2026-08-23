@@ -5,7 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 import 'dns/lookup/lookup_test.dart' as lookup_test;
@@ -20,7 +23,13 @@ int port = 0;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   globals.testingActive = true;
+  NotificationService.skipPermissionRequests = true;
   late ServerSocket server;
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    AppSettings.instance.resetForTesting();
+  });
 
   setUpAll(() async {
     configureDependencies(Env.test);

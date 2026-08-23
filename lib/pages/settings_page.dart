@@ -49,7 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
-              title: const Text('In-App Internet'),
+              title: const Text('Allow internet access in the app'),
               trailing: Switch(
                 key: WidgetKey.inAppInternetSwitch.key,
                 value: appSettings.inAppInternet,
@@ -63,7 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
-              title: const Text('Run scan on app startup'),
+              title: const Text('Find devices when the app opens'),
               trailing: Switch(
                 key: WidgetKey.runOnAppStartupSwitch.key,
                 value: appSettings.runScanOnStartup,
@@ -187,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
-              title: const Text('Check for Updates'),
+              title: const Text('Check for a newer version'),
               trailing: IconButton(
                 key: WidgetKey.checkForUpdatesButton.key,
                 icon: const Icon(Icons.refresh),
@@ -199,7 +199,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
-              title: const Text('Rate our app'),
+              title: const Text('Rate Vernet'),
               onTap: () {
                 inAppReview.openStoreListing();
               },
@@ -218,7 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     AdaptiveListTile(
                       leading: const Icon(Icons.bug_report),
-                      title: const Text('Report Issues'),
+                      title: const Text('Tell us about a problem'),
                       onTap: () {
                         launchURLWithWarning(context, _issueUrl);
                       },
@@ -232,7 +232,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     AdaptiveListTile(
                       leading: const Icon(Icons.code),
-                      title: const Text('Source Code'),
+                      title: const Text('View the project'),
                       onTap: () {
                         launchURLWithWarning(context, _srcUrl);
                       },

@@ -135,8 +135,8 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                     ],
                   ),
                 ),
-                Text('Best server: ${bestServers!.first.name}'),
-                Text('Latency: ${bestServers!.first.latency} ms'),
+                Text('Test server: ${bestServers!.first.name}'),
+                Text('Response time: ${bestServers!.first.latency} ms'),
                 const SizedBox(height: 5),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +182,7 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
                     });
                   },
             child: Text(
-              'Start',
+              'Start test',
               style: TextStyle(
                 color: Theme.of(context).buttonTheme.colorScheme?.primary,
                 fontWeight: FontWeight.bold,
@@ -194,7 +194,7 @@ class _SpeedTestDialogState extends State<SpeedTestDialog> {
     }
 
     return const AdaptiveDialog(
-      title: Text('Loading Best Servers'),
+      title: Text('Finding the best test server'),
       actions: [],
       content: Padding(
         padding: EdgeInsets.only(top: 10),

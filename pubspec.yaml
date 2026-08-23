@@ -1,5 +1,5 @@
 name: vernet
-description: A Network Analyzer
+description: A simple way to understand and check your internet connection
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 

@@ -23,17 +23,17 @@ class _PingPageState extends BasePage<PingPage> {
 
   @override
   String fieldLabel() {
-    return 'Enter a domain or IP';
+    return 'Enter a website or device address';
   }
 
   @override
   String title() {
-    return 'Ping';
+    return 'Check connection';
   }
 
   @override
   String buttonLabel() {
-    return _ping == null ? 'Ping' : 'Stop';
+    return _ping == null ? 'Start check' : 'Stop';
   }
 
   @override
@@ -86,7 +86,7 @@ class _PingPageState extends BasePage<PingPage> {
         AdaptiveListTile(title: _getPingSummary()),
         if (_pingPackets.isEmpty)
           const Center(
-            child: Text('Ping results will appear here'),
+            child: Text('Connection results will appear here'),
           )
         else
           Expanded(
@@ -121,16 +121,17 @@ class _PingPageState extends BasePage<PingPage> {
   }
 
   Widget _getPingSummary() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      spacing: 12,
+      runSpacing: 4,
       children: [
         Text(
           key: WidgetKey.pingSummarySent.key,
-          'Sent: ${_pingSummary?.transmitted ?? '--'}',
+          'Checks sent: ${_pingSummary?.transmitted ?? '--'}',
         ),
         Text(
           key: WidgetKey.pingSummaryReceived.key,
-          'Received : ${_pingSummary?.transmitted ?? '--'}',
+          'Replies received: ${_pingSummary?.received ?? '--'}',
         ),
         Text(
           key: WidgetKey.pingSummaryTotalTime.key,

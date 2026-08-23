@@ -24,7 +24,7 @@ class _ThemeDialogState extends State<ThemeDialog> {
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
     return AdaptiveDialog(
-      title: const Text("Choose theme"),
+      title: const Text('Choose app appearance'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

@@ -5,12 +5,14 @@ import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
 import '../app_test.dart' show port;
+import '../settings/test_utils.dart';
 import 'wifi_test_runner.dart' show clearDatabase;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() async {
+    TestUtils.configureAndroidChannelMocks();
     // Clear database before each test to prevent stale scan records
     await clearDatabase();
   });
@@ -47,6 +49,7 @@ void main() {
       final devicesButton = find.byKey(WidgetKey.scanForDevicesButton.key);
 
       // Emulate a tap on the button.
+      await TestUtils.waitForWidget(tester, devicesButton);
       await tester.tap(devicesButton);
       await tester.pump();
       expect(find.byType(AdaptiveListTile), findsAny);

@@ -37,18 +37,20 @@ class _DNSPageState extends BasePage<DNSPage> {
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('IP copied to clipboard'),
+                      content: Text('Website address copied'),
                     ),
                   );
                 },
                 title: Text(_addresses[index].address),
-                subtitle: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                subtitle: Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
                   children: [
-                    Text('Type: ${_addresses[index].type.name},'),
-                    Text('Local link: ${_addresses[index].isLinkLocal},'),
-                    Text('Loopback: ${_addresses[index].isLoopback},'),
-                    Text('Multicast: ${_addresses[index].isMulticast}'),
+                    Text('Address type: ${_addresses[index].type.name},'),
+                    Text(
+                        'Local network address: ${_addresses[index].isLinkLocal},'),
+                    Text('This device: ${_addresses[index].isLoopback},'),
+                    Text('Group address: ${_addresses[index].isMulticast}'),
                   ],
                 ),
               );
@@ -58,17 +60,17 @@ class _DNSPageState extends BasePage<DNSPage> {
 
   @override
   String buttonLabel() {
-    return 'Lookup';
+    return 'Find addresses';
   }
 
   @override
   String fieldLabel() {
-    return 'Enter domain name';
+    return 'Enter a website name';
   }
 
   @override
   String title() {
-    return 'DNS Lookup';
+    return 'Find website addresses';
   }
 
   @override
@@ -79,6 +81,7 @@ class _DNSPageState extends BasePage<DNSPage> {
     final List<InternetAddress> addresses =
         await InternetAddress.lookup(textEditingController.text);
 
+    if (!mounted) return;
     setState(() {
       _addresses = addresses;
     });

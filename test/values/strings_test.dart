@@ -3,8 +3,8 @@ import 'package:vernet/values/strings.dart';
 
 void main() {
   test('string constants are defined', () {
-    expect(StringValue.firstSubnet, 'First Subnet');
-    expect(StringValue.hostScanPageTitle, 'Scan');
-    expect(StringValue.ispPageTitle, 'Internet Service Provider');
+    expect(StringValue.firstSubnet, 'Start of device search');
+    expect(StringValue.hostScanPageTitle, 'Find devices');
+    expect(StringValue.ispPageTitle, 'Internet provider');
   });
 }

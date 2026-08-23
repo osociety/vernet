@@ -54,15 +54,15 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
 
     expect(find.text('Vernet'), findsOneWidget);
-    expect(find.text('Grant Location Permission'), findsOneWidget);
-    expect(find.text('Continue without permission'), findsOneWidget);
+    expect(find.text('Allow location access'), findsOneWidget);
+    expect(find.text('Continue without it'), findsOneWidget);
   });
 
   testWidgets('Choosing "Continue without permission" navigates to TabBarPage',
       (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
-    await tester.tap(find.text('Continue without permission'));
+    await tester.tap(find.text('Continue without it'));
     await tester.pumpAndSettle();
 
     expect(find.byType(TabBarPage), findsOneWidget);
@@ -72,7 +72,7 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(createWidgetUnderTest());
 
-    await tester.tap(find.text('Grant Location Permission'));
+    await tester.tap(find.text('Allow location access'));
     await tester.pumpAndSettle();
 
     expect(find.byType(TabBarPage), findsOneWidget);
