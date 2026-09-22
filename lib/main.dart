@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,9 @@ import 'package:vernet/values/keys.dart';
 AppSettings appSettings = AppSettings.instance;
 Future<void> main() async {
   configureDependencies(Env.prod);
+
+  // Initialize the Mobile Ads SDK.
+  MobileAds.instance.initialize();
 
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);

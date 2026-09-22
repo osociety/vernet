@@ -14,6 +14,9 @@
         </intent>
         <package android:name="org.fdroid.fdroid" /> 
     </queries>
+    <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544/9214589741"/>
    <application
         android:label="Vernet"
         android:icon="@mipmap/ic_launcher">
