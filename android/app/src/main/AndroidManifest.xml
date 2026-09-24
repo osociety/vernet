@@ -14,12 +14,15 @@
         </intent>
         <package android:name="org.fdroid.fdroid" /> 
     </queries>
-    <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544/9214589741"/>
+   <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
    <application
         android:label="Vernet"
         android:icon="@mipmap/ic_launcher">
+   
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9074226798924140~6155929904"/>
+    
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

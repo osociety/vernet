@@ -53,7 +53,7 @@ class _WifiDetailState extends State<HomePage> {
 
     unawaited(
       BannerAd(
-        adUnitId: "_adUnitId",
+        adUnitId: "ca-app-pub-3940256099942544/6300978111",
         request: const AdRequest(),
         size: size,
         listener: BannerAdListener(
@@ -147,7 +147,6 @@ class _WifiDetailState extends State<HomePage> {
   void initState() {
     super.initState();
     _configureSelectNotificationSubject();
-    _loadAd();
   }
 
   Widget _getDeviceCountWidget() {
@@ -204,6 +203,7 @@ class _WifiDetailState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _loadAd();
     return Stack(
       children: [
         // [START display_ad]
@@ -512,7 +512,7 @@ class _WifiDetailState extends State<HomePage> {
               ),
             ],
           ),
-        )
+        ),
       ],
     );
   }

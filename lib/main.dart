@@ -21,9 +21,6 @@ AppSettings appSettings = AppSettings.instance;
 Future<void> main() async {
   configureDependencies(Env.prod);
 
-  // Initialize the Mobile Ads SDK.
-  MobileAds.instance.initialize();
-
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
@@ -34,6 +31,9 @@ Future<void> main() async {
   await appSettings.load();
 
   await NotificationService.initNotification();
+
+  // Initialize the Mobile Ads SDK.
+  await MobileAds.instance.initialize();
 
   runApp(MyApp(allowed));
   FlutterNativeSplash.remove();
