@@ -14,7 +14,7 @@
         </intent>
         <package android:name="org.fdroid.fdroid" /> 
     </queries>
-   <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+
    <application
         android:label="Vernet"
         android:icon="@mipmap/ic_launcher">

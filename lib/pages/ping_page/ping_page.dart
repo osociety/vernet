@@ -5,7 +5,9 @@ import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/pages/host_scan_page/widgets/inline_adaptive_banner.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/ad_unit_constants.dart';
 import 'package:vernet/values/keys.dart';
 
 class PingPage extends StatefulWidget {
@@ -91,14 +93,21 @@ class _PingPageState extends BasePage<PingPage> {
         else
           Expanded(
             child: ListView.builder(
-              itemCount: _pingPackets.length,
+              itemCount: _pingPackets.length + 1,
               itemBuilder: (context, index) {
-                final PingResponse? response = _pingPackets[index].response;
+                if (index == 0) {
+                  return const InlineAdaptiveBanner(
+                    adUnitId: AdUnitConstants.pingInlineAdaptiveBanner,
+                  );
+                }
+
+                final PingData packet = _pingPackets[index - 1];
+                final PingResponse? response = packet.response;
                 String? title = response?.ip ?? '';
                 final String trailing = _getTime(response?.time);
 
-                if (_pingPackets[index].error != null) {
-                  title = _pingPackets[index].error.toString();
+                if (packet.error != null) {
+                  title = packet.error.toString();
                 }
                 return Column(
                   children: [
