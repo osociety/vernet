@@ -4,11 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
-import 'package:vernet/pages/host_scan_page/widgets/inline_adaptive_banner.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
-import 'package:vernet/values/ad_unit_constants.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 import 'package:vernet/values/tooltip_messages.dart';
@@ -86,15 +84,9 @@ class HostScanWidget extends StatelessWidget {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: activeHostList.length + 1,
+            itemCount: activeHostList.length,
             itemBuilder: (context, index) {
-              if (index == 0) {
-                return const InlineAdaptiveBanner(
-                  adUnitId: AdUnitConstants.hostScanInlineAdaptiveBanner,
-                );
-              }
-
-              final DeviceData host = activeHostList[index - 1];
+              final DeviceData host = activeHostList[index];
               return AdaptiveListTile(
                 //TODO: fix below errors
                 leading: Icon(DeviceUtil.getIconData(host)),
