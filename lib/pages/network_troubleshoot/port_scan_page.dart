@@ -5,10 +5,12 @@ import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
+import 'package:vernet/pages/host_scan_page/widgets/inline_adaptive_banner.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/adaptive_radio.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/values/ad_unit_constants.dart';
 import 'package:vernet/values/keys.dart';
 
 class PortScanPage extends StatefulWidget {
@@ -477,10 +479,17 @@ class _PortScanPageState extends State<PortScanPage>
                           ),
                         )
                       : ListView.builder(
-                          itemCount: _openPorts.length,
+                          itemCount: _openPorts.length + 1,
                           itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return const InlineAdaptiveBanner(
+                                adUnitId: AdUnitConstants
+                                    .portScanInlineAdaptiveBanner,
+                              );
+                            }
+
                             final OpenPort openPort =
-                                _openPorts.toList()[index];
+                                _openPorts.toList()[index - 1];
                             final port = allPorts[openPort.port.toString()];
 
                             return Column(
@@ -492,7 +501,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     right: 10.0,
                                   ),
                                   leading: Text(
-                                    '${index + 1}',
+                                    '$index',
                                     style:
                                         Theme.of(context).textTheme.titleMedium,
                                   ),
