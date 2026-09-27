@@ -41,6 +41,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   # Service locator
   get_it: ^9.2.1
+  google_mobile_ads: ^9.1.0
   # A composable, multi-platform, Future-based API for HTTP requests.
   http: ^1.6.0
   # A Flutter plugin that lets you show a review pop up where users can leave a review

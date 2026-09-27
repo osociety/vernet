@@ -15,9 +15,5 @@ review, such as devices and services that are reachable on your network.
 
 Vernet is an open source project hosted on GitHub: https://github.com/git-elliot/vernet
 
-
-
-
-
-
+The Google Play build contains ads. The F-Droid build is ad-free.
 
