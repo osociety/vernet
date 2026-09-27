@@ -1,20 +1,24 @@
 name: Flutter Test - Main Branch
 
 on:
+  push:
+    branches: ["store"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "store"]
   workflow_dispatch:
   workflow_call:
 
 concurrency: 
-  group: ${{ github.head_ref || github.run_id }}
+  group: flutter-test-main-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   changes:
     name: 'Detect changes'
+    if: ${{ github.event_name != 'workflow_dispatch' && github.event_name != 'workflow_call' }}
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: read
     outputs:
       run: ${{ steps.filter.outputs.run == 'true' }}
@@ -46,7 +50,7 @@ jobs:
   flutter-integration-test:
     name: 'Integration Tests on ${{ matrix.os }}'
     needs: changes
-    if: ${{ needs.changes.outputs.run == 'true' }}
+    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || needs.changes.outputs.run == 'true') }}
     strategy:
       fail-fast: false
       matrix:
@@ -60,39 +64,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Java (Linux/Windows)
-        if: matrix.os != 'macos'
-        uses: actions/setup-java@v4.7.0
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2.18.0
-        with:
-          channel: stable
-          cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v4.2.2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
-
       - name: Install platform dependencies (Linux)
         if: matrix.os == 'ubuntu'
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.packages }}
+
       - name: Setup LCOV
         uses: hrishikesh-kadam/setup-lcov@v1
 
-      - name: Download dependencies
-        run: flutter pub get
-
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
+        with:
+          java_version: ${{ matrix.os != 'macos' && '17' || '' }}
 
       - name: Run unit tests with coverage
         run: flutter test --coverage
