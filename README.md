@@ -71,6 +71,17 @@ Note: macOS build hasn't been notarized yet.
 5. Click on more info, tap on 'Run anyway'.
 5. Give permission if asked.
 
+## Deploying the Firebase website
+
+The Firebase Hosting site deploys automatically when changes are pushed to
+`firebase/public/` on `main`. You can also run the workflow manually from the
+GitHub Actions tab.
+
+Repository setup requires a GitHub Actions secret named
+`FIREBASE_SERVICE_ACCOUNT_VERNET_APP`. Its value should be the JSON key for a
+Firebase service account with permission to deploy Hosting for the
+`vernet-app` project. Do not commit the service-account JSON file.
+
 ## Contributors Required
 
 1. Technical writer
