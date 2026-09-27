@@ -14,11 +14,10 @@
 
 ### Supported Platforms
 - Android (primary - published on F-Droid & Google Play)
-- iOS (emulator only)
+- iOS (coming soon)
 - macOS
 - Linux
 - Windows
-- Web
 
 ### Tech Stack
 - **Framework:** Flutter (Dart SDK >=3.2.0 <4.0.0)
@@ -77,7 +76,6 @@ vernet/
 ├── macos/                        # macOS platform code
 ├── linux/                        # Linux platform code
 ├── windows/                      # Windows platform code
-├── web/                          # Web platform code
 ├── installers/                   # Distribution packages
 ├── fastlane/                     # CI/CD configuration
 ├── scripts/                      # Automation scripts
@@ -134,22 +132,19 @@ dart run build_runner build --delete-conflicting-outputs
 # Run on connected device/emulator
 flutter run
 
-# Run on specific platform
-flutter run -d chrome      # Web
+# Run on specific desktop platform
 flutter run -d macos       # macOS
 flutter run -d windows     # Windows
 flutter run -d linux       # Linux
-flutter run -d <device>    # Android/iOS
+flutter run -d <device>    # Android
 ```
 
 ### Building for Production
 ```bash
 flutter build apk          # Android
-flutter build ios          # iOS
 flutter build macos        # macOS
 flutter build linux        # Linux
 flutter build windows      # Windows
-flutter build web          # Web
 ```
 
 ### Linux Note

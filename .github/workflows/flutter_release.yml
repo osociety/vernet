@@ -6,8 +6,6 @@ on:
   workflow_dispatch:
     
 permissions:
-  id-token: write
-  attestations: write
   contents: write
 
 env:
@@ -30,30 +28,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4.7.0
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
         with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2.18.0
-        with:
-          channel: stable
-          cache: true
+          java_version: '17'
 
       - name: Install Android SDK 37
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"
           ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v4.2.2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
 
       - name: Cache Gradle
         uses: actions/cache@v4.2.2
@@ -64,12 +48,6 @@ jobs:
             .gradle
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/settings.gradle', '**/gradle.properties', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Download pub dependencies
-        run: flutter pub get
-
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Download Android keystore
         id: android_keystore
@@ -124,36 +102,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
-
-      - name: Build Android App Bundle
-        run: flutter build appbundle --flavor store
-  
-      - name: 'Setup Ruby, JRuby and TruffleRuby'
-        uses: ruby/setup-ruby@v1.221.0
-        with:
-          ruby-version: 3.4.2
-          bundler-cache: true
-
-      - name: Cache bundle dependencies
-        uses: actions/cache@v4.2.2
-        with:
-          path: android/vendor/bundle
-          key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
-          restore-keys: '${{ runner.os }}-gems-'
-
-      - name: Download bundle dependencies
-        working-directory: android/
-        run: |
-          gem install bundler
-          bundle config path vendor/bundle
-          bundle install
-
-      - name: Release to Google Play
-        env:
-          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
-          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
-        working-directory: android/
-        run: bundle exec fastlane android ${{ github.event.release.prerelease && 'beta' || 'deploy_full' }}           
   
   release-macos: 
     runs-on: macos-latest
@@ -164,19 +112,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2.18.0
-        with:
-          channel: stable
-          cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v4.2.2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
-
       - name: Cache CocoaPods
         uses: actions/cache@v4.2.2
         with:
@@ -184,11 +119,8 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('macos/Podfile.lock') }}
           restore-keys: ${{ runner.os }}-pods-
 
-      - name: Download pub dependencies
-        run: flutter pub get
-
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
 
       - name: Build macos release
         run: flutter build macos --release
@@ -227,24 +159,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2.18.0
-        with:
-          channel: stable
-          cache: true
-
-      - name: Cache pub dependencies
-        uses: actions/cache@v4.2.2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
-
-      - name: Download pub dependencies
-        run: flutter pub get
-      
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
 
       - name: Build windows release
         run: flutter build windows --release

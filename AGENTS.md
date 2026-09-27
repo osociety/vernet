@@ -11,7 +11,7 @@ modify the project and where to place new functionality.
 Vernet is a cross-platform network diagnostics application built with
 Flutter.
 
-Supported platforms: - Android - iOS - Linux - macOS - Windows - Web
+Supported platforms: - Android - iOS (coming soon) - Linux - macOS - Windows
 
 The application provides tools such as: - Device discovery - Port
 scanning - DNS lookup - Network diagnostics - Internet speed testing

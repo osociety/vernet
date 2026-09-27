@@ -1,2 +1,1 @@
-Splash screen fix for all android devices.
-Rescan button added alongside devices count.
+Android splash compatibility fixes. Added a rescan button beside the device count.
