@@ -33,9 +33,9 @@ jobs:
           fi
 
   checks:
-    name: Run Flutter checks
+    name: Run analyzer and unit tests
     needs: store-branch-check
-    uses: ./.github/workflows/flutter_test_dev.yml
+    uses: ./.github/workflows/flutter_unit_test.yml
 
   desktop-integration:
     name: Run desktop integration checks

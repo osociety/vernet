@@ -1,20 +1,20 @@
-name: Flutter Test - Dev Branch
+name: Flutter Unit Tests
 
 on:
   push:
-    branches: ["store"]
+    branches: ["main", "store"]
   pull_request:
-    branches: ["dev", "store"]
+    branches: ["main", "store"]
   workflow_dispatch:
   workflow_call:
 
-concurrency: 
-  group: flutter-test-dev-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+concurrency:
+  group: flutter-unit-tests-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   changes:
-    name: 'Detect changes'
+    name: Detect changes
     if: ${{ github.event_name != 'workflow_dispatch' && github.event_name != 'workflow_call' }}
     runs-on: ubuntu-latest
     permissions:
@@ -48,7 +48,7 @@ jobs:
               - 'pubspec.lock'
 
   flutter-unit-test:
-    name: 'Unit Tests on ${{ matrix.os }}'
+    name: Unit Tests on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
@@ -69,4 +69,3 @@ jobs:
 
       - name: Run unit tests
         run: flutter test
-          
