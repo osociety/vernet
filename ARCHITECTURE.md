@@ -9,11 +9,10 @@ discovery, port scanning, DNS lookup, and internet speed testing.
 The application targets:
 
 -   Android
--   iOS
+-   iOS (coming soon)
 -   Linux
 -   macOS
 -   Windows
--   Web
 
 All primary logic resides in the Flutter/Dart codebase inside `lib/`.
 
@@ -231,8 +230,7 @@ The project supports building for multiple platforms using Flutter.
 
 Example commands:
 
-flutter build apk flutter build ios flutter build macos flutter build
-linux flutter build windows flutter build web
+flutter build apk flutter build macos flutter build linux flutter build windows
 
 Packaging scripts are located in:
 
