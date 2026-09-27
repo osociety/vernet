@@ -1,23 +1,24 @@
 # Vernet
 
-Vernet - Check Your Connection
+Vernet - Know your network
 
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/git-elliot/vernet?include_prereleases)](https://github.com/git-elliot/vernet/releases/latest)
 ![GitHub repo size](https://img.shields.io/github/repo-size/git-elliot/vernet)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/git-elliot/vernet/total)
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
-[![codecov](https://codecov.io/gh/osociety/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/osociety/vernet)
+[![codecov](https://codecov.io/gh/git-elliot/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/git-elliot/vernet)
 
 ## Features
 
-1. See which Wi-Fi network you are using.
-2. Find devices connected to your local network.
-3. Check whether a website or device responds.
-4. Find services that may be reachable from a device.
-5. Find website addresses and device names.
+1. See your Wi-Fi name, BSSID, local address, gateway, and subnet.
+2. Find devices connected to your local network, including automatic scans when the app opens.
+3. Check whether a website or device responds with ping, even without internet access.
+4. Scan popular ports, a custom range, or a single port for reachable services.
+5. Look up website addresses and find device names with forward and reverse DNS.
 6. Test your download and upload speed.
-7. View information about your internet provider.
+7. View your public IP and internet provider information.
+8. Control internet access, location permission, scan ranges, ping count, and timeouts.
 
 Vernet helps you spot possible connection and security concerns. It does not
 replace a professional security audit, but it gives you useful findings to
@@ -33,9 +34,12 @@ review, such as devices and services that are reachable on your network.
 
 ## Download
 
-|   Android | iOS | macOS | Linux | Windows |
+| Android | iOS | macOS | Linux | Windows |
 |-----------|-----|-------|-------|---------|
-|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Works on emulator |<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" />|<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" />| <a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" />|
+|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|
+
+The Google Play build contains ads. The F-Droid and GitHub builds are ad-free.
+Web is not currently supported.
 
 ## How to install
 
@@ -67,13 +71,24 @@ Note: macOS build hasn't been notarized yet.
 5. Click on more info, tap on 'Run anyway'.
 5. Give permission if asked.
 
+## Deploying the Firebase website
+
+The Firebase Hosting site deploys automatically when changes are pushed to
+`firebase/public/` on `main`. You can also run the workflow manually from the
+GitHub Actions tab.
+
+Repository setup requires a GitHub Actions secret named
+`FIREBASE_SERVICE_ACCOUNT_VERNET_APP`. Its value should be the JSON key for a
+Firebase service account with permission to deploy Hosting for the
+`vernet-app` project. Do not commit the service-account JSON file.
+
 ## Contributors Required
 
 1. Technical writer
 
 Write us at fs0c19ty@protonmail.com
 
-## Publishing to F-droid
+## Publishing to F-Droid
 You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
 ## How to Contribute
 
@@ -83,7 +98,7 @@ You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.b
 ## Support and Donate
 
 1. Support this project by becoming stargazer of this project.
-2. Rate our app on [Playstore](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
+2. Rate our app on [Google Play](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
 
 3. Buy me a coffee.
 

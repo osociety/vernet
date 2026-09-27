@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 adb shell settings put secure show_ime_with_hard_keyboard 0
-flutter test integration_test/app_test.dart --flavor fdroid &
+flutter test integration_test/app_test.dart --flavor store &
 test_pid=$!
 
 for attempt in $(seq 1 60); do

@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/pages/host_scan_page/widgets/inline_adaptive_banner.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/ad_unit_constants.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -27,13 +29,20 @@ class _DNSPageState extends BasePage<DNSPage> {
             ),
           )
         : ListView.builder(
-            itemCount: _addresses.length,
+            itemCount: _addresses.length + 1,
             itemBuilder: (context, index) {
+              if (index == 0) {
+                return const InlineAdaptiveBanner(
+                  adUnitId: AdUnitConstants.dnsInlineAdaptiveBanner,
+                );
+              }
+
+              final address = _addresses[index - 1];
               return AdaptiveListTile(
                 key: WidgetKey.dnsResultTile.key,
                 onTap: () {
                   Clipboard.setData(
-                    ClipboardData(text: _addresses[index].address),
+                    ClipboardData(text: address.address),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -41,16 +50,15 @@ class _DNSPageState extends BasePage<DNSPage> {
                     ),
                   );
                 },
-                title: Text(_addresses[index].address),
+                title: Text(address.address),
                 subtitle: Wrap(
                   spacing: 12,
                   runSpacing: 4,
                   children: [
-                    Text('Address type: ${_addresses[index].type.name},'),
-                    Text(
-                        'Local network address: ${_addresses[index].isLinkLocal},'),
-                    Text('This device: ${_addresses[index].isLoopback},'),
-                    Text('Group address: ${_addresses[index].isMulticast}'),
+                    Text('Address type: ${address.type.name},'),
+                    Text('Local network address: ${address.isLinkLocal},'),
+                    Text('This device: ${address.isLoopback},'),
+                    Text('Group address: ${address.isMulticast}'),
                   ],
                 ),
               );

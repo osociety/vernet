@@ -1,1 +1,1 @@
-See connected devices, check websites, and test your internet speed.
+Find devices, scan ports, check DNS, and test your internet speed.
