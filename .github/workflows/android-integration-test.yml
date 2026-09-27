@@ -48,6 +48,9 @@ jobs:
         with:
           java_version: '17'
 
+      - name: Run unit tests
+        run: flutter test
+
       - name: Android Emulator Runner
         uses: ReactiveCircus/android-emulator-runner@v2.38.0
         with:

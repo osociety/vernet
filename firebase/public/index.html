@@ -165,13 +165,20 @@
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 60px; align-items: center;
     min-width: 0;
   }
-  .showcase-first { margin-bottom: 64px; }
+  .showcase + .showcase { margin-top: 64px; }
   @media (max-width: 780px) { .showcase { grid-template-columns: minmax(0, 1fr); } }
   .showcase img {
     border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 30px 70px -25px rgba(0,0,0,0.65);
     width: 100%; max-width: 320px; margin: 0 auto;
   }
+  .showcase img.investigate-shot {
+    background: #100a1a; border-color: rgba(255,255,255,0.14); border-radius: 22px; padding: 12px;
+  }
+  .showcase img.feature-shot {
+    aspect-ratio: 520 / 729; object-fit: cover; object-position: center;
+  }
+  .showcase img.ping-shot { object-position: center bottom; }
   .showcase .txt h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 16px; letter-spacing: -0.02em; }
   .showcase .txt p { color: var(--ink-dim); line-height: 1.65; margin: 0 0 16px; font-size: 1rem; }
   .checklist { list-style: none; padding: 0; margin: 20px 0 0; }
@@ -225,7 +232,7 @@
     .grid { gap: 12px; }
     .card { padding: 22px; }
     .showcase { gap: 28px; }
-    .showcase-first { margin-bottom: 48px; }
+    .showcase + .showcase { margin-top: 40px; }
     .showcase img { max-width: 280px; border-radius: 18px; }
     .showcase .txt h2 { font-size: 1.65rem; }
     .platforms { gap: 10px; }
@@ -357,7 +364,33 @@
           <li>Useful findings, explained simply</li>
         </ul>
       </div>
-      <img loading="lazy" decoding="async" src="images/port-scan.jpg" alt="Vernet open ports scanner">
+      <img class="investigate-shot" loading="lazy" decoding="async" src="images/port-scan.jpg" alt="Vernet open ports scanner">
+    </div>
+    <div class="showcase">
+      <img class="feature-shot" loading="lazy" decoding="async" src="images/speed-test.jpg" alt="Vernet built-in internet speed test">
+      <div class="txt">
+        <span class="eyebrow">Measure</span>
+        <h2>Test your internet speed in seconds</h2>
+        <p>Run an inbuilt speed test to see how your connection is performing, right from Vernet.</p>
+        <ul class="checklist">
+          <li>Check your download and upload speeds</li>
+          <li>Watch results update as the test runs</li>
+          <li>Run a fresh test whenever you need it</li>
+        </ul>
+      </div>
+    </div>
+    <div class="showcase">
+      <div class="txt">
+        <span class="eyebrow">Check connection</span>
+        <h2>Ping a website and check if it responds</h2>
+        <p>Enter a website or host to test whether it is reachable and see how quickly it responds.</p>
+        <ul class="checklist">
+          <li>Test websites and network hosts</li>
+          <li>See response times for each ping</li>
+          <li>Spot connection delays or dropped replies</li>
+        </ul>
+      </div>
+      <img class="feature-shot ping-shot" loading="lazy" decoding="async" src="images/ping-test.jpg" alt="Vernet ping tool checking a website connection">
     </div>
   </div>
 </section>
