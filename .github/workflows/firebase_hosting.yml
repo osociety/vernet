@@ -21,6 +21,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      - name: Validate Firebase service account secret
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_VERNET_APP }}
+        run: |
+          if [[ -z "$FIREBASE_SERVICE_ACCOUNT" ]]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT_VERNET_APP is empty or unavailable to this workflow."
+            exit 1
+          fi
+
+          if ! jq -e '(.type == "service_account") and (.client_email | type == "string") and (.private_key | type == "string")' \
+            <<< "$FIREBASE_SERVICE_ACCOUNT" >/dev/null; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT_VERNET_APP is not a valid vernet-app service-account JSON key."
+            exit 1
+          fi
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0.10.0
         with:
