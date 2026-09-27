@@ -11,13 +11,14 @@ Vernet - Know your network
 
 ## Features
 
-1. See which Wi-Fi network you are using.
-2. Find devices connected to your local network.
-3. Check whether a website or device responds with ping.
-4. Scan for services that may be reachable from a device.
-5. Look up website addresses and device names with DNS tools.
+1. See your Wi-Fi name, BSSID, local address, gateway, and subnet.
+2. Find devices connected to your local network, including automatic scans when the app opens.
+3. Check whether a website or device responds with ping, even without internet access.
+4. Scan popular ports, a custom range, or a single port for reachable services.
+5. Look up website addresses and find device names with forward and reverse DNS.
 6. Test your download and upload speed.
-7. View information about your internet provider.
+7. View your public IP and internet provider information.
+8. Control internet access, location permission, scan ranges, ping count, and timeouts.
 
 Vernet helps you spot possible connection and security concerns. It does not
 replace a professional security audit, but it gives you useful findings to
