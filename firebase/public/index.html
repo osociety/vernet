@@ -268,9 +268,9 @@
     </div>
     <div class="store-row">
       <span class="store-pill soon">🍏 iOS <span class="soon-tag">Coming soon</span></span>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill">🪟 Windows</a>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill">🍎 macOS</a>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill">🐧 Linux</a>
+      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-windows.zip">🪟 Windows</a>
+      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-macos.dmg">🍎 macOS</a>
+      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-linux.zip">🐧 Linux</a>
     </div>
     <p style="font-size:0.82rem;color:var(--ink-dim);margin:10px 0 0;">The Google Play build contains ads to support development. F-Droid and GitHub builds are ad-free.</p>
     <div class="screens">
@@ -406,9 +406,9 @@
       <div class="platform-card"><div class="name">🤖 Android</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play →</a><div style="font-size:0.72rem;color:var(--ink-dim);margin-top:8px;">Contains ads</div></div>
       <div class="platform-card"><div class="name">🟢 Android (FOSS)</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid →</a></div>
       <div class="platform-card soon"><div class="name">🍏 iOS</div><span class="soon-tag">Coming soon</span></div>
-      <div class="platform-card"><div class="name">🍎 macOS</div><a href="https://github.com/git-elliot/vernet/releases/latest">GitHub Releases →</a></div>
-      <div class="platform-card"><div class="name">🐧 Linux</div><a href="https://github.com/git-elliot/vernet/releases/latest">GitHub Releases →</a></div>
-      <div class="platform-card"><div class="name">🪟 Windows</div><a href="https://github.com/git-elliot/vernet/releases/latest">GitHub Releases →</a></div>
+      <div class="platform-card"><div class="name">🍎 macOS</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-macos.dmg">Download DMG →</a></div>
+      <div class="platform-card"><div class="name">🐧 Linux</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-linux.zip">Download ZIP →</a></div>
+      <div class="platform-card"><div class="name">🪟 Windows</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-windows.zip">Download ZIP →</a></div>
     </div>
   </div>
 </section>
@@ -437,5 +437,18 @@
   </div>
 </footer>
 
+<script>
+  fetch('https://api.github.com/repos/osociety/vernet/releases/latest', {
+    headers: { Accept: 'application/vnd.github+json' }
+  })
+    .then(response => response.ok ? response.json() : Promise.reject())
+    .then(release => {
+      document.querySelectorAll('[data-release-asset]').forEach(link => {
+        const asset = release.assets.find(({ name }) => name.endsWith(link.dataset.releaseAsset));
+        if (asset) link.href = asset.browser_download_url;
+      });
+    })
+    .catch(() => {});
+</script>
 </body>
 </html>
