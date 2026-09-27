@@ -4,13 +4,16 @@ on:
   push:
     branches:
       - main
+      - store
   pull_request:
     branches:
       - main
+      - store
   workflow_dispatch:
+  workflow_call:
 
 concurrency:
-  group: android-integration-${{ github.ref }}
+  group: android-integration-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -40,27 +43,11 @@ jobs:
             ~/.android/adb*
           key: avd-default
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
         with:
-          distribution: temurin
-          java-version: '17'
+          java_version: '17'
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Flutter pub get
-        run: flutter pub get
-      
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
-      
       - name: Android Emulator Runner
         uses: ReactiveCircus/android-emulator-runner@v2.38.0
         with:

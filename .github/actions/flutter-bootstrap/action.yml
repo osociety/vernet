@@ -1,0 +1,39 @@
+name: Flutter bootstrap
+description: Set up Flutter, cache dependencies, and run generated code.
+
+inputs:
+  java_version:
+    description: Java version to install, or empty to skip Java setup.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Java
+      if: ${{ inputs.java_version != '' }}
+      uses: actions/setup-java@v4.7.0
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java_version }}
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2.18.0
+      with:
+        channel: stable
+        cache: true
+
+    - name: Cache pub dependencies
+      uses: actions/cache@v4.2.2
+      with:
+        path: ${{ runner.os == 'Windows' && '~/AppData/Local/Pub/Cache' || '~/.pub-cache' }}
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: ${{ runner.os }}-pub-
+
+    - name: Download dependencies
+      run: flutter pub get
+      shell: bash
+
+    - name: Run build_runner
+      run: dart run build_runner build --delete-conflicting-outputs
+      shell: bash

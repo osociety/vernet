@@ -1,0 +1,31 @@
+name: Deploy Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firebase/public/**'
+      - 'firebase/firebase.json'
+      - 'firebase/.firebaserc'
+      - '.github/workflows/firebase_hosting.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy Firebase Hosting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0.10.0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_VERNET_APP }}
+          projectId: vernet-app
+          entryPoint: firebase
+          channelId: live

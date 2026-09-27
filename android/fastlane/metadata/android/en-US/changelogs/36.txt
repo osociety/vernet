@@ -1,1 +1,1 @@
-Added speed test and ISP details
+Improved speed test and ISP details.

@@ -1,3 +1,1 @@
-Splash screen fix for all android devices.
-Rescan button added alongside devices count.
-Icon updated for play store.
+Additional Android splash compatibility fixes. Updated the Play Store icon.

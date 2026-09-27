@@ -152,3 +152,6 @@ android/.bundle
 android/vendor
 android/fastlane/Appfile
 android/Gemfile.lock
+
+# Firebase CLI generated state
+firebase/.firebase/
