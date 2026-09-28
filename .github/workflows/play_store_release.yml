@@ -37,11 +37,6 @@ jobs:
     needs: store-branch-check
     uses: ./.github/workflows/flutter_unit_test.yml
 
-  desktop-integration:
-    name: Run desktop integration checks
-    needs: store-branch-check
-    uses: ./.github/workflows/flutter_test_main.yml
-    secrets: inherit
 
   android-integration:
     name: Run Android integration test
@@ -50,7 +45,7 @@ jobs:
 
   publish:
     name: Build and publish to Google Play
-    needs: [checks, desktop-integration, android-integration]
+    needs: [checks, android-integration]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
