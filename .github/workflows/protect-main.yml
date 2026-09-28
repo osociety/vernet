@@ -1,0 +1,22 @@
+name: Protect main from store
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  reject-store-into-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject store as the source branch
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          if [ "$SOURCE_BRANCH" = "store" ]; then
+            echo "::error::Do not merge store into main. Merge main into store instead."
+            exit 1
+          fi

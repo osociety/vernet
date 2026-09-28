@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a0845"/>
+      <stop offset="1" stop-color="#100a1a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c9a6ff"/>
+      <stop offset="1" stop-color="#a06bff"/>
+    </linearGradient>
+    <clipPath id="phone">
+      <rect x="765" y="92" width="300" height="446" rx="28"/>
+    </clipPath>
+    <clipPath id="phone-small">
+      <rect x="965" y="220" width="164" height="284" rx="23"/>
+    </clipPath>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="890" cy="250" r="310" fill="#a06bff" opacity=".09"/>
+  <circle cx="1050" cy="560" r="260" fill="#73dbbf" opacity=".05"/>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <circle cx="94" cy="88" r="11" fill="#a06bff"/>
+    <text x="120" y="98" fill="#f5f2fb" font-size="30" font-weight="700">Vernet</text>
+
+    <text x="78" y="244" fill="#f5f2fb" font-size="67" font-weight="700" letter-spacing="-2">Know your</text>
+    <text x="78" y="322" fill="url(#accent)" font-size="67" font-weight="700" letter-spacing="-2">network.</text>
+    <text x="82" y="384" fill="#cabfe0" font-size="23">Discover devices. Test speed. Stay in control.</text>
+
+    <rect x="80" y="438" width="270" height="48" rx="24" fill="#a06bff" opacity=".18" stroke="#a06bff" stroke-opacity=".6"/>
+    <text x="104" y="469" fill="#c9a6ff" font-size="17" font-weight="700" letter-spacing="1">FREE &amp; OPEN SOURCE</text>
+
+    <g fill="none" opacity=".72" stroke="#73dbbf" stroke-width="2">
+      <path d="M780 143 725 112 682 140"/>
+      <path d="M1042 119 1094 91 1124 120"/>
+      <path d="M1084 527 1123 555"/>
+    </g>
+    <g fill="#73dbbf">
+      <circle cx="682" cy="140" r="5"/>
+      <circle cx="1124" cy="120" r="5"/>
+      <circle cx="1123" cy="555" r="5"/>
+    </g>
+  </g>
+
+  <rect x="758" y="84" width="314" height="462" rx="34" fill="#0b0711" stroke="#ffffff" stroke-opacity=".24" stroke-width="2"/>
+  <image href="network-scan.jpg" x="765" y="92" width="300" height="446" preserveAspectRatio="xMidYMid slice" clip-path="url(#phone)"/>
+  <rect x="958" y="213" width="178" height="298" rx="29" fill="#0b0711" stroke="#ffffff" stroke-opacity=".3" stroke-width="2"/>
+  <image href="speed-test.jpg" x="965" y="220" width="164" height="284" preserveAspectRatio="xMidYMid slice" clip-path="url(#phone-small)"/>
+</svg>
