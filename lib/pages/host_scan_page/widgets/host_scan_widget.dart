@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
@@ -16,47 +20,71 @@ import 'package:vernet/values/tooltip_messages.dart';
 class HostScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HostScanBloc, HostScanState>(
-      builder: (context, state) {
-        return state.map(
-          initial: (_) => Container(),
-          loadInProgress: (value) {
-            return Center(
-              child: Container(
-                margin: const EdgeInsets.all(30),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Text(
-                      appSettings.gatewayIP.isNotEmpty
-                          ? 'Looking for devices connected through ${appSettings.gatewayIP}'
-                          : StringValue.loadingDevicesMessage,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-          foundNewDevice: (FoundNewDevice value) {
-            return _devicesWidget(context, value.activeHosts.toList(), true);
-          },
-          loadFailure: (value) {
-            return const Text('We could not finish looking for devices');
-          },
-          loadSuccess: (value) {
-            return _devicesWidget(context, value.activeHosts.toList(), false);
-          },
-          error: (Error value) {
-            return const Text('Something went wrong while looking for devices');
-          },
-        );
+    return BlocListener<HostScanBloc, HostScanState>(
+      listener: (context, state) {
+        if (state is LoadSuccess) {
+          unawaited(_requestReview());
+        }
       },
+      child: BlocBuilder<HostScanBloc, HostScanState>(
+        builder: (context, state) {
+          return state.map(
+            initial: (_) => Container(),
+            loadInProgress: (value) {
+              return Center(
+                child: Container(
+                  margin: const EdgeInsets.all(30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      Text(
+                        appSettings.gatewayIP.isNotEmpty
+                            ? 'Looking for devices connected through ${appSettings.gatewayIP}'
+                            : StringValue.loadingDevicesMessage,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            foundNewDevice: (FoundNewDevice value) {
+              return _devicesWidget(context, value.activeHosts.toList(), true);
+            },
+            loadFailure: (value) {
+              return const Text('We could not finish looking for devices');
+            },
+            loadSuccess: (value) {
+              return _devicesWidget(context, value.activeHosts.toList(), false);
+            },
+            error: (Error value) {
+              return const Text(
+                  'Something went wrong while looking for devices');
+            },
+          );
+        },
+      ),
     );
+  }
+
+  Future<void> _requestReview() async {
+    // Enable iOS after the Apple Store review flow is configured.
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+
+    try {
+      final inAppReview = InAppReview.instance;
+      if (await inAppReview.isAvailable()) {
+        await inAppReview.requestReview();
+      }
+    } catch (error) {
+      debugPrint('Unable to request in-app review: $error');
+    }
   }
 
   Widget _devicesWidget(
