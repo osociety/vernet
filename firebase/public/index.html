@@ -6,6 +6,20 @@
 <title>Vernet - Know your network</title>
 <meta name="description" content="Find devices on your Wi-Fi, test your speed, check open ports, and look up domains with Vernet, a free and open-source network diagnostics app.">
 <meta name="theme-color" content="#100a1a">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vernet">
+<meta property="og:title" content="Vernet - Know your network">
+<meta property="og:description" content="Find devices on your Wi-Fi, test your speed, check open ports, and look up domains with Vernet, a free and open-source network diagnostics app.">
+<meta property="og:url" content="https://vernet-app.web.app/">
+<meta property="og:image" content="https://vernet-app.web.app/images/og-preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Vernet app showing network diagnostics on a dark purple background">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vernet - Know your network">
+<meta name="twitter:description" content="Find devices on your Wi-Fi, test your speed, check open ports, and look up domains with Vernet, a free and open-source network diagnostics app.">
+<meta name="twitter:image" content="https://vernet-app.web.app/images/og-preview.png">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <style>
@@ -241,6 +255,11 @@
     .oss h2 { font-size: 1.65rem; }
     footer { padding: 32px 0; }
   }
+  @media (prefers-reduced-motion: reduce) {
+    html, body { scroll-behavior: auto; }
+    .btn:hover, .card:hover { transform: none; }
+    .screens img:nth-child(n) { transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -267,10 +286,10 @@
       <a href="https://f-droid.org/packages/org.fsociety.vernet" class="btn ghost">Get it on F-Droid</a>
     </div>
     <div class="store-row">
-      <span class="store-pill soon">🍏 iOS <span class="soon-tag">Coming soon</span></span>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-windows.zip">🪟 Windows</a>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-macos.dmg">🍎 macOS</a>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-linux.zip">🐧 Linux</a>
+      <span class="store-pill soon"><span aria-hidden="true">🍏</span> iOS <span class="soon-tag">Coming soon</span></span>
+      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-windows.zip"><span aria-hidden="true">🪟</span> Windows</a>
+      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-macos.dmg"><span aria-hidden="true">🍎</span> macOS</a>
+      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill" data-release-asset="-linux.zip"><span aria-hidden="true">🐧</span> Linux</a>
     </div>
     <p style="font-size:0.82rem;color:var(--ink-dim);margin:10px 0 0;">The Google Play build contains ads to support development. F-Droid and GitHub builds are ad-free.</p>
     <div class="screens">
@@ -290,47 +309,47 @@
     </div>
     <div class="grid">
       <div class="card">
-        <div class="icon">📶</div>
+        <div class="icon" aria-hidden="true">📶</div>
         <h3>Wi-Fi details</h3>
         <p>See your Wi-Fi name, BSSID, local address, gateway, and subnet at a glance.</p>
       </div>
       <div class="card">
-        <div class="icon">🔍</div>
+        <div class="icon" aria-hidden="true">🔍</div>
         <h3>Find devices</h3>
         <p>Scan your network to find connected devices, and optionally start a scan whenever the app opens.</p>
       </div>
       <div class="card">
-        <div class="icon">🔓</div>
+        <div class="icon" aria-hidden="true">🔓</div>
         <h3>Open ports scanner</h3>
         <p>Check popular ports, a custom range, or a single port on any device or website.</p>
       </div>
       <div class="card">
-        <div class="icon">📡</div>
+        <div class="icon" aria-hidden="true">📡</div>
         <h3>Ping &amp; DNS lookup</h3>
         <p>Check if a website or device responds, look up addresses, and find device names with reverse DNS.</p>
       </div>
       <div class="card">
-        <div class="icon">⚡</div>
+        <div class="icon" aria-hidden="true">⚡</div>
         <h3>Speed test</h3>
         <p>Measure your real download and upload speed whenever you need to.</p>
       </div>
       <div class="card">
-        <div class="icon">🌐</div>
+        <div class="icon" aria-hidden="true">🌐</div>
         <h3>ISP information</h3>
         <p>See your public IP and internet provider without digging through settings.</p>
       </div>
       <div class="card">
-        <div class="icon">🔔</div>
+        <div class="icon" aria-hidden="true">🔔</div>
         <h3>Scan notifications</h3>
         <p>Start device scans when the app opens and get notified when the results are ready.</p>
       </div>
       <div class="card">
-        <div class="icon">🎛️</div>
+        <div class="icon" aria-hidden="true">🎛️</div>
         <h3>Scan controls</h3>
         <p>Adjust scan ranges, ping count, and connection timeouts to suit your network.</p>
       </div>
       <div class="card">
-        <div class="icon">🛡️</div>
+        <div class="icon" aria-hidden="true">🛡️</div>
         <h3>Privacy controls</h3>
         <p>Choose whether Vernet can use internet access and location permission. Your location stays on your device.</p>
       </div>
@@ -403,12 +422,12 @@
       <p>Vernet is built with Flutter and is available on Android, macOS, Linux, and Windows. An iOS version is coming soon.</p>
     </div>
     <div class="platforms">
-      <div class="platform-card"><div class="name">🤖 Android</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play →</a><div style="font-size:0.72rem;color:var(--ink-dim);margin-top:8px;">Contains ads</div></div>
-      <div class="platform-card"><div class="name">🟢 Android (FOSS)</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid →</a></div>
-      <div class="platform-card soon"><div class="name">🍏 iOS</div><span class="soon-tag">Coming soon</span></div>
-      <div class="platform-card"><div class="name">🍎 macOS</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-macos.dmg">Download DMG →</a></div>
-      <div class="platform-card"><div class="name">🐧 Linux</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-linux.zip">Download ZIP →</a></div>
-      <div class="platform-card"><div class="name">🪟 Windows</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-windows.zip">Download ZIP →</a></div>
+      <div class="platform-card"><div class="name"><span aria-hidden="true">🤖</span> Android</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play →</a><div style="font-size:0.72rem;color:var(--ink-dim);margin-top:8px;">Contains ads</div></div>
+      <div class="platform-card"><div class="name"><span aria-hidden="true">🟢</span> Android (FOSS)</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid →</a></div>
+      <div class="platform-card soon"><div class="name"><span aria-hidden="true">🍏</span> iOS</div><span class="soon-tag">Coming soon</span></div>
+      <div class="platform-card"><div class="name"><span aria-hidden="true">🍎</span> macOS</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-macos.dmg">Download DMG →</a></div>
+      <div class="platform-card"><div class="name"><span aria-hidden="true">🐧</span> Linux</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-linux.zip">Download ZIP →</a></div>
+      <div class="platform-card"><div class="name"><span aria-hidden="true">🪟</span> Windows</div><a href="https://github.com/git-elliot/vernet/releases/latest" data-release-asset="-windows.zip">Download ZIP →</a></div>
     </div>
   </div>
 </section>
