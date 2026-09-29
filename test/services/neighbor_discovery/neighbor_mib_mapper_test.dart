@@ -83,4 +83,57 @@ void main() {
     expect(neighbors.first.vlan, '40');
     expect(neighbors.first.speedDuplex, '1 Gbps');
   });
+
+  test('maps CDP capabilities, mgmt address, half duplex, and ifIndex fallback', () {
+    const cachePrefix = NeighborMibs.cdpCache;
+    final neighbors = NeighborMibMapper.mapCdp(
+      cache: {
+        '$cachePrefix.4.10.1': str('unformatted-ip'),
+        '$cachePrefix.6.10.1': str('router-1'),
+        '$cachePrefix.9.10.1': integer(0x09), // Router + Switch
+        '$cachePrefix.12.10.1': integer(2), // half duplex
+        '$cachePrefix.20.10.1': ip('10.0.0.99'), // management address
+      },
+      ifNames: {}, // no ifName mapped -> should fall back to ifIndex 10
+      ifSpeeds: {'${NeighborMibs.ifHighSpeed}.10': integer(100)}, // 100 Mbps
+    );
+
+    expect(neighbors, hasLength(1));
+    expect(neighbors.first.localPort, 'ifIndex 10');
+    expect(neighbors.first.managementIp, '10.0.0.99');
+    expect(neighbors.first.speedDuplex, '100 Mbps half');
+    expect(neighbors.first.capabilities, 'Router, Switch');
+  });
+
+  test('maps LLDP port fallbacks when desc or names are missing', () {
+    const rem = NeighborMibs.lldpRem;
+    final neighbors = NeighborMibMapper.mapLldp(
+      rem: {
+        '$rem.5.0.3.1': str('00:aa:bb:cc:dd:ee'),
+        '$rem.7.0.3.1': str('eth0'),
+      },
+      manAddr: {},
+      locPortId: {'${NeighborMibs.lldpLocPortId}.3': str('Gi0/3')},
+      locPortDesc: {}, // missing desc -> fallback to locPortId
+      vlans: {},
+      ifSpeeds: {},
+    );
+
+    expect(neighbors, hasLength(1));
+    expect(neighbors.first.localPort, 'Gi0/3');
+    expect(neighbors.first.remotePort, 'eth0');
+
+    // And fallback to port number when locPortId is also missing:
+    final neighborsPortNumFallback = NeighborMibMapper.mapLldp(
+      rem: {
+        '$rem.5.0.4.1': str('00:aa:bb:cc:dd:ff'),
+      },
+      manAddr: {},
+      locPortId: {},
+      locPortDesc: {},
+      vlans: {},
+      ifSpeeds: {},
+    );
+    expect(neighborsPortNumFallback.first.localPort, 'port 4');
+  });
 }

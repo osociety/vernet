@@ -120,4 +120,35 @@ Management Address: 10.0.0.6
     expect(neighbors.any((n) => n.hostname == 'CISCO-AP'), isTrue);
     expect(neighbors.any((n) => n.hostname == 'LINUX-SRV'), isTrue);
   });
+
+  test('parses CDP with both speed and duplex', () {
+    const text = '''
+Device ID: SWITCH-C
+IP address: 10.1.1.3
+Interface: Gi1/0/3
+Platform: cisco
+Duplex: full
+Full-duplex, 1000Mb/s
+''';
+    final neighbors = CliNeighborParser.parse(text);
+    expect(neighbors, hasLength(1));
+    expect(neighbors.first.speedDuplex, '1000Mb/s full');
+  });
+
+  test('parses LLDP with Media Attachment Unit type', () {
+    const text = '''
+Local Intf: Gi1/0/4
+Chassis id: 00:11:22:33:44:aa
+System Name: SWITCH-D
+Media Attachment Unit type: 30
+''';
+    final neighbors = CliNeighborParser.parse(text);
+    expect(neighbors, hasLength(1));
+    expect(neighbors.first.speedDuplex, '30');
+  });
+
+  test('returns empty list for empty or irrelevant text', () {
+    expect(CliNeighborParser.parse(''), isEmpty);
+    expect(CliNeighborParser.parse('Random log text with no neighbors'), isEmpty);
+  });
 }
