@@ -94,7 +94,8 @@ Interface: GigabitEthernet1/0/1
 Port ID (outgoing port): eth0
 Platform: arista
 ''';
-    final neighbors = NeighborDiscoveryService(client: FakeSnmpClient({}, {})).parseCli(text);
+    final neighbors =
+        NeighborDiscoveryService(client: FakeSnmpClient({}, {})).parseCli(text);
     expect(neighbors.first.protocol, NeighborProtocol.cdp);
     expect(neighbors.first.hostname, 'leaf-1');
   });
@@ -116,7 +117,8 @@ Platform: arista
     );
   });
 
-  test('discover handles timeouts and socket exceptions on identity lookup', () async {
+  test('discover handles timeouts and socket exceptions on identity lookup',
+      () {
     final timeoutClient = ErrorSnmpClient(timeoutOnGet: true);
     expect(
       () => NeighborDiscoveryService(client: timeoutClient).discover(
@@ -150,8 +152,6 @@ Platform: arista
     final result = await NeighborDiscoveryService(client: client).discover(
       switchIp: '192.168.1.1',
       community: 'public',
-      queryCdp: true,
-      queryLldp: true,
     );
 
     expect(result.warnings, isNotEmpty);
@@ -160,7 +160,8 @@ Platform: arista
     expect(result.warnings.any((w) => w.contains('LLDP')), isTrue);
   });
 
-  test('parseFrame parses CDP and LLDP frames and returns null on bad frames', () {
+  test('parseFrame parses CDP and LLDP frames and returns null on bad frames',
+      () {
     final service = NeighborDiscoveryService(client: FakeSnmpClient({}, {}));
 
     final cdpPayload = CdpParser.buildTestPayload(
@@ -193,27 +194,31 @@ class ErrorSnmpClient implements SnmpClient {
   final bool genericErrorOnGet;
 
   @override
-  Future<SnmpValue?> get(String host, String community, String oid, {Duration timeout = const Duration(seconds: 3)}) async {
+  Future<SnmpValue?> get(String host, String community, String oid,
+      {Duration timeout = const Duration(seconds: 3)}) async {
     if (timeoutOnGet) throw TimeoutException('timeout');
-    if (socketErrorOnGet) throw SocketException('failed to connect');
+    if (socketErrorOnGet) throw const SocketException('failed to connect');
     if (genericErrorOnGet) throw Exception('unknown error');
     return null;
   }
 
   @override
-  Future<Map<String, SnmpValue>> walk(String host, String community, String oid, {Duration timeout = const Duration(seconds: 3)}) async {
+  Future<Map<String, SnmpValue>> walk(String host, String community, String oid,
+      {Duration timeout = const Duration(seconds: 3)}) async {
     return {};
   }
 }
 
 class PartialFailureSnmpClient implements SnmpClient {
   @override
-  Future<SnmpValue?> get(String host, String community, String oid, {Duration timeout = const Duration(seconds: 3)}) async {
+  Future<SnmpValue?> get(String host, String community, String oid,
+      {Duration timeout = const Duration(seconds: 3)}) async {
     return SnmpValue(tag: 0x04, bytes: 'switch-partial'.codeUnits);
   }
 
   @override
-  Future<Map<String, SnmpValue>> walk(String host, String community, String oid, {Duration timeout = const Duration(seconds: 3)}) async {
+  Future<Map<String, SnmpValue>> walk(String host, String community, String oid,
+      {Duration timeout = const Duration(seconds: 3)}) async {
     if (oid == NeighborMibs.ifName || oid == NeighborMibs.ifHighSpeed) {
       throw Exception('Interfaces unavailable');
     }
