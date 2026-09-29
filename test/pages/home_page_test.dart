@@ -77,6 +77,10 @@ void main() {
         find.byKey(WidgetKey.scanForOpenPortsButton.key),
         findsOneWidget,
       );
+      expect(
+        find.byKey(WidgetKey.neighborDiscoveryButton.key),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders DNS card with Lookup and Reverse Lookup buttons',

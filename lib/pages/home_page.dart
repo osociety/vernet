@@ -14,6 +14,7 @@ import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/isp_page/isp_page.dart';
+import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/repository/notification_service.dart';
@@ -277,6 +278,21 @@ class _WifiDetailState extends State<HomePage> {
                         },
                         icon: const Icon(Icons.radar),
                         label: const Text('Find security gaps'),
+                      ),
+                      ElevatedButton.icon(
+                        key: WidgetKey.neighborDiscoveryButton.key,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NeighborDiscoveryPage(
+                                initialSwitchIp: _wifiInfo?.gatewayIp ?? '',
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.hub),
+                        label: const Text('Find switch ports'),
                       ),
                     ],
                   ),
