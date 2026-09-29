@@ -31,4 +31,8 @@ class StringValue {
       'Speed results provided by speedtest.net';
 
   static const String ispPageTitle = 'Internet provider';
+
+  static const String neighborDiscoveryPageTitle = 'Switch neighbors';
+  static const String neighborDiscoveryEmptyPlaceholder =
+      'No neighbors yet.\nQuery a switch or paste CDP/LLDP CLI output to see ports and platforms.';
 }
