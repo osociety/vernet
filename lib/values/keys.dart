@@ -44,15 +44,6 @@ enum WidgetKey implements Comparable<WidgetKey> {
   amazonChip('amazonChip'),
   homeButton('homeButton'),
   appleChip('appleChip'),
-  neighborDiscoveryButton('neighborDiscoveryButton'),
-  neighborSwitchIpField('neighborSwitchIpField'),
-  neighborCommunityField('neighborCommunityField'),
-  neighborCdpChip('neighborCdpChip'),
-  neighborLldpChip('neighborLldpChip'),
-  neighborDiscoverButton('neighborDiscoverButton'),
-  neighborCliTile('neighborCliTile'),
-  neighborCliField('neighborCliField'),
-  neighborParseCliButton('neighborParseCliButton'),
   ping('ping');
 
   const WidgetKey(this.value);
