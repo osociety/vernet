@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/values/keys.dart';
+import 'package:vernet/values/strings.dart';
 
 class MockNetworkInfo extends Mock implements NetworkInfo {}
 
@@ -75,6 +76,10 @@ void main() {
       expect(find.byKey(WidgetKey.ping.key), findsOneWidget);
       expect(
         find.byKey(WidgetKey.scanForOpenPortsButton.key),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(WidgetKey.neighborDiscoveryButton.key),
         findsOneWidget,
       );
     });
@@ -194,6 +199,26 @@ void main() {
         find.byKey(WidgetKey.scanForOpenPortsButton.key),
         findsOneWidget,
       );
+    });
+
+    testWidgets('tapping Find switch ports button opens NeighborDiscoveryPage',
+        (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(WidgetKey.neighborDiscoveryButton.key));
+      await tester.pumpAndSettle();
+
+      expect(find.text(StringValue.neighborDiscoveryPageTitle), findsOneWidget);
     });
   });
 }

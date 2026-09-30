@@ -7,7 +7,7 @@ Vernet - Know your network
 ![GitHub repo size](https://img.shields.io/github/repo-size/git-elliot/vernet)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/git-elliot/vernet/total)
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
-[![codecov](https://codecov.io/gh/git-elliot/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/git-elliot/vernet)
+[![codecov](https://codecov.io/gh/osociety/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/osociety/vernet)
 
 ## Features
 
@@ -70,23 +70,6 @@ Note: macOS build hasn't been notarized yet.
 4. Run vernet.exe
 5. Click on more info, tap on 'Run anyway'.
 5. Give permission if asked.
-
-## Deploying the Firebase website
-
-The Firebase Hosting site deploys automatically when changes are pushed to
-`firebase/public/` on `main`. You can also run the workflow manually from the
-GitHub Actions tab.
-
-Repository setup requires a GitHub Actions secret named
-`FIREBASE_SERVICE_ACCOUNT_VERNET_APP`. Its value should be the JSON key for a
-Firebase service account with permission to deploy Hosting for the
-`vernet-app` project. Do not commit the service-account JSON file.
-
-## Contributors Required
-
-1. Technical writer
-
-Write us at fs0c19ty@protonmail.com
 
 ## Publishing to F-Droid
 You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
