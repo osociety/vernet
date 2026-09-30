@@ -14,7 +14,6 @@ import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/isp_page/isp_page.dart';
-import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/repository/notification_service.dart';
@@ -279,20 +278,6 @@ class _WifiDetailState extends State<HomePage> {
                         icon: const Icon(Icons.radar),
                         label: const Text('Find security gaps'),
                       ),
-                      ElevatedButton.icon(
-                        key: WidgetKey.neighborDiscoveryButton.key,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const NeighborDiscoveryPage(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.device_hub),
-                        label: const Text('Find switch ports'),
-                      ),
                     ],
                   ),
                 ],
@@ -395,39 +380,48 @@ class _WifiDetailState extends State<HomePage> {
                               const SizedBox(height: 3),
                               const Divider(height: 3),
                               const SizedBox(height: 10),
-                              Row(
+                              Column(
                                 children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () async {
-                                      await showDialog(
-                                        context: context,
-                                        builder: (context) => SpeedTestDialog(
-                                          tester: tester,
-                                          servers: snapshot.data!.servers,
-                                          odometerStart:
-                                              snapshot.data!.odometer.start /
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 4,
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                SpeedTestDialog(
+                                              tester: tester,
+                                              servers: snapshot.data!.servers,
+                                              odometerStart: snapshot
+                                                      .data!.odometer.start /
                                                   100000000,
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.speed),
-                                    label: const Text('Test internet speed'),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  ElevatedButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => IspPage(
-                                            tester: tester,
-                                            settings: snapshot.data!,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.cloud_circle),
-                                    label: const Text('See provider details'),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.speed),
+                                        label:
+                                            const Text('Test internet speed'),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => IspPage(
+                                                tester: tester,
+                                                settings: snapshot.data!,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.cloud_circle),
+                                        label:
+                                            const Text('See provider details'),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

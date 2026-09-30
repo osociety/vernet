@@ -6,6 +6,5 @@ void main() {
     expect(StringValue.firstSubnet, 'Start of device search');
     expect(StringValue.hostScanPageTitle, 'Find devices');
     expect(StringValue.ispPageTitle, 'Internet provider');
-    expect(StringValue.neighborDiscoveryPageTitle, 'Switch neighbors');
   });
 }
