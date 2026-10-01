@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -35,9 +34,6 @@ Future<void> main() async {
   await appSettings.load();
 
   await NotificationService.initNotification();
-
-  // Initialize the Mobile Ads SDK.
-  await MobileAds.instance.initialize();
 
   runApp(MyApp(allowed));
   FlutterNativeSplash.remove();

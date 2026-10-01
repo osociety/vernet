@@ -4,11 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:speed_test_dart/classes/classes.dart';
-import 'package:vernet/pages/host_scan_page/widgets/inline_adaptive_banner.dart';
 import 'package:vernet/pages/isp_page/bloc/isp_page_bloc.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
-import 'package:vernet/values/ad_unit_constants.dart';
 
 class IspPageWidget extends StatelessWidget {
   const IspPageWidget({super.key, required this.client});
@@ -79,15 +77,9 @@ class IspPageWidget extends StatelessWidget {
               Expanded(
                 child: ListView.builder(
                   itemBuilder: (context, item) {
-                    if (item == 0) {
-                      return const InlineAdaptiveBanner(
-                        adUnitId: AdUnitConstants.ispInlineAdaptiveBanner,
-                      );
-                    }
-
-                    final server = success.bestServers[item - 1];
+                    final server = success.bestServers[item];
                     return AdaptiveListTile(
-                      leading: Text('$item'),
+                      leading: Text('${item + 1}'),
                       title: Text('${server.name}, ${server.country}'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +93,7 @@ class IspPageWidget extends StatelessWidget {
                       ),
                     );
                   },
-                  itemCount: success.bestServers.length + 1,
+                  itemCount: success.bestServers.length,
                 ),
               ),
             ],
