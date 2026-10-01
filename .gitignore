@@ -155,3 +155,6 @@ android/Gemfile.lock
 
 # Firebase CLI generated state
 firebase/.firebase/
+
+# Graphify generated output
+graphify-out/
