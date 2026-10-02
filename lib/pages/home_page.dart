@@ -290,7 +290,7 @@ class _WifiDetailState extends State<HomePage> {
                             ),
                           );
                         },
-                        icon: const Icon(Icons.device_hub),
+                        icon: const Icon(Icons.hub),
                         label: const Text('Find switch ports'),
                       ),
                     ],
