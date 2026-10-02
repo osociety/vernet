@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
@@ -32,10 +33,19 @@ class DeviceScannerService extends ScannerService {
 
     await storeCurrentScanId(scan.id);
 
+    final subnetMask = await NetworkInfo().getWifiSubmask() ?? '255.255.255.0';
+    final effectiveRange =
+        (appSettings.firstSubnet == 1 && appSettings.lastSubnet == 254)
+            ? appSettings.calculateHostRange(gatewayIp, subnetMask)
+            : (
+                first: appSettings.firstSubnet,
+                last: appSettings.lastSubnet,
+              );
+
     final streamController = HostScannerService.instance.getAllPingableDevices(
       subnet,
-      firstHostId: appSettings.firstSubnet,
-      lastHostId: appSettings.lastSubnet,
+      firstHostId: effectiveRange.first,
+      lastHostId: effectiveRange.last,
     );
     await for (final ActiveHost activeHost in streamController) {
       var device =

@@ -114,34 +114,46 @@ class DeviceInTheNetwork {
   /// Some name to show the user
   String? hostId;
 
+  static bool _isLikelyNetworkService(String? name) {
+    final normalizedName = (name ?? '').toLowerCase();
+    return normalizedName.contains('dhcp') ||
+        normalizedName.contains('dns') ||
+        normalizedName.contains('bind') ||
+        normalizedName.contains('dnsmasq') ||
+        normalizedName.contains('named');
+  }
+
   static Future<String?> getDeviceMake({
     required String currentDeviceIp,
     required String hostIp,
     required String gatewayIp,
     required Future<String?> hostMake,
     required MdnsInfo? mdns,
-  }) {
+  }) async {
+    final resolvedHostMake = await hostMake;
     if (currentDeviceIp == hostIp) {
-      return Future.value('This device');
-    } else if (gatewayIp == hostIp) {
-      return Future.value('Router/Gateway');
+      return 'This device';
+    } else if (gatewayIp == hostIp &&
+        !_isLikelyNetworkService(resolvedHostMake)) {
+      return 'Router/Gateway';
     } else if (mdns != null) {
-      return Future.value(mdns.mdnsDomainName);
+      return mdns.mdnsDomainName;
     }
-    return hostMake;
+    return resolvedHostMake;
   }
 
   static IconData getHostIcon({
     required String currentDeviceIp,
     required String hostIp,
     required String gatewayIp,
+    String? hostMake,
   }) {
     if (hostIp == currentDeviceIp) {
       if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
         return Icons.computer;
       }
       return Icons.smartphone;
-    } else if (hostIp == gatewayIp) {
+    } else if (hostIp == gatewayIp && !_isLikelyNetworkService(hostMake)) {
       return Icons.router;
     }
     return Icons.devices;

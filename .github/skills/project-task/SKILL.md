@@ -23,6 +23,7 @@ Use this when a request is broad or cross-cutting and needs the repo’s guidanc
    - `github-actions-repository-workflows` for CI workflow or repo automation failures
    - `android-fastlane-release` for Android release or beta delivery work
    - `firebase-hosting-config` for Firebase or web deployment config problems
+   - `close-chat` when asked to close or wrap up a chat, record durable context, or prepare a handoff
 4. State one falsifiable cause or expected-behavior hypothesis, then pick the smallest validation that could disprove it. Start from the concrete problem, not a broad refactor.
 5. Keep changes narrow and in the correct layer:
    - UI in `lib/pages/` or `lib/widgets/`
