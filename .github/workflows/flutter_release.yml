@@ -37,10 +37,42 @@ jobs:
       - name: Confirm release promotion
         run: echo "Approved release promotion for ${{ env.RELEASE_TAG }}"
 
+  create-tag:
+    name: Create or verify pubspec release tag
+    runs-on: ubuntu-latest
+    needs: release-approval
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Create tag from pubspec version if needed
+        run: |
+          set -euo pipefail
+
+          if [[ -n "$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}")" ]]; then
+            exit 0
+          fi
+
+          version="$(sed -nE 's/^version: ([0-9]+\.[0-9]+\.[0-9]+\+[0-9]+)$/\1/p' pubspec.yaml)"
+          if [[ "v${version}" != "$RELEASE_TAG" ]]; then
+            echo "::error::Release tag must match pubspec.yaml (expected v${version})."
+            exit 1
+          fi
+
+          git tag "$RELEASE_TAG" "$GITHUB_SHA"
+          git push origin "$RELEASE_TAG"
+
   create-release:
     name: Create or reuse GitHub Release
     runs-on: ubuntu-latest
-    needs: release-approval
+    needs: create-tag
     permissions:
       contents: write
     env:

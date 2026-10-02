@@ -39,7 +39,7 @@ jobs:
     name: Detect release and Hosting changes
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs: android-integration-tests
+    needs: unit-tests
     outputs:
       release: ${{ steps.detect.outputs.release }}
       tag_name: ${{ steps.detect.outputs.tag_name }}
@@ -88,8 +88,6 @@ jobs:
               exit 1
             fi
 
-            git tag "$tag_name" "$HEAD_SHA"
-            git push origin "$tag_name"
             release=true
           fi
 
@@ -109,17 +107,31 @@ jobs:
             echo "firebase_changed=${firebase_changed}"
           } >> "$GITHUB_OUTPUT"
 
+  approve-firebase-content:
+    name: Approve Firebase Hosting content deployment
+    if: github.event_name == 'push' && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
+    needs:
+      - detect-deployments
+      - android-integration-tests
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Confirm Firebase Hosting promotion
+        run: echo "Approved Firebase Hosting deployment for ${{ github.sha }}"
+
   deploy-firebase-content:
     name: Deploy Firebase Hosting content changes
     if: github.event_name == 'push' && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
-    needs: detect-deployments
+    needs: approve-firebase-content
     uses: ./.github/workflows/firebase_hosting.yml
     secrets: inherit
 
   publish-release:
     name: Approve and build release
     if: github.event_name == 'push' && needs.detect-deployments.outputs.release == 'true'
-    needs: detect-deployments
+    needs:
+      - detect-deployments
+      - android-integration-tests
     uses: ./.github/workflows/flutter_release.yml
     with:
       tag_name: ${{ needs.detect-deployments.outputs.tag_name }}
