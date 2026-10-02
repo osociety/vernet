@@ -59,7 +59,7 @@ void main() {
 
       await tester.enterText(
         find.byType(TextFormField),
-        'google.com',
+        'localhost',
       );
       await tester.pumpAndSettle();
 
