@@ -1,10 +1,6 @@
 name: Flutter Integration Tests and Coverage
 
 on:
-  push:
-    branches: ["main", "store"]
-  pull_request:
-    branches: ["main", "store"]
   workflow_dispatch:
   workflow_call:
 
