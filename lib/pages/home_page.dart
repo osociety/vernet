@@ -285,7 +285,8 @@ class _WifiDetailState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => NeighborDiscoveryPage(),
+                              builder: (context) =>
+                                  const NeighborDiscoveryPage(),
                             ),
                           );
                         },
