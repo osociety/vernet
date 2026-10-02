@@ -107,12 +107,26 @@ void main() {
 
       await deviceRepo.put(device);
 
+      await deviceRepo.put(
+        DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch + 1,
+          internetAddress: '192.168.0.10',
+          macAddress: '00:11:22:33:44:56',
+          hostMake: 'UnitTest',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: scan.id,
+        ),
+      );
+
       final stream = await deviceRepo.watch(scan.id);
       expect(stream, isA<Stream<List<DeviceData>>>());
 
       final emitted = await stream.first;
-      expect(emitted, isNotEmpty);
-      expect(emitted.first.internetAddress, '192.168.0.2');
+      expect(
+        emitted.map((device) => device.internetAddress),
+        ['192.168.0.2', '192.168.0.10'],
+      );
     });
 
     test('countByScanId returns correct count', () async {
