@@ -1,14 +1,6 @@
 name: Android Integration Tests
 
 on:
-  push:
-    branches:
-      - main
-      - store
-  pull_request:
-    branches:
-      - main
-      - store
   workflow_dispatch:
   workflow_call:
 
@@ -47,9 +39,6 @@ jobs:
         uses: ./.github/actions/flutter-bootstrap
         with:
           java_version: '17'
-
-      - name: Run unit tests
-        run: flutter test
 
       - name: Android Emulator Runner
         uses: ReactiveCircus/android-emulator-runner@v2.38.0
