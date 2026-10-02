@@ -11,6 +11,19 @@ import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/scanner_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
+@visibleForTesting
+Future<String> getWifiSubnetMaskOrDefault(
+  Future<String?> Function() getWifiSubmask,
+) async {
+  try {
+    return await getWifiSubmask() ?? '255.255.255.0';
+    // ignore: avoid_catching_errors
+  } on TypeError catch (error) {
+    debugPrint('Failed to read Wi-Fi subnet mask: $error');
+    return '255.255.255.0';
+  }
+}
+
 @Injectable()
 class DeviceScannerService extends ScannerService {
   static final _scanRepository = getIt<ScanRepository>();
@@ -33,7 +46,9 @@ class DeviceScannerService extends ScannerService {
 
     await storeCurrentScanId(scan.id);
 
-    final subnetMask = await NetworkInfo().getWifiSubmask() ?? '255.255.255.0';
+    final subnetMask = await getWifiSubnetMaskOrDefault(
+      NetworkInfo().getWifiSubmask,
+    );
     final effectiveRange =
         (appSettings.firstSubnet == 1 && appSettings.lastSubnet == 254)
             ? appSettings.calculateHostRange(gatewayIp, subnetMask)
