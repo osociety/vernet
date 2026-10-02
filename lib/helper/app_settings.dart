@@ -114,6 +114,71 @@ class AppSettings {
     debugPrint("Custom Subnet : $_customSubnet");
   }
 
+  ({int first, int last}) calculateHostRange(
+    String ipAddress,
+    String subnetMask,
+  ) {
+    const fallbackRange = (first: 1, last: 254);
+    final cleanIp = ipAddress.trim();
+    final cleanMask = subnetMask.trim();
+
+    if (cleanIp.isEmpty || cleanMask.isEmpty) {
+      return fallbackRange;
+    }
+
+    final ipParts = cleanIp.split('.');
+    final maskParts = cleanMask.split('.');
+    if (ipParts.length != 4 || maskParts.length != 4) {
+      return fallbackRange;
+    }
+
+    final ipOctets = <int>[];
+    final maskOctets = <int>[];
+    for (final ipPart in ipParts) {
+      final value = int.tryParse(ipPart);
+      if (value == null || value < 0 || value > 255) {
+        return fallbackRange;
+      }
+      ipOctets.add(value);
+    }
+    for (final maskPart in maskParts) {
+      final value = int.tryParse(maskPart);
+      if (value == null || value < 0 || value > 255) {
+        return fallbackRange;
+      }
+      maskOctets.add(value);
+    }
+
+    final ipAsInt = (ipOctets[0] << 24) |
+        (ipOctets[1] << 16) |
+        (ipOctets[2] << 8) |
+        ipOctets[3];
+    final maskAsInt = (maskOctets[0] << 24) |
+        (maskOctets[1] << 16) |
+        (maskOctets[2] << 8) |
+        maskOctets[3];
+
+    if (maskAsInt == 0) {
+      return fallbackRange;
+    }
+
+    final networkAddress = ipAsInt & maskAsInt;
+    final broadcastAddress = networkAddress | (~maskAsInt & 0xFFFFFFFF);
+    final firstUsableAddress = networkAddress + 1;
+    final lastUsableAddress = broadcastAddress - 1;
+
+    final firstHostId = firstUsableAddress & 0xFF;
+    final lastHostId = lastUsableAddress & 0xFF;
+
+    if (firstHostId <= 0 || lastHostId <= 0) {
+      return fallbackRange;
+    }
+
+    final safeFirst = firstHostId.clamp(1, 254);
+    final safeLast = lastHostId.clamp(1, 254);
+    return (first: safeFirst, last: safeLast);
+  }
+
   Future<bool> clearAll() async {
     return (await SharedPreferences.getInstance()).clear();
   }
