@@ -14,7 +14,7 @@ Vernet helps you spot possible connection and security concerns. It does not
 replace a professional security audit, but it gives you useful findings to
 review, such as devices and services that are reachable on your network.
 
-Vernet is an open source project hosted on GitHub: https://github.com/git-elliot/vernet
+Vernet is an open source project hosted on GitHub: https://github.com/osociety/vernet
 This build does not display ads.
 
 

@@ -18,7 +18,7 @@ Future<bool> checkUpdates(
 }) async {
   final Uri target = url ??
       Uri.parse(
-        'https://api.github.com/repos/git-elliot/vernet/tags?per_page=1',
+        'https://api.github.com/repos/osociety/vernet/tags?per_page=1',
       );
   final c = client ?? http.Client();
   final response = await c.get(target);
@@ -116,7 +116,7 @@ Future<void> checkForUpdates(
 }
 
 Future<void> navigateToStore(BuildContext context) async {
-  String url = 'https://github.com/git-elliot/vernet/releases/latest';
+  String url = 'https://github.com/osociety/vernet/releases/latest';
 
   if (Platform.isAndroid) {
     final isFdroidInstalled = await LaunchApp.isAppInstalled(

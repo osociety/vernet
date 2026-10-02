@@ -253,7 +253,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  static const String _srcUrl = 'https://github.com/git-elliot/vernet';
+  static const String _srcUrl = 'https://github.com/osociety/vernet';
   final String _issueUrl = '$_srcUrl/issues';
   final String _donateUrl = '$_srcUrl#support-and-donate';
 }
