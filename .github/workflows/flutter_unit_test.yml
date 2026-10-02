@@ -9,47 +9,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
-    name: Detect changes
-    if: ${{ github.event_name != 'workflow_dispatch' && github.event_name != 'workflow_call' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      run: ${{ steps.filter.outputs.run == 'true' }}
-    steps:
-      - uses: dorny/paths-filter@v3.0.2
-        id: filter
-        with:
-          filters: |
-            run:
-              - 'lib/**'
-              - 'test/**'
-              - 'integration_test/**'
-              - 'android/**'
-              - 'ios/**'
-              - 'linux/**'
-              - 'macos/**'
-              - 'web/**'
-              - 'windows/**'
-              - 'assets/**'
-              - '.github/workflows/**'
-              - '.metadata'
-              - 'analysis_options.yaml'
-              - 'devtools_options.yaml'
-              - 'flutter_native_splash.yaml'
-              - 'generate_coverage.sh'
-              - 'pubspec.yaml'
-              - 'pubspec.lock'
-
   flutter-unit-test:
     name: Unit Tests on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-    needs: changes
-    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || needs.changes.outputs.run == 'true') }}
     runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Checkout
