@@ -3,7 +3,18 @@ name: Flutter release
 on:
   release:
     types: [published]
+  workflow_call:
+    inputs:
+      tag_name:
+        description: Release tag to build
+        required: true
+        type: string
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag to build
+        required: true
+        type: string
     
 permissions:
   contents: write
@@ -16,10 +27,88 @@ env:
   MACOS_DMG_PATH: installers/dmg_creator
 
 jobs:
+  release-approval:
+    name: Approve release promotion
+    runs-on: ubuntu-latest
+    environment: release
+    env:
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+    steps:
+      - name: Confirm release promotion
+        run: echo "Approved release promotion for ${{ env.RELEASE_TAG }}"
+
+  create-tag:
+    name: Create or verify pubspec release tag
+    runs-on: ubuntu-latest
+    needs: release-approval
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Create tag from pubspec version if needed
+        run: |
+          set -euo pipefail
+
+          if [[ -n "$(git ls-remote --tags origin "refs/tags/${RELEASE_TAG}")" ]]; then
+            exit 0
+          fi
+
+          version="$(sed -nE 's/^version: ([0-9]+\.[0-9]+\.[0-9]+\+[0-9]+)$/\1/p' pubspec.yaml)"
+          if [[ "v${version}" != "$RELEASE_TAG" ]]; then
+            echo "::error::Release tag must match pubspec.yaml (expected v${version})."
+            exit 1
+          fi
+
+          git tag "$RELEASE_TAG" "$GITHUB_SHA"
+          git push origin "$RELEASE_TAG"
+
+  create-release:
+    name: Create or reuse GitHub Release
+    runs-on: ubuntu-latest
+    needs: create-tag
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Create release with Fastlane changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
+        run: |
+          set -euo pipefail
+          build_number="$(sed -nE 's/^version: [0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/\1/p' pubspec.yaml)"
+          changelog="fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
+          if [[ -z "$build_number" || ! -s "$changelog" ]]; then
+            echo "::error::Could not find the Fastlane changelog for ${RELEASE_TAG}."
+            exit 1
+          fi
+
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" \
+              --title "Vernet ${RELEASE_TAG}" \
+              --notes-file "$changelog"
+          fi
+
   release-android-and-linux: 
     runs-on: ubuntu-latest
+    needs: create-release
     env:
-      LINUX_ZIP: Vernet-${{github.ref_name}}-linux.zip
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+      LINUX_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-linux.zip
       ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-release.apk
       ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-release.apk
       ANDROID_APK_x86_64: app-x86_64-dev-release.apk
@@ -27,6 +116,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
@@ -39,15 +130,8 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"
           ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
-      - name: Cache Gradle
-        uses: actions/cache@v4.2.2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            .gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/settings.gradle', '**/gradle.properties', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Download Android keystore
         id: android_keystore
@@ -77,9 +161,9 @@ jobs:
 
       - name: Rename ANDROID APKs
         run: |
-          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V7A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
-          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V8A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
-          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
+          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V7A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V7A}}
+          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V8A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V8A}}
+          mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Linux Archive
         uses: TheDoctor0/zip-release@0.7.6
@@ -90,27 +174,39 @@ jobs:
 
       - name: Publish Android Release
         uses: softprops/action-gh-release@v2.2.1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          draft: false
           files: |
-            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V7A}}
-            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_ARM_V8A}}
-            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{github.ref_name}}-${{env.ANDROID_APK_x86_64}}
+            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V7A}}
+            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V8A}}
+            ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_x86_64}}
 
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v2.2.1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          draft: false
           files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
+
+  release-firebase-hosting:
+    name: Deploy Firebase Hosting with app release
+    needs: create-release
+    uses: ./.github/workflows/firebase_hosting.yml
+    secrets: inherit
   
   release-macos: 
     runs-on: macos-latest
+    needs: create-release
     env:
-      MACOS_ZIP: Vernet-${{github.ref_name}}-macos.zip
-      MACOS_DMG: Vernet-${{github.ref_name}}-macos.dmg
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+      MACOS_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-macos.zip
+      MACOS_DMG: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-macos.dmg
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Cache CocoaPods
         uses: actions/cache@v4.2.2
@@ -145,19 +241,24 @@ jobs:
 
       - name: Publish macOS Release
         uses: softprops/action-gh-release@v2.2.1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          draft: false
           files: |
             ${{ env.MACOS_BUILD_PATH }}/${{ env.MACOS_ZIP }}
             ${{ env.MACOS_DMG_PATH }}/${{ env.MACOS_DMG }}
 
   release-windows:
     runs-on: windows-latest
+    needs: create-release
     env:
-      WINDOWS_ZIP: Vernet-${{github.ref_name}}-windows.zip
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+      WINDOWS_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-windows.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
@@ -174,6 +275,7 @@ jobs:
 
       - name: Publish Windows Release
         uses: softprops/action-gh-release@v2.2.1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          draft: false
           files: ${{ env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}

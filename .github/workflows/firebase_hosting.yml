@@ -1,13 +1,7 @@
 name: Deploy Firebase Hosting
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'firebase/public/**'
-      - 'firebase/firebase.json'
-      - 'firebase/.firebaserc'
-      - '.github/workflows/firebase_hosting.yml'
+  workflow_call:
   workflow_dispatch:
 
 permissions:
