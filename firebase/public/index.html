@@ -5,9 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vernet - Know your network</title>
 <meta name="description" content="Find devices on your Wi-Fi, test your speed, check open ports, and look up domains with Vernet, a free and open-source network diagnostics app.">
-<meta name="theme-color" content="#100a1a">
+<meta name="theme-color" content="#f4f6f1">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --purple-900: #2a0845;
@@ -240,13 +243,213 @@
     .oss h2 { font-size: 1.65rem; }
     footer { padding: 32px 0; }
   }
+
+  /* Product-site refresh */
+  :root {
+    --purple-900: #2a0845;
+    --purple-800: #3d0f66;
+    --purple-700: #55178c;
+    --purple-600: #6f27ad;
+    --purple-accent: #a06bff;
+    --purple-accent-2: #c9a6ff;
+    --mint-accent: #73dbbf;
+    --ink: #f5f2fb;
+    --ink-dim: #cabfe0;
+    --bg: #100a1a;
+    --card: #1a1226;
+    --card-border: rgba(255,255,255,0.08);
+  }
+  html, body {
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(160,107,255,0.15), transparent 48rem);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    font-family: "DM Sans", sans-serif;
+  }
+  h1, h2, h3, .brand, .platform-card .name {
+    font-family: "Space Grotesk", sans-serif;
+    letter-spacing: 0;
+  }
+  header {
+    background: rgba(16,10,26,0.88);
+    border-bottom-color: rgba(255,255,255,0.1);
+  }
+  header nav.wrap { padding-top: 15px; padding-bottom: 15px; }
+  .brand { gap: 10px; color: var(--ink); font-size: 1.15rem; font-weight: 700; }
+  .brand img { width: 36px; height: 36px; object-fit: cover; border-radius: 8px; }
+  .nav-links { gap: 30px; color: var(--ink-dim); }
+  .nav-links a {
+    position: relative;
+    font-weight: 500;
+    transition: color 0.16s ease, font-weight 0.16s ease, transform 0.16s ease;
+  }
+  .nav-links a::after {
+    position: absolute;
+    right: 0;
+    bottom: 2px;
+    left: 0;
+    height: 2px;
+    background: var(--purple-accent);
+    content: "";
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.16s ease;
+  }
+  .nav-links a:hover, .nav-links a:focus-visible {
+    color: var(--ink);
+    font-weight: 700;
+    transform: translateY(-1px);
+  }
+  .nav-links a:hover::after, .nav-links a:focus-visible::after { transform: scaleX(1); }
+  .nav-links a:focus-visible, header .btn:focus-visible { outline-color: var(--purple-accent); }
+  .btn {
+    padding: 12px 20px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--purple-accent), var(--purple-600));
+    box-shadow: none;
+    font-weight: 700;
+    transition: background 0.16s ease, transform 0.16s ease;
+  }
+  .btn:hover { background: linear-gradient(135deg, var(--purple-accent-2), var(--purple-accent)); box-shadow: 0 10px 26px rgba(160,107,255,0.25); transform: translateY(-2px); }
+  .btn.ghost { border-color: var(--card-border); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--purple-accent); background: rgba(160,107,255,0.1); }
+  .hero {
+    padding: 64px 0 42px;
+    background: transparent;
+  }
+  .hero .wrap { max-width: 960px; }
+  .eyebrow {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--purple-accent-2);
+    padding: 0;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+  }
+  h1 {
+    max-width: 900px;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 3.5rem;
+    line-height: 1.08;
+  }
+  h1 span {
+    background: none;
+    color: var(--purple-accent-2);
+  }
+  .sub { color: var(--ink-dim); }
+  .store-pill {
+    border-radius: 6px;
+    background: var(--card);
+    border-color: var(--card-border);
+    color: var(--ink-dim);
+  }
+  .store-pill:hover { border-color: var(--purple-accent); color: var(--ink); }
+  .store-pill img, .store-pill svg { width: 18px; height: 18px; object-fit: contain; }
+  .store-pill.soon, .platform-card.soon { opacity: 0.72; }
+  .screens { margin-top: 34px; }
+  .screens img { border-color: rgba(255,255,255,0.12); box-shadow: 0 24px 48px -24px rgba(0,0,0,0.6); }
+  section { padding: 76px 0; }
+  #features, #download { background: transparent; }
+  .section-head { margin-bottom: 42px; }
+  .section-head h2 { letter-spacing: 0; }
+  .showcase .txt h2, .oss h2 { font-size: 2rem; letter-spacing: 0; }
+  .section-head h2 { font-size: 2.2rem; }
+  .section-head p, .showcase .txt p { color: var(--ink-dim); }
+  .card {
+    border-radius: 6px;
+    border-color: var(--card-border);
+    padding: 26px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .card:hover { border-color: rgba(160,107,255,0.55); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
+  .card .icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    background: rgba(115,219,191,0.1);
+    border: 1px solid rgba(115,219,191,0.24);
+    color: var(--purple-accent);
+  }
+  .card .icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .card h3 { letter-spacing: 0; }
+  .card p { color: var(--ink-dim); }
+  .showcase img { border-radius: 14px; border-color: rgba(255,255,255,0.12); box-shadow: 0 24px 48px -24px rgba(0,0,0,0.6); }
+  .showcase img.investigate-shot { background: #100a1a; border-radius: 14px; }
+  .checklist li { color: var(--ink-dim); }
+  .checklist li::before { color: var(--mint-accent); }
+  .platforms { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .platform-card {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    align-items: stretch;
+    gap: 8px;
+    border-radius: 6px;
+    background: var(--card);
+    border-color: var(--card-border);
+    padding: 20px 18px;
+    min-height: 184px;
+  }
+  .platform-category { padding-bottom: 6px; border-bottom: 1px solid var(--card-border); color: var(--purple-accent-2); font-size: 0.68rem; font-weight: 700; }
+  .platform-card .name { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 0; font-weight: 600; }
+  .platform-meta { display: flex; align-items: center; justify-content: center; min-height: 2.2em; color: var(--ink-dim); font-size: 0.76rem; line-height: 1.4; text-align: center; }
+  .platform-icon { width: 24px; height: 24px; object-fit: contain; }
+  .platform-card a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid rgba(201,166,255,0.32);
+    border-radius: 5px;
+    color: var(--purple-accent-2);
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: background 0.16s ease, border-color 0.16s ease;
+  }
+  .platform-card a:hover, .platform-card a:focus-visible { background: rgba(160,107,255,0.12); border-color: var(--purple-accent); }
+  .platform-card a:focus-visible { outline: 2px solid var(--purple-accent-2); outline-offset: 3px; }
+  .platform-card > .soon-tag { align-self: center; margin-top: 0; }
+  .soon-tag { border-radius: 4px; background: rgba(160,107,255,0.18); color: var(--purple-accent-2); }
+  .oss {
+    border: 1px solid rgba(160,107,255,0.3);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink);
+    padding: 54px 30px;
+  }
+  .oss p { color: var(--ink-dim); }
+  .oss .btn { background: linear-gradient(135deg, var(--purple-accent), var(--purple-600)); color: #fff; }
+  .oss .btn:hover { background: linear-gradient(135deg, var(--purple-accent-2), var(--purple-accent)); }
+  .oss .btn.ghost { border-color: var(--card-border); color: var(--ink); background: transparent; }
+  .oss .btn.ghost:hover { background: rgba(160,107,255,0.1); }
+  footer { background: transparent; border-top: 1px solid var(--card-border); color: var(--ink-dim); }
+  footer a { color: var(--ink-dim); }
+  footer a:hover { color: var(--purple-accent-2); }
+  .trademark-note { max-width: 760px; margin: 12px auto 0; color: var(--ink-dim); font-size: 0.78rem; line-height: 1.6; }
+  @media (max-width: 560px) {
+    header nav.wrap { padding-top: 12px; padding-bottom: 12px; }
+    .hero { padding-top: 52px; }
+    h1 { font-size: 2.3rem; }
+    section { padding: 58px 0; }
+    .section-head h2 { font-size: 1.75rem; }
+    .showcase .txt h2, .oss h2 { font-size: 1.65rem; }
+    .platforms { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .platform-card .name { font-size: 0.92rem; }
+  }
+  @media (max-width: 900px) and (min-width: 561px) {
+    .platforms { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
 </style>
 </head>
 <body>
 
 <header>
   <nav class="wrap">
-    <div class="brand"><span class="dot"></span> Vernet</div>
+    <a class="brand" href="#top" aria-label="Vernet home"><img src="favicon.png" alt=""> vernet</a>
     <div class="nav-links">
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
@@ -256,7 +459,7 @@
   </nav>
 </header>
 
-<section class="hero">
+<section class="hero" id="top">
   <div class="wrap">
     <span class="eyebrow">Free &amp; open source</span>
     <h1>See what's really<br class="desktop-break"> happening on <span>your network</span></h1>
@@ -266,10 +469,10 @@
       <a href="https://f-droid.org/packages/org.fsociety.vernet" class="btn ghost">Get it on F-Droid</a>
     </div>
     <div class="store-row">
-      <span class="store-pill soon">🍏 iOS <span class="soon-tag">Coming soon</span></span>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill">🪟 Windows</a>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill">🍎 macOS</a>
-      <a href="https://github.com/git-elliot/vernet/releases/latest" class="store-pill">🐧 Linux</a>
+      <span class="store-pill soon"><img src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS <span class="soon-tag">Coming soon</span></span>
+      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="windows" class="store-pill"><svg aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</a>
+      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="macos" class="store-pill"><img src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</a>
+      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="linux" class="store-pill"><img src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</a>
     </div>
     <p style="font-size:0.82rem;color:var(--ink-dim);margin:10px 0 0;">The Google Play build contains ads to support development. F-Droid and GitHub builds are ad-free.</p>
     <div class="screens">
@@ -289,47 +492,47 @@
     </div>
     <div class="grid">
       <div class="card">
-        <div class="icon">📶</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></div>
         <h3>Wi-Fi details</h3>
         <p>See your Wi-Fi name, BSSID, local address, gateway, and subnet at a glance.</p>
       </div>
       <div class="card">
-        <div class="icon">🔍</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div>
         <h3>Find devices</h3>
         <p>Scan your network to find connected devices, and optionally start a scan whenever the app opens.</p>
       </div>
       <div class="card">
-        <div class="icon">🔓</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/></svg></div>
         <h3>Open ports scanner</h3>
         <p>Check popular ports, a custom range, or a single port on any device or website.</p>
       </div>
       <div class="card">
-        <div class="icon">📡</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg></div>
         <h3>Ping &amp; DNS lookup</h3>
         <p>Check if a website or device responds, look up addresses, and find device names with reverse DNS.</p>
       </div>
       <div class="card">
-        <div class="icon">⚡</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m13 2-3 8h7l-6 12 2-9H6l7-11Z"/></svg></div>
         <h3>Speed test</h3>
         <p>Measure your real download and upload speed whenever you need to.</p>
       </div>
       <div class="card">
-        <div class="icon">🌐</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg></div>
         <h3>ISP information</h3>
         <p>See your public IP and internet provider without digging through settings.</p>
       </div>
       <div class="card">
-        <div class="icon">🔔</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></div>
         <h3>Scan notifications</h3>
         <p>Start device scans when the app opens and get notified when the results are ready.</p>
       </div>
       <div class="card">
-        <div class="icon">🎛️</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4"/></svg></div>
         <h3>Scan controls</h3>
         <p>Adjust scan ranges, ping count, and connection timeouts to suit your network.</p>
       </div>
       <div class="card">
-        <div class="icon">🛡️</div>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></div>
         <h3>Privacy controls</h3>
         <p>Choose whether Vernet can use internet access and location permission. Your location stays on your device.</p>
       </div>
@@ -398,16 +601,16 @@
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Available platforms</span>
-      <h2>One app across your devices</h2>
-      <p>Vernet is built with Flutter and is available on Android, macOS, Linux, and Windows. An iOS version is coming soon.</p>
+      <h2>Choose your platform</h2>
+      <p>Get Vernet from your preferred app store or find the latest desktop releases on GitHub. iOS is coming soon.</p>
     </div>
     <div class="platforms">
-      <div class="platform-card"><div class="name">🤖 Android</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play →</a><div style="font-size:0.72rem;color:var(--ink-dim);margin-top:8px;">Contains ads</div></div>
-      <div class="platform-card"><div class="name">🟢 Android (FOSS)</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid →</a></div>
-      <div class="platform-card soon"><div class="name">🍏 iOS</div><span class="soon-tag">Coming soon</span></div>
-      <div class="platform-card"><div class="name">🍎 macOS</div><a href="https://github.com/git-elliot/vernet/releases/latest">GitHub Releases →</a></div>
-      <div class="platform-card"><div class="name">🐧 Linux</div><a href="https://github.com/git-elliot/vernet/releases/latest">GitHub Releases →</a></div>
-      <div class="platform-card"><div class="name">🪟 Windows</div><a href="https://github.com/git-elliot/vernet/releases/latest">GitHub Releases →</a></div>
+      <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/android/3DDC84" alt="" aria-hidden="true"> Android</div><div class="platform-meta">Contains ads</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play</a></div>
+      <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/fdroid/1976D2" alt="" aria-hidden="true"> Android (FOSS)</div><div class="platform-meta">Ad-free</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid</a></div>
+      <div class="platform-card soon"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS</div><div class="platform-meta">iPhone and iPad</div><span class="soon-tag">Coming soon</span></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="macos" href="https://github.com/osociety/vernet/releases/latest">Download for macOS</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="linux" href="https://github.com/osociety/vernet/releases/latest">Download for Linux</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows" href="https://github.com/osociety/vernet/releases/latest">Download for Windows</a></div>
     </div>
   </div>
 </section>
@@ -418,8 +621,8 @@
       <h2>Free, open source, and built in the open</h2>
       <p>The full source code is public on GitHub under the Apache License 2.0, for anyone to read, build, or modify. The Google Play build contains ads to support development; F-Droid and GitHub builds are ad-free. No account is required, and no data is sold.</p>
       <div class="cta-row">
-        <a href="https://github.com/git-elliot/vernet" class="btn">View on GitHub</a>
-        <a href="https://github.com/git-elliot/vernet/issues" class="btn ghost">Report an issue</a>
+        <a href="https://github.com/osociety/vernet" class="btn">View on GitHub</a>
+        <a href="https://github.com/osociety/vernet/issues" class="btn ghost">Report an issue</a>
       </div>
     </div>
   </div>
@@ -428,13 +631,34 @@
 <footer>
   <div class="wrap">
     <div class="foot-links">
-      <a href="https://github.com/git-elliot/vernet">GitHub</a>
-      <a href="https://github.com/git-elliot/vernet/wiki/Privacy-Policy">Privacy Policy</a>
+      <a href="https://github.com/osociety/vernet">GitHub</a>
+      <a href="https://github.com/osociety/vernet/wiki/Privacy-Policy">Privacy Policy</a>
       <a href="mailto:fs0c19ty@protonmail.com">Contact</a>
     </div>
-    Vernet is an open-source project. Not affiliated with any device manufacturer or ISP.
+    <div>Vernet is an independent open-source project and is not affiliated with any device manufacturer or ISP.</div>
+    <p class="trademark-note">Apple, iOS, macOS, Android, Google Play, F-Droid, Microsoft, Windows, and Linux names and logos are trademarks or registered trademarks of their respective owners. Their use here is for identification only and does not imply endorsement or affiliation.</p>
   </div>
 </footer>
+
+<script>
+  const releaseAssetSuffixes = {
+    macos: '-macos.dmg',
+    linux: '-linux.zip',
+    windows: '-windows.zip'
+  };
+  fetch('https://api.github.com/repos/osociety/vernet/releases/latest', {
+    headers: { Accept: 'application/vnd.github+json' }
+  }).then(response => {
+    if (!response.ok) throw new Error('Latest release lookup failed');
+    return response.json();
+  }).then(release => {
+    for (const link of document.querySelectorAll('[data-release-platform]')) {
+      const suffix = releaseAssetSuffixes[link.dataset.releasePlatform];
+      const asset = release.assets.find(item => item.name.toLowerCase().endsWith(suffix));
+      if (asset) link.href = asset.browser_download_url;
+    }
+  }).catch(() => {});
+</script>
 
 </body>
 </html>

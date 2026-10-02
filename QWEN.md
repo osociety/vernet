@@ -291,7 +291,7 @@ lib/
 ## Contact & Support
 
 - **Email:** fs0c19ty@protonmail.com
-- **GitHub:** https://github.com/git-elliot/vernet
+- **GitHub:** https://github.com/osociety/vernet
 - **F-Droid:** https://f-droid.org/packages/org.fsociety.vernet
 - **Donations:** Liberapay, Ko-Fi
 
