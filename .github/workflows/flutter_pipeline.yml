@@ -35,100 +35,92 @@ jobs:
     uses: ./.github/workflows/android-integration-test.yml
     secrets: inherit
 
-  prepare-release:
-    name: Version and prepare release
+  detect-deployments:
+    name: Detect release and Hosting changes
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs:
-      - unit-tests
-      - integration-tests
-      - android-integration-tests
+    needs: android-integration-tests
     outputs:
-      tag_name: ${{ steps.version.outputs.tag_name }}
+      release: ${{ steps.detect.outputs.release }}
+      tag_name: ${{ steps.detect.outputs.tag_name }}
+      firebase_changed: ${{ steps.detect.outputs.firebase_changed }}
     steps:
-      - name: Checkout main history
+      - name: Checkout pushed commit
         uses: actions/checkout@v4.2.2
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
-      - name: Increment version and generate Fastlane changelog
-        id: version
-        run: |
-          set -euo pipefail
-
-          ruby <<'RUBY'
-          version_path = 'pubspec.yaml'
-          contents = File.read(version_path)
-          match = contents.match(/^version:\s+(\d+)\.(\d+)\.(\d+)\+(\d+)\s*$/)
-          abort 'Could not parse pubspec.yaml version (expected major.minor.patch+build).' unless match
-
-          major, minor, patch, current_build = match.captures.map(&:to_i)
-          changelog_ids = Dir.glob('fastlane/metadata/android/en-US/changelogs/*.txt').filter_map do |path|
-            filename = File.basename(path, '.txt')
-            filename.to_i if filename.match?(/^\d+$/)
-          end
-          build = [current_build, changelog_ids.max || 0].max + 1
-          patch += 1
-          contents.sub!(/^version:\s+.*$/, "version: #{major}.#{minor}.#{patch}+#{build}")
-          version = contents.match(/^version:\s+(\d+\.\d+\.\d+)\+(\d+)\s*$/)[1]
-          File.write(version_path, contents)
-
-          File.write(ENV.fetch('GITHUB_OUTPUT'), "version=#{version}\ntag_name=v#{version}\nbuild_number=#{build}\n", mode: 'a')
-          RUBY
-
-      - name: Generate changelog, commit version and tag
+      - name: Detect release metadata and Firebase content changes
+        id: detect
         env:
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          TAG_NAME: ${{ steps.version.outputs.tag_name }}
-          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
-          TESTED_SHA: ${{ github.sha }}
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
-          changelog="fastlane/metadata/android/en-US/changelogs/${BUILD_NUMBER}.txt"
-          previous_tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*' "$TESTED_SHA" 2>/dev/null || true)"
-
-          if [[ -n "$previous_tag" ]]; then
-            git log "${previous_tag}..HEAD" --no-merges --pretty=format:'- %s' > "$changelog"
+          if [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            changed_files="$(git ls-tree -r --name-only "$HEAD_SHA")"
           else
-            git log -20 --no-merges --pretty=format:'- %s' > "$changelog"
+            changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           fi
 
-          if [[ ! -s "$changelog" ]]; then
-            printf '%s\n' "- ${COMMIT_MESSAGE%%$'\n'*}" > "$changelog"
+          release=false
+          tag_name=""
+          if grep -Fxq 'pubspec.yaml' <<< "$changed_files"; then
+            version="$(sed -nE 's/^version: ([0-9]+\.[0-9]+\.[0-9]+\+[0-9]+)$/\1/p' pubspec.yaml)"
+            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ ]]; then
+              echo "::error::pubspec.yaml must contain a release version like 1.2.3+45."
+              exit 1
+            fi
+
+            build_number="${version##*+}"
+            changelog="fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
+            if ! grep -Fxq "$changelog" <<< "$changed_files" || [[ ! -s "$changelog" ]]; then
+              echo "::error::A release PR must update ${changelog} together with pubspec.yaml."
+              exit 1
+            fi
+
+            tag_name="v${version}"
+            existing_tag="$(git ls-remote --tags origin "refs/tags/${tag_name}")"
+            if [[ -n "$existing_tag" ]]; then
+              echo "::error::Release tag ${tag_name} already exists on origin."
+              exit 1
+            fi
+
+            git tag "$tag_name" "$HEAD_SHA"
+            git push origin "$tag_name"
+            release=true
           fi
 
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add pubspec.yaml "$changelog"
-          git commit -m "chore(release): ${TAG_NAME}"
-          git tag "$TAG_NAME"
+          firebase_changed=false
+          while IFS= read -r path; do
+            case "$path" in
+              firebase/public/*|firebase/firebase.json|firebase/.firebaserc|.github/workflows/firebase_hosting.yml)
+                firebase_changed=true
+                break
+                ;;
+            esac
+          done <<< "$changed_files"
 
-          git fetch origin main
-          if [[ "$(git rev-parse origin/main)" != "$TESTED_SHA" ]]; then
-            echo "::error::main advanced while checks were running; refusing to release an unvalidated commit."
-            exit 1
-          fi
+          {
+            echo "release=${release}"
+            echo "tag_name=${tag_name}"
+            echo "firebase_changed=${firebase_changed}"
+          } >> "$GITHUB_OUTPUT"
 
-          git push origin HEAD:main "$TAG_NAME"
-
-      - name: Create draft GitHub release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ steps.version.outputs.tag_name }}
-          BUILD_NUMBER: ${{ steps.version.outputs.build_number }}
-        run: |
-          gh release create "$TAG_NAME" \
-            --draft \
-            --title "Vernet ${TAG_NAME}" \
-            --notes-file "fastlane/metadata/android/en-US/changelogs/${BUILD_NUMBER}.txt"
+  deploy-firebase-content:
+    name: Deploy Firebase Hosting content changes
+    if: github.event_name == 'push' && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
+    needs: detect-deployments
+    uses: ./.github/workflows/firebase_hosting.yml
+    secrets: inherit
 
   publish-release:
     name: Approve and build release
-    if: github.event_name == 'push'
-    needs: prepare-release
+    if: github.event_name == 'push' && needs.detect-deployments.outputs.release == 'true'
+    needs: detect-deployments
     uses: ./.github/workflows/flutter_release.yml
     with:
-      tag_name: ${{ needs.prepare-release.outputs.tag_name }}
+      tag_name: ${{ needs.detect-deployments.outputs.tag_name }}
     secrets: inherit
