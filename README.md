@@ -3,9 +3,9 @@
 Vernet - Know your network
 
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
-[![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/git-elliot/vernet?include_prereleases)](https://github.com/git-elliot/vernet/releases/latest)
-![GitHub repo size](https://img.shields.io/github/repo-size/git-elliot/vernet)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/git-elliot/vernet/total)
+[![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases)](https://github.com/osociety/vernet/releases/latest)
+![GitHub repo size](https://img.shields.io/github/repo-size/osociety/vernet)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total)
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
 [![codecov](https://codecov.io/gh/osociety/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/osociety/vernet)
 
@@ -36,7 +36,7 @@ review, such as devices and services that are reachable on your network.
 
 | Android | iOS | macOS | Linux | Windows |
 |-----------|-----|-------|-------|---------|
-|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href='https://github.com/git-elliot/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|
+|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|
 
 Web is not currently supported.
 
@@ -47,7 +47,7 @@ Web is not currently supported.
 Note: macOS build hasn't been notarized yet.
 
 1. Star this repository.
-2. Download vernet-macos.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+2. Download vernet-macos.zip from [releases](https://github.com/osociety/vernet/releases/latest)
 3. Extract downloaded zip file.
 4. Copy app file to the Applications folder.
 5. Go to Applications folder.
@@ -58,13 +58,13 @@ Note: macOS build hasn't been notarized yet.
 
 1. Star this repository.
 2. Install `net-tools` package for `arp` command, otherwise app will not run.
-3. Download vernet-linux.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+3. Download vernet-linux.zip from [releases](https://github.com/osociety/vernet/releases/latest)
 4. Extract downloaded zip file.
 5. Go to bundle folder and double click vernet file.
 
 ### Instruction for Windows
 1. Star this repository.
-2. Download vernet-windows.zip from [releases](https://github.com/git-elliot/vernet/releases/latest)
+2. Download vernet-windows.zip from [releases](https://github.com/osociety/vernet/releases/latest)
 3. Extract downloaded zip file.
 4. Run vernet.exe
 5. Click on more info, tap on 'Run anyway'.
@@ -74,8 +74,8 @@ Note: macOS build hasn't been notarized yet.
 You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
 ## How to Contribute
 
-1. Found bug? Open an [issue](https://github.com/git-elliot/vernet/issues)
-2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/git-elliot/vernet/pulls)
+1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)
+2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/osociety/vernet/pulls)
 
 ## Support and Donate
 
