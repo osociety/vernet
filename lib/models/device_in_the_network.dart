@@ -133,7 +133,8 @@ class DeviceInTheNetwork {
     final resolvedHostMake = await hostMake;
     if (currentDeviceIp == hostIp) {
       return 'This device';
-    } else if (gatewayIp == hostIp && !_isLikelyNetworkService(resolvedHostMake)) {
+    } else if (gatewayIp == hostIp &&
+        !_isLikelyNetworkService(resolvedHostMake)) {
       return 'Router/Gateway';
     } else if (mdns != null) {
       return mdns.mdnsDomainName;
