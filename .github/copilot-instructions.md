@@ -25,7 +25,7 @@ guidance. Keep changes focused and preserve existing project conventions.
 17. Keep the user informed with concise progress updates during longer work.
 18. Finish the task end to end when the environment permits it.
 19. Report blockers plainly instead of implying that unrun checks passed.
-20. Summarize changed files, verification, and remaining limitations at the end.
+20. Summarize changed files, verification, and remaining limitations at the end. When asked to close or wrap up a chat, use `.github/skills/close-chat/SKILL.md` to record only durable, verified context and update relevant guidance.
 
 ## Flutter Architecture
 

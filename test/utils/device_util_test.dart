@@ -36,12 +36,30 @@ void main() {
       expect(DeviceUtil.getDeviceMake(device), 'This device');
     });
 
-    test('returns "Router/Gateway" when gateway IP matches', () {
+    test('returns "Router/Gateway" when gateway IP matches and device is not a DHCP/DNS service', () {
       final device = _device(
         internetAddress: '192.168.0.1',
       );
 
       expect(DeviceUtil.getDeviceMake(device), 'Router/Gateway');
+    });
+
+    test('does not label DHCP server as router when it matches the gateway IP', () {
+      final device = _device(
+        internetAddress: '192.168.0.1',
+        hostMake: 'isc-dhcp-server',
+      );
+
+      expect(DeviceUtil.getDeviceMake(device), 'isc-dhcp-server');
+    });
+
+    test('does not label DNS service as router when it matches the gateway IP', () {
+      final device = _device(
+        internetAddress: '192.168.0.1',
+        hostMake: 'dnsmasq',
+      );
+
+      expect(DeviceUtil.getDeviceMake(device), 'dnsmasq');
     });
 
     test('returns mDNS domain name when present', () {
