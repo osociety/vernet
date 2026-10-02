@@ -47,5 +47,23 @@ void main() {
       expect(reloaded.customSubnet, '192.168.1.0');
       expect(reloaded.gatewayIP, '192.168.1');
     });
+
+    test('calculates the scan range from the subnet mask', () {
+      final range =
+          settings.calculateHostRange('192.168.1.42', '255.255.255.0');
+
+      expect(range.first, 1);
+      expect(range.last, 254);
+
+      final classBRange =
+          settings.calculateHostRange('10.12.34.56', '255.255.0.0');
+      expect(classBRange.first, 1);
+      expect(classBRange.last, 254);
+
+      final edgeRange =
+          settings.calculateHostRange('172.16.0.1', '255.255.255.252');
+      expect(edgeRange.first, 1);
+      expect(edgeRange.last, 2);
+    });
   });
 }
