@@ -1,14 +1,9 @@
 name: Android Integration Tests
 
 on:
-  push:
-    branches:
-      - main
-      - store
   pull_request:
     branches:
       - main
-      - store
   workflow_dispatch:
   workflow_call:
 
