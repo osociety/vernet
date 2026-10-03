@@ -53,6 +53,10 @@ jobs:
           flutter test integration_test/app_test.dart --coverage -d linux
         shell: bash
 
+      - name: Run integration tests - macOS
+        if: matrix.os == 'macos'
+        run: flutter test integration_test/app_test.dart -d macos
+
       - name: Run integration tests - Windows
         if: matrix.os == 'windows'
         run: flutter test integration_test/app_test.dart --coverage -d windows
