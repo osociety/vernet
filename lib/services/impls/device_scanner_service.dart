@@ -13,8 +13,11 @@ import 'package:vernet/values/globals.dart' as globals;
 
 @visibleForTesting
 Future<String> getWifiSubnetMaskOrDefault(
-  Future<String?> Function() getWifiSubmask,
-) async {
+  Future<String?> Function() getWifiSubmask, {
+  bool useFallback = false,
+}) async {
+  if (useFallback) return '255.255.255.0';
+
   try {
     return await getWifiSubmask() ?? '255.255.255.0';
     // ignore: avoid_catching_errors
@@ -48,6 +51,7 @@ class DeviceScannerService extends ScannerService {
 
     final subnetMask = await getWifiSubnetMaskOrDefault(
       NetworkInfo().getWifiSubmask,
+      useFallback: globals.testingActive,
     );
     final effectiveRange =
         (appSettings.firstSubnet == 1 && appSettings.lastSubnet == 254)
