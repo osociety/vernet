@@ -75,7 +75,7 @@ jobs:
             fi
 
             build_number="${version##*+}"
-            changelog="fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
+            changelog="android/fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
             if ! grep -Fxq "$changelog" <<< "$changed_files" || [[ ! -s "$changelog" ]]; then
               echo "::error::A release PR must update ${changelog} together with pubspec.yaml."
               exit 1

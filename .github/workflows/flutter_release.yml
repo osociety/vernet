@@ -91,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           build_number="$(sed -nE 's/^version: [0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/\1/p' pubspec.yaml)"
-          changelog="fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
+          changelog="android/fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
           if [[ -z "$build_number" || ! -s "$changelog" ]]; then
             echo "::error::Could not find the Fastlane changelog for ${RELEASE_TAG}."
             exit 1
