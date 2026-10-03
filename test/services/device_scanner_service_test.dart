@@ -59,6 +59,16 @@ void main() {
   });
 
   group('DeviceScannerService', () {
+    test('uses a fallback without querying network metadata in test mode',
+        () async {
+      final subnetMask = await getWifiSubnetMaskOrDefault(
+        () async => fail('Subnet mask lookup should be skipped in test mode'),
+        useFallback: true,
+      );
+
+      expect(subnetMask, equals('255.255.255.0'));
+    });
+
     test('uses a fallback when subnet mask lookup throws a TypeError',
         () async {
       final subnetMask = await getWifiSubnetMaskOrDefault(() async {
