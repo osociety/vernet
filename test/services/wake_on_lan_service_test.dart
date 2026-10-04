@@ -27,7 +27,7 @@ Future<void> _failingSender({
   String? password,
   int repeat = WakeOnLanService.defaultRepeat,
   Duration repeatDelay = const Duration(milliseconds: 200),
-}) async {
+}) {
   throw const WakeOnLanException('network error');
 }
 
@@ -115,7 +115,7 @@ void main() {
 
     setUp(() => service = _makeService());
 
-    test('throws on invalid MAC', () async {
+    test('throws on invalid MAC', () {
       expect(
         () => service.wake(macAddress: 'bad-mac'),
         throwsA(
@@ -128,7 +128,7 @@ void main() {
       );
     });
 
-    test('throws on invalid IP', () async {
+    test('throws on invalid IP', () {
       expect(
         () => service.wake(
           macAddress: 'AA:BB:CC:DD:EE:FF',
@@ -138,7 +138,7 @@ void main() {
       );
     });
 
-    test('throws on port out of range', () async {
+    test('throws on port out of range', () {
       expect(
         () => service.wake(
           macAddress: 'AA:BB:CC:DD:EE:FF',
@@ -148,7 +148,7 @@ void main() {
       );
     });
 
-    test('throws when repeat < 1', () async {
+    test('throws when repeat < 1', () {
       expect(
         () => service.wake(
           macAddress: 'AA:BB:CC:DD:EE:FF',
@@ -158,7 +158,7 @@ void main() {
       );
     });
 
-    test('throws on bad SecureON password', () async {
+    test('throws on bad SecureON password', () {
       expect(
         () => service.wake(
           macAddress: 'AA:BB:CC:DD:EE:FF',
@@ -202,7 +202,7 @@ void main() {
 
   // ── wake – sender failures ────────────────────────────────────────────────
   group('wake – sender failure', () {
-    test('WakeOnLanException from sender is re-thrown', () async {
+    test('WakeOnLanException from sender is re-thrown', () {
       final service = _makeService(sender: _failingSender);
       expect(
         () => service.wake(macAddress: 'AA:BB:CC:DD:EE:FF'),
@@ -213,7 +213,8 @@ void main() {
 
   // ── saved targets ─────────────────────────────────────────────────────────
   group('saved targets', () {
-    test('loadSavedTargets returns empty list when nothing persisted', () async {
+    test('loadSavedTargets returns empty list when nothing persisted',
+        () async {
       final service = _makeService();
       expect(await service.loadSavedTargets(), isEmpty);
     });
@@ -248,7 +249,7 @@ void main() {
       expect(saved.first.label, 'New Label');
     });
 
-    test('saveTarget throws on invalid MAC', () async {
+    test('saveTarget throws on invalid MAC', () {
       final service = _makeService();
       expect(
         () => service.saveTarget(

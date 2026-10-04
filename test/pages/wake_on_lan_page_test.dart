@@ -142,7 +142,7 @@ void main() {
       final statusFinder = find.byKey(WidgetKey.wakeOnLanStatusText.key);
       expect(statusFinder, findsOneWidget);
       expect(
-        (tester.widget<Text>(statusFinder)).data,
+        tester.widget<Text>(statusFinder).data,
         contains('AA:BB:CC:DD:EE:FF'),
       );
     });
@@ -170,7 +170,7 @@ void main() {
         String? password,
         int repeat = WakeOnLanService.defaultRepeat,
         Duration repeatDelay = const Duration(milliseconds: 200),
-      }) async {
+      }) {
         throw const WakeOnLanException('network error');
       }
 
@@ -294,9 +294,9 @@ void main() {
 
   group('WakeOnLanTarget model', () {
     test('fromJson with missing fields uses defaults', () {
-      final target =
-          // ignore: avoid_dynamic_calls
-          (WakeOnLanService.normalizeMac('') == ''); // just warm the class
+      // final target =
+      //     // ignore: avoid_dynamic_calls
+      //     (WakeOnLanService.normalizeMac('') == ''); // just warm the class
 
       // ignore: unused_local_variable
       final wakeOnLanTarget =

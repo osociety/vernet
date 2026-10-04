@@ -128,7 +128,8 @@ void main() {
   // ── Broadcast pre-fill ───────────────────────────────────────────────────
 
   group('Wake on LAN – broadcast pre-fill', () {
-    testWidgets('broadcast IP field is auto-filled from gateway', (tester) async {
+    testWidgets('broadcast IP field is auto-filled from gateway',
+        (tester) async {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
@@ -153,7 +154,8 @@ void main() {
       ));
       final String ipValue = editableText.controller.text;
       expect(
-        ipValue == '192.168.1.255' || ipValue == WakeOnLanService.defaultBroadcast,
+        ipValue == '192.168.1.255' ||
+            ipValue == WakeOnLanService.defaultBroadcast,
         isTrue,
         reason: 'Expected a valid broadcast address, got "$ipValue"',
       );
@@ -210,7 +212,8 @@ void main() {
       );
     });
 
-    testWidgets('port field shows error for out-of-range value', (tester) async {
+    testWidgets('port field shows error for out-of-range value',
+        (tester) async {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
@@ -290,7 +293,8 @@ void main() {
         statusText.contains('AA:BB:CC:DD:EE:FF') ||
             statusText.contains('Could not send'),
         isTrue,
-        reason: 'Status should mention the MAC or a send error, got: $statusText',
+        reason:
+            'Status should mention the MAC or a send error, got: $statusText',
       );
     });
 
@@ -390,7 +394,7 @@ void main() {
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
 
-      expect(find.text('Gaming Rig'), findsOneWidget);
+      expect(find.text('Gaming Rig'), findsNWidgets(2));
       // Placeholder should now be gone
       expect(find.text(StringValue.wakeOnLanEmptyPlaceholder), findsNothing);
     });
@@ -503,7 +507,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Only one tile for this MAC should exist
-      expect(find.text('Second Label'), findsOneWidget);
+      expect(find.text('Second Label'), findsNWidgets(2));
       expect(find.text('First Label'), findsNothing);
     });
 
