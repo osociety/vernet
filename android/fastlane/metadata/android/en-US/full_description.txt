@@ -1,27 +1,25 @@
+Take control of your home or office network with Vernet — a free, open-source toolkit that puts network insights in your hands.
 
-Vernet helps you understand what is happening on your network.
+Whether you're troubleshooting a slow connection, checking who's on your Wi-Fi, or making sure your devices are reachable, Vernet gives you clear, easy-to-understand answers — no technical background required.
 
-Features
-1. See the Wi-Fi network you are using.
-2. Find devices connected to your local network.
-3. Check whether a website or device responds with ping.
-4. Scan for services that may be reachable from a device.
-5. Look up website addresses and device names with DNS tools.
-6. Test your download and upload speed.
-7. View information about your internet provider.
+🔍 What's on my network?
+See every device connected to your local Wi-Fi, along with their IP addresses and names. Know exactly who and what is sharing your connection.
 
-Vernet helps you spot possible connection and security concerns. It does not
-replace a professional security audit, but it gives you useful findings to
-review, such as devices and services that are reachable on your network.
+📡 Is my internet working?
+Run a ping test to check if a website or device is responding. Spot drops and delays in seconds.
 
-Vernet is an open source project hosted on GitHub: https://github.com/osociety/vernet
-This build does not display ads.
+⚡ How fast is my connection?
+Test your real download and upload speed with the built-in speed test. Get accurate results without leaving the app.
 
+🔓 What services are exposed?
+Scan a device for open ports to see which services are reachable — helpful for understanding your home network's security posture.
 
+🌐 What's behind this address?
+Use built-in DNS tools to look up domain names, resolve IPs, and trace how addresses are mapped on the internet.
 
+📊 Who is my internet provider?
+View details about your ISP, including your public IP, location, and connection type.
 
-
-
-
-
-
+✅ Free & open source
+Vernet is free and open source on GitHub: https://github.com/osociety/vernet
+This build may contain ads. For an ad-free experience, get Vernet on F-Droid.
