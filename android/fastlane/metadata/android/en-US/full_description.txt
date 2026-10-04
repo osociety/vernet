@@ -21,4 +21,5 @@ Use built-in DNS tools to look up domain names, resolve IPs, and trace how addre
 View details about your ISP, including your public IP, location, and connection type.
 
 ✅ Free & open source
-Vernet is completely free, contains no ads, and is open source on GitHub: https://github.com/osociety/vernet
+Vernet is free and open source on GitHub: https://github.com/osociety/vernet
+This build may contain ads. For an ad-free experience, get Vernet on F-Droid.
