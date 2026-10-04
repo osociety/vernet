@@ -17,6 +17,7 @@ import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
+import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
@@ -292,6 +293,19 @@ class _WifiDetailState extends State<HomePage> {
                         },
                         icon: const Icon(Icons.hub),
                         label: const Text('Find switch ports'),
+                      ),
+                      ElevatedButton.icon(
+                        key: WidgetKey.wakeOnLanButton.key,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WakeOnLanPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.power_settings_new),
+                        label: const Text('Wake a device'),
                       ),
                     ],
                   ),

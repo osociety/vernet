@@ -5,6 +5,8 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
+import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/keys.dart';
@@ -94,22 +96,49 @@ class HostScanWidget extends StatelessWidget {
                 subtitle: Text(
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
-                trailing: IconButton(
-                  key: DeviceUtil.getDeviceMake(host) == 'This device'
-                      ? WidgetKey.thisDeviceTileIconButton.key
-                      : null,
-                  tooltip: TooltipMessages.currentDevicePortScan,
-                  icon: const Icon(Icons.radar),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PortScanPage(
-                          target: host.internetAddress,
-                        ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (host.macAddress != null && host.macAddress!.isNotEmpty)
+                      IconButton(
+                        tooltip: TooltipMessages.wakeOnLan,
+                        icon: const Icon(Icons.power_settings_new),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WakeOnLanPage(
+                                initialMacAddress: host.macAddress!,
+                                initialIpv4Address:
+                                    WakeOnLanService.broadcastFromIpv4(
+                                          host.internetAddress,
+                                        ) ??
+                                        WakeOnLanService.defaultBroadcast,
+                                initialLabel:
+                                    DeviceUtil.getDeviceMake(host) ?? '',
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    IconButton(
+                      key: DeviceUtil.getDeviceMake(host) == 'This device'
+                          ? WidgetKey.thisDeviceTileIconButton.key
+                          : null,
+                      tooltip: TooltipMessages.currentDevicePortScan,
+                      icon: const Icon(Icons.radar),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PortScanPage(
+                              target: host.internetAddress,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 onLongPress: () {
                   Clipboard.setData(

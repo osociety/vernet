@@ -118,6 +118,22 @@ lib/services/dns_tools/
 
 ------------------------------------------------------------------------
 
+### Wake on LAN
+
+Send a magic packet to power on a device that supports Wake-on-LAN.
+
+Responsibilities:
+
+-   MAC and broadcast address validation
+-   magic packet sending
+-   saved device list
+
+Service location:
+
+lib/services/wake_on_lan_service.dart
+
+------------------------------------------------------------------------
+
 ### Speed Test
 
 Internet performance measurement.

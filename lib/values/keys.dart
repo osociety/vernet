@@ -53,6 +53,15 @@ enum WidgetKey implements Comparable<WidgetKey> {
   neighborCliTile('neighborCliTile'),
   neighborCliField('neighborCliField'),
   neighborParseCliButton('neighborParseCliButton'),
+  wakeOnLanButton('wakeOnLanButton'),
+  wakeOnLanMacField('wakeOnLanMacField'),
+  wakeOnLanIpField('wakeOnLanIpField'),
+  wakeOnLanPortField('wakeOnLanPortField'),
+  wakeOnLanPasswordField('wakeOnLanPasswordField'),
+  wakeOnLanLabelField('wakeOnLanLabelField'),
+  wakeOnLanSendButton('wakeOnLanSendButton'),
+  wakeOnLanSaveButton('wakeOnLanSaveButton'),
+  wakeOnLanStatusText('wakeOnLanStatusText'),
   ping('ping');
 
   const WidgetKey(this.value);
