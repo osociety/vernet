@@ -1,0 +1,2 @@
+Added Wake on LAN feature. 
+Bug fixes and improvements.
