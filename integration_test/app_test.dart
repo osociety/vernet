@@ -18,6 +18,7 @@ import 'network_troubleshooting_test/ping_test/ping.dart' as ping_test;
 import 'settings/settings.dart' as settings_test;
 import 'settings/test_utils.dart';
 import 'test_port.dart';
+import 'wake_on_lan/wake_on_lan_test.dart' as wake_on_lan_test;
 import 'wifi_test/wifi_test_runner.dart' as wifi_test_runner;
 
 /// Single integration-test entry point. Nested suites omit the `_test.dart`
@@ -53,6 +54,7 @@ void main() {
   reverse_lookup.main();
   settings_test.main();
   home_page_test.main();
+  wake_on_lan_test.main();
 
   tearDownAll(() {
     server.close();

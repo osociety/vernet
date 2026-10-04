@@ -35,4 +35,8 @@ class StringValue {
   static const String neighborDiscoveryPageTitle = 'Switch neighbors';
   static const String neighborDiscoveryEmptyPlaceholder =
       'No neighbors yet.\nQuery a switch or paste CDP/LLDP CLI output to see ports and platforms.';
+
+  static const String wakeOnLanPageTitle = 'Wake a device';
+  static const String wakeOnLanEmptyPlaceholder =
+      'No saved devices yet.\nEnter a MAC address and send a wake packet, or save a computer you use often.';
 }
