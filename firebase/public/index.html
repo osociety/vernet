@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vernet - Know your network</title>
 <meta name="description" content="Find devices on your Wi-Fi, test your speed, check open ports, and look up domains with Vernet, a free and open-source network diagnostics app.">
+<link rel="canonical" href="https://vernet.app/">
+<link rel="ard" href="/.well-known/ard.json">
+<link rel="ai-catalog" href="/.well-known/ai-catalog.json">
 <meta name="theme-color" content="#f4f6f1">
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" href="/favicon-64.png">
 <link rel="apple-touch-icon" href="/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --purple-900: #2a0845;
@@ -264,10 +264,10 @@
     background-image: radial-gradient(ellipse at 50% 0%, rgba(160,107,255,0.15), transparent 48rem);
     background-attachment: fixed;
     background-repeat: no-repeat;
-    font-family: "DM Sans", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   h1, h2, h3, .brand, .platform-card .name {
-    font-family: "Space Grotesk", sans-serif;
+    font-family: inherit;
     letter-spacing: 0;
   }
   header {
@@ -449,7 +449,7 @@
 
 <header>
   <nav class="wrap">
-    <a class="brand" href="#top" aria-label="Vernet home"><img src="favicon.png" alt=""> vernet</a>
+    <a class="brand" href="#top" aria-label="Vernet home"><img src="favicon-64.png" width="64" height="64" alt=""> vernet</a>
     <div class="nav-links">
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
@@ -459,6 +459,7 @@
   </nav>
 </header>
 
+<main>
 <section class="hero" id="top">
   <div class="wrap">
     <span class="eyebrow">Free &amp; open source</span>
@@ -469,16 +470,16 @@
       <a href="https://f-droid.org/packages/org.fsociety.vernet" class="btn ghost">Get it on F-Droid</a>
     </div>
     <div class="store-row">
-      <span class="store-pill soon"><img src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS <span class="soon-tag">Coming soon</span></span>
+      <span class="store-pill soon">iOS <span class="soon-tag">Coming soon</span></span>
       <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="windows" class="store-pill"><svg aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</a>
-      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="macos" class="store-pill"><img src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</a>
-      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="linux" class="store-pill"><img src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</a>
+      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="macos" class="store-pill">macOS</a>
+      <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="linux" class="store-pill">Linux</a>
     </div>
     <p style="font-size:0.82rem;color:var(--ink-dim);margin:10px 0 0;">The Google Play build contains ads to support development. F-Droid and GitHub builds are ad-free.</p>
     <div class="screens">
-      <img src="images/network-scan.jpg" alt="Scan for devices screen">
-      <img src="images/home-screen.jpg" alt="Vernet home screen">
-      <img src="images/port-scan.jpg" alt="Open ports scanner screen">
+      <img src="images/network-scan.webp" width="520" height="721" alt="Scan for devices screen">
+      <img src="images/home-screen.webp" width="520" height="830" fetchpriority="high" alt="Vernet home screen">
+      <img src="images/port-scan.webp" width="520" height="729" alt="Open ports scanner screen">
     </div>
   </div>
 </section>
@@ -543,7 +544,7 @@
 <section id="how">
   <div class="wrap">
     <div class="showcase showcase-first">
-      <img loading="lazy" decoding="async" src="images/network-scan.jpg" alt="Vernet device scan results">
+      <img loading="lazy" decoding="async" width="520" height="721" src="images/network-scan.webp" alt="Vernet device scan results">
       <div class="txt">
         <span class="eyebrow">Discover</span>
         <h2>Find every device on your network in seconds</h2>
@@ -566,10 +567,10 @@
           <li>Useful findings, explained simply</li>
         </ul>
       </div>
-      <img class="investigate-shot" loading="lazy" decoding="async" src="images/port-scan.jpg" alt="Vernet open ports scanner">
+      <img class="investigate-shot" loading="lazy" decoding="async" width="520" height="729" src="images/port-scan.webp" alt="Vernet open ports scanner">
     </div>
     <div class="showcase">
-      <img class="feature-shot" loading="lazy" decoding="async" src="images/speed-test.jpg" alt="Vernet built-in internet speed test">
+      <img class="feature-shot" loading="lazy" decoding="async" width="506" height="900" src="images/speed-test.webp" alt="Vernet built-in internet speed test">
       <div class="txt">
         <span class="eyebrow">Measure</span>
         <h2>Test your internet speed in seconds</h2>
@@ -592,7 +593,7 @@
           <li>Spot connection delays or dropped replies</li>
         </ul>
       </div>
-      <img class="feature-shot" loading="lazy" decoding="async" src="images/ping-test.jpg" alt="Vernet ping tool checking a website connection">
+      <img class="feature-shot" loading="lazy" decoding="async" width="450" height="900" src="images/ping-test.webp" alt="Vernet ping tool checking a website connection">
     </div>
   </div>
 </section>
@@ -605,11 +606,11 @@
       <p>Get Vernet from your preferred app store or find the latest desktop releases on GitHub. iOS is coming soon.</p>
     </div>
     <div class="platforms">
-      <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/android/3DDC84" alt="" aria-hidden="true"> Android</div><div class="platform-meta">Contains ads</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play</a></div>
-      <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/fdroid/1976D2" alt="" aria-hidden="true"> Android (FOSS)</div><div class="platform-meta">Ad-free</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid</a></div>
-      <div class="platform-card soon"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS</div><div class="platform-meta">iPhone and iPad</div><span class="soon-tag">Coming soon</span></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="macos" href="https://github.com/osociety/vernet/releases/latest">Download for macOS</a></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="linux" href="https://github.com/osociety/vernet/releases/latest">Download for Linux</a></div>
+      <div class="platform-card"><div class="platform-category">Mobile</div><div class="name">Android</div><div class="platform-meta">Contains ads</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play</a></div>
+      <div class="platform-card"><div class="platform-category">Mobile</div><div class="name">Android (FOSS)</div><div class="platform-meta">Ad-free</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid</a></div>
+      <div class="platform-card soon"><div class="platform-category">Mobile</div><div class="name">iOS</div><div class="platform-meta">iPhone and iPad</div><span class="soon-tag">Coming soon</span></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name">macOS</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="macos" href="https://github.com/osociety/vernet/releases/latest">Download for macOS</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name">Linux</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="linux" href="https://github.com/osociety/vernet/releases/latest">Download for Linux</a></div>
       <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows" href="https://github.com/osociety/vernet/releases/latest">Download for Windows</a></div>
     </div>
   </div>
@@ -628,6 +629,7 @@
   </div>
 </section>
 
+</main>
 <footer>
   <div class="wrap">
     <div class="foot-links">

@@ -1,0 +1,15 @@
+# Vernet
+
+> Vernet is a free and open-source network diagnostics app for discovering devices, checking ports, testing internet speed, and using ping and DNS tools.
+
+## Website
+
+- [Vernet home](https://vernet.app/): Product overview, features, and platform downloads.
+- [Privacy policy](https://github.com/osociety/vernet/wiki/Privacy-Policy): Privacy information for the app.
+- [Source code](https://github.com/osociety/vernet): Public source code and project documentation.
+- [Latest releases](https://github.com/osociety/vernet/releases/latest): Desktop downloads and release notes.
+
+## App availability
+
+- [Google Play](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
+- [F-Droid](https://f-droid.org/packages/org.fsociety.vernet)
