@@ -36,43 +36,43 @@ class AppSettings {
 
   Future<bool> setFirstSubnet(int firstSubnet) async {
     _firstSubnet = firstSubnet;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setInt(_firstSubnetKey, _firstSubnet);
   }
 
   Future<bool> setLastSubnet(int lastSubnet) async {
     _lastSubnet = lastSubnet;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setInt(_lastSubnetKey, _lastSubnet);
   }
 
   Future<bool> setSocketTimeout(int socketTimeout) async {
     _socketTimeout = socketTimeout;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setInt(_socketTimeoutKey, _socketTimeout);
   }
 
   Future<bool> setPingCount(int pingCount) async {
     _pingCount = pingCount;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setInt(_pingCountKey, _pingCount);
   }
 
   Future<bool> setInAppInternet(bool inAppInternet) async {
     _inAppInternet = inAppInternet;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setBool(_inAppInternetKey, _inAppInternet);
   }
 
   Future<bool> setRunScanOnStartup(bool runScanOnStartup) async {
     _runScanOnStartup = runScanOnStartup;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setBool(_runScanOnStartupKey, _runScanOnStartup);
   }
 
   Future<bool> setCustomSubnet(String customSubnet) async {
     _customSubnet = customSubnet;
-    return (await SharedPreferences.getInstance())
+    return await (await SharedPreferences.getInstance())
         .setString(_customSubnetKey, _customSubnet);
   }
 
@@ -180,7 +180,7 @@ class AppSettings {
   }
 
   Future<bool> clearAll() async {
-    return (await SharedPreferences.getInstance()).clear();
+    return await (await SharedPreferences.getInstance()).clear();
   }
 
   void resetForTesting() {

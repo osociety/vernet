@@ -135,7 +135,7 @@ class DeviceScannerService extends ScannerService {
   Future<Stream<List<DeviceData>>> getOnGoingScan() async {
     final scan = await _scanRepository.getOnGoingScan();
     if (scan != null) {
-      return _deviceRepository.watch(scan.id);
+      return await _deviceRepository.watch(scan.id);
     }
     return const Stream.empty();
   }
@@ -143,7 +143,7 @@ class DeviceScannerService extends ScannerService {
   Future<int> getCurrentDevicesCount() async {
     final scan = await _scanRepository.getOnGoingScan();
     if (scan != null) {
-      return _deviceRepository.countByScanId(scan.id);
+      return await _deviceRepository.countByScanId(scan.id);
     }
     return 0;
   }

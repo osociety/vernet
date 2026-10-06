@@ -13,14 +13,15 @@ class DeviceRepository extends Repository<DeviceData> {
 
   Future<DeviceData?> get(int id) async {
     final database = await _database.open();
-    return (database!.select(database.device)..where((t) => t.id.equals(id)))
+    return await (database!.select(database.device)
+          ..where((t) => t.id.equals(id)))
         .getSingleOrNull();
   }
 
   @override
   Future<List<DeviceData>> getList() async {
     final database = await _database.open();
-    return database!.select(database.device).get();
+    return await database!.select(database.device).get();
   }
 
   @override
@@ -28,13 +29,14 @@ class DeviceRepository extends Repository<DeviceData> {
     final database = await _database.open();
     final id =
         await database!.into(database.device).insert(t.toCompanion(true));
-    return (database.select(database.device)..where((dd) => dd.id.equals(id)))
+    return await (database.select(database.device)
+          ..where((dd) => dd.id.equals(id)))
         .getSingle();
   }
 
   Future<DeviceData?> getDevice(int scanId, String address) async {
     final database = await _database.open();
-    return (database!.select(database.device)
+    return await (database!.select(database.device)
           ..where((dd) => dd.internetAddress.equals(address))
           ..where((dd) => dd.scanId.equals(scanId)))
         .getSingleOrNull();
@@ -46,15 +48,15 @@ class DeviceRepository extends Repository<DeviceData> {
           ..where((dd) => dd.scanId.equals(scanId)))
         .watch()
         .map((devices) {
-          final sortedDevices = List<DeviceData>.of(devices)
-            ..sort(
-              (a, b) => _compareIpAddresses(
-                a.internetAddress,
-                b.internetAddress,
-              ),
-            );
-          return sortedDevices;
-        });
+      final sortedDevices = List<DeviceData>.of(devices)
+        ..sort(
+          (a, b) => _compareIpAddresses(
+            a.internetAddress,
+            b.internetAddress,
+          ),
+        );
+      return sortedDevices;
+    });
   }
 
   Future<int> countByScanId(int scanId) async {

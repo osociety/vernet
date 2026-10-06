@@ -8,6 +8,7 @@ class ConsentLoader {
   }
 
   static Future<bool> setConsentPageShown(bool status) async {
-    return (await SharedPreferences.getInstance()).setBool(consentKey, status);
+    return await (await SharedPreferences.getInstance())
+        .setBool(consentKey, status);
   }
 }
