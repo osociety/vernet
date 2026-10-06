@@ -12,28 +12,31 @@ class ScanRepository extends Repository<ScanData> {
 
   Future<ScanData?> get(int id) async {
     final database = await _database.open();
-    return (database!.select(database.scan)..where((t) => t.id.equals(id)))
+    return await (database!.select(database.scan)
+          ..where((t) => t.id.equals(id)))
         .getSingleOrNull();
   }
 
   @override
   Future<List<ScanData>> getList() async {
     final database = await _database.open();
-    return database!.select(database.scan).get();
+    return await database!.select(database.scan).get();
   }
 
   @override
   Future<ScanData> put(ScanData t) async {
     final database = await _database.open();
     final id = await database!.into(database.scan).insert(t.toCompanion(true));
-    return (database.select(database.scan)..where((dd) => dd.id.equals(id)))
+    return await (database.select(database.scan)
+          ..where((dd) => dd.id.equals(id)))
         .getSingle();
   }
 
   Future<ScanData?> update(ScanData t) async {
     final database = await _database.open();
     await database!.update(database.scan).replace(t.toCompanion(true));
-    return (database.select(database.scan)..where((dd) => dd.id.equals(t.id)))
+    return await (database.select(database.scan)
+          ..where((dd) => dd.id.equals(t.id)))
         .getSingleOrNull();
   }
 
@@ -41,9 +44,9 @@ class ScanRepository extends Repository<ScanData> {
     final database = await _database.open();
     final ongoingScanId = await getCurrentScanId();
     if (ongoingScanId != null) {
-      return get(ongoingScanId);
+      return await get(ongoingScanId);
     }
-    return (database!.select(database.scan)
+    return await (database!.select(database.scan)
           ..where((scan) => scan.onGoing.equals(true))
           ..where((scan) => scan.endTime.equalsNullable(null))
           ..orderBy([

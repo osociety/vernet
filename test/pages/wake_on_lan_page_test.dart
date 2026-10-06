@@ -299,9 +299,7 @@ void main() {
       //     (WakeOnLanService.normalizeMac('') == ''); // just warm the class
 
       // ignore: unused_local_variable
-      final wakeOnLanTarget =
-          // ignore: invalid_use_of_protected_member
-          (() {
+      final wakeOnLanTarget = (() {
         final json = <String, dynamic>{};
         return json;
       })();
