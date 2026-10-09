@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/api/update_checker.dart';
@@ -24,8 +25,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final InAppReview inAppReview = InAppReview.instance;
-
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
@@ -201,7 +200,13 @@ class _SettingsPageState extends State<SettingsPage> {
             child: AdaptiveListTile(
               title: const Text('Rate Vernet'),
               onTap: () {
-                inAppReview.openStoreListing();
+                if (Platform.isLinux ||
+                    Platform.isMacOS ||
+                    Platform.isWindows) {
+                  launchURLWithWarning(context, _srcUrl);
+                } else if (Platform.isAndroid) {
+                  navigateToStore(context);
+                }
               },
             ),
           ),

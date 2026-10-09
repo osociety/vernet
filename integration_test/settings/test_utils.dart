@@ -60,15 +60,6 @@ class TestUtils {
       },
     );
     messenger.setMockMethodCallHandler(
-      const MethodChannel('dev.demine/in_app_review'),
-      (methodCall) async {
-        if (methodCall.method == 'isAvailable') {
-          return true;
-        }
-        return null;
-      },
-    );
-    messenger.setMockMethodCallHandler(
       const MethodChannel('dexterous.com/flutter/local_notifications'),
       (methodCall) async {
         switch (methodCall.method) {
