@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/values/keys.dart';
@@ -25,8 +26,9 @@ void main() {
 
   late MockNetworkInfo mockNetworkInfo;
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    await AppSettings.instance.setInAppInternet(false);
     mockNetworkInfo = MockNetworkInfo();
   });
 

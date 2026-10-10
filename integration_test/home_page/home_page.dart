@@ -34,6 +34,7 @@ void main() {
     globals.testingActive = true;
     NotificationService.skipPermissionRequests = true;
     SharedPreferences.setMockInitialValues({});
+    appSettings.resetForTesting();
     TestUtils.configureAndroidChannelMocks();
 
     // Mock NetworkInfo

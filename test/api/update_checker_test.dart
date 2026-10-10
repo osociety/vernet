@@ -7,13 +7,15 @@ import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/api/update_checker.dart';
+import 'package:vernet/main.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    await appSettings.setInAppInternet(false);
 
     // Mock PackageInfo
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

@@ -59,6 +59,7 @@ void main() {
     globals.testingActive = true;
     NotificationService.skipPermissionRequests = true;
     SharedPreferences.setMockInitialValues({});
+    appSettings.resetForTesting();
     TestUtils.configureAndroidChannelMocks();
     _mockNetworkInfo();
   });
@@ -394,7 +395,9 @@ void main() {
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
 
-      expect(find.text('Gaming Rig'), findsNWidgets(2));
+      // The name appears once in the saved tile; the form field is editable
+      // text and is intentionally not matched by find.text().
+      expect(find.text('Gaming Rig'), findsOneWidget);
       // Placeholder should now be gone
       expect(find.text(StringValue.wakeOnLanEmptyPlaceholder), findsNothing);
     });
@@ -450,7 +453,10 @@ void main() {
 
       expect(find.text('Old PC'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.delete_outline));
+      final deleteButton = find.byIcon(Icons.delete_outline);
+      await tester.ensureVisible(deleteButton);
+      await tester.pumpAndSettle();
+      await tester.tap(deleteButton);
       await tester.pumpAndSettle();
 
       expect(find.text('Old PC'), findsNothing);
@@ -507,7 +513,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Only one tile for this MAC should exist
-      expect(find.text('Second Label'), findsNWidgets(2));
+      expect(find.text('Second Label'), findsOneWidget);
       expect(find.text('First Label'), findsNothing);
     });
 
@@ -534,6 +540,8 @@ void main() {
       final wakeIcons = find.byIcon(Icons.power_settings_new);
       expect(wakeIcons, findsNWidgets(2));
 
+      await tester.ensureVisible(wakeIcons.last);
+      await tester.pumpAndSettle();
       await tester.tap(wakeIcons.last);
 
       await TestUtils.waitForAnyWidget(

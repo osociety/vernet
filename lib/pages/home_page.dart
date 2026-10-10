@@ -409,7 +409,9 @@ class _WifiDetailState extends State<HomePage> {
                               const SizedBox(height: 3),
                               const Divider(height: 3),
                               const SizedBox(height: 10),
-                              Row(
+                              Wrap(
+                                spacing: 5,
+                                runSpacing: 4,
                                 children: [
                                   ElevatedButton.icon(
                                     onPressed: () async {
@@ -427,7 +429,6 @@ class _WifiDetailState extends State<HomePage> {
                                     icon: const Icon(Icons.speed),
                                     label: const Text('Test internet speed'),
                                   ),
-                                  const SizedBox(width: 5),
                                   ElevatedButton.icon(
                                     onPressed: () {
                                       Navigator.push(

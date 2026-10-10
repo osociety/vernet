@@ -52,6 +52,7 @@ void main() {
           find.byKey(WidgetKey.reverseDnsLookupButton.key);
 
       // Emulate a tap on the button.
+      await tester.ensureVisible(reverseDnsLookupButton);
       await tester.tap(reverseDnsLookupButton);
       await tester.pumpAndSettle();
 
@@ -92,6 +93,7 @@ void main() {
           find.byKey(WidgetKey.reverseDnsLookupButton.key);
 
       // Emulate a tap on the button.
+      await tester.ensureVisible(reverseDnsLookupButton);
       await tester.tap(reverseDnsLookupButton);
       await tester.pumpAndSettle();
 
@@ -127,6 +129,7 @@ void main() {
           find.byKey(WidgetKey.reverseDnsLookupButton.key);
 
       // Emulate a tap on the button.
+      await tester.ensureVisible(reverseDnsLookupButton);
       await tester.tap(reverseDnsLookupButton);
       await tester.pumpAndSettle();
 

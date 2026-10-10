@@ -16,7 +16,9 @@ class AppSettings {
   int _lastSubnet = 254;
   int _socketTimeout = 500;
   int _pingCount = 5;
-  bool _inAppInternet = false;
+  // New installs allow optional internet-backed features by default. A saved
+  // value still takes precedence, so existing users keep their choice.
+  bool _inAppInternet = true;
   bool _runScanOnStartup = false;
   String _customSubnet = '';
 
@@ -100,7 +102,7 @@ class AppSettings {
 
     _inAppInternet =
         (await SharedPreferences.getInstance()).getBool(_inAppInternetKey) ??
-            _inAppInternet;
+            true;
     debugPrint("In-App Internet : $_inAppInternet");
 
     _runScanOnStartup =
@@ -188,6 +190,7 @@ class AppSettings {
     _lastSubnet = 254;
     _socketTimeout = 500;
     _pingCount = 5;
+    // Keep tests offline by default; individual tests can enable it explicitly.
     _inAppInternet = false;
     _runScanOnStartup = false;
     _customSubnet = '';
