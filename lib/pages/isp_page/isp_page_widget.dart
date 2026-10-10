@@ -48,7 +48,6 @@ class IspPageWidget extends StatelessWidget {
               client: client,
               childrens: [
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
                       height: 180,
@@ -77,33 +76,29 @@ class IspPageWidget extends StatelessWidget {
                                 .asMap()
                                 .entries
                                 .map((entry) {
-                                  final server = entry.value;
-                                  final isClosest = entry.key == 0;
-                                  return Marker(
-                                    point: LatLng(
-                                      server.latitude,
-                                      server.longitude,
-                                    ),
-                                    width: 36,
-                                    height: 36,
-                                    child: Tooltip(
-                                      message:
-                                          '${server.name}, ${server.country}',
-                                      child: Icon(
-                                        Icons.pin_drop,
-                                        size: 32,
-                                        color: isClosest
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                      ),
-                                    ),
-                                  );
-                                })
-                                .toList(),
+                              final server = entry.value;
+                              final isClosest = entry.key == 0;
+                              return Marker(
+                                point: LatLng(
+                                  server.latitude,
+                                  server.longitude,
+                                ),
+                                width: 36,
+                                height: 36,
+                                child: Tooltip(
+                                  message: '${server.name}, ${server.country}',
+                                  child: Icon(
+                                    Icons.pin_drop,
+                                    size: 32,
+                                    color: isClosest
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                           ),
                           Align(
                             alignment: Alignment.bottomRight,
@@ -114,7 +109,7 @@ class IspPageWidget extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                               child: const Text(
