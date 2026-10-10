@@ -163,7 +163,7 @@ void main() {
 
       // Should render map and server details
       expect(find.byType(FlutterMap), findsOneWidget);
-      expect(find.byIcon(Icons.pin_drop), findsOneWidget);
+      expect(find.byIcon(Icons.pin_drop), findsNWidgets(2));
       expect(find.text('Available test servers'), findsOneWidget);
       // tiles include name and country
       expect(find.text('Test Server 1, US'), findsOneWidget);

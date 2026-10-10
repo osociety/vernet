@@ -20,7 +20,7 @@ void main() {
       expect(settings.lastSubnet, 254);
       expect(settings.socketTimeout, 500);
       expect(settings.pingCount, 5);
-      expect(settings.inAppInternet, isFalse);
+      expect(settings.inAppInternet, isTrue);
       expect(settings.runScanOnStartup, isFalse);
       expect(settings.customSubnet, isEmpty);
       expect(settings.gatewayIP, isEmpty);
