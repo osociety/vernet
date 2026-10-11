@@ -44,13 +44,9 @@ void main() {
     await tester.tap(find.text('Save and start'));
     await tester.pumpAndSettle();
 
-    await tester.runAsync(() => Future<void>.delayed(
-          const Duration(milliseconds: 250),
-        ));
-    await tester.pump();
-
-    expect(find.text('Local test server'), findsOneWidget);
-    expect(find.textContaining('Reachable'), findsOneWidget);
+    // The name appears in both the monitor card and the editable field.
+    expect(find.text('Local test server'), findsAtLeastNWidgets(1));
+    await _waitForText(tester, find.textContaining('Reachable'));
     expect(
         find.textContaining('TCP port ${server.port} is open'), findsOneWidget);
 
@@ -86,14 +82,20 @@ void main() {
     await tester.tap(find.text('Save and start'));
     await tester.pumpAndSettle();
 
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 250)),
-    );
-    await tester.pump();
-
-    expect(find.textContaining('Unreachable'), findsOneWidget);
+    await _waitForText(tester, find.textContaining('Unreachable'));
     expect(find.text('Outages: 1'), findsOneWidget);
     expect(alerts, ['Unavailable host']);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+}
+
+Future<void> _waitForText(WidgetTester tester, Finder finder) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 10));
+  while (finder.evaluate().isEmpty && DateTime.now().isBefore(deadline)) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump();
+  }
+  expect(finder, findsOneWidget);
 }
