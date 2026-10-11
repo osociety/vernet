@@ -42,6 +42,11 @@ void _mockNetworkInfo() {
   );
 }
 
+Finder _savedDeviceLabel(String label) => find.byWidgetPredicate(
+      (widget) => widget is Text && widget.data == label,
+      description: 'saved device label "$label"',
+    );
+
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -395,9 +400,9 @@ void main() {
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
 
-      // The name appears once in the saved tile; the form field is editable
-      // text and is intentionally not matched by find.text().
-      expect(find.text('Gaming Rig'), findsOneWidget);
+      // The label is also present in the editable form field, so target the
+      // saved tile's Text widget specifically.
+      expect(_savedDeviceLabel('Gaming Rig'), findsOneWidget);
       // Placeholder should now be gone
       expect(find.text(StringValue.wakeOnLanEmptyPlaceholder), findsNothing);
     });
@@ -513,8 +518,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Only one tile for this MAC should exist
-      expect(find.text('Second Label'), findsOneWidget);
-      expect(find.text('First Label'), findsNothing);
+      expect(_savedDeviceLabel('Second Label'), findsOneWidget);
+      expect(_savedDeviceLabel('First Label'), findsNothing);
     });
 
     testWidgets('wake icon on saved tile sends a packet and shows status',
