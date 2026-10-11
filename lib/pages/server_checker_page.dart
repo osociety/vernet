@@ -61,6 +61,24 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     _start(monitor);
   }
 
+  Future<void> _editMonitor(ServerMonitor monitor) async {
+    final updated = await showDialog<ServerMonitor>(
+      context: context,
+      builder: (_) => _AddMonitorDialog(monitor: monitor),
+    );
+    if (updated == null) return;
+    final wasRunning = _running.contains(monitor.id);
+    _stop(monitor.id);
+    await _service.saveMonitor(updated);
+    if (!mounted) return;
+    setState(() {
+      _monitors = _monitors
+          .map((item) => item.id == updated.id ? updated : item)
+          .toList();
+    });
+    if (wasRunning) _start(updated);
+  }
+
   void _start(ServerMonitor monitor) {
     if (_running.contains(monitor.id)) return;
     setState(() => _running.add(monitor.id));
@@ -174,6 +192,11 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                                       '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
                                 ],
                               ),
+                            ),
+                            IconButton(
+                              tooltip: 'Edit server',
+                              onPressed: () => _editMonitor(monitor),
+                              icon: const Icon(Icons.edit_outlined),
                             ),
                             IconButton(
                               tooltip: _running.contains(monitor.id)
@@ -292,7 +315,9 @@ class _AvailabilityPainter extends CustomPainter {
 }
 
 class _AddMonitorDialog extends StatefulWidget {
-  const _AddMonitorDialog();
+  const _AddMonitorDialog({this.monitor});
+
+  final ServerMonitor? monitor;
 
   @override
   State<_AddMonitorDialog> createState() => _AddMonitorDialogState();
@@ -300,12 +325,24 @@ class _AddMonitorDialog extends StatefulWidget {
 
 class _AddMonitorDialogState extends State<_AddMonitorDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _name = TextEditingController();
-  final _host = TextEditingController();
-  final _port = TextEditingController();
-  final _text = TextEditingController();
-  ServerCheckType _type = ServerCheckType.icmp;
-  int _interval = 60;
+  late final TextEditingController _name;
+  late final TextEditingController _host;
+  late final TextEditingController _port;
+  late final TextEditingController _text;
+  late ServerCheckType _type;
+  late int _interval;
+
+  @override
+  void initState() {
+    super.initState();
+    final monitor = widget.monitor;
+    _name = TextEditingController(text: monitor?.name ?? '');
+    _host = TextEditingController(text: monitor?.host ?? '');
+    _port = TextEditingController(text: monitor?.port?.toString() ?? '');
+    _text = TextEditingController(text: monitor?.expectedText ?? '');
+    _type = monitor?.type ?? ServerCheckType.icmp;
+    _interval = monitor?.intervalSeconds ?? 60;
+  }
 
   @override
   void dispose() {
@@ -398,7 +435,8 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
               Navigator.pop(
                 context,
                 ServerMonitor(
-                  id: DateTime.now().microsecondsSinceEpoch.toString(),
+                  id: widget.monitor?.id ??
+                      DateTime.now().microsecondsSinceEpoch.toString(),
                   name: _name.text.trim(),
                   host: host,
                   type: _type,
@@ -410,7 +448,8 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
                 ),
               );
             },
-            child: const Text('Save and start'),
+            child: Text(
+                widget.monitor == null ? 'Save and start' : 'Save changes'),
           ),
         ],
       );

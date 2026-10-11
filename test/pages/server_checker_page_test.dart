@@ -96,6 +96,77 @@ void main() {
     expect(saved.expectedText, 'healthy');
   });
 
+  testWidgets('editing updates a running monitor and retains its history',
+      (tester) async {
+    var requests = 0;
+    final client = MockClient((request) async {
+      requests++;
+      return http.Response('healthy', 200);
+    });
+    addTearDown(client.close);
+    await tester.pumpWidget(MaterialApp(
+      home:
+          ServerCheckerPage(service: ServerMonitorService(httpClient: client)),
+    ));
+    await tester.tap(find.text('Add server'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'Original name');
+    await tester.enterText(find.byType(TextFormField).at(1), 'original.test');
+    await _selectType(tester, ServerCheckType.http);
+    await tester.enterText(find.byType(TextFormField).at(2), 'healthy');
+    await tester.tap(find.text('Save and start'));
+    await tester.pumpAndSettle();
+    await tester.pump();
+
+    final before = (await ServerMonitorService().loadMonitors()).single;
+    expect(await ServerMonitorService().loadHistory(before.id), hasLength(1));
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'Updated name');
+    await tester.enterText(find.byType(TextFormField).at(1), 'updated.test');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+    await tester.pump();
+
+    final after = (await ServerMonitorService().loadMonitors()).single;
+    expect(after.id, before.id);
+    expect(after.name, 'Updated name');
+    expect(after.host, 'updated.test');
+    expect(await ServerMonitorService().loadHistory(after.id), hasLength(2));
+    expect(requests, 2);
+    expect(find.byTooltip('Stop monitoring'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('editing a paused monitor leaves it paused', (tester) async {
+    final client = MockClient((_) async => http.Response('ok', 200));
+    addTearDown(client.close);
+    await tester.pumpWidget(MaterialApp(
+      home:
+          ServerCheckerPage(service: ServerMonitorService(httpClient: client)),
+    ));
+    await tester.tap(find.text('Add server'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'Paused');
+    await tester.enterText(find.byType(TextFormField).at(1), 'paused.test');
+    await _selectType(tester, ServerCheckType.http);
+    await tester.tap(find.text('Save and start'));
+    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.pause));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'Still paused');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Still paused'), findsOneWidget);
+    expect(find.byTooltip('Start monitoring'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('notifies once when checks go down and again after recovery',
       (tester) async {
     final responses = <int>[503, 503, 200, 503];
