@@ -17,6 +17,7 @@ import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
+import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
@@ -268,6 +269,19 @@ class _WifiDetailState extends State<HomePage> {
                         label: const Text('Check a website'),
                       ),
                       ElevatedButton.icon(
+                        key: WidgetKey.serverCheckerButton.key,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ServerCheckerPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.monitor_heart),
+                        label: _newFeatureLabel(context, 'Monitor Server'),
+                      ),
+                      ElevatedButton.icon(
                         key: WidgetKey.scanForOpenPortsButton.key,
                         onPressed: () {
                           Navigator.push(
@@ -292,7 +306,7 @@ class _WifiDetailState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(Icons.hub),
-                        label: const Text('Find switch ports'),
+                        label: _newFeatureLabel(context, 'Find Switch'),
                       ),
                       ElevatedButton.icon(
                         key: WidgetKey.wakeOnLanButton.key,
@@ -305,7 +319,7 @@ class _WifiDetailState extends State<HomePage> {
                           );
                         },
                         icon: const Icon(Icons.power_settings_new),
-                        label: const Text('Wake a device'),
+                        label: _newFeatureLabel(context, 'Wake on LAN'),
                       ),
                     ],
                   ),
@@ -476,4 +490,29 @@ class _WifiDetailState extends State<HomePage> {
       ),
     );
   }
+}
+
+Widget _newFeatureLabel(BuildContext context, String label) {
+  final colors = Theme.of(context).colorScheme;
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Text(label),
+      const SizedBox(width: 6),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: colors.tertiaryContainer,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          'NEW',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colors.onTertiaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+      ),
+    ],
+  );
 }

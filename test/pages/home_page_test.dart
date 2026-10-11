@@ -86,6 +86,28 @@ void main() {
       );
     });
 
+    testWidgets('highlights new home screen features', (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Monitor Server'), findsOneWidget);
+      expect(find.text('Wake on LAN'), findsOneWidget);
+      expect(find.text('Find Switch'), findsOneWidget);
+      expect(find.text('NEW'), findsNWidgets(3));
+      expect(find.byKey(WidgetKey.serverCheckerButton.key), findsOneWidget);
+      expect(find.byKey(WidgetKey.wakeOnLanButton.key), findsOneWidget);
+      expect(find.byKey(WidgetKey.neighborDiscoveryButton.key), findsOneWidget);
+    });
+
     testWidgets('renders DNS card with Lookup and Reverse Lookup buttons',
         (tester) async {
       when(() => mockNetworkInfo.getWifiIP())

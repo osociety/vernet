@@ -198,6 +198,29 @@ class NotificationService {
     );
   }
 
+  static Future<void> showServerDownAlert(String serverName) async {
+    if (Platform.isWindows && !debugIgnorePlatformCheck) return;
+    const details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'server_alerts',
+        'Server alerts',
+        channelDescription: 'Alerts when a monitored server is unreachable',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(),
+      macOS: DarwinNotificationDetails(),
+      linux: LinuxNotificationDetails(),
+    );
+    await flutterLocalNotificationsPlugin.show(
+      id: id++,
+      title: 'Server is unreachable',
+      body: '$serverName is down',
+      notificationDetails: details,
+      payload: 'server_checker',
+    );
+  }
+
   static Future<void> grantPermissions() async {
     if (Platform.isWindows && !debugIgnorePlatformCheck) {
       return await Future.value();
