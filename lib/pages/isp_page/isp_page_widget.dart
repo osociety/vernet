@@ -77,7 +77,10 @@ class IspPageWidget extends StatelessWidget {
                                 .entries
                                 .map((entry) {
                               final server = entry.value;
-                              final isClosest = entry.key == 0;
+                              final markerColor = _serverMarkerColor(
+                                Theme.of(context).colorScheme,
+                                entry.key,
+                              );
                               return Marker(
                                 point: LatLng(
                                   server.latitude,
@@ -90,11 +93,13 @@ class IspPageWidget extends StatelessWidget {
                                   child: Icon(
                                     Icons.pin_drop,
                                     size: 32,
-                                    color: isClosest
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
+                                    color: markerColor,
+                                    shadows: const [
+                                      Shadow(
+                                        color: Colors.white,
+                                        blurRadius: 5,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );
@@ -161,6 +166,18 @@ class IspPageWidget extends StatelessWidget {
       },
     );
   }
+}
+
+Color _serverMarkerColor(ColorScheme colorScheme, int index) {
+  final primary = HSLColor.fromColor(colorScheme.primary);
+  // Keep the app's primary hue for the closest server, then rotate the hue
+  // for other servers so markers remain distinct even in low-contrast themes.
+  final hue = (primary.hue + index * 137.5) % 360;
+  return primary
+      .withHue(hue)
+      .withSaturation(0.82)
+      .withLightness(0.38)
+      .toColor();
 }
 
 class IspPageContent extends StatelessWidget {
