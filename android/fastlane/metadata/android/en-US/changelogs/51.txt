@@ -1,0 +1,3 @@
+Added Server Checker for ICMP, TCP, HTTP, and HTTPS availability monitoring, including page text checks, history graphs, uptime and downtime statistics, and down alerts.
+Highlighted Monitor Server, Wake on LAN, and Find Switch on the home screen.
+Bug fixes and improvements.

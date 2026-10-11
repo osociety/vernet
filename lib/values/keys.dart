@@ -45,6 +45,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   homeButton('homeButton'),
   appleChip('appleChip'),
   neighborDiscoveryButton('neighborDiscoveryButton'),
+  serverCheckerButton('serverCheckerButton'),
   neighborSwitchIpField('neighborSwitchIpField'),
   neighborCommunityField('neighborCommunityField'),
   neighborCdpChip('neighborCdpChip'),
