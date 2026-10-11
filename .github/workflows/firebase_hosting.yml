@@ -10,6 +10,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy Firebase Hosting
+    if: github.event.repository.fork != true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
