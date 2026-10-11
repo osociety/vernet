@@ -109,7 +109,7 @@ jobs:
 
   approve-firebase-content:
     name: Approve Firebase Hosting content deployment
-    if: github.event_name == 'push' && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
+    if: github.event_name == 'push' && github.event.repository.fork != true && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
     needs:
       - detect-deployments
       - android-integration-tests
@@ -121,14 +121,14 @@ jobs:
 
   deploy-firebase-content:
     name: Deploy Firebase Hosting content changes
-    if: github.event_name == 'push' && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
+    if: github.event_name == 'push' && github.event.repository.fork != true && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
     needs: approve-firebase-content
     uses: ./.github/workflows/firebase_hosting.yml
     secrets: inherit
 
   publish-release:
     name: Approve and build release
-    if: github.event_name == 'push' && needs.detect-deployments.outputs.release == 'true'
+    if: github.event_name == 'push' && github.event.repository.fork != true && needs.detect-deployments.outputs.release == 'true'
     needs:
       - detect-deployments
       - android-integration-tests

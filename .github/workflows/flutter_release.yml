@@ -29,6 +29,7 @@ env:
 jobs:
   release-approval:
     name: Approve release promotion
+    if: github.event.repository.fork != true
     runs-on: ubuntu-latest
     environment: release
     env:
