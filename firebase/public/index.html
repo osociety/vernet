@@ -542,12 +542,8 @@
       <p>No technical jargon. No confusing setup. Just clear answers about what's connected and how well it's working.</p>
     </div>
     <div class="carousel-toolbar">
-      <p class="carousel-hint" id="feature-carousel-hint">Features rotate automatically. Swipe or use arrows to browse.</p>
+      <p class="carousel-hint" id="feature-carousel-hint">Advances every second. Hover to pause, or swipe or use arrows to browse.</p>
       <div class="carousel-controls" aria-label="Feature carousel controls">
-        <button type="button" data-carousel-toggle aria-label="Pause automatic feature rotation" aria-controls="feature-carousel" aria-pressed="true">
-          <svg data-pause-icon aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM15 5h3v14h-3z"/></svg>
-          <svg data-play-icon aria-hidden="true" viewBox="0 0 24 24" hidden><path d="m7 4 14 8-14 8z"/></svg>
-        </button>
         <button type="button" data-carousel-step="-1" aria-label="Previous feature" aria-controls="feature-carousel" disabled>
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
         </button>
@@ -731,13 +727,11 @@
   const featureCarousel = document.getElementById('feature-carousel');
   if (featureCarousel) {
     const carouselButtons = document.querySelectorAll('[data-carousel-step]');
-    const rotationButton = document.querySelector('[data-carousel-toggle]');
-    const pauseIcon = rotationButton.querySelector('[data-pause-icon]');
-    const playIcon = rotationButton.querySelector('[data-play-icon]');
+    const interactionTargets = [featureCarousel, document.querySelector('.carousel-toolbar')];
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let autoRotate = !reducedMotion.matches;
     let pointerInside = false;
     let focusInside = false;
+    let pointerDown = false;
     let rotationTimer;
 
     const updateCarouselButtons = () => {
@@ -760,11 +754,7 @@
 
     const updateRotation = () => {
       window.clearInterval(rotationTimer);
-      rotationButton.setAttribute('aria-label', autoRotate ? 'Pause automatic feature rotation' : 'Play automatic feature rotation');
-      rotationButton.setAttribute('aria-pressed', String(autoRotate));
-      pauseIcon.hidden = !autoRotate;
-      playIcon.hidden = autoRotate;
-      if (!autoRotate || pointerInside || focusInside) return;
+      if (reducedMotion.matches || pointerInside || focusInside || pointerDown) return;
 
       rotationTimer = window.setInterval(() => {
         const atEnd = featureCarousel.scrollLeft + featureCarousel.clientWidth >= featureCarousel.scrollWidth - 1;
@@ -773,57 +763,56 @@
         } else {
           scrollOneCard(1, reducedMotion.matches ? 'auto' : 'smooth');
         }
-      }, 4500);
+      }, 1000);
     };
 
-    rotationButton.addEventListener('click', () => {
-      autoRotate = !autoRotate;
-      updateRotation();
-    });
+    const isInsideInteractionTarget = target =>
+      interactionTargets.some(element => element.contains(target));
 
     carouselButtons.forEach(button => {
       button.addEventListener('click', () => {
-        autoRotate = false;
-        updateRotation();
         scrollOneCard(Number(button.dataset.carouselStep), reducedMotion.matches ? 'auto' : 'smooth');
       });
     });
 
     if (window.matchMedia('(hover: hover)').matches) {
-      featureCarousel.addEventListener('mouseenter', () => {
+      interactionTargets.forEach(element => element.addEventListener('mouseenter', () => {
         pointerInside = true;
         updateRotation();
-      });
-      featureCarousel.addEventListener('mouseleave', () => {
-        pointerInside = false;
+      }));
+      interactionTargets.forEach(element => element.addEventListener('mouseleave', event => {
+        pointerInside = isInsideInteractionTarget(event.relatedTarget);
         updateRotation();
-      });
+      }));
     }
 
-    featureCarousel.addEventListener('focusin', () => {
-      focusInside = true;
-      updateRotation();
-    });
-    featureCarousel.addEventListener('focusout', event => {
-      if (!featureCarousel.contains(event.relatedTarget)) {
-        focusInside = false;
+    interactionTargets.forEach(element => {
+      element.addEventListener('focusin', () => {
+        focusInside = true;
         updateRotation();
-      }
+      });
+      element.addEventListener('focusout', event => {
+        if (!isInsideInteractionTarget(event.relatedTarget)) {
+          focusInside = false;
+          updateRotation();
+        }
+      });
     });
     featureCarousel.addEventListener('pointerdown', () => {
-      autoRotate = false;
+      pointerDown = true;
       updateRotation();
     }, { passive: true });
-    featureCarousel.addEventListener('wheel', () => {
-      autoRotate = false;
+    window.addEventListener('pointerup', () => {
+      pointerDown = false;
+      updateRotation();
+    }, { passive: true });
+    window.addEventListener('pointercancel', () => {
+      pointerDown = false;
       updateRotation();
     }, { passive: true });
     featureCarousel.addEventListener('scroll', updateCarouselButtons, { passive: true });
     window.addEventListener('resize', updateCarouselButtons);
-    reducedMotion.addEventListener('change', event => {
-      if (event.matches) autoRotate = false;
-      updateRotation();
-    });
+    reducedMotion.addEventListener('change', updateRotation);
     updateCarouselButtons();
     updateRotation();
   }
