@@ -542,8 +542,12 @@
       <p>No technical jargon. No confusing setup. Just clear answers about what's connected and how well it's working.</p>
     </div>
     <div class="carousel-toolbar">
-      <p class="carousel-hint" id="feature-carousel-hint">Swipe or scroll to explore the tools</p>
+      <p class="carousel-hint" id="feature-carousel-hint">Features rotate automatically. Swipe or use arrows to browse.</p>
       <div class="carousel-controls" aria-label="Feature carousel controls">
+        <button type="button" data-carousel-toggle aria-label="Pause automatic feature rotation" aria-controls="feature-carousel" aria-pressed="true">
+          <svg data-pause-icon aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM15 5h3v14h-3z"/></svg>
+          <svg data-play-icon aria-hidden="true" viewBox="0 0 24 24" hidden><path d="m7 4 14 8-14 8z"/></svg>
+        </button>
         <button type="button" data-carousel-step="-1" aria-label="Previous feature" aria-controls="feature-carousel" disabled>
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
         </button>
@@ -552,7 +556,7 @@
         </button>
       </div>
     </div>
-    <div class="feature-carousel" id="feature-carousel" role="region" aria-label="Vernet features" aria-describedby="feature-carousel-hint" tabindex="0">
+    <div class="feature-carousel" id="feature-carousel" role="region" aria-roledescription="carousel" aria-label="Vernet features" aria-describedby="feature-carousel-hint" tabindex="0">
       <div class="card">
         <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></div>
         <h3>Wi-Fi details</h3>
@@ -727,6 +731,15 @@
   const featureCarousel = document.getElementById('feature-carousel');
   if (featureCarousel) {
     const carouselButtons = document.querySelectorAll('[data-carousel-step]');
+    const rotationButton = document.querySelector('[data-carousel-toggle]');
+    const pauseIcon = rotationButton.querySelector('[data-pause-icon]');
+    const playIcon = rotationButton.querySelector('[data-play-icon]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let autoRotate = !reducedMotion.matches;
+    let pointerInside = false;
+    let focusInside = false;
+    let rotationTimer;
+
     const updateCarouselButtons = () => {
       const atStart = featureCarousel.scrollLeft <= 1;
       const atEnd = featureCarousel.scrollLeft + featureCarousel.clientWidth >= featureCarousel.scrollWidth - 1;
@@ -735,23 +748,84 @@
       });
     };
 
+    const scrollOneCard = (direction, behavior) => {
+      const firstCard = featureCarousel.querySelector('.card');
+      if (!firstCard) return;
+      const gap = parseFloat(getComputedStyle(featureCarousel).columnGap) || 0;
+      featureCarousel.scrollBy({
+        left: (firstCard.getBoundingClientRect().width + gap) * direction,
+        behavior
+      });
+    };
+
+    const updateRotation = () => {
+      window.clearInterval(rotationTimer);
+      rotationButton.setAttribute('aria-label', autoRotate ? 'Pause automatic feature rotation' : 'Play automatic feature rotation');
+      rotationButton.setAttribute('aria-pressed', String(autoRotate));
+      pauseIcon.hidden = !autoRotate;
+      playIcon.hidden = autoRotate;
+      if (!autoRotate || pointerInside || focusInside) return;
+
+      rotationTimer = window.setInterval(() => {
+        const atEnd = featureCarousel.scrollLeft + featureCarousel.clientWidth >= featureCarousel.scrollWidth - 1;
+        if (atEnd) {
+          featureCarousel.scrollTo({ left: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+        } else {
+          scrollOneCard(1, reducedMotion.matches ? 'auto' : 'smooth');
+        }
+      }, 4500);
+    };
+
+    rotationButton.addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      updateRotation();
+    });
+
     carouselButtons.forEach(button => {
       button.addEventListener('click', () => {
-        const firstCard = featureCarousel.querySelector('.card');
-        if (!firstCard) return;
-        const gap = parseFloat(getComputedStyle(featureCarousel).columnGap) || 0;
-        const distance = firstCard.getBoundingClientRect().width + gap;
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        featureCarousel.scrollBy({
-          left: distance * Number(button.dataset.carouselStep),
-          behavior: reduceMotion ? 'auto' : 'smooth'
-        });
+        autoRotate = false;
+        updateRotation();
+        scrollOneCard(Number(button.dataset.carouselStep), reducedMotion.matches ? 'auto' : 'smooth');
       });
     });
 
+    if (window.matchMedia('(hover: hover)').matches) {
+      featureCarousel.addEventListener('mouseenter', () => {
+        pointerInside = true;
+        updateRotation();
+      });
+      featureCarousel.addEventListener('mouseleave', () => {
+        pointerInside = false;
+        updateRotation();
+      });
+    }
+
+    featureCarousel.addEventListener('focusin', () => {
+      focusInside = true;
+      updateRotation();
+    });
+    featureCarousel.addEventListener('focusout', event => {
+      if (!featureCarousel.contains(event.relatedTarget)) {
+        focusInside = false;
+        updateRotation();
+      }
+    });
+    featureCarousel.addEventListener('pointerdown', () => {
+      autoRotate = false;
+      updateRotation();
+    }, { passive: true });
+    featureCarousel.addEventListener('wheel', () => {
+      autoRotate = false;
+      updateRotation();
+    }, { passive: true });
     featureCarousel.addEventListener('scroll', updateCarouselButtons, { passive: true });
     window.addEventListener('resize', updateCarouselButtons);
+    reducedMotion.addEventListener('change', event => {
+      if (event.matches) autoRotate = false;
+      updateRotation();
+    });
     updateCarouselButtons();
+    updateRotation();
   }
 
   const releaseAssetSuffixes = {
