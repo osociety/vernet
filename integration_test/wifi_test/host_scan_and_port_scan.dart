@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,8 +10,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -19,6 +22,23 @@ import 'package:vernet/values/keys.dart';
 import '../settings/test_utils.dart';
 import '../test_port.dart' as test_port;
 import 'wifi_test_runner.dart' show clearDatabase;
+
+Future<void> _waitForScanToFinish() async {
+  final scanRepository = getIt<ScanRepository>();
+  final deadline = DateTime.now().add(const Duration(minutes: 3));
+  int? scanId;
+
+  while (DateTime.now().isBefore(deadline)) {
+    scanId ??= await getCurrentScanId();
+    if (scanId != null) {
+      final scan = await scanRepository.get(scanId);
+      if (scan != null && scan.onGoing == false) return;
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
+
+  throw TimeoutException('Device scan did not finish within 3 minutes');
+}
 
 void main() {
   globals.testingActive = true;
@@ -34,7 +54,8 @@ void main() {
       await configureNetworkToolsFlutter(appDocDirectory.path);
     }
     if (test_port.port == 0) {
-      server = await ServerSocket.bind(InternetAddress.anyIPv4, 0, shared: true);
+      server =
+          await ServerSocket.bind(InternetAddress.anyIPv4, 0, shared: true);
       test_port.port = server!.port;
       debugPrint("Opened port in this machine at ${test_port.port}");
     }
@@ -77,6 +98,11 @@ void main() {
       expect(find.byType(AdaptiveListTile), findsAny);
       await tester.pumpAndSettle(const Duration(seconds: 15));
       await tester.pump();
+
+      // Windows CI can take longer to finish host discovery. Keep the test
+      // from returning (and the next test clearing the DB) while inserts are
+      // still running in the scan service.
+      await _waitForScanToFinish();
 
       if (find.byType(AdaptiveListTile).evaluate().length < 2) {
         debugPrint(
