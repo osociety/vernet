@@ -1,0 +1,3 @@
+Added an IPv4 and IPv6 subnet calculator with network addresses, masks, ranges, and address counts.
+Updated the Vernet website to describe subnet calculation, server monitoring, Wake on LAN, and switch discovery.
+Bug fixes and improvements.
