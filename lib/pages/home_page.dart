@@ -380,7 +380,7 @@ class _WifiDetailState extends State<HomePage> {
                         icon: const Icon(Icons.account_tree),
                         label: _newFeatureLabel(
                           context,
-                          'Calculate an IP subnet',
+                          'Subnet calculator',
                         ),
                       ),
                     ],
