@@ -11,6 +11,7 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
+import 'device_detail/device_detail.dart' as device_detail_test;
 import 'dns/lookup/lookup.dart' as lookup_test;
 import 'dns/reverse_lookup/reverse_lookup.dart' as reverse_lookup;
 import 'home_page/home_page.dart' as home_page_test;
@@ -57,6 +58,7 @@ void main() {
   home_page_test.main();
   wake_on_lan_test.main();
   server_checker_test.main();
+  device_detail_test.main();
 
   tearDownAll(() {
     server.close();

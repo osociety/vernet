@@ -63,7 +63,13 @@ enum WidgetKey implements Comparable<WidgetKey> {
   wakeOnLanSendButton('wakeOnLanSendButton'),
   wakeOnLanSaveButton('wakeOnLanSaveButton'),
   wakeOnLanStatusText('wakeOnLanStatusText'),
-  ping('ping');
+  ping('ping'),
+  deviceDetailName('deviceDetailName'),
+  deviceDetailIp('deviceDetailIp'),
+  deviceDetailPortScanButton('deviceDetailPortScanButton'),
+  deviceDetailQuickScanButton('deviceDetailQuickScanButton'),
+  deviceDetailPingButton('deviceDetailPingButton'),
+  deviceDetailWolButton('deviceDetailWolButton');
 
   const WidgetKey(this.value);
   final String value;
