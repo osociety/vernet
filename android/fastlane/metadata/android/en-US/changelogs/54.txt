@@ -1,0 +1,2 @@
+Added Device Details screen to view device IP, MAC address, hostname, vendor, mDNS name, and open ports with quick actions for port scanning, ping, and Wake-on-LAN.
+Bug fixes and improvements.
