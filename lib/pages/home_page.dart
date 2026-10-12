@@ -18,6 +18,7 @@ import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dar
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/server_checker_page.dart';
+import 'package:vernet/pages/subnet_calculator_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
@@ -365,6 +366,22 @@ class _WifiDetailState extends State<HomePage> {
                         },
                         icon: const Icon(Icons.find_replace),
                         label: const Text('Find a device name'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const SubnetCalculatorPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.account_tree),
+                        label: _newFeatureLabel(
+                          context,
+                          'Subnet calculator',
+                        ),
                       ),
                     ],
                   ),

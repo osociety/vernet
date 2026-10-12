@@ -102,10 +102,31 @@ void main() {
       expect(find.text('Monitor Server'), findsOneWidget);
       expect(find.text('Wake on LAN'), findsOneWidget);
       expect(find.text('Find Switch'), findsOneWidget);
-      expect(find.text('NEW'), findsNWidgets(3));
+      expect(find.text('Subnet calculator'), findsOneWidget);
+      expect(find.text('NEW'), findsNWidgets(4));
       expect(find.byKey(WidgetKey.serverCheckerButton.key), findsOneWidget);
       expect(find.byKey(WidgetKey.wakeOnLanButton.key), findsOneWidget);
       expect(find.byKey(WidgetKey.neighborDiscoveryButton.key), findsOneWidget);
+    });
+
+    testWidgets('opens the subnet calculator from its home button',
+        (tester) async {
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.1.100');
+      when(() => mockNetworkInfo.getWifiBSSID())
+          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
+      when(() => mockNetworkInfo.getWifiName())
+          .thenAnswer((_) async => 'TestWiFi');
+      when(() => mockNetworkInfo.getWifiGatewayIP())
+          .thenAnswer((_) async => '192.168.1.1');
+
+      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Subnet calculator'));
+      await tester.tap(find.text('Subnet calculator'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('IP subnet calculator'), findsOneWidget);
     });
 
     testWidgets('renders DNS card with Lookup and Reverse Lookup buttons',
