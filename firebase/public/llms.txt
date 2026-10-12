@@ -1,10 +1,11 @@
 # Vernet
 
-> Vernet is a free and open-source network diagnostics app for discovering devices, monitoring servers, waking compatible devices, calculating IPv4 and IPv6 subnets, checking ports, testing internet speed, and using ping and DNS tools.
+> Vernet is a free and open-source network diagnostics app for discovering devices, viewing device details, monitoring servers, waking compatible devices, calculating IPv4 and IPv6 subnets, checking ports, testing internet speed, and using ping and DNS tools.
 
 ## Features
 
 - Discover devices on a Wi-Fi network and inspect switch neighbors with CDP and LLDP.
+- View detailed device information including IP, MAC address, hostname, vendor, mDNS names, and open ports.
 - Monitor ICMP, TCP, HTTP, and HTTPS server availability with history and down alerts.
 - Wake compatible devices with Wake on LAN.
 - Calculate IPv4 and IPv6 network addresses, masks, ranges, and subnet sizes from CIDR input.
