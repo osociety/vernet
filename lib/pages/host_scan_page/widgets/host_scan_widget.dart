@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
@@ -96,6 +97,14 @@ class HostScanWidget extends StatelessWidget {
                 subtitle: Text(
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DeviceDetailPage(device: host),
+                    ),
+                  );
+                },
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
