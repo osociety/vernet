@@ -115,3 +115,5 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/ports_lists.json
+    - assets/splash11/splash_light/ic_launcher_round.png
+    - assets/splash11/splash_dark/ic_launcher_round.png

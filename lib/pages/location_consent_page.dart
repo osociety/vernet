@@ -15,6 +15,10 @@ class LocationConsentPage extends StatefulWidget {
 class _LocationConsentPageState extends State<LocationConsentPage> {
   @override
   Widget build(BuildContext context) {
+    final splashIcon = Theme.of(context).brightness == Brightness.dark
+        ? 'assets/splash11/splash_dark/ic_launcher_round.png'
+        : 'assets/splash11/splash_light/ic_launcher_round.png';
+
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -27,10 +31,12 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 const SizedBox(height: 15),
                 Text(
                   'Vernet',
-                  style: Theme.of(context).textTheme.displayLarge,
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const Icon(Icons.radar, size: 100),
+                Image.asset(splashIcon, width: 160, height: 160),
                 const SizedBox(height: 10),
                 const Padding(
                   padding: EdgeInsets.only(left: 50, right: 50),
