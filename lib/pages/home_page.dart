@@ -214,7 +214,7 @@ class _WifiDetailState extends State<HomePage> {
                           ),
                         const SizedBox(height: 5),
                         Text(
-                          "Signal Strength: ${wifiInfo.metrics.rawRssi} dBm",
+                          "${StringValue.signalStrength}: ${wifiInfo.metrics.rawRssi} ${StringValue.signalStrengthUnit}",
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall!.copyWith(

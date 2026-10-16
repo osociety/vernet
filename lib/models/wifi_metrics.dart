@@ -9,7 +9,7 @@ class WifiNetworkMetrics {
   });
   factory WifiNetworkMetrics.disconnected() {
     return const WifiNetworkMetrics(
-      rawRssi: null,
+      rawRssi: 0,
       normalizedLevel: 0,
       statusMessage: "Disconnected / Unknown State",
     );
