@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:signal_strength_indicator/signal_strength_indicator.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/wifi_info.dart';
+import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
@@ -21,6 +23,7 @@ import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/subnet_calculator_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/repository/wifi_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
@@ -64,14 +67,9 @@ class _WifiDetailState extends State<HomePage> {
         : (wifiGatewayIP ?? wifiIP) ?? '';
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
-    _wifiInfo = WifiInfo(
-      wifiIP,
-      wifiBSSID,
-      wifiName,
-      wifiName == null,
-      gatewayIp,
-      isLocationOn,
-    );
+    final metrics = await WifiRepository.fetchWifiMetrics();
+    _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null,
+        gatewayIp, isLocationOn, metrics);
 
     if (appSettings.runScanOnStartup && wifiIP != null) {
       getIt<DeviceScannerService>()
@@ -177,7 +175,8 @@ class _WifiDetailState extends State<HomePage> {
           Card(
             child: FutureBuilder<WifiInfo?>(
               future: _getWifiInfo(),
-              initialData: WifiInfo(null, null, null, true, '', false),
+              initialData: WifiInfo(null, null, null, true, '', false,
+                  WifiNetworkMetrics.disconnected()),
               builder: (
                 BuildContext context,
                 AsyncSnapshot<WifiInfo?> snapshot,
@@ -186,8 +185,16 @@ class _WifiDetailState extends State<HomePage> {
                   final wifiInfo = snapshot.data;
                   return AdaptiveListTile(
                     minVerticalPadding: 10,
-                    leading: const Icon(Icons.router),
-                    title: Text(wifiInfo!.name),
+                    leading: SignalStrengthIndicator.sector(
+                      value: wifiInfo!.metrics.normalizedLevel,
+                      size: 25,
+                      minValue: 0,
+                      maxValue: 1.0,
+                      activeColor: Theme.of(context).iconTheme.color,
+                      inactiveColor:
+                          Theme.of(context).iconTheme.color!.withAlpha(100),
+                    ),
+                    title: Text(wifiInfo.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -205,6 +212,16 @@ class _WifiDetailState extends State<HomePage> {
                                       Theme.of(context).colorScheme.secondary,
                                 ),
                           ),
+                        const SizedBox(height: 5),
+                        Text(
+                          "${StringValue.signalStrength}: ${wifiInfo.metrics.rawRssi} ${StringValue.signalStrengthUnit}",
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall!.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                        ),
+                        const SizedBox(height: 5),
                         const Divider(height: 3),
                         const SizedBox(height: 10),
                         Wrap(

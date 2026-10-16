@@ -1,17 +1,14 @@
+import 'package:vernet/models/wifi_metrics.dart';
+
 class WifiInfo {
-  WifiInfo(
-    this._ip,
-    this._bssid,
-    this._name,
-    this.unknown,
-    this.gatewayIp,
-    this.isLocationOn,
-  );
+  WifiInfo(this._ip, this._bssid, this._name, this.unknown, this.gatewayIp,
+      this.isLocationOn, this.metrics);
 
   static Set<String> defaultBSSID = {'00:00:00:00:00:00'};
   final String? _bssid;
   final String? _ip;
   final String? _name;
+  final WifiNetworkMetrics metrics;
   bool unknown;
   String get ip => _ip ?? 'x.x.x.x';
   int totalDevices = 0;
