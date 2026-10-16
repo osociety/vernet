@@ -36,7 +36,7 @@ dependencies:
   # A simple yet fully customizable rating bar for flutter
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
-  flutter_timezone: ^5.1.0
+  flutter_timezone: ^5.1.1
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
@@ -50,7 +50,7 @@ dependencies:
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.12.0
   latlong2: ^0.9.1
-  network_info_plus: ^8.2.1
+  network_info_plus: ^8.2.2
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^3.0.4
   # Querying information about the application package, such as CFBundleVersion
@@ -66,9 +66,9 @@ dependencies:
   # RxDart extends the capabilities of Dart Streams and StreamControllers.
   rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
-  shared_preferences: ^2.5.5
+  shared_preferences: ^2.5.6
   # Multiplatform safe UI Canvas Asset
-  signal_strength_indicator: ^0.5.0 
+  signal_strength_indicator: ^0.5.0
   # Flutter package to test ping, upload, download using speedtest.net
   speed_test_dart:
     git:
