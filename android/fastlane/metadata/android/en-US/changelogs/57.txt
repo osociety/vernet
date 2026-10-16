@@ -1,0 +1,2 @@
+Added signal strength for Wifi.
+Bug fixes and improvements.
