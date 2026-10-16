@@ -1240,6 +1240,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  signal_strength_indicator:
+    dependency: "direct main"
+    description:
+      name: signal_strength_indicator
+      sha256: "84e0746a6981649d5759a4c2231dcd79f088524bf75d51f0d0d9de4ce20032b2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   simple_sparse_list:
     dependency: transitive
     description:
@@ -1582,6 +1590,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
+  wifi_plus:
+    dependency: "direct main"
+    description:
+      name: wifi_plus
+      sha256: f2989cc9d2a43b0bf6f5ddd9dff477dfb04b24eb8c8d403c412b6e585228fa85
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
+  wifi_signal_strength_indicator:
+    dependency: "direct main"
+    description:
+      name: wifi_signal_strength_indicator
+      sha256: f09c065e4cbe2afc3330ba0cd848f3a6ad8bf34ae1bd5d4b896122f0a732e217
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   win32:
     dependency: transitive
     description:
