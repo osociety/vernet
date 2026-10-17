@@ -264,6 +264,16 @@ jobs:
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
+      # Installs nuget.exe natively and automatically adds it to the system PATH
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+        with:
+          nuget-version: 'latest'
+
+      # Verify it works
+      - name: Verify NuGet
+        run: nuget
+
       - name: Build windows release
         run: flutter build windows --release
 
