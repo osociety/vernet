@@ -264,6 +264,17 @@ jobs:
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
+      - name: Install SQLite DLL
+        run: |
+          # 1. Download precompiled SQLite binaries via chocolatey
+          choco install sqlite -y
+          
+          # 2. Create the output folder ahead of time
+          mkdir -p build/windows/x64/runner/Release
+          
+          # 3. Copy the DLL from the installation path to your build path
+          cp C:\ProgramData\chocolatey\lib\sqlite\tools\sqlite3.dll build/windows/x64/runner/Release/
+
       - name: Build windows release
         run: flutter build windows --release
 
