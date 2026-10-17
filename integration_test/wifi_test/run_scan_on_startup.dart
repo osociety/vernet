@@ -46,6 +46,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapSettingsButton(tester, find);
+      print('Tap settings button');
 
       await TestUtils.tapByWidgetKey(
         WidgetKey.runOnAppStartupSwitch,
@@ -61,9 +62,9 @@ void main() {
 
       await TestUtils.waitForWidget(
         tester,
-        find.byKey(WidgetKey.runScanOnStartup.key),
+        find.textContaining('devices connected'),
       );
-      expect(find.byKey(WidgetKey.runScanOnStartup.key), findsOne);
+      expect(find.textContaining('devices connected'), findsOne);
     });
   });
 }
