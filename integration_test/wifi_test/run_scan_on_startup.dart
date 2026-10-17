@@ -46,7 +46,6 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapSettingsButton(tester, find);
-      print('Tap settings button');
 
       await TestUtils.tapByWidgetKey(
         WidgetKey.runOnAppStartupSwitch,
