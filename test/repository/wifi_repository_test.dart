@@ -30,18 +30,18 @@ void main() {
     });
 
     test('getDiagnosticString returns accurate diagnostic descriptions', () {
-      expect(WifiRepository.getDiagnosticString(-50), 'Excellent Connection');
-      expect(WifiRepository.getDiagnosticString(-55), 'Excellent Connection');
-      expect(WifiRepository.getDiagnosticString(-60), 'Good, Stable Signal');
-      expect(WifiRepository.getDiagnosticString(-67), 'Good, Stable Signal');
-      expect(WifiRepository.getDiagnosticString(-68), 'Fair Connection');
-      expect(WifiRepository.getDiagnosticString(-75), 'Fair Connection');
-      expect(WifiRepository.getDiagnosticString(-78), 'Fair Connection');
-      expect(WifiRepository.getDiagnosticString(-79), 'Weak Connection');
-      expect(WifiRepository.getDiagnosticString(-90), 'Weak Connection');
+      expect(WifiRepository.getDiagnosticString(-50), 'Excellent');
+      expect(WifiRepository.getDiagnosticString(-55), 'Excellent');
+      expect(WifiRepository.getDiagnosticString(-60), 'Good');
+      expect(WifiRepository.getDiagnosticString(-67), 'Good');
+      expect(WifiRepository.getDiagnosticString(-68), 'Fair');
+      expect(WifiRepository.getDiagnosticString(-75), 'Fair');
+      expect(WifiRepository.getDiagnosticString(-78), 'Fair');
+      expect(WifiRepository.getDiagnosticString(-79), 'Weak');
+      expect(WifiRepository.getDiagnosticString(-90), 'Weak');
       expect(
         WifiRepository.getDiagnosticString(-95),
-        'Critically Low / Drop Out Risk',
+        'Critically Low',
       );
     });
   });

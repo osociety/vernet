@@ -126,10 +126,10 @@ class WifiRepository {
   /// Evaluates specific networking thresholds for user diagnosis
   @visibleForTesting
   static String getDiagnosticString(int rssi) {
-    if (rssi >= -55) return "Excellent Connection";
-    if (rssi >= -67) return "Good, Stable Signal";
-    if (rssi >= -78) return "Fair Connection";
-    if (rssi >= -90) return "Weak Connection";
-    return "Critically Low / Drop Out Risk";
+    if (rssi >= -55) return "Excellent";
+    if (rssi >= -67) return "Good";
+    if (rssi >= -78) return "Fair";
+    if (rssi >= -90) return "Weak";
+    return "Critically Low";
   }
 }

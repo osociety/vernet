@@ -262,10 +262,11 @@ class _WifiDetailState extends State<HomePage> {
                               key: WidgetKey.scanForDevicesButton.key,
                               icon: scanRunning
                                   ? const SizedBox(
-                                      height: 30,
-                                      width: 30,
-                                      child:
-                                          AdaptiveCircularProgressIndicator(),
+                                      height: 20,
+                                      width: 20,
+                                      child: AdaptiveCircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
                                     )
                                   : null,
                               onPressed: () {
