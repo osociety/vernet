@@ -182,18 +182,29 @@ class _WifiDetailState extends State<HomePage> {
                 AsyncSnapshot<WifiInfo?> snapshot,
               ) {
                 if (snapshot.hasData && snapshot.data != null) {
-                  final wifiInfo = snapshot.data;
+                  final wifiInfo = snapshot.data!;
+                  final level = wifiInfo.metrics.normalizedLevel.clamp(0, 4);
                   return AdaptiveListTile(
                     minVerticalPadding: 10,
-                    leading: SignalStrengthIndicator.sector(
-                      value: wifiInfo!.metrics.normalizedLevel,
-                      size: 25,
-                      minValue: 0,
-                      maxValue: 1.0,
-                      activeColor: Theme.of(context).iconTheme.color,
-                      inactiveColor:
-                          Theme.of(context).iconTheme.color!.withAlpha(100),
-                    ),
+                    leading: level <= 0
+                        ? Icon(
+                            Icons.wifi_off,
+                            size: 25,
+                            color: Theme.of(context)
+                                .iconTheme
+                                .color!
+                                .withAlpha(100),
+                          )
+                        : SignalStrengthIndicator.sector(
+                            value: (level - 0.5) / 4,
+                            size: 25,
+                            barCount: 4,
+                            minValue: 0,
+                            maxValue: 1.0,
+                            activeColor: Theme.of(context).iconTheme.color,
+                            inactiveColor:
+                                Theme.of(context).iconTheme.color!.withAlpha(100),
+                          ),
                     title: Text(wifiInfo.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +225,9 @@ class _WifiDetailState extends State<HomePage> {
                           ),
                         const SizedBox(height: 5),
                         Text(
-                          "${StringValue.signalStrength}: ${wifiInfo.metrics.rawRssi} ${StringValue.signalStrengthUnit}",
+                          wifiInfo.metrics.rawRssi != null && level > 0
+                              ? "${StringValue.signalStrength}: ${wifiInfo.metrics.statusMessage} (${wifiInfo.metrics.rawRssi} ${StringValue.signalStrengthUnit})"
+                              : "${StringValue.signalStrength}: ${wifiInfo.metrics.statusMessage}",
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall!.copyWith(
