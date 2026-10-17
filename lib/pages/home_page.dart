@@ -264,8 +264,9 @@ class _WifiDetailState extends State<HomePage> {
                                   ? const SizedBox(
                                       height: 20,
                                       width: 20,
-                                      child:
-                                          AdaptiveCircularProgressIndicator(),
+                                      child: AdaptiveCircularProgressIndicator(
+                                        strokeWidth: 3,
+                                      ),
                                     )
                                   : null,
                               onPressed: () {
