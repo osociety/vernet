@@ -17,5 +17,10 @@ void main() {
     }
     // compareTo consistency
     expect(WidgetKey.appleChip.compareTo(WidgetKey.homeButton), lessThan(0));
+    expect(WidgetKey.pingSummaryMin.value, 'pingSummaryMin');
+    expect(WidgetKey.pingSummaryAvg.value, 'pingSummaryAvg');
+    expect(WidgetKey.pingSummaryMax.value, 'pingSummaryMax');
+    expect(WidgetKey.pingSummaryStdDev.value, 'pingSummaryStdDev');
+    expect(WidgetKey.pingSummaryPacketLoss.value, 'pingSummaryPacketLoss');
   });
 }

@@ -181,10 +181,10 @@ packages:
     dependency: transitive
     description:
       name: code_assets
-      sha256: cfd4f5f575a49c5f10ca856e9846073f1e6c3ee94912377eea5f6cefc5272941
+      sha256: bf394f466ba9205f1812a0433b392d6af280f155f56651eda7c18cc32ed493b8
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "1.2.1"
   code_builder:
     dependency: transitive
     description:
@@ -253,18 +253,10 @@ packages:
     dependency: "direct main"
     description:
       name: dart_ping
-      sha256: "2f5418d0a5c64e53486caaac78677b25725b1e13c33c5be834ce874ea18bd24f"
+      sha256: "91b45954dbb7f3dc51633ba0c1b939df9dbe141f083d047fc87cfb5932e59f38"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.1"
-  dart_ping_ios:
-    dependency: transitive
-    description:
-      name: dart_ping_ios
-      sha256: "17df1b369331ec6c30a91a51db64ac8feed47fad71e444208de06edf2a22415f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.2"
+    version: "10.0.1"
   dart_polylabel2:
     dependency: transitive
     description:
@@ -387,14 +379,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_icmp_ping:
-    dependency: transitive
-    description:
-      name: flutter_icmp_ping
-      sha256: de9633cf65a8c733fae29d08a35d3d4b343620cd1d13e1bfa88eccf56696d896
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.3"
   flutter_isolate:
     dependency: "direct overridden"
     description:
@@ -812,10 +796,10 @@ packages:
     dependency: transitive
     description:
       name: native_toolchain_c
-      sha256: "9d233b6f2d9c52e1a2b5fbe70451d2c10ac674d3bb419d0ec8de14989d437c26"
+      sha256: a1c26117c48cebe5677b0cf0e33a980a79a7c5577effc86f52e5a0d309cdcb60
       url: "https://pub.dev"
     source: hosted
-    version: "0.19.4"
+    version: "0.19.3"
   nested:
     dependency: transitive
     description:
@@ -844,18 +828,18 @@ packages:
     dependency: transitive
     description:
       name: network_tools
-      sha256: "524c667e906b8527908ce37fc2d4071eb30aede18f39207fc6b538eb76d4d351"
+      sha256: d7f1ca7204060b4267d81a9f813f7c1c45f1484fbe660acd8941c4bcd093a820
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.9"
+    version: "6.0.10"
   network_tools_flutter:
     dependency: "direct main"
     description:
       name: network_tools_flutter
-      sha256: ecae6114e5cce0acf1247adf59cc3d8d6d39acf9c4a4e2142bfdee2a44f657bb
+      sha256: "749e9bf41e9305f9a54105c51c1b8ccd291c435993ecc9f0f051637904f86112"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.4"
+    version: "3.0.5"
   nm:
     dependency: transitive
     description:
@@ -916,10 +900,10 @@ packages:
     dependency: transitive
     description:
       name: objective_c
-      sha256: ad56fd53a78ff6b1472fa59ff2a4e8b8ccabafc586fc263a1dfad0b99b5553e3
+      sha256: b7fb95a6d9a4f009edd63dc5ac69f07420b23a16161c6dd8660290b59c602e8e
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "9.5.0"
   package_config:
     dependency: transitive
     description:
