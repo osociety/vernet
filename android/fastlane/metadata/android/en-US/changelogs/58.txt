@@ -1,0 +1,3 @@
+Added Wifi Signal Strength.
+Added more metrics for Ping.
+Bug fixes and improvements.
