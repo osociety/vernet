@@ -1,4 +1,7 @@
-# Vernet
+<h1 align="center">
+  <img src="firebase/public/favicon-64.png" height="45" style="vertical-align: middle;">
+  Vernet
+</h1>
 
 Vernet - Know your network
 

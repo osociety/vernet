@@ -184,9 +184,9 @@ class ServerMonitorService {
 
   static Future<Duration?> _ping(String host) async {
     final ping = Ping(host, count: 1, timeout: 3);
-    final data = await ping.stream
-        .firstWhere((event) => event.response != null)
-        .timeout(const Duration(seconds: 5));
-    return data.response?.time;
+    final event = await ping.stream
+        .firstWhere((event) => event is PingResponse)
+        .timeout(const Duration(seconds: 5)) as PingResponse;
+    return event.time;
   }
 }
