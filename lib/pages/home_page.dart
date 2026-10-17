@@ -41,12 +41,15 @@ class HomePage extends StatefulWidget {
 
 class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
+  Future<WifiInfo?>? _wifiInfoFuture;
+  bool _isRefreshingWifi = false;
+  bool _hasRunStartupScan = false;
   bool scanRunning = false;
   Set<DeviceData> devices = {};
   SpeedTestDart tester = SpeedTestDart();
 
-  Future<WifiInfo?> _getWifiInfo() async {
-    if (_wifiInfo != null) {
+  Future<WifiInfo?> _getWifiInfo({bool force = false}) async {
+    if (_wifiInfo != null && !force) {
       return _wifiInfo;
     }
     if (Platform.isAndroid) {
@@ -71,13 +74,16 @@ class _WifiDetailState extends State<HomePage> {
     _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null,
         gatewayIp, isLocationOn, metrics);
 
-    if (appSettings.runScanOnStartup && wifiIP != null) {
+    if (appSettings.runScanOnStartup && wifiIP != null && !_hasRunStartupScan) {
+      setState(() {
+        _hasRunStartupScan = true;
+        scanRunning = true;
+      });
       getIt<DeviceScannerService>()
           .startNewScan(_wifiInfo!.subnet, wifiIP, gatewayIp)
           .listen((device) {
         if (mounted) {
           setState(() {
-            scanRunning = true;
             devices.add(device);
           });
         }
@@ -92,6 +98,25 @@ class _WifiDetailState extends State<HomePage> {
     }
 
     return _wifiInfo;
+  }
+
+  Future<void> _refreshWifiInfo() async {
+    if (_isRefreshingWifi) return;
+    setState(() {
+      devices.clear();
+      _hasRunStartupScan = false;
+      _isRefreshingWifi = true;
+    });
+    try {
+      _wifiInfoFuture = _getWifiInfo(force: true);
+      await _wifiInfoFuture;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefreshingWifi = false;
+        });
+      }
+    }
   }
 
   void _configureSelectNotificationSubject() {
@@ -112,30 +137,8 @@ class _WifiDetailState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _refreshWifiInfo();
     _configureSelectNotificationSubject();
-  }
-
-  Widget _getDeviceCountWidget() {
-    if (appSettings.runScanOnStartup) {
-      return Row(
-        key: WidgetKey.runScanOnStartup.key,
-        children: [
-          Text(
-            '${devices.length} devices ${scanRunning ? 'found' : 'connected'}',
-          ),
-          const SizedBox(width: 8),
-          if (scanRunning)
-            const SizedBox(
-              height: 30,
-              width: 30,
-              child: AdaptiveCircularProgressIndicator(),
-            )
-          else
-            const SizedBox(),
-        ],
-      );
-    }
-    return const SizedBox();
   }
 
   Widget _buildWifiFallback(BuildContext context) {
@@ -147,17 +150,29 @@ class _WifiDetailState extends State<HomePage> {
         spacing: 4,
         runSpacing: 4,
         children: [
-          _getDeviceCountWidget(),
-          ElevatedButton(
+          ElevatedButton.icon(
             key: WidgetKey.scanForDevicesButton.key,
+            icon: scanRunning
+                ? const SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: AdaptiveCircularProgressIndicator(),
+                  )
+                : null,
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HostScanPage()),
+                MaterialPageRoute(
+                  builder: (context) => HostScanPage(),
+                ),
               );
             },
-            child: const Text(StringValue.hostScanPageTitle),
-          ),
+            label: Text(
+              appSettings.runScanOnStartup
+                  ? '${devices.length} devices ${scanRunning ? 'found' : 'connected'}'
+                  : StringValue.hostScanPageTitle,
+            ),
+          )
         ],
       ),
       trailing: IconButton(
@@ -182,18 +197,31 @@ class _WifiDetailState extends State<HomePage> {
                 AsyncSnapshot<WifiInfo?> snapshot,
               ) {
                 if (snapshot.hasData && snapshot.data != null) {
-                  final wifiInfo = snapshot.data;
+                  final wifiInfo = snapshot.data!;
+                  final level = wifiInfo.metrics.normalizedLevel.clamp(0, 4);
                   return AdaptiveListTile(
                     minVerticalPadding: 10,
-                    leading: SignalStrengthIndicator.sector(
-                      value: wifiInfo!.metrics.normalizedLevel,
-                      size: 25,
-                      minValue: 0,
-                      maxValue: 1.0,
-                      activeColor: Theme.of(context).iconTheme.color,
-                      inactiveColor:
-                          Theme.of(context).iconTheme.color!.withAlpha(100),
-                    ),
+                    leading: level <= 0
+                        ? Icon(
+                            Icons.wifi_off,
+                            size: 25,
+                            color: Theme.of(context)
+                                .iconTheme
+                                .color!
+                                .withAlpha(100),
+                          )
+                        : SignalStrengthIndicator.sector(
+                            value: (level - 0.5) / 4,
+                            size: 25,
+                            barCount: 4,
+                            minValue: 0,
+                            maxValue: 1.0,
+                            activeColor: Theme.of(context).iconTheme.color,
+                            inactiveColor: Theme.of(context)
+                                .iconTheme
+                                .color!
+                                .withAlpha(100),
+                          ),
                     title: Text(wifiInfo.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +242,9 @@ class _WifiDetailState extends State<HomePage> {
                           ),
                         const SizedBox(height: 5),
                         Text(
-                          "${StringValue.signalStrength}: ${wifiInfo.metrics.rawRssi} ${StringValue.signalStrengthUnit}",
+                          wifiInfo.metrics.rawRssi != null && level > 0
+                              ? "${StringValue.signalStrength}: ${wifiInfo.metrics.statusMessage} (${wifiInfo.metrics.rawRssi} ${StringValue.signalStrengthUnit})"
+                              : "${StringValue.signalStrength}: ${wifiInfo.metrics.statusMessage}",
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall!.copyWith(
@@ -228,9 +258,16 @@ class _WifiDetailState extends State<HomePage> {
                           spacing: 4,
                           runSpacing: 4,
                           children: [
-                            _getDeviceCountWidget(),
-                            ElevatedButton(
+                            ElevatedButton.icon(
                               key: WidgetKey.scanForDevicesButton.key,
+                              icon: scanRunning
+                                  ? const SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child:
+                                          AdaptiveCircularProgressIndicator(),
+                                    )
+                                  : null,
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -239,7 +276,11 @@ class _WifiDetailState extends State<HomePage> {
                                   ),
                                 );
                               },
-                              child: const Text(StringValue.hostScanPageTitle),
+                              label: Text(
+                                appSettings.runScanOnStartup
+                                    ? '${devices.length} devices ${scanRunning ? 'found' : 'connected'}'
+                                    : StringValue.hostScanPageTitle,
+                              ),
                             ),
                           ],
                         ),
@@ -247,9 +288,7 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.refresh),
-                      onPressed: () {
-                        _getWifiInfo();
-                      },
+                      onPressed: _refreshWifiInfo,
                     ),
                   );
                 } else if (snapshot.hasError) {

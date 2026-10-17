@@ -46,7 +46,8 @@ void main() {
       await configureNetworkToolsFlutter(appDocDirectory.path);
     }
     if (test_port.port == 0) {
-      server = await ServerSocket.bind(InternetAddress.anyIPv4, 0, shared: true);
+      server =
+          await ServerSocket.bind(InternetAddress.anyIPv4, 0, shared: true);
       test_port.port = server!.port;
       debugPrint("Opened port in this machine at ${test_port.port}");
     }

@@ -61,9 +61,9 @@ void main() {
 
       await TestUtils.waitForWidget(
         tester,
-        find.byKey(WidgetKey.runScanOnStartup.key),
+        find.textContaining('devices connected'),
       );
-      expect(find.byKey(WidgetKey.runScanOnStartup.key), findsOne);
+      expect(find.textContaining('devices connected'), findsOne);
     });
   });
 }
