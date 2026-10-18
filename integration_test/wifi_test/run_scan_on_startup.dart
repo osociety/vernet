@@ -56,9 +56,10 @@ void main() {
 
       await TestUtils.tapHomeButton(tester, find);
 
-      // pump with a longer timeout to rebuild HomePage after navigation
-      // and allow platform channels to respond
-      await tester.pumpAndSettle(const Duration(seconds: 10));
+      // The scan may finish before this assertion (and can legitimately find
+      // zero devices on CI), so wait for the dashboard's startup state rather
+      // than requiring an active scan or a non-zero result.
+      await tester.pump(const Duration(milliseconds: 500));
 
       final startupScanStatus = find.byWidgetPredicate(
         (widget) =>
@@ -67,7 +68,11 @@ void main() {
                 widget.data?.contains('devices found') == true),
         description: 'startup scan status on the dashboard',
       );
-      await TestUtils.waitForAnyWidget(tester, startupScanStatus);
+      await TestUtils.waitForAnyWidget(
+        tester,
+        startupScanStatus,
+        timeout: const Duration(seconds: 30),
+      );
     });
   });
 }
