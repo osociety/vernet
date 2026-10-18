@@ -18,6 +18,7 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/services/isp_lookup_service.dart';
+import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/speed_test_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
@@ -187,6 +188,15 @@ class _WifiDetailState extends State<HomePage> {
                       ),
                 ),
               ),
+              if (scanRunning) ...[
+                const SizedBox(width: 8),
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: AdaptiveCircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: 8),
+              ],
               _StatusPill(
                 label: connected ? 'CONNECTED' : 'NOT CONNECTED',
                 color: connected ? colors.primary : colors.error,
