@@ -540,13 +540,13 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
-      // Two power_settings_new icons: one in form, one on tile trailing
-      final wakeIcons = find.byIcon(Icons.power_settings_new);
-      expect(wakeIcons, findsNWidgets(2));
-
-      await tester.ensureVisible(wakeIcons.last);
+      // Scope the action to the saved target. The app shell and form also
+      // contain power icons, so a global icon count is brittle.
+      final wakeSavedTarget = find.byTooltip('Wake this device');
+      expect(wakeSavedTarget, findsOneWidget);
+      await tester.ensureVisible(wakeSavedTarget);
       await tester.pumpAndSettle();
-      await tester.tap(wakeIcons.last);
+      await tester.tap(wakeSavedTarget);
 
       await TestUtils.waitForAnyWidget(
         tester,
