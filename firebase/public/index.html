@@ -141,20 +141,33 @@
 
   /* Screens strip */
   .screens {
-    display: flex; gap: 22px; justify-content: center; margin-top: 24px;
-    perspective: 1400px;
+    position: relative; display: flex; gap: 22px; justify-content: center;
+    align-items: center; min-height: clamp(248px, 60vw, 560px); margin: 24px auto 0;
+    perspective: 1400px; isolation: isolate;
   }
-  .screens img {
-    width: 160px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.12);
-    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6);
+  .screens .desktop-preview {
+    position: absolute; z-index: -1; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(100%, 900px); overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.14); border-radius: 18px;
+    box-shadow: 0 30px 70px -25px rgba(0,0,0,0.7);
   }
-  .screens img:nth-child(1) { transform: rotate(-6deg) translateY(10px); }
-  .screens img:nth-child(2) { transform: translateY(-14px); z-index: 2; width: 180px; }
-  .screens img:nth-child(3) { transform: rotate(6deg) translateY(10px); }
+  .screens .desktop-preview img { width: 100%; }
+  .android-phone {
+    position: absolute; z-index: 1; right: clamp(8px, 4vw, 42px); bottom: 0;
+    width: clamp(128px, 19vw, 220px); padding: 6px; border-radius: 32px;
+    background: linear-gradient(145deg, #45434c, #101014 24%, #08080a 72%, #393740);
+    border: 1px solid rgba(255,255,255,0.46);
+    box-shadow: 0 22px 45px -14px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(0,0,0,0.8);
+  }
+  .android-phone::before, .android-phone::after {
+    content: ""; position: absolute; width: 3px; border-radius: 3px;
+    background: linear-gradient(180deg, #77747e, #242329);
+  }
+  .android-phone::before { left: -3px; top: 22%; height: 34px; }
+  .android-phone::after { right: -3px; top: 28%; height: 54px; }
+  .android-phone img { width: 100%; border-radius: 25px; }
   @media (min-width: 900px) {
-    .screens { gap: 28px; }
-    .screens img { width: 190px; }
-    .screens img:nth-child(2) { width: 220px; }
+    .screens { margin-top: 34px; }
   }
 
   /* Sections */
@@ -275,9 +288,13 @@
     .hero .cta-row { max-width: 360px; margin-right: auto; margin-left: auto; }
     .store-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .store-pill { justify-content: center; padding: 10px 8px; }
-    .screens { margin-top: 36px; }
-    .screens img:not(:nth-child(2)) { display: none; }
-    .screens img:nth-child(2) { width: 176px; max-width: 100%; transform: none; }
+    .screens { min-height: clamp(248px, 60vw, 560px); margin-top: 36px; }
+    .android-phone {
+      right: 4%; left: auto; transform: none;
+      width: clamp(100px, 28%, 160px); padding: 5px; border-radius: 27px;
+    }
+    .android-phone img { border-radius: 21px; }
+    .screens .desktop-preview { border-radius: 12px; }
     .section-head { margin-bottom: 34px; }
     .section-head h2 { font-size: 1.75rem; }
     .card { padding: 22px; }
@@ -397,7 +414,6 @@
   .store-pill img, .store-pill svg { width: 18px; height: 18px; object-fit: contain; }
   .store-pill.soon, .platform-card.soon { opacity: 0.72; }
   .screens { margin-top: 34px; }
-  .screens img { border-color: rgba(255,255,255,0.12); box-shadow: 0 24px 48px -24px rgba(0,0,0,0.6); }
   section { padding: 76px 0; }
   #features, #download { background: transparent; }
   .section-head { margin-bottom: 42px; }
@@ -525,9 +541,12 @@
     </div>
     <p style="font-size:0.82rem;color:var(--ink-dim);margin:10px 0 0;">The Google Play build contains ads to support development. F-Droid and GitHub builds are ad-free.</p>
     <div class="screens">
-      <img src="images/network-scan.webp" width="520" height="721" alt="Scan for devices screen">
-      <img src="images/home-screen.webp" width="520" height="830" fetchpriority="high" alt="Vernet home screen">
-      <img src="images/port-scan.webp" width="520" height="729" alt="Open ports scanner screen">
+      <div class="desktop-preview">
+        <img src="images/desktop-home.webp" width="1371" height="850" loading="lazy" decoding="async" alt="Vernet desktop app showing the network overview">
+      </div>
+      <div class="android-phone">
+        <img src="images/android-home.webp" width="1080" height="2340" loading="lazy" decoding="async" alt="Vernet Android app showing the network overview">
+      </div>
     </div>
   </div>
 </section>
