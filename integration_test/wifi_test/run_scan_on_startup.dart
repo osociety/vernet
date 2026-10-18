@@ -41,6 +41,7 @@ void main() {
   });
 
   group('Run device scan on startup', () {
+    // Flaky in GitHub CI across platforms; disabled pending investigation.
     testWidgets(
       'if settings for startup is on, then it should run',
       (tester) async {
@@ -70,8 +71,7 @@ void main() {
         );
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
-      skip:
-          'Flaky in GitHub CI across platforms; disabled pending investigation.',
+      skip: true,
     );
   });
 }
