@@ -368,8 +368,8 @@ class _WifiDetailState extends State<HomePage> {
                             ? Icons.star_half
                             : Icons.star_border;
                     final color = starValue >= 0.5
-                        ? Colors.amber
-                        : colors.onSurfaceVariant;
+                        ? colors.onSurfaceVariant
+                        : colors.outlineVariant;
                     return Icon(icon, size: 18, color: color);
                   }),
                 ),

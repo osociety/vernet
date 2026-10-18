@@ -64,13 +64,13 @@ void main() {
       expect(find.text('Internet lookups are off'), findsOneWidget);
     });
 
-    testWidgets('centers the mobile header', (tester) async {
+    testWidgets('keeps the mobile header left aligned', (tester) async {
       await pumpHomePage(tester, size: const Size(390, 844));
 
       final overview = tester.widget<Text>(find.text('NETWORK OVERVIEW'));
       final title = tester.widget<Text>(find.text('Your network'));
-      expect(overview.textAlign, TextAlign.center);
-      expect(title.textAlign, TextAlign.center);
+      expect(overview.textAlign, isNull);
+      expect(title.textAlign, isNull);
     });
 
     testWidgets('matches Wi-Fi and internet panel heights on desktop',
