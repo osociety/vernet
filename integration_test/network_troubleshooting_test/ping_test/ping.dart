@@ -10,7 +10,6 @@ import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/notification_service.dart';
-import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import '../../settings/test_utils.dart';
@@ -44,16 +43,7 @@ void main() {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-
-      // Finds the scan for devices button to tap on.
-      final pingButton = find.byKey(WidgetKey.ping.key);
-
-      // Emulate a tap on the button.
-      await TestUtils.waitForWidget(tester, pingButton);
-      await tester.tap(pingButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapNavigationItem('Check a website', tester, find);
       final interface = await NetInterface.localInterface();
 
       await tester.enterText(
@@ -77,10 +67,6 @@ void main() {
 
       expect(find.byKey(WidgetKey.pingSummarySent.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryReceived.key), findsOneWidget);
-      expect(
-        find.byType(AdaptiveListTile),
-        findsAtLeastNWidgets(1),
-      );
     });
   });
 }

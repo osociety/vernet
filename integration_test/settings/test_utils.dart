@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -106,14 +106,30 @@ class TestUtils {
     WidgetTester tester,
     CommonFinders find,
   ) async {
-    await tapByWidgetKey(WidgetKey.settingsButton, tester, find);
+    await _openDrawerWhenCompact(tester, find, 'Settings');
+    final settingsItem = find.byKey(const ValueKey('sidebar-settings'));
+    await tester.ensureVisible(settingsItem);
+    await tester.tap(settingsItem);
+    await _pumpTransition(tester);
   }
 
   static Future<void> tapHomeButton(
     WidgetTester tester,
     CommonFinders find,
   ) async {
-    await tapByWidgetKey(WidgetKey.homeButton, tester, find);
+    await tapNavigationItem('Home', tester, find);
+  }
+
+  static Future<void> tapNavigationItem(
+    String label,
+    WidgetTester tester,
+    CommonFinders find,
+  ) async {
+    await _openDrawerWhenCompact(tester, find, label);
+    final item = find.text(label).last;
+    await tester.ensureVisible(item);
+    await tester.tap(item);
+    await _pumpTransition(tester);
   }
 
   static Future<void> tapByText(
@@ -142,6 +158,11 @@ class TestUtils {
     WidgetTester tester,
     CommonFinders find,
   ) async {
+    final navigationLabel = _navigationLabel(widgetKey);
+    if (navigationLabel != null) {
+      await tapNavigationItem(navigationLabel, tester, find);
+      return;
+    }
     final widget = find.byKey(widgetKey.key);
     await waitForWidget(tester, widget);
     await tester.tap(widget);
@@ -154,6 +175,23 @@ class TestUtils {
     CommonFinders find,
     double scrollDistance,
   ) async {
+    final navigationLabel = _navigationLabel(widgetKey);
+    if (navigationLabel != null) {
+      await _openDrawerWhenCompact(tester, find, navigationLabel);
+      final target = find.text(navigationLabel).last;
+      if (target.evaluate().isEmpty) {
+        fail('Sidebar item "$navigationLabel" is not present.');
+      }
+      if (target.hitTestable().evaluate().isEmpty) {
+        final scrollable = find.byType(Scrollable).first;
+        await tester.scrollUntilVisible(
+          target,
+          scrollDistance,
+          scrollable: scrollable,
+        );
+      }
+      return;
+    }
     final widget = find.byKey(widgetKey.key);
     await tester.scrollUntilVisible(
       widget,
@@ -161,4 +199,35 @@ class TestUtils {
       scrollable: find.byType(Scrollable),
     );
   }
+
+  static Future<void> _openDrawerWhenCompact(
+    WidgetTester tester,
+    CommonFinders find,
+    String label,
+  ) async {
+    final menuButton = find.byIcon(Icons.menu);
+    if (menuButton.evaluate().isNotEmpty &&
+        find.text(label).evaluate().isEmpty) {
+      await tester.tap(menuButton);
+      await _pumpTransition(tester);
+    }
+  }
+
+  static Future<void> _pumpTransition(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+
+  static String? _navigationLabel(WidgetKey key) => switch (key) {
+        WidgetKey.homeButton => 'Home',
+        WidgetKey.settingsButton => 'Settings',
+        WidgetKey.ping => 'Check a website',
+        WidgetKey.scanForOpenPortsButton => 'Find security gaps',
+        WidgetKey.serverCheckerButton => 'Monitor server',
+        WidgetKey.neighborDiscoveryButton => 'Find switch',
+        WidgetKey.wakeOnLanButton => 'Wake on LAN',
+        WidgetKey.dnsLookupButton => 'Find website addresses',
+        WidgetKey.reverseDnsLookupButton => 'Find a device name',
+        _ => null,
+      };
 }

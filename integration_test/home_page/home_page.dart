@@ -9,7 +9,10 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
+import 'package:vernet/pages/ping_page/ping_page.dart';
+import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
@@ -120,19 +123,32 @@ void main() {
       await tester.pumpAndSettle();
 
       // Page should still be visible (no crash)
-      expect(find.byKey(WidgetKey.homeButton.key), findsOneWidget);
+      expect(find.byType(HomePage), findsOneWidget);
     });
 
-    testWidgets('HomePage shows settings toggle', (tester) async {
+    testWidgets('sidebar selection replaces the dashboard content',
+        (tester) async {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
-      // Navigate to settings
-      await tester.tap(find.byIcon(Icons.settings));
+      await TestUtils.tapNavigationItem('Check a website', tester, find);
+
+      expect(find.byType(PingPage), findsOneWidget);
+      expect(find.byType(HomePage), findsNothing);
+
+      await TestUtils.tapHomeButton(tester, find);
+      expect(find.byType(HomePage), findsOneWidget);
+    });
+
+    testWidgets('Settings remains available from the sidebar footer',
+        (tester) async {
+      await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
-      // Verify settings page is visible
-      expect(find.byIcon(Icons.settings), findsOneWidget);
+      await TestUtils.tapSettingsButton(tester, find);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SettingsPage), findsOneWidget);
     });
   });
 }

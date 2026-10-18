@@ -9,6 +9,7 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
@@ -123,11 +124,9 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       expect(find.byType(WakeOnLanPage), findsOneWidget);
 
-      final NavigatorState navigator = tester.state(find.byType(Navigator));
-      navigator.pop();
-      await tester.pumpAndSettle();
+      await TestUtils.tapHomeButton(tester, find);
 
-      expect(find.byKey(WidgetKey.homeButton.key), findsOneWidget);
+      expect(find.byType(HomePage), findsOneWidget);
     });
   });
 

@@ -10,7 +10,6 @@ import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/notification_service.dart';
-import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
@@ -44,17 +43,11 @@ void main() {
       await tester.pumpWidget(const MyApp(true, testing: true));
       await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-
-      // Finds the scan for devices button to tap on.
-      final reverseDnsLookupButton =
-          find.byKey(WidgetKey.reverseDnsLookupButton.key);
-
-      // Emulate a tap on the button.
-      await tester.ensureVisible(reverseDnsLookupButton);
-      await tester.tap(reverseDnsLookupButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapNavigationItem(
+        'Find a device name',
+        tester,
+        find,
+      );
 
       expect(
         find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
@@ -85,17 +78,11 @@ void main() {
       await tester.pumpWidget(const MyApp(true, testing: true));
       await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-
-      // Finds the scan for devices button to tap on.
-      final reverseDnsLookupButton =
-          find.byKey(WidgetKey.reverseDnsLookupButton.key);
-
-      // Emulate a tap on the button.
-      await tester.ensureVisible(reverseDnsLookupButton);
-      await tester.tap(reverseDnsLookupButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapNavigationItem(
+        'Find a device name',
+        tester,
+        find,
+      );
 
       expect(
         find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
@@ -121,17 +108,11 @@ void main() {
       await tester.pumpWidget(const MyApp(true, testing: true));
       await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-
-      // Finds the scan for devices button to tap on.
-      final reverseDnsLookupButton =
-          find.byKey(WidgetKey.reverseDnsLookupButton.key);
-
-      // Emulate a tap on the button.
-      await tester.ensureVisible(reverseDnsLookupButton);
-      await tester.tap(reverseDnsLookupButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapNavigationItem(
+        'Find a device name',
+        tester,
+        find,
+      );
 
       expect(
         find.text(StringValue.reverseDnsLookupEmptyPlaceholder),

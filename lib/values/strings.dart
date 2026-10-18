@@ -30,7 +30,7 @@ class StringValue {
   static const String speedTestServer =
       'Speed results provided by speedtest.net';
 
-  static const String ispPageTitle = 'Internet provider';
+  static const String ispPageTitle = 'Service Provider Details';
 
   static const String neighborDiscoveryPageTitle = 'Switch neighbors';
   static const String neighborDiscoveryEmptyPlaceholder =

@@ -3,13 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
+import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
-import 'package:vernet/values/keys.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -17,45 +18,27 @@ void main() {
   setUp(() {
     NotificationService.skipPermissionRequests = true;
     SharedPreferences.setMockInitialValues({});
+    AppSettings.instance.resetForTesting();
 
-    // Mock PackageInfo
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
       const MethodChannel('dev.fluttercommunity.plus/package_info'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'getAll') {
-          return <String, dynamic>{
-            'appName': 'vernet',
-            'packageName': 'org.fsociety.vernet',
-            'version': '1.0.0',
-            'buildNumber': '1',
-          };
-        }
-        return null;
+      (call) async => <String, dynamic>{
+        'appName': 'vernet',
+        'packageName': 'org.fsociety.vernet',
+        'version': '1.0.0',
+        'buildNumber': '1',
       },
     );
-
-    // Mock path_provider
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/path_provider'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'getApplicationDocumentsDirectory') {
-          return '.';
-        }
-        if (methodCall.method == 'getTemporaryDirectory') {
-          return '.';
-        }
-        return null;
-      },
-    );
-
-    // Mock network_info_plus
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('com.example/network_info'),
-      (MethodCall methodCall) async {
-        return null;
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/network_info'),
+      (call) async => switch (call.method) {
+        'getWifiIP' => '192.168.1.10',
+        'getWifiBSSID' => '00:11:22:33:44:55',
+        'getWifiName' => 'Mock WiFi',
+        'getWifiGatewayIP' => '192.168.1.1',
+        _ => null,
       },
     );
   });
@@ -64,157 +47,111 @@ void main() {
     NotificationService.skipPermissionRequests = false;
   });
 
+  Future<void> pumpVisibleFrame(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+
+  Future<void> pumpTabBarPage(
+    WidgetTester tester, {
+    Size size = const Size(900, 800),
+  }) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = size;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: const MaterialApp(home: TabBarPage()),
+      ),
+    );
+    await pumpVisibleFrame(tester);
+  }
+
+  Future<void> openDrawerIfCompact(WidgetTester tester) async {
+    final menuButton = find.byIcon(Icons.menu);
+    if (menuButton.evaluate().isNotEmpty) {
+      await tester.tap(menuButton);
+      await pumpVisibleFrame(tester);
+    }
+  }
+
   group('MyApp', () {
-    testWidgets('renders TabBarPage when allowed is true', (tester) async {
+    testWidgets('renders the redesigned entry point when allowed',
+        (tester) async {
       await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
+      await pumpVisibleFrame(tester);
+
       expect(find.byType(TabBarPage), findsOneWidget);
+      expect(find.byType(HomePage), findsOneWidget);
     });
 
-    testWidgets('renders LocationConsentPage when allowed is false',
+    testWidgets('renders LocationConsentPage when access is not allowed',
         (tester) async {
       await tester.pumpWidget(const MyApp(false));
-      await tester.pumpAndSettle();
+      await pumpVisibleFrame(tester);
+
       expect(find.byType(LocationConsentPage), findsOneWidget);
     });
 
-    testWidgets('MyApp is StatefulWidget', (tester) async {
-      expect(const MyApp(true), isA<StatefulWidget>());
-    });
-
-    testWidgets('MyApp navigator key is set', (tester) async {
+    testWidgets('navigator key is configured', (tester) async {
       await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
-      expect(MyApp.navigatorKey, isA<GlobalKey<NavigatorState>>());
+      await pumpVisibleFrame(tester);
+
+      expect(MyApp.navigatorKey.currentState, isNotNull);
     });
   });
 
-  group('TabBarPage', () {
-    testWidgets('initial state shows Home tab', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(
-            home: TabBarPage(),
-          ),
-        ),
-      );
+  group('Responsive entry-point navigation', () {
+    testWidgets('desktop keeps the sidebar visible beside the home dashboard',
+        (tester) async {
+      await pumpTabBarPage(tester);
 
-      await tester.pumpAndSettle();
+      expect(find.byType(HomePage), findsOneWidget);
+      expect(find.text('Scan your network'), findsWidgets);
+      expect(find.text('Service Provider Details'), findsWidgets);
+      expect(find.byIcon(Icons.menu), findsNothing);
+    });
 
-      expect(find.byKey(WidgetKey.homeButton.key), findsOneWidget);
+    testWidgets('sidebar selection replaces the main content', (tester) async {
+      await pumpTabBarPage(tester);
+
+      await tester.tap(find.text('Check a website'));
+      await pumpVisibleFrame(tester);
+
+      expect(find.byType(PingPage), findsOneWidget);
+      expect(find.byType(HomePage), findsNothing);
+      expect(find.text('Check a website'), findsOneWidget);
+    });
+
+    testWidgets('Settings and Home are available from the persistent menu',
+        (tester) async {
+      await pumpTabBarPage(tester);
+
+      await tester.tap(find.text('Settings').last);
+      await pumpVisibleFrame(tester);
+      expect(find.byType(SettingsPage), findsOneWidget);
+
+      await tester.tap(find.text('Home').last);
+      await pumpVisibleFrame(tester);
       expect(find.byType(HomePage), findsOneWidget);
     });
 
-    testWidgets('switches to Settings tab when tapped', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(
-            home: TabBarPage(),
-          ),
-        ),
-      );
+    testWidgets('compact layout opens the drawer and selects provider details',
+        (tester) async {
+      await pumpTabBarPage(tester, size: const Size(390, 844));
 
-      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.menu), findsOneWidget);
+      expect(find.text('Service Provider Details'), findsNothing);
 
-      // Tap Settings
-      await tester.tap(find.byIcon(Icons.settings));
-      await tester.pumpAndSettle();
+      await openDrawerIfCompact(tester);
+      await tester.tap(find.text('Service Provider Details').last);
+      await pumpVisibleFrame(tester);
 
-      expect(find.byType(SettingsPage), findsOneWidget);
-    });
-
-    testWidgets('switches back to Home tab when tapped', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(
-            home: TabBarPage(),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      // Go to Settings
-      await tester.tap(find.byIcon(Icons.settings));
-      await tester.pumpAndSettle();
-      expect(find.byType(SettingsPage), findsOneWidget);
-
-      // Go back to Home
-      await tester.tap(find.byIcon(Icons.home));
-      await tester.pumpAndSettle();
-      expect(find.byType(HomePage), findsOneWidget);
-    });
-
-    testWidgets('bottom navigation bar has correct items', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(
-            home: TabBarPage(),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(find.byIcon(Icons.home), findsOneWidget);
-      expect(find.byIcon(Icons.settings), findsOneWidget);
-      expect(find.text('Home'), findsWidgets);
-      expect(find.text('Settings'), findsWidgets);
-    });
-
-    testWidgets('TabBarPage can be instantiated', (tester) async {
-      const page = TabBarPage();
-      expect(page, isA<TabBarPage>());
-    });
-
-    testWidgets('TabBarPage is StatefulWidget', (tester) async {
-      const page = TabBarPage();
-      expect(page, isA<StatefulWidget>());
-    });
-  });
-
-  group('Navigation', () {
-    // Note: Navigation tests to HostScanPage are skipped because HostScanPage
-    // triggers HostScanBloc.initialized() which calls NetworkInfo() requiring
-    // platform channels that don't work in unit tests
-    testWidgets('handles unknown routes gracefully', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MyApp(true),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Verify default route works
-      expect(find.byType(TabBarPage), findsOneWidget);
-    });
-  });
-
-  group('_MyAppState', () {
-    testWidgets('initState calls getCurrentAppTheme', (tester) async {
-      await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
-
-      // Widget should build without errors
-      expect(find.byType(MaterialApp), findsOneWidget);
-    });
-
-    testWidgets('build returns MaterialApp with correct theme', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MyApp(true),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(find.byType(MaterialApp), findsOneWidget);
+      expect(find.text('Turn on internet access in Settings to continue.'),
+          findsOneWidget);
+      expect(find.text('Service Provider Details'), findsWidgets);
     });
   });
 }

@@ -63,7 +63,8 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
 
     await tester.tap(find.text('Continue without it'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.byType(TabBarPage), findsOneWidget);
   });
@@ -73,7 +74,8 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
 
     await tester.tap(find.text('Allow location access'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.byType(TabBarPage), findsOneWidget);
   });
