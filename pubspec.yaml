@@ -105,12 +105,23 @@ dev_dependencies:
   json_serializable: ^6.13.1
   lint: ^2.14.0
   mocktail: ^1.0.5
+  msix: ^3.18.0
 
 dependency_overrides:
   flutter_isolate:
     git:
       url: https://github.com/git-elliot/flutter_isolate.git
       ref: 95983262e86d34a24b699a878ee5b965ae0743db
+
+msix_config:
+  store: true
+  display_name: Vernet App
+  publisher_display_name: Open Society
+  identity_name: OpenSociety.VernetApp
+  publisher: CN=89BA02CB-9308-4756-8038-C5914BBAE367
+  msix_version: 1.0.0.1
+  logo_path: windows/runner/resources/app_icon.ico
+  capabilities: internetClient, location
 
 flutter:
 

@@ -201,6 +201,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  console:
+    dependency: transitive
+    description:
+      name: console
+      sha256: e04e7824384c5b39389acdd6dc7d33f3efe6b232f6f16d7626f194f6a01ad69a
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   convert:
     dependency: transitive
     description:
@@ -784,6 +792,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  msix:
+    dependency: "direct dev"
+    description:
+      name: msix
+      sha256: "61415c352e8aea084332b8a5514e6408c961c8cdeca202804fff1040eb555ac7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.18.0"
   multicast_dns:
     dependency: transitive
     description:
