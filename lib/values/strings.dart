@@ -28,7 +28,7 @@ class StringValue {
       'No name found yet.\nThe device name will appear here.';
 
   static const String speedTestServer =
-      'Speed results provided by speedtest.net';
+      'Information provided by speedtest.net';
 
   static const String ispPageTitle = 'Service Provider Details';
 

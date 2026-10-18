@@ -339,30 +339,34 @@ class _HomePageState extends State<TabBarPage> {
               },
               child: SizedBox(
                 height: 44,
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final showLabel = isExtended && constraints.maxWidth >= 200;
-                    return Row(
-                      mainAxisAlignment: showLabel
-                          ? MainAxisAlignment.start
-                          : MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.settings, size: 20, color: foreground),
-                        if (showLabel) ...[
-                          const SizedBox(width: 14),
-                          Text(
-                            'Settings',
-                            style: TextStyle(
-                              color: isSelected
-                                  ? foreground
-                                  : colors.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.w600 : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final showLabel =
+                          isExtended && constraints.maxWidth >= 200;
+                      return Row(
+                        mainAxisAlignment: showLabel
+                            ? MainAxisAlignment.start
+                            : MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.settings, size: 20, color: foreground),
+                          if (showLabel) ...[
+                            const SizedBox(width: 14),
+                            Text(
+                              'Settings',
+                              style: TextStyle(
+                                color: isSelected
+                                    ? foreground
+                                    : colors.onSurfaceVariant,
+                                fontWeight: isSelected ? FontWeight.w600 : null,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -392,7 +396,10 @@ class _HomePageState extends State<TabBarPage> {
               : null,
           drawer: isCompact
               ? Drawer(
-                  child: _buildSidebar(context, showToggleButton: false),
+                  child: SafeArea(
+                    bottom: false,
+                    child: _buildSidebar(context, showToggleButton: false),
+                  ),
                 )
               : null,
           body: isCompact

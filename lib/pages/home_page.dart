@@ -138,11 +138,8 @@ class _WifiDetailState extends State<HomePage> {
     if (!appSettings.inAppInternet) return null;
     final settings =
         await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
-    if (settings.client.isp.trim().isEmpty ||
-        settings.client.isp.toLowerCase() == 'unknown') {
-      final isp = await _ispLookupService.lookup(settings.client.ip);
-      if (isp != null) settings.client.isp = isp;
-    }
+    final organization = await _ispLookupService.lookup(settings.client.ip);
+    if (organization != null) settings.client.isp = organization;
     return settings;
   }
 
@@ -299,10 +296,8 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
-  Widget _buildIspPanel(
-    BuildContext context,
-    AsyncSnapshot<Settings?> snapshot,
-  ) {
+  Widget _buildIspPanel(BuildContext context, AsyncSnapshot<Settings?> snapshot,
+      {required bool isWide}) {
     final colors = Theme.of(context).colorScheme;
     final settings = snapshot.data;
 
@@ -348,9 +343,41 @@ class _WifiDetailState extends State<HomePage> {
                     fontWeight: FontWeight.w700,
                   ),
             ),
+            const SizedBox(height: 6),
+            Semantics(
+              label:
+                  'Provider rating: ${settings.client.ispRating.toStringAsFixed(1)} out of 5',
+              child: ExcludeSemantics(
+                child: Row(
+                  children: List.generate(5, (index) {
+                    final rating = settings.client.ispRating.clamp(0, 5);
+                    final starValue = rating - index;
+                    final icon = starValue >= 1
+                        ? Icons.star
+                        : starValue >= 0.5
+                            ? Icons.star_half
+                            : Icons.star_border;
+                    final color = starValue >= 0.5
+                        ? Colors.amber
+                        : colors.onSurfaceVariant;
+                    return Icon(icon, size: 18, color: color);
+                  }),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              StringValue.speedTestServer,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 14),
+            Divider(color: colors.outlineVariant),
             const SizedBox(height: 12),
             _NetworkValue(
                 label: 'PUBLIC IP ADDRESS', value: settings.client.ip),
+            if (isWide) const Spacer(),
             const SizedBox(height: 14),
             Wrap(
               spacing: 10,
@@ -384,13 +411,6 @@ class _WifiDetailState extends State<HomePage> {
                   label: const Text('Provider details'),
                 ),
               ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              StringValue.speedTestServer,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
             ),
           ] else if (snapshot.hasError)
             const _IspMessage(
@@ -558,60 +578,65 @@ class _WifiDetailState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             if (isPhonePlatform || constraints.maxWidth < 600)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: IconButton.filledTonal(
-                                      tooltip: 'Refresh network information',
-                                      onPressed: _refreshDashboard,
-                                      icon: _isRefreshingWifi
-                                          ? const SizedBox(
-                                              width: 18,
-                                              height: 18,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'NETWORK OVERVIEW',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                letterSpacing: 1.4,
+                                                fontWeight: FontWeight.w700,
                                               ),
-                                            )
-                                          : const Icon(Icons.refresh),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Your network',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'A live view of your Wi-Fi and internet connection.',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    'NETWORK OVERVIEW',
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          letterSpacing: 1.4,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    'Your network',
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(fontWeight: FontWeight.w700),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'A live view of your Wi-Fi and internet connection.',
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
-                                        ),
+                                  const SizedBox(width: 8),
+                                  IconButton.filledTonal(
+                                    tooltip: 'Refresh network information',
+                                    onPressed: _refreshDashboard,
+                                    icon: _isRefreshingWifi
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(Icons.refresh),
                                   ),
                                 ],
                               )
@@ -696,8 +721,11 @@ class _WifiDetailState extends State<HomePage> {
                                     ),
                                     const SizedBox(width: 20),
                                     Expanded(
-                                      child:
-                                          _buildIspPanel(context, ispSnapshot),
+                                      child: _buildIspPanel(
+                                        context,
+                                        ispSnapshot,
+                                        isWide: true,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -705,7 +733,11 @@ class _WifiDetailState extends State<HomePage> {
                             else ...[
                               _buildWifiPanel(context, wifiInfo),
                               const SizedBox(height: 12),
-                              _buildIspPanel(context, ispSnapshot),
+                              _buildIspPanel(
+                                context,
+                                ispSnapshot,
+                                isWide: false,
+                              ),
                             ],
                           ],
                         );
