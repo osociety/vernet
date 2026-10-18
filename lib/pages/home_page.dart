@@ -34,7 +34,6 @@ class _WifiDetailState extends State<HomePage> {
   Future<WifiInfo?>? _wifiInfoFuture;
   bool _isRefreshingWifi = false;
   bool _hasRunStartupScan = false;
-  bool _hasCompletedStartupScan = false;
   bool scanRunning = false;
   Set<DeviceData> devices = {};
   SpeedTestDart tester = SpeedTestDart();
@@ -84,7 +83,6 @@ class _WifiDetailState extends State<HomePage> {
         if (mounted) {
           setState(() {
             scanRunning = false;
-            _hasCompletedStartupScan = true;
           });
         }
         await NotificationService.showNotificationWithActions();
@@ -99,7 +97,6 @@ class _WifiDetailState extends State<HomePage> {
     setState(() {
       devices.clear();
       _hasRunStartupScan = false;
-      _hasCompletedStartupScan = false;
       _isRefreshingWifi = true;
     });
     try {
@@ -291,9 +288,7 @@ class _WifiDetailState extends State<HomePage> {
               label: Text(
                 scanRunning
                     ? 'Scanning your network…'
-                    : appSettings.runScanOnStartup &&
-                            _hasRunStartupScan &&
-                            _hasCompletedStartupScan
+                    : appSettings.runScanOnStartup && devices.isNotEmpty
                         ? '${devices.length} devices found'
                         : 'Scan your network',
               ),
