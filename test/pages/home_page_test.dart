@@ -1,269 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:network_info_plus/network_info_plus.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/pages/home_page.dart';
-import 'package:vernet/providers/dark_theme_provider.dart';
-import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
-
-class MockNetworkInfo extends Mock implements NetworkInfo {}
-
-Widget createHomePageTestWidget(Widget child) {
-  return ChangeNotifierProvider<DarkThemeProvider>(
-    create: (_) => DarkThemeProvider(),
-    child: MaterialApp(
-      home: Scaffold(body: child),
-    ),
-  );
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockNetworkInfo mockNetworkInfo;
-
-  setUp(() async {
+  setUp(() {
     SharedPreferences.setMockInitialValues({});
-    await AppSettings.instance.setInAppInternet(false);
-    mockNetworkInfo = MockNetworkInfo();
+    AppSettings.instance.resetForTesting();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/network_info'),
+      (call) async => switch (call.method) {
+        'wifiIPAddress' => '192.168.1.10',
+        'wifiBSSID' => '00:11:22:33:44:55',
+        'wifiName' => 'Mock WiFi',
+        'wifiGatewayAddress' => '192.168.1.1',
+        _ => null,
+      },
+    );
   });
 
-  group('HomePage', () {
-    test('HomePage widget can be instantiated', () {
-      const page = HomePage();
-      expect(page, isA<HomePage>());
-    });
+  Future<void> pumpHomePage(
+    WidgetTester tester, {
+    required Size size,
+  }) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = size;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const MaterialApp(home: HomePage()));
+    // The dashboard has live network futures and a refresh indicator; advance
+    // frames without waiting for every ongoing indicator to settle.
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
 
-    test('HomePage is StatefulWidget', () {
-      const page = HomePage();
-      expect(page, isA<StatefulWidget>());
-    });
-
-    testWidgets('renders loading state initially', (tester) async {
-      when(() => mockNetworkInfo.getWifiIP()).thenAnswer((_) async => null);
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-
-      // Initial fallback state
-      expect(find.text('Wi-Fi'), findsOneWidget);
-    });
-
-    testWidgets('renders Network Troubleshooting card with buttons',
+  group('HomePage dashboard', () {
+    testWidgets('shows the network overview and connection details',
         (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
+      await pumpHomePage(tester, size: const Size(900, 800));
 
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-
-      await tester.pumpAndSettle();
-
-      // Network Troubleshooting card
-      expect(find.text('Check your connection'), findsOneWidget);
-      expect(find.byKey(WidgetKey.ping.key), findsOneWidget);
-      expect(
-        find.byKey(WidgetKey.scanForOpenPortsButton.key),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(WidgetKey.neighborDiscoveryButton.key),
-        findsOneWidget,
-      );
+      expect(find.text('NETWORK OVERVIEW'), findsOneWidget);
+      expect(find.text('Your network'), findsOneWidget);
+      expect(find.text('CONNECTION PATH'), findsOneWidget);
+      expect(find.text('THIS DEVICE'), findsOneWidget);
+      expect(find.text('WI-FI ROUTER'), findsOneWidget);
+      expect(find.text('INTERNET PROVIDER'), findsOneWidget);
+      expect(find.text('WI-FI CONNECTION'), findsOneWidget);
+      expect(find.text('INTERNET SERVICE'), findsOneWidget);
     });
 
-    testWidgets('highlights new home screen features', (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Monitor Server'), findsOneWidget);
-      expect(find.text('Wake on LAN'), findsOneWidget);
-      expect(find.text('Find Switch'), findsOneWidget);
-      expect(find.text('Subnet calculator'), findsOneWidget);
-      expect(find.text('NEW'), findsNWidgets(4));
-      expect(find.byKey(WidgetKey.serverCheckerButton.key), findsOneWidget);
-      expect(find.byKey(WidgetKey.wakeOnLanButton.key), findsOneWidget);
-      expect(find.byKey(WidgetKey.neighborDiscoveryButton.key), findsOneWidget);
-    });
-
-    testWidgets('opens the subnet calculator from its home button',
+    testWidgets('keeps the tool shortcuts in the sidebar, not the dashboard',
         (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
+      await pumpHomePage(tester, size: const Size(900, 800));
 
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Subnet calculator'));
-      await tester.tap(find.text('Subnet calculator'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('IP subnet calculator'), findsOneWidget);
+      expect(find.text('Check your connection'), findsNothing);
+      expect(find.text('Website and address tools'), findsNothing);
+      expect(find.byKey(const ValueKey('ping')), findsNothing);
+      expect(find.text('Internet lookups are off'), findsOneWidget);
     });
 
-    testWidgets('renders DNS card with Lookup and Reverse Lookup buttons',
-        (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
+    testWidgets('centers the mobile header', (tester) async {
+      await pumpHomePage(tester, size: const Size(390, 844));
 
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-
-      await tester.pumpAndSettle();
-
-      // DNS card
-      expect(find.text('Website and address tools'), findsOneWidget);
-      expect(find.byKey(WidgetKey.dnsLookupButton.key), findsOneWidget);
-      expect(find.byKey(WidgetKey.reverseDnsLookupButton.key), findsOneWidget);
+      final overview = tester.widget<Text>(find.text('NETWORK OVERVIEW'));
+      final title = tester.widget<Text>(find.text('Your network'));
+      expect(overview.textAlign, TextAlign.center);
+      expect(title.textAlign, TextAlign.center);
     });
 
-    testWidgets('shows ISP card with In-App Internet disabled message',
+    testWidgets('matches Wi-Fi and internet panel heights on desktop',
         (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
+      await pumpHomePage(tester, size: const Size(1100, 800));
 
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-
-      await tester.pumpAndSettle();
-
-      // ISP card should be present
-      expect(find.text('Your internet service'), findsOneWidget);
-      expect(find.text('Internet access in the app is turned off'),
-          findsOneWidget);
-    });
-
-    testWidgets('tapping Ping button finds widget with ping key',
-        (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-
-      // Verify ping button exists
-      expect(find.byKey(WidgetKey.ping.key), findsOneWidget);
-    });
-
-    testWidgets('tapping DNS Lookup button finds widget with key',
-        (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-
-      // Verify DNS lookup button exists
-      expect(find.byKey(WidgetKey.dnsLookupButton.key), findsOneWidget);
-    });
-
-    testWidgets('tapping Reverse DNS Lookup button finds widget with key',
-        (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-
-      // Verify reverse DNS lookup button exists
-      expect(find.byKey(WidgetKey.reverseDnsLookupButton.key), findsOneWidget);
-    });
-
-    testWidgets('tapping Scan Open Ports button finds widget with key',
-        (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-
-      // Verify scan open ports button exists
-      expect(
-        find.byKey(WidgetKey.scanForOpenPortsButton.key),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('tapping Find switch ports button opens NeighborDiscoveryPage',
-        (tester) async {
-      when(() => mockNetworkInfo.getWifiIP())
-          .thenAnswer((_) async => '192.168.1.100');
-      when(() => mockNetworkInfo.getWifiBSSID())
-          .thenAnswer((_) async => 'aa:bb:cc:dd:ee:ff');
-      when(() => mockNetworkInfo.getWifiName())
-          .thenAnswer((_) async => 'TestWiFi');
-      when(() => mockNetworkInfo.getWifiGatewayIP())
-          .thenAnswer((_) async => '192.168.1.1');
-
-      await tester.pumpWidget(createHomePageTestWidget(const HomePage()));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(WidgetKey.neighborDiscoveryButton.key));
-      await tester.pumpAndSettle();
-
-      expect(find.text(StringValue.neighborDiscoveryPageTitle), findsOneWidget);
+      final wifiPanel = find
+          .ancestor(
+            of: find.text('WI-FI CONNECTION'),
+            matching: find.byType(Container),
+          )
+          .first;
+      final ispPanel = find
+          .ancestor(
+            of: find.text('INTERNET SERVICE'),
+            matching: find.byType(Container),
+          )
+          .first;
+      expect(tester.getSize(wifiPanel).height, tester.getSize(ispPanel).height);
     });
   });
 }

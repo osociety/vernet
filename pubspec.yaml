@@ -3,7 +3,7 @@ description: A simple way to understand and check your internet connection
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.2+59
+version: 1.4.3+60
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -67,6 +67,7 @@ dependencies:
   rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
   shared_preferences: ^2.5.6
+  sidebarx: ^0.17.2
   # Multiplatform safe UI Canvas Asset
   signal_strength_indicator: ^0.5.0
   # Flutter package to test ping, upload, download using speedtest.net

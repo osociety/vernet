@@ -9,6 +9,7 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
@@ -27,13 +28,13 @@ void _mockNetworkInfo() {
     const MethodChannel('dev.fluttercommunity.plus/network_info'),
     (MethodCall call) async {
       switch (call.method) {
-        case 'getWifiGatewayIP':
+        case 'wifiGatewayAddress':
           return '192.168.1.1';
-        case 'getWifiIP':
+        case 'wifiIPAddress':
           return '192.168.1.10';
-        case 'getWifiBSSID':
+        case 'wifiBSSID':
           return '00:11:22:33:44:55';
-        case 'getWifiName':
+        case 'wifiName':
           return 'MockNet';
         default:
           return null;
@@ -123,11 +124,9 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       expect(find.byType(WakeOnLanPage), findsOneWidget);
 
-      final NavigatorState navigator = tester.state(find.byType(Navigator));
-      navigator.pop();
-      await tester.pumpAndSettle();
+      await TestUtils.tapHomeButton(tester, find);
 
-      expect(find.byKey(WidgetKey.homeButton.key), findsOneWidget);
+      expect(find.byType(HomePage), findsOneWidget);
     });
   });
 
@@ -541,13 +540,13 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
-      // Two power_settings_new icons: one in form, one on tile trailing
-      final wakeIcons = find.byIcon(Icons.power_settings_new);
-      expect(wakeIcons, findsNWidgets(2));
-
-      await tester.ensureVisible(wakeIcons.last);
+      // Scope the action to the saved target. The app shell and form also
+      // contain power icons, so a global icon count is brittle.
+      final wakeSavedTarget = find.byTooltip('Wake this device');
+      expect(wakeSavedTarget, findsOneWidget);
+      await tester.ensureVisible(wakeSavedTarget);
       await tester.pumpAndSettle();
-      await tester.tap(wakeIcons.last);
+      await tester.tap(wakeSavedTarget);
 
       await TestUtils.waitForAnyWidget(
         tester,

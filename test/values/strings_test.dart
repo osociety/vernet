@@ -5,7 +5,7 @@ void main() {
   test('string constants are defined', () {
     expect(StringValue.firstSubnet, 'Start of device search');
     expect(StringValue.hostScanPageTitle, 'Find devices');
-    expect(StringValue.ispPageTitle, 'Internet provider');
+    expect(StringValue.ispPageTitle, 'Service Provider Details');
     expect(StringValue.neighborDiscoveryPageTitle, 'Switch neighbors');
   });
 }

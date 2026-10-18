@@ -10,7 +10,6 @@ import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/notification_service.dart';
-import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
@@ -44,16 +43,11 @@ void main() {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
-      // Verify that there are 4 widgets at homepage
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-
-      // Finds the scan for devices button to tap on.
-      final lookupButton = find.byKey(WidgetKey.dnsLookupButton.key);
-
-      // Emulate a tap on the button.
-      await TestUtils.waitForWidget(tester, lookupButton);
-      await tester.tap(lookupButton);
-      await tester.pumpAndSettle();
+      await TestUtils.tapNavigationItem(
+        'Find website addresses',
+        tester,
+        find,
+      );
 
       expect(find.text(StringValue.dnsLookupEmptyPlaceholder), findsOneWidget);
 
@@ -76,7 +70,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.text('Website address copied'), findsOneWidget);
     });
   });
 }
