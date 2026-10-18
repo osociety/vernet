@@ -33,8 +33,9 @@ class IspLookupService {
         return null;
       }
 
-      final isp = (connection['isp'] ?? connection['org'])?.toString().trim();
-      if (isp == null || isp.isEmpty || isp.toLowerCase() == 'unknown') {
+      final organization = _usableName(connection['org']);
+      final isp = organization ?? _usableName(connection['isp']);
+      if (isp == null) {
         debugPrint('ISP fallback lookup returned no ISP name.');
         return null;
       }
@@ -43,5 +44,13 @@ class IspLookupService {
       debugPrint('ISP fallback lookup failed: $error');
       return null;
     }
+  }
+
+  String? _usableName(dynamic value) {
+    final name = value?.toString().trim();
+    if (name == null || name.isEmpty || name.toLowerCase() == 'unknown') {
+      return null;
+    }
+    return name;
   }
 }
