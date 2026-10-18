@@ -34,10 +34,10 @@ void main() {
     messenger.setMockMethodCallHandler(
       const MethodChannel('dev.fluttercommunity.plus/network_info'),
       (call) async => switch (call.method) {
-        'getWifiIP' => '192.168.1.10',
-        'getWifiBSSID' => '00:11:22:33:44:55',
-        'getWifiName' => 'Mock WiFi',
-        'getWifiGatewayIP' => '192.168.1.1',
+        'wifiIPAddress' => '192.168.1.10',
+        'wifiBSSID' => '00:11:22:33:44:55',
+        'wifiName' => 'Mock WiFi',
+        'wifiGatewayAddress' => '192.168.1.1',
         _ => null,
       },
     );

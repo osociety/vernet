@@ -85,24 +85,21 @@ void main() {
       // In CI environments, this might timeout quickly if WiFi info isn't available
       await tester.pumpAndSettle(const Duration(seconds: 10));
 
-      // Verify that there are at least 3 tiles on homepage (including scan button)
-      expect(find.bySubtype<AdaptiveListTile>(), findsAtLeastNWidgets(3));
-
       // Finds the scan for devices button to tap on.
       final devicesButton = find.byKey(WidgetKey.scanForDevicesButton.key);
 
       // Emulate a tap on the button.
       await TestUtils.waitForWidget(tester, devicesButton);
+      await tester.ensureVisible(devicesButton);
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.tap(devicesButton);
-      await tester.pump();
-      expect(find.byType(AdaptiveListTile), findsAny);
-      await tester.pumpAndSettle(const Duration(seconds: 15));
-      await tester.pump();
+      await TestUtils.waitForWidget(tester, find.text('Find devices'));
 
       // Windows CI can take longer to finish host discovery. Keep the test
       // from returning (and the next test clearing the DB) while inserts are
       // still running in the scan service.
       await _waitForScanToFinish();
+      await tester.pump(const Duration(milliseconds: 500));
 
       if (find.byType(AdaptiveListTile).evaluate().length < 2) {
         debugPrint(

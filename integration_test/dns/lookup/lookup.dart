@@ -70,7 +70,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.text('Website address copied'), findsOneWidget);
     });
   });
 }

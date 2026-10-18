@@ -46,13 +46,13 @@ void main() {
       const MethodChannel('dev.fluttercommunity.plus/network_info'),
       (MethodCall methodCall) async {
         switch (methodCall.method) {
-          case 'getWifiIP':
+          case 'wifiIPAddress':
             return '192.168.1.10';
-          case 'getWifiBSSID':
+          case 'wifiBSSID':
             return '00:11:22:33:44:55';
-          case 'getWifiName':
+          case 'wifiName':
             return 'Mock WiFi';
-          case 'getWifiGatewayIP':
+          case 'wifiGatewayAddress':
             return '192.168.1.1';
           default:
             return null;

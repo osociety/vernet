@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sidebarx/sidebarx.dart';
 import 'package:vernet/values/keys.dart';
 
 class TestUtils {
@@ -11,13 +12,13 @@ class TestUtils {
       const MethodChannel('dev.fluttercommunity.plus/network_info'),
       (methodCall) async {
         switch (methodCall.method) {
-          case 'getWifiIP':
+          case 'wifiIPAddress':
             return '192.168.1.10';
-          case 'getWifiBSSID':
+          case 'wifiBSSID':
             return '00:11:22:33:44:55';
-          case 'getWifiName':
+          case 'wifiName':
             return 'Mock WiFi';
-          case 'getWifiGatewayIP':
+          case 'wifiGatewayAddress':
             return '192.168.1.1';
           default:
             return null;
@@ -125,9 +126,9 @@ class TestUtils {
     WidgetTester tester,
     CommonFinders find,
   ) async {
-    await _openDrawerWhenCompact(tester, find, label);
-    final item = find.text(label).last;
+    final item = await _navigationItem(label, tester, find);
     await tester.ensureVisible(item);
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(item);
     await _pumpTransition(tester);
   }
@@ -165,6 +166,8 @@ class TestUtils {
     }
     final widget = find.byKey(widgetKey.key);
     await waitForWidget(tester, widget);
+    await tester.ensureVisible(widget);
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(widget);
     await tester.pumpAndSettle();
   }
@@ -177,27 +180,61 @@ class TestUtils {
   ) async {
     final navigationLabel = _navigationLabel(widgetKey);
     if (navigationLabel != null) {
-      await _openDrawerWhenCompact(tester, find, navigationLabel);
-      final target = find.text(navigationLabel).last;
-      if (target.evaluate().isEmpty) {
-        fail('Sidebar item "$navigationLabel" is not present.');
-      }
-      if (target.hitTestable().evaluate().isEmpty) {
-        final scrollable = find.byType(Scrollable).first;
-        await tester.scrollUntilVisible(
-          target,
-          scrollDistance,
-          scrollable: scrollable,
-        );
-      }
+      await _navigationItem(
+        navigationLabel,
+        tester,
+        find,
+        scrollDistance: scrollDistance,
+      );
       return;
     }
     final widget = find.byKey(widgetKey.key);
+    final scrollables =
+        find.ancestor(of: widget, matching: find.byType(Scrollable));
     await tester.scrollUntilVisible(
       widget,
       scrollDistance,
-      scrollable: find.byType(Scrollable),
+      scrollable: scrollables.evaluate().isNotEmpty
+          ? scrollables.first
+          : find.byType(Scrollable).first,
     );
+  }
+
+  static Future<Finder> _navigationItem(
+    String label,
+    WidgetTester tester,
+    CommonFinders find, {
+    double scrollDistance = 300,
+  }) async {
+    await _openDrawerWhenCompact(tester, find, label);
+    final target = find.text(label);
+    final sidebarScrollable = find
+        .descendant(
+          of: find.byType(SidebarX).first,
+          matching: find.byType(Scrollable),
+        )
+        .first;
+
+    // SidebarX lazily builds menu rows. If the current selection has scrolled
+    // Home above the viewport, scroll back toward the start so it is built.
+    for (var attempt = 0;
+        target.evaluate().isEmpty && attempt < 12;
+        attempt++) {
+      await tester.drag(sidebarScrollable, const Offset(0, 400));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    if (target.evaluate().isEmpty || target.hitTestable().evaluate().isEmpty) {
+      await tester.scrollUntilVisible(
+        target,
+        scrollDistance,
+        scrollable: sidebarScrollable,
+      );
+    }
+    final item = target.last;
+    await tester.ensureVisible(item);
+    await tester.pump(const Duration(milliseconds: 300));
+    return item;
   }
 
   static Future<void> _openDrawerWhenCompact(

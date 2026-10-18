@@ -70,6 +70,7 @@ void main() {
       expect(resultText, findsOneWidget);
       await tester.tap(resultText);
       await tester.pumpAndSettle();
+      expect(find.text('Device name copied'), findsOneWidget);
     });
 
     testWidgets('tap on the reverse DNS lookup button, verify error returned',
@@ -97,8 +98,11 @@ void main() {
 
       final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
       await tester.tap(submitButton);
-      expect(find.byType(Scaffold), findsOneWidget);
       await tester.pumpAndSettle();
+      expect(
+        find.text('That does not look like a valid device address'),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -127,8 +131,8 @@ void main() {
 
       final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
       await tester.tap(submitButton);
-      expect(find.byType(Scaffold), findsOneWidget);
       await tester.pumpAndSettle();
+      expect(find.text('maa03s29-in-f14.1e100.net'), findsOneWidget);
     });
   });
 }
