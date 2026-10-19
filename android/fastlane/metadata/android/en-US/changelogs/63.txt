@@ -1,0 +1,4 @@
+Redesigned the home dashboard with a compact Wi-Fi and internet service overview.
+Added an adaptive sidebar for desktop and mobile navigation.
+Improved network details, provider lookup, and navigation behavior.
+Bug fixes and improvements.

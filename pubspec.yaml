@@ -3,7 +3,7 @@ description: A simple way to understand and check your internet connection
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.5+62
+version: 1.4.6+63
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -120,7 +120,7 @@ msix_config:
   publisher_display_name: Open Society
   identity_name: OpenSociety.VernetApp
   publisher: CN=89BA02CB-9308-4756-8038-C5914BBAE367
-  msix_version: 1.0.0.1
+  msix_version: 1.4.5.0
   logo_path: windows/runner/resources/app_icon.ico
   capabilities: internetClient, location
 
