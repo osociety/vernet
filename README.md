@@ -1,5 +1,5 @@
-<h1 align="center">
-  <img src="firebase/public/favicon-64.png" height="45" style="vertical-align: middle;">
+<h1>
+  <img src="firebase/public/favicon-64.png" height="60" style="vertical-align: middle;">
   Vernet
 </h1>
 
