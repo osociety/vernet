@@ -292,7 +292,7 @@ jobs:
           if ($env:ARCHITECTURE -eq 'x64') {
             # Chocolatey's sqlite package publishes x86/x64 DLLs and selects
             # x64 on the windows-2022 x64 runner.
-            choco install sqlite --version $env:SQLITE_VERSION -y
+            choco install sqlite -y --version $env:SQLITE_VERSION
             if ($LASTEXITCODE -ne 0) { throw 'Chocolatey failed to install SQLite.' }
             $sqliteDllPath = 'C:\ProgramData\chocolatey\lib\sqlite\tools\sqlite3.dll'
           } else {
