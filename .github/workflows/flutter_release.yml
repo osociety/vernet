@@ -409,30 +409,3 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           draft: false
           files: ${{ runner.temp }}/Vernet-${{ env.RELEASE_TAG }}.msixbundle
-
-      - name: Configure Microsoft Store CLI
-        uses: microsoft/setup-msstore-cli@v1
-
-      - name: Authenticate Microsoft Store CLI
-        shell: pwsh
-        env:
-          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
-          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
-          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
-          SELLER_ID: ${{ secrets.SELLER_ID }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          foreach ($name in @('AZURE_AD_TENANT_ID', 'AZURE_AD_APPLICATION_CLIENT_ID', 'AZURE_AD_APPLICATION_SECRET', 'SELLER_ID')) {
-            if (-not (Get-Item "Env:$name").Value) { throw "Required GitHub secret $name is not configured." }
-          }
-          msstore reconfigure --tenantId $env:AZURE_AD_TENANT_ID --sellerId $env:SELLER_ID --clientId $env:AZURE_AD_APPLICATION_CLIENT_ID --clientSecret $env:AZURE_AD_APPLICATION_SECRET
-
-      - name: Publish multi-architecture package to Microsoft Store
-        shell: pwsh
-        env:
-          MS_STORE_PRODUCT_ID: ${{ vars.MS_STORE_PRODUCT_ID }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if (-not $env:MS_STORE_PRODUCT_ID) { throw 'Set the MS_STORE_PRODUCT_ID repository variable to the app Product ID from Partner Center.' }
-          msstore publish "$env:RUNNER_TEMP/Vernet-$env:RELEASE_TAG.msixbundle" -id $env:MS_STORE_PRODUCT_ID -v
-          if ($LASTEXITCODE -ne 0) { throw 'Microsoft Store submission failed.' }
