@@ -25,6 +25,8 @@ env:
   MACOS_BUILD_PATH: ${{ vars.MACOS_BUILD_PATH }}
   WINDOWS_BUILD_PATH: ${{ vars.WINDOWS_BUILD_PATH }}
   MACOS_DMG_PATH: installers/dmg_creator
+  SQLITE_VERSION: 3.54.1
+  SQLITE_BUILD_VERSION: 3540100
 
 jobs:
   release-approval:
@@ -34,8 +36,6 @@ jobs:
     environment: release
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
-      SQLITE_VERSION: 3.54.1
-      SQLITE_BUILD_VERSION: 3540100
     steps:
       - name: Confirm release promotion
         run: echo "Approved release promotion for ${{ env.RELEASE_TAG }}"
