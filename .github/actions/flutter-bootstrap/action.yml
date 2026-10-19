@@ -11,7 +11,7 @@ inputs:
     required: false
     default: ''
   arm64_flutter_ref:
-    description: Branch or tag of flutter/flutter to clone on arm64.
+    description: Branch or tag of flutter/flutter to clone on Windows arm64.
     required: false
     default: master
 
@@ -67,3 +67,11 @@ runs:
         flutter config --no-analytics
         flutter doctor -v
         flutter --version
+
+    - name: Download dependencies
+      run: flutter pub get
+      shell: bash
+
+    - name: Run build_runner
+      run: dart run build_runner build --delete-conflicting-outputs
+      shell: bash
