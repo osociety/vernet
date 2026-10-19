@@ -34,6 +34,8 @@ jobs:
     environment: release
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+      SQLITE_VERSION: 3.54.1
+      SQLITE_BUILD_VERSION: 3540100
     steps:
       - name: Confirm release promotion
         run: echo "Approved release promotion for ${{ env.RELEASE_TAG }}"
@@ -250,11 +252,19 @@ jobs:
             ${{ env.MACOS_DMG_PATH }}/${{ env.MACOS_DMG }}
 
   release-windows:
-    runs-on: windows-latest
+    name: Build Windows ${{ matrix.architecture }} packages
     needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: x64
+            runner: windows-2022
+          - architecture: arm64
+            runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
-      WINDOWS_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-windows.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -264,30 +274,165 @@ jobs:
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
-      - name: Install SQLite DLL
-        run: |
-          # 1. Download precompiled SQLite binaries via chocolatey
-          choco install sqlite -y
-          
-          # 2. Create the output folder ahead of time
-          mkdir -p build/windows/x64/runner/Release
-          
-          # 3. Copy the DLL from the installation path to your build path
-          cp C:\ProgramData\chocolatey\lib\sqlite\tools\sqlite3.dll build/windows/x64/runner/Release/
-
-      - name: Build windows release
+      - name: Build Windows release
         run: flutter build windows --release
 
-      - name: Archive windows Release
-        uses: TheDoctor0/zip-release@0.7.6
-        with:
-          type: 'zip'
-          filename: ${{ env.WINDOWS_ZIP }}
-          directory: ${{ env.WINDOWS_BUILD_PATH }}
+      - name: Install architecture-matched SQLite DLL and create distributables
+        shell: pwsh
+        env:
+          ARCHITECTURE: ${{ matrix.architecture }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $buildDirectory = "build/windows/$env:ARCHITECTURE/runner/Release"
+          if (-not (Test-Path "$buildDirectory/vernet.exe")) {
+            throw "Expected Windows build output was not found: $buildDirectory"
+          }
 
-      - name: Publish Windows Release
+          if ($env:ARCHITECTURE -eq 'x64') {
+            # Chocolatey's sqlite package publishes x86/x64 DLLs and selects
+            # x64 on the windows-2022 x64 runner.
+            choco install sqlite --version $env:SQLITE_VERSION --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Chocolatey failed to install SQLite.' }
+            $sqliteDllPath = 'C:\ProgramData\chocolatey\lib\sqlite\tools\sqlite3.dll'
+          } else {
+            # Chocolatey's package does not include an ARM64 DLL. Use the
+            # matching upstream SQLite archive on the Windows ARM64 runner.
+            $sqliteArchive = Join-Path $env:RUNNER_TEMP 'sqlite-arm64.zip'
+            $sqliteUrl = "https://www.sqlite.org/2026/sqlite-dll-win-arm64-$env:SQLITE_BUILD_VERSION.zip"
+            Invoke-WebRequest -Uri $sqliteUrl -OutFile $sqliteArchive
+            $sqliteExtract = Join-Path $env:RUNNER_TEMP 'sqlite-arm64'
+            Expand-Archive -Path $sqliteArchive -DestinationPath $sqliteExtract -Force
+            $sqliteDll = Get-ChildItem -Path $sqliteExtract -Filter sqlite3.dll -File -Recurse | Select-Object -First 1
+            if (-not $sqliteDll) { throw "sqlite3.dll was not found in $sqliteUrl" }
+            $sqliteDllPath = $sqliteDll.FullName
+          }
+          if (-not (Test-Path $sqliteDllPath)) { throw "SQLite DLL was not found at $sqliteDllPath" }
+          Copy-Item $sqliteDllPath "$buildDirectory/sqlite3.dll" -Force
+
+          $storeVersion = (Select-String -Path pubspec.yaml -Pattern '^version:\s*(\d+\.\d+\.\d+)\+\d+\s*$').Matches.Groups[1].Value
+          if (-not $storeVersion) { throw 'Could not derive the app version from pubspec.yaml.' }
+          $storeVersion = "$storeVersion.0"
+
+          $artifactDirectory = "artifacts/$env:ARCHITECTURE"
+          New-Item -ItemType Directory -Force -Path $artifactDirectory | Out-Null
+          $zipPath = Join-Path $artifactDirectory "Vernet-$env:RELEASE_TAG-windows-$env:ARCHITECTURE.zip"
+          Compress-Archive -Path "$buildDirectory/*" -DestinationPath $zipPath -CompressionLevel Optimal
+
+          dart run msix:create `
+            --store `
+            --architecture $env:ARCHITECTURE `
+            --version $storeVersion `
+            --build-windows false `
+            --output-path $artifactDirectory `
+            --output-name "Vernet-$env:RELEASE_TAG-windows-$env:ARCHITECTURE"
+
+      - name: Upload Windows distributables
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: windows-${{ matrix.architecture }}
+          path: artifacts/${{ matrix.architecture }}/*
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-windows:
+    name: Publish Windows packages to both channels
+    runs-on: windows-2022
+    needs:
+      - create-release
+      - release-windows
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+    steps:
+      - name: Download Windows distributables
+        uses: actions/download-artifact@v4.3.0
+        with:
+          pattern: windows-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Attach Windows packages to GitHub Release
         uses: softprops/action-gh-release@v2.2.1
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           draft: false
-          files: ${{ env.WINDOWS_BUILD_PATH }}/${{ env.WINDOWS_ZIP }}
+          files: artifacts/*.zip
+
+      - name: Create multi-architecture MSIX bundle
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $packages = Get-ChildItem artifacts -Filter '*.msix' -Recurse
+          $x64 = $packages | Where-Object Name -Match '-x64\.msix$' | Select-Object -First 1
+          $arm64 = $packages | Where-Object Name -Match '-arm64\.msix$' | Select-Object -First 1
+          if (-not $x64 -or -not $arm64) { throw 'Both x64 and ARM64 MSIX packages are required.' }
+
+          # Derive the package version from the MSIX identity manifest.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $manifestEntries = @{}
+          foreach ($package in @($x64, $arm64)) {
+            $zip = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+            try {
+              $entry = $zip.GetEntry('AppxManifest.xml')
+              $reader = [System.IO.StreamReader]::new($entry.Open())
+              try { [xml]$appManifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
+              $manifestEntries[$package.Name] = $appManifest.Package.Identity.Version
+            } finally { $zip.Dispose() }
+          }
+          $version = $manifestEntries[$x64.Name]
+          if ($version -ne $manifestEntries[$arm64.Name]) { throw 'MSIX package versions do not match.' }
+
+          $bundleDirectory = Join-Path $env:RUNNER_TEMP 'msix-bundle'
+          New-Item -ItemType Directory -Force -Path "$bundleDirectory/Packages" | Out-Null
+          Copy-Item $x64.FullName "$bundleDirectory/Packages/$($x64.Name)"
+          Copy-Item $arm64.FullName "$bundleDirectory/Packages/$($arm64.Name)"
+          $bundleXml = @"
+          <Bundle xmlns="http://schemas.microsoft.com/appx/2013/bundle">
+            <Identity Name="OpenSociety.VernetApp" Publisher="CN=89BA02CB-9308-4756-8038-C5914BBAE367" Version="$version" />
+            <Packages>
+              <Package Type="application" Version="$version" Architecture="x64" ResourceId="" FileName="Packages/$($x64.Name)" />
+              <Package Type="application" Version="$version" Architecture="arm64" ResourceId="" FileName="Packages/$($arm64.Name)" />
+            </Packages>
+          </Bundle>
+          "@
+          Set-Content -Path "$bundleDirectory/AppxBundleManifest.xml" -Value $bundleXml -Encoding UTF8
+          $makeAppx = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin' -Filter MakeAppx.exe -Recurse |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $makeAppx) { throw 'MakeAppx.exe was not found on the Windows runner.' }
+          & $makeAppx.FullName bundle /d $bundleDirectory /p "$env:RUNNER_TEMP/Vernet-$env:RELEASE_TAG.msixbundle" /o
+          if ($LASTEXITCODE -ne 0) { throw 'MakeAppx failed to create the MSIX bundle.' }
+
+      - name: Attach MSIX bundle to GitHub Release
+        uses: softprops/action-gh-release@v2.2.1
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          draft: false
+          files: ${{ runner.temp }}/Vernet-${{ env.RELEASE_TAG }}.msixbundle
+
+      - name: Configure Microsoft Store CLI
+        uses: microsoft/setup-msstore-cli@v1
+
+      - name: Authenticate Microsoft Store CLI
+        shell: pwsh
+        env:
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+          SELLER_ID: ${{ secrets.SELLER_ID }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($name in @('AZURE_AD_TENANT_ID', 'AZURE_AD_APPLICATION_CLIENT_ID', 'AZURE_AD_APPLICATION_SECRET', 'SELLER_ID')) {
+            if (-not (Get-Item "Env:$name").Value) { throw "Required GitHub secret $name is not configured." }
+          }
+          msstore reconfigure --tenantId $env:AZURE_AD_TENANT_ID --sellerId $env:SELLER_ID --clientId $env:AZURE_AD_APPLICATION_CLIENT_ID --clientSecret $env:AZURE_AD_APPLICATION_SECRET
+
+      - name: Publish multi-architecture package to Microsoft Store
+        shell: pwsh
+        env:
+          MS_STORE_PRODUCT_ID: ${{ vars.MS_STORE_PRODUCT_ID }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:MS_STORE_PRODUCT_ID) { throw 'Set the MS_STORE_PRODUCT_ID repository variable to the app Product ID from Partner Center.' }
+          msstore publish "$env:RUNNER_TEMP/Vernet-$env:RELEASE_TAG.msixbundle" -id $env:MS_STORE_PRODUCT_ID -v
+          if ($LASTEXITCODE -ne 0) { throw 'Microsoft Store submission failed.' }
