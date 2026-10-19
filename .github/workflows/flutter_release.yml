@@ -274,7 +274,6 @@ jobs:
       - name: Flutter bootstrap
         uses: ./.github/actions/flutter-bootstrap   # adjust to your action's path
         with:
-          java_version: '17'
           architecture: ${{ matrix.architecture }}
 
       - name: Build Windows release
