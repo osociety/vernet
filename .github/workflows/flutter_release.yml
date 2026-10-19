@@ -260,8 +260,9 @@ jobs:
         include:
           - architecture: x64
             runner: windows-2022
-          - architecture: arm64
-            runner: windows-11-arm
+          # fix arm64 later when it flutter actions supports it.
+          # - architecture: arm64
+          #   runner: windows-11-arm
     runs-on: ${{ matrix.runner }}
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
@@ -291,7 +292,7 @@ jobs:
           if ($env:ARCHITECTURE -eq 'x64') {
             # Chocolatey's sqlite package publishes x86/x64 DLLs and selects
             # x64 on the windows-2022 x64 runner.
-            choco install sqlite --version $env:SQLITE_VERSION --yes --no-progress
+            choco install sqlite --version $env:SQLITE_VERSION -y
             if ($LASTEXITCODE -ne 0) { throw 'Chocolatey failed to install SQLite.' }
             $sqliteDllPath = 'C:\ProgramData\chocolatey\lib\sqlite\tools\sqlite3.dll'
           } else {
