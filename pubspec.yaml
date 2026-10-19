@@ -82,7 +82,7 @@ dependencies:
   # Time zone database and time zone aware DateTime.
   timezone: ^0.11.1
   # Plugin for launching a URL
-  url_launcher: ^6.3.2
+  url_launcher: ^6.3.3
   wake_on_lan: ^4.1.1+3
   # Windows Specific Application Handlers
   wifi_plus: ^0.0.2
