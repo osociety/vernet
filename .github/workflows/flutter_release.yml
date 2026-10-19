@@ -260,9 +260,8 @@ jobs:
         include:
           - architecture: x64
             runner: windows-2022
-          # fix arm64 later when it flutter actions supports it.
-          # - architecture: arm64
-          #   runner: windows-11-arm
+          - architecture: arm64
+            runner: windows-11-arm
     runs-on: ${{ matrix.runner }}
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
