@@ -41,40 +41,29 @@ runs:
         esac
         echo "value=$arch" >> "$GITHUB_OUTPUT"
 
-    - name: Setup Flutter (x64)
-      if: ${{ steps.arch.outputs.value == 'x64' }}
+    # Everything except Windows arm64 uses the action
+    - name: Setup Flutter
+      if: ${{ !(runner.os == 'Windows' && steps.arch.outputs.value == 'arm64') }}
       uses: subosito/flutter-action@v2.23.0
       with:
         channel: stable
-        architecture: x64
+        architecture: ${{ steps.arch.outputs.value }}
         cache: true
 
-    - name: Clone Flutter (arm64)
-      if: ${{ steps.arch.outputs.value == 'arm64' }}
-      shell: bash
+    # Windows arm64 only: clone master
+    - name: Clone Flutter (Windows arm64)
+      if: ${{ runner.os == 'Windows' && steps.arch.outputs.value == 'arm64' }}
+      shell: pwsh
       env:
         FLUTTER_REF: ${{ inputs.arm64_flutter_ref }}
       run: |
-        FLUTTER_DIR="$RUNNER_TEMP/flutter"
-        git clone --depth 1 --branch "$FLUTTER_REF" https://github.com/flutter/flutter.git "$FLUTTER_DIR"
-        if command -v cygpath >/dev/null 2>&1; then
-          echo "$(cygpath -w "$FLUTTER_DIR")\\bin" >> "$GITHUB_PATH"
-        else
-          echo "$FLUTTER_DIR/bin" >> "$GITHUB_PATH"
-        fi
+        git clone --depth 1 --branch $env:FLUTTER_REF https://github.com/flutter/flutter.git "$env:RUNNER_TEMP\flutter"
+        Add-Content $env:GITHUB_PATH "$env:RUNNER_TEMP\flutter\bin"
 
-    - name: Flutter doctor (arm64)
-      if: ${{ steps.arch.outputs.value == 'arm64' }}
-      shell: bash
+    - name: Flutter doctor (Windows arm64)
+      if: ${{ runner.os == 'Windows' && steps.arch.outputs.value == 'arm64' }}
+      shell: pwsh
       run: |
         flutter config --no-analytics
         flutter doctor -v
         flutter --version
-
-    - name: Download dependencies
-      run: flutter pub get
-      shell: bash
-
-    - name: Run build_runner
-      run: dart run build_runner build --delete-conflicting-outputs
-      shell: bash
