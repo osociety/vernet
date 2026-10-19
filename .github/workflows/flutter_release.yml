@@ -373,46 +373,43 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+
           $packages = Get-ChildItem artifacts -Filter '*.msix' -Recurse
-          $x64 = $packages | Where-Object Name -Match '-x64\.msix$' | Select-Object -First 1
+          $x64   = $packages | Where-Object Name -Match '-x64\.msix$'   | Select-Object -First 1
           $arm64 = $packages | Where-Object Name -Match '-arm64\.msix$' | Select-Object -First 1
           if (-not $x64 -or -not $arm64) { throw 'Both x64 and ARM64 MSIX packages are required.' }
 
-          # Derive the package version from the MSIX identity manifest.
+          # Read the version from each package's identity manifest.
           Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $manifestEntries = @{}
+          $versions = @{}
           foreach ($package in @($x64, $arm64)) {
             $zip = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
             try {
               $entry = $zip.GetEntry('AppxManifest.xml')
               $reader = [System.IO.StreamReader]::new($entry.Open())
-              try { [xml]$appManifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
-              $manifestEntries[$package.Name] = $appManifest.Package.Identity.Version
+              try { [xml]$manifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
+              $versions[$package.Name] = $manifest.Package.Identity.Version
             } finally { $zip.Dispose() }
           }
-          $version = $manifestEntries[$x64.Name]
-          if ($version -ne $manifestEntries[$arm64.Name]) { throw 'MSIX package versions do not match.' }
+          $version = $versions[$x64.Name]
+          if ($version -ne $versions[$arm64.Name]) { throw 'MSIX package versions do not match.' }
 
+          # The content directory must hold ONLY the .msix packages.
+          # MakeAppx generates AppxBundleManifest.xml itself.
           $bundleDirectory = Join-Path $env:RUNNER_TEMP 'msix-bundle'
-          New-Item -ItemType Directory -Force -Path "$bundleDirectory/Packages" | Out-Null
-          Copy-Item $x64.FullName "$bundleDirectory/Packages/$($x64.Name)"
-          Copy-Item $arm64.FullName "$bundleDirectory/Packages/$($arm64.Name)"
-          $bundleXml = @"
-          <Bundle xmlns="http://schemas.microsoft.com/appx/2013/bundle">
-            <Identity Name="OpenSociety.VernetApp" Publisher="CN=89BA02CB-9308-4756-8038-C5914BBAE367" Version="$version" />
-            <Packages>
-              <Package Type="application" Version="$version" Architecture="x64" ResourceId="" FileName="Packages/$($x64.Name)" />
-              <Package Type="application" Version="$version" Architecture="arm64" ResourceId="" FileName="Packages/$($arm64.Name)" />
-            </Packages>
-          </Bundle>
-          "@
-          Set-Content -Path "$bundleDirectory/AppxBundleManifest.xml" -Value $bundleXml -Encoding UTF8
+          if (Test-Path $bundleDirectory) { Remove-Item $bundleDirectory -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path $bundleDirectory | Out-Null
+          Copy-Item $x64.FullName   (Join-Path $bundleDirectory $x64.Name)
+          Copy-Item $arm64.FullName (Join-Path $bundleDirectory $arm64.Name)
+
           $makeAppx = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin' -Filter MakeAppx.exe -Recurse |
             Sort-Object FullName -Descending | Select-Object -First 1
           if (-not $makeAppx) { throw 'MakeAppx.exe was not found on the Windows runner.' }
-          & $makeAppx.FullName bundle /d $bundleDirectory /p "$env:RUNNER_TEMP/Vernet-$env:RELEASE_TAG.msixbundle" /o
-          if ($LASTEXITCODE -ne 0) { throw 'MakeAppx failed to create the MSIX bundle.' }
 
+          $bundlePath = Join-Path $env:RUNNER_TEMP "Vernet-$env:RELEASE_TAG.msixbundle"
+          & $makeAppx.FullName bundle /d $bundleDirectory /p $bundlePath /bv $version /o
+          if ($LASTEXITCODE -ne 0) { throw 'MakeAppx failed to create the MSIX bundle.' }
+          
       - name: Attach MSIX bundle to GitHub Release
         uses: softprops/action-gh-release@v2.2.1
         with:
