@@ -290,11 +290,19 @@ jobs:
           }
 
           if ($env:ARCHITECTURE -eq 'x64') {
+            if ([string]::IsNullOrWhiteSpace($env:SQLITE_VERSION)) {
+              throw 'SQLITE_VERSION is not set.'
+            }
+
             # Chocolatey's sqlite package publishes x86/x64 DLLs and selects
             # x64 on the windows-2022 x64 runner.
-            choco install sqlite -y --version $env:SQLITE_VERSION
+            choco install sqlite -y --version="$env:SQLITE_VERSION"
             if ($LASTEXITCODE -ne 0) { throw 'Chocolatey failed to install SQLite.' }
+
             $sqliteDllPath = 'C:\ProgramData\chocolatey\lib\sqlite\tools\sqlite3.dll'
+            if (-not (Test-Path $sqliteDllPath)) {
+              throw "sqlite3.dll not found at $sqliteDllPath"
+            }
           } else {
             # Chocolatey's package does not include an ARM64 DLL. Use the
             # matching upstream SQLite archive on the Windows ARM64 runner.
