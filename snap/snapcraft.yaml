@@ -16,21 +16,51 @@ slots:
 apps:
   vernet:
     command: vernet
-    extensions: [gnome] # gnome includes the libraries required by flutter
+    extensions: [gnome]
     plugs:
-    - network
-    slots:
-      - dbus-vernet
+      - network
+      - desktop
+      - desktop-legacy
+      - x11
+      - wayland
+      - home
+
 parts:
   vernet:
     source: .
-    plugin: flutter
-    flutter-target: lib/main.dart # The main entry-point file of the application
-    # 1. Packages needed at BUILD time to compile SQLite bindings
+    source-type: git # 👈 Automatically drops local host build files
+    plugin: nil      # 👈 Bypasses the fragile default build lifecycle
     build-packages:
-      - libsqlite3-dev
-      - pkg-config
-      
-    # 2. Packages automatically extracted & bundled into the Snap (.so files)
+      - clang
+      - cmake
+      - curl
+      - libgtk-3-dev
+      - ninja-build
+      - unzip
+      - xz-utils
+      - zip
     stage-packages:
+      - libsqlite3-dev
       - libsqlite3-0
+
+    override-build: |
+      # 1. Clean out target cache tracking and manually pull stable Flutter
+      rm -rf /root/parts/vernet/build/flutter-distro
+      git clone --depth 1 -b stable https://github.com/flutter/flutter.git /root/parts/vernet/build/flutter-distro
+      
+      # 2. Bind paths inside the active shell
+      export PATH="/root/parts/vernet/build/flutter-distro/bin:/root/parts/vernet/build/flutter-distro/bin/cache/dart-sdk/bin:$PATH"
+      
+      # 3. Complete system pre-caching 
+      flutter precache --linux
+      flutter clean
+      
+      # 4. Fetch dependencies and execute your code generator explicitly
+      flutter pub get
+      dart run build_runner build --delete-conflicting-outputs
+      
+      # 5. Compile the native Linux binary releases directly
+      flutter build linux --release --target lib/main.dart
+      
+      # 6. Copy final production artifacts to the installer's active folder 
+      cp -r build/linux/arm64/release/bundle/* $CRAFT_PART_INSTALL/
