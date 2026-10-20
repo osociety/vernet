@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=Vernet - Know your network
+Type=Application
+Name=Vernet
 Comment=Know your network. Discover, scan & diagnose.
 Exec=vernet
-Icon=${SNAP}/meta/gui/vernet.png # Replace name with your app name.
+Icon=${SNAP}/meta/gui/vernet.png
 Terminal=false
-Type=Application
-Categories=Tools;
+Categories=Network;Utility;

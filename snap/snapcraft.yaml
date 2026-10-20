@@ -9,6 +9,7 @@ issues: https://github.com/osociety/vernet/issues
 source-code: https://github.com/osociety/vernet
 website: https://github.com/osociety/vernet
 license: Apache-2.0
+icon: snap/gui/vernet.png
 
 confinement: strict
 base: core22
@@ -22,15 +23,10 @@ lint:
         - lib/libsqlite3.so
         - usr/lib/*-linux-gnu/libsqlite3.so.0*
 
-slots:
-  dbus-vernet:
-    interface: dbus
-    bus: session
-    name: org.fsociety.vernet
-
 apps:
   vernet:
     command: vernet
+    desktop: meta/gui/vernet.desktop
     extensions: [gnome]
     plugs:
       - network
