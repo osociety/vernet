@@ -28,8 +28,8 @@ apps:
 parts:
   vernet:
     source: .
-    source-type: git # 👈 Automatically drops local host build files
-    plugin: nil      # 👈 Bypasses the fragile default build lifecycle
+    source-type: git
+    plugin: nil      
     build-packages:
       - clang
       - cmake
@@ -39,28 +39,44 @@ parts:
       - unzip
       - xz-utils
       - zip
+      - libsqlite3-dev
     stage-packages:
       - libsqlite3-dev
       - libsqlite3-0
 
     override-build: |
-      # 1. Clean out target cache tracking and manually pull stable Flutter
+      # 1. Detect target architecture dynamically
+      ARCH=$(uname -m)
+      if [ "$ARCH" = "aarch64" ]; then
+        FLUTTER_ARCH="arm64"
+        DEB_ARCH="aarch64-linux-gnu"
+      else
+        FLUTTER_ARCH="x64"
+        DEB_ARCH="x86_64-linux-gnu"
+      fi
+      
+      # 2. Setup the isolated Flutter SDK
       rm -rf /root/parts/vernet/build/flutter-distro
       git clone --depth 1 -b stable https://github.com/flutter/flutter.git /root/parts/vernet/build/flutter-distro
-      
-      # 2. Bind paths inside the active shell
       export PATH="/root/parts/vernet/build/flutter-distro/bin:/root/parts/vernet/build/flutter-distro/bin/cache/dart-sdk/bin:$PATH"
       
-      # 3. Complete system pre-caching 
+      # 3. Cache system tools & fetch pub dependencies
       flutter precache --linux
       flutter clean
-      
-      # 4. Fetch dependencies and execute your code generator explicitly
       flutter pub get
-      dart run build_runner build
       
-      # 5. Compile the native Linux binary releases directly
+      # 4. Run your code generation steps BEFORE compiling
+      dart run build_runner build --delete-conflicting-outputs
+      
+      # 5. Compile your native release bundle
       flutter build linux --release --target lib/main.dart
       
-      # 6. Copy final production artifacts to the installer's active folder 
-      cp -r build/linux/arm64/release/bundle/* $CRAFT_PART_INSTALL/
+      # 6. Create the internal library directory structure inside the build output bundle
+      BUNDLE_LIB_DIR="build/linux/$FLUTTER_ARCH/release/bundle/lib"
+      mkdir -p "$BUNDLE_LIB_DIR"
+      
+      # 7. Copy the system's architecture-specific libsqlite3.so file into the bundle
+      cp /usr/lib/$DEB_ARCH/libsqlite3.so "$BUNDLE_LIB_DIR/libsqlite3.so"
+      
+      # 8. Copy all production artifacts to the active Snapcraft installation location
+      cp -r build/linux/$FLUTTER_ARCH/release/bundle/* $CRAFT_PART_INSTALL/
