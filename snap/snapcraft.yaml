@@ -28,15 +28,15 @@ parts:
     flutter-target: lib/main.dart
     # Override build to run build_runner first, then proceed
     override-build: |
-      # 1. Run pub get
-      flutter pub get
+      # 1. Run pub get using the exact path to Flutter
+      $CRAFT_PART_SRC/flutter/bin/flutter pub get
       
-      # 2. Run build_runner for code generation
-      dart run build_runner build
+      # 2. Run build_runner via Dart
+      $CRAFT_PART_SRC/flutter/bin/cache/dart-sdk/bin/dart run build_runner build --delete-conflicting-outputs
       
-      # 3. Proceed with the standard flutter build or copy
-      flutter build linux --release --target lib/main.dart
+      # 3. Build the Linux binary
+      $CRAFT_PART_SRC/flutter/bin/flutter build linux --release --target lib/main.dart
       
-      # 4. Copy the resulting bundle to the install directory
+      # 4. Copy build files to the install directory
       mkdir -p $CRAFT_PART_INSTALL
       cp -r build/linux/x64/release/bundle/* $CRAFT_PART_INSTALL/
