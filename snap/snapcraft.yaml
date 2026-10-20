@@ -1,0 +1,28 @@
+name: vernet
+version: 0.1.0
+summary: Vernet - Know your network
+description: Know your network. Discover, scan & diagnose.
+
+confinement: strict
+base: core22
+grade: stable
+
+slots:
+  dbus-vernet:
+    interface: dbus
+    bus: session
+    name: org.fsociety.vernet
+
+apps:
+  vernet:
+    command: vernet
+    extensions: [gnome] # gnome includes the libraries required by flutter
+    plugs:
+    - network
+    slots:
+      - dbus-vernet
+parts:
+  vernet:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart # The main entry-point file of the application
