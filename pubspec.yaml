@@ -78,7 +78,7 @@ dependencies:
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
   sqlite3: ^3.4.0
-  syncfusion_flutter_gauges: ^34.2.6
+  syncfusion_flutter_gauges: ^35.1.40+1
   # Time zone database and time zone aware DateTime.
   timezone: ^0.11.2
   # Plugin for launching a URL
