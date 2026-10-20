@@ -83,7 +83,8 @@ parts:
       # 4. Run your code generation steps BEFORE compiling
       dart run build_runner build --delete-conflicting-outputs
       
-      # 5. Compile your native release bundle
+      # 5. Test and Compile your native release bundle
+      flutter test
       flutter build linux --release --target lib/main.dart
       
       # 6. Create the internal library directory structure inside the build output bundle
