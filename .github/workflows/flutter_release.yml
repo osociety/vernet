@@ -106,12 +106,11 @@ jobs:
               --notes-file "$changelog"
           fi
 
-  release-android-and-linux: 
+  release-android: 
     runs-on: ubuntu-latest
     needs: create-release
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
-      LINUX_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-linux.zip
       ANDROID_APK_ARM_V7A: app-armeabi-v7a-dev-release.apk
       ANDROID_APK_ARM_V8A: app-arm64-v8a-dev-release.apk
       ANDROID_APK_x86_64: app-x86_64-dev-release.apk
@@ -153,27 +152,16 @@ jobs:
       - name: Create artifacts directory
         run: mkdir -p artifacts
       
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
-
       - name: Build Android App and Linux Bundle
         # Use signing keys for release instead of debug
         run: |
           flutter build apk --split-per-abi --flavor dev
-          flutter build linux --release
 
       - name: Rename ANDROID APKs
         run: |
           mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V7A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V7A}}
           mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_ARM_V8A}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V8A}}
           mv ${{ env.ANDROID_BUILD_PATH}}/${{env.ANDROID_APK_x86_64}} ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_x86_64}}
-
-      - name: Linux Archive
-        uses: TheDoctor0/zip-release@0.7.6
-        with:
-          type: 'zip'
-          filename: ${{ env.LINUX_ZIP }}
-          directory: ${{  env.LINUX_BUILD_PATH }}
 
       - name: Publish Android Release
         uses: softprops/action-gh-release@v2.2.1
@@ -185,12 +173,63 @@ jobs:
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V8A}}
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_x86_64}}
 
+  release-linux: 
+    runs-on: ubuntu-latest
+    needs: create-release
+    env:
+      RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
+      LINUX_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-linux.zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+      
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev libsqlite3-0 clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Copy sqlite3 library
+        run: |
+          mkdir -p build/linux/arm64/release/bundle/lib/
+          cp /usr/lib/aarch64-linux-gnu/libsqlite3.so build/linux/arm64/release/bundle/lib/
+
+      - name: Build Linux Bundle
+        run: |
+          flutter build linux --release
+
+      - name: Linux Archive
+        uses: TheDoctor0/zip-release@0.7.6
+        with:
+          type: 'zip'
+          filename: ${{ env.LINUX_ZIP }}
+          directory: ${{  env.LINUX_BUILD_PATH }}
+
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v2.2.1
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           draft: false
           files: ${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}
+
+      - name: Build Snap
+        uses: canonical/action-build@v1
+        id: build
+
+      - name: Publish to Snap Store
+        uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: beta # Change to 'stable', 'candidate', or 'beta' as needed
+
 
   release-firebase-hosting:
     name: Deploy Firebase Hosting with app release
