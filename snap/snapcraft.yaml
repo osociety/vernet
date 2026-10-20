@@ -1,13 +1,48 @@
 name: vernet
-title: Vernet
-version: 0.1.0
-summary: Vernet - Know your network
-description: Know your network. Discover, scan & diagnose.
+title: Vernet - Know your network
+version: 1.4.9
+summary: Know your network. Discover, scan & diagnose.
+description: |
+  Take control of your home or office network with Vernet — a free,
+  open-source toolkit that puts network insights in your hands.
+
+  Whether you're troubleshooting a slow connection, checking who's on
+  your Wi-Fi, or making sure your devices are reachable, Vernet gives
+  you clear, easy-to-understand answers — no technical background required.
+
+  What's on my network?
+  See every device connected to your local Wi-Fi, along with their IP
+  addresses and names. Know exactly who and what is sharing your connection.
+
+  Is my internet working?
+  Run a ping test to check if a website or device is responding. Spot
+  drops and delays in seconds.
+
+  How fast is my connection?
+  Test your real download and upload speed with the built-in speed test.
+  Get accurate results without leaving the app.
+
+  What services are exposed?
+  Scan a device for open ports to see which services are reachable —
+  helpful for understanding your home network's security posture.
+
+  What's behind this address?
+  Use built-in DNS tools to look up domain names, resolve IPs, and trace
+  how addresses are mapped on the internet.
+
+  Who is my internet provider?
+  View details about your ISP, including your public IP, location, and
+  connection type.
+
+  Free & open source
+  Vernet is free and open source. No tracking, no telemetry.
+  Support the project: https://ko-fi.com/op3nsoc13ty
 
 contact: https://github.com/osociety/vernet/issues
+donation: https://liberapay.com/OpenSociety/donate
 issues: https://github.com/osociety/vernet/issues
 source-code: https://github.com/osociety/vernet
-website: https://github.com/osociety/vernet
+website: https://vernet-app.web.app/
 license: Apache-2.0
 icon: snap/gui/vernet.png
 
