@@ -173,12 +173,24 @@ jobs:
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V8A}}
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_x86_64}}
 
-  release-linux: 
-    runs-on: ubuntu-latest
+  release-linux:
+    name: Build Linux ${{ matrix.architecture }} packages
     needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: x64
+            runner: ubuntu-latest
+            deb_arch: x86_64-linux-gnu
+          - architecture: arm64
+            runner: ubuntu-24.04-arm
+            deb_arch: aarch64-linux-gnu
+    runs-on: ${{ matrix.runner }}
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
-      LINUX_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-linux.zip
+      LINUX_ZIP: Vernet-${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}-linux-${{ matrix.architecture }}.zip
+      LINUX_BUILD_PATH: build/linux/${{ matrix.architecture }}/release/bundle
 
     steps:
       - name: Checkout
@@ -188,6 +200,8 @@ jobs:
 
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
+        with:
+          architecture: ${{ matrix.architecture }}
 
       - name: Create artifacts directory
         run: mkdir -p artifacts
@@ -197,8 +211,8 @@ jobs:
 
       - name: Copy sqlite3 library
         run: |
-          mkdir -p build/linux/arm64/release/bundle/lib/
-          cp /usr/lib/aarch64-linux-gnu/libsqlite3.so build/linux/arm64/release/bundle/lib/
+          mkdir -p build/linux/${{ matrix.architecture }}/release/bundle/lib/
+          cp /usr/lib/${{ matrix.deb_arch }}/libsqlite3.so build/linux/${{ matrix.architecture }}/release/bundle/lib/
 
       - name: Build Linux Bundle
         run: |
@@ -222,14 +236,56 @@ jobs:
         uses: canonical/action-build@v1
         id: build
 
-      - name: Publish to Snap Store
+      - name: Upload Snap artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: snap-${{ matrix.architecture }}
+          path: ${{ steps.build.outputs.snap }}
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-snap:
+    name: Publish Snap packages to Snap Store
+    runs-on: ubuntu-latest
+    needs:
+      - create-release
+      - release-linux
+    steps:
+      - name: Download Snap artifacts
+        uses: actions/download-artifact@v4.3.0
+        with:
+          pattern: snap-*
+          path: snaps
+          merge-multiple: true
+
+      - name: Locate snap files
+        id: snaps
+        run: |
+          set -euo pipefail
+          X64=$(ls snaps/*_amd64.snap | head -n 1)
+          ARM64=$(ls snaps/*_arm64.snap | head -n 1)
+          if [ -z "$X64" ] || [ -z "$ARM64" ]; then
+            echo "Both amd64 and arm64 snaps are required." >&2
+            exit 1
+          fi
+          echo "amd64=$X64" >> "$GITHUB_OUTPUT"
+          echo "arm64=$ARM64" >> "$GITHUB_OUTPUT"
+
+      - name: Publish amd64 snap
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
         with:
-          snap: ${{ steps.build.outputs.snap }}
+          snap: ${{ steps.snaps.outputs.amd64 }}
           release: beta # Change to 'stable', 'candidate', or 'beta' as needed
 
+      - name: Publish arm64 snap
+        uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+        with:
+          snap: ${{ steps.snaps.outputs.arm64 }}
+          release: beta # Change to 'stable', 'candidate', or 'beta' as needed
 
   release-firebase-hosting:
     name: Deploy Firebase Hosting with app release
