@@ -42,4 +42,4 @@ parts:
       $FLUTTER_BIN build linux --release --target lib/main.dart
       
       # 5. Overwrite the final installation package with your new generated build
-      cp -r build/linux/x64/release/bundle/* $CRAFT_PART_INSTALL/
+      cp -r build/linux/arm64/release/bundle/* $CRAFT_PART_INSTALL/
