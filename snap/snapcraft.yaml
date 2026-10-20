@@ -57,7 +57,7 @@ parts:
       
       # 4. Fetch dependencies and execute your code generator explicitly
       flutter pub get
-      dart run build_runner build --delete-conflicting-outputs
+      dart run build_runner build
       
       # 5. Compile the native Linux binary releases directly
       flutter build linux --release --target lib/main.dart
