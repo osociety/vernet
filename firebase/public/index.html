@@ -507,6 +507,18 @@
   @media (max-width: 900px) and (min-width: 561px) {
     .platforms { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
+
+  .video-container {
+    width: 100%;
+    max-width: 800px; /* Optional: limit maximum size */
+    margin: 0 auto;
+  }
+  .video-container iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border: 0;
+  }
 </style>
 </head>
 <body>
@@ -516,6 +528,7 @@
     <a class="brand" href="#top" aria-label="Vernet home"><img src="favicon-64.png" width="64" height="64" alt=""> vernet</a>
     <div class="nav-links">
       <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
       <a href="#how">How it works</a>
       <a href="#download">Download</a>
     </div>
@@ -643,6 +656,20 @@
     </div>
   </div>
 </section>
+
+<section id="demo">
+  <div class="wrap" align="center">
+    <div class="section-head">
+      <span class="eyebrow">Vernet in action</span>
+      <h2>No more guessing, just facts.</h2>
+      <p>See how vernet takes care of your network</p>
+    </div>
+    <div class="video-container">
+      <iframe width="720" height="480" src="https://www.youtube.com/embed/et5lWA3GzAo?si=j4SzFWeZMxoMDOFR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
 
 <section id="how">
   <div class="wrap">
