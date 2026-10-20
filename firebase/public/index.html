@@ -507,6 +507,18 @@
   @media (max-width: 900px) and (min-width: 561px) {
     .platforms { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
+
+  .video-container {
+    width: 100%;
+    max-width: 800px; /* Optional: limit maximum size */
+    margin: 0 auto;
+  }
+  .video-container iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border: 0;
+  }
 </style>
 </head>
 <body>
@@ -516,6 +528,7 @@
     <a class="brand" href="#top" aria-label="Vernet home"><img src="favicon-64.png" width="64" height="64" alt=""> vernet</a>
     <div class="nav-links">
       <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
       <a href="#how">How it works</a>
       <a href="#download">Download</a>
     </div>
@@ -532,6 +545,7 @@
     <div class="cta-row">
       <a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store" class="btn">Get it on Google Play</a>
       <a href="https://f-droid.org/packages/org.fsociety.vernet" class="btn ghost">Get it on F-Droid</a>
+      <a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self" class="btn ghost"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="130"/></a>
     </div>
     <div class="store-row">
       <span class="store-pill soon"><img loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS <span class="soon-tag">Coming soon</span></span>
@@ -643,6 +657,20 @@
   </div>
 </section>
 
+<section id="demo">
+  <div class="wrap" align="center">
+    <div class="section-head">
+      <span class="eyebrow">Vernet in action</span>
+      <h2>No more guessing, just facts.</h2>
+      <p>See how vernet takes care of your network</p>
+    </div>
+    <div class="video-container">
+      <iframe width="720" height="480" src="https://www.youtube.com/embed/et5lWA3GzAo?si=j4SzFWeZMxoMDOFR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+
 <section id="how">
   <div class="wrap">
     <div class="showcase showcase-first">
@@ -713,7 +741,9 @@
       <div class="platform-card soon"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS</div><div class="platform-meta">iPhone and iPad</div><span class="soon-tag">Coming soon</span></div>
       <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="macos" href="https://github.com/osociety/vernet/releases/latest">Download for macOS</a></div>
       <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="linux" href="https://github.com/osociety/vernet/releases/latest">Download for Linux</a></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows" href="https://github.com/osociety/vernet/releases/latest">Download for Windows</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Microsoft Store </br> (x64/arm64)</div><a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="125"/></a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows_x64" href="https://github.com/osociety/vernet/releases/latest">Download for Windows (x64)</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows_arm64" href="https://github.com/osociety/vernet/releases/latest">Download for Windows (arm64)</a></div>
     </div>
   </div>
 </section>
@@ -841,7 +871,8 @@
   const releaseAssetSuffixes = {
     macos: '-macos.dmg',
     linux: '-linux.zip',
-    windows: '-windows.zip'
+    windows_x64: '-windows-x64.zip',
+    windows_arm64: '-windows-arm64.zip'
   };
   fetch('https://api.github.com/repos/osociety/vernet/releases/latest', {
     headers: { Accept: 'application/vnd.github+json' }
