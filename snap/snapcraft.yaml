@@ -1,0 +1,93 @@
+name: vernet
+title: Vernet
+version: 0.1.0
+summary: Vernet - Know your network
+description: Know your network. Discover, scan & diagnose.
+
+contact: https://github.com/osociety/vernet/issues
+issues: https://github.com/osociety/vernet/issues
+source-code: https://github.com/osociety/vernet
+website: https://github.com/osociety/vernet
+license: Apache-2.0
+icon: snap/gui/vernet.png
+
+confinement: strict
+base: core22
+grade: stable
+
+lint:
+  ignore:
+    - library:
+        - lib/*-linux-gnu/libcrypt.so.1
+        - lib/*-linux-gnu/libtirpc.so.3*
+        - lib/libsqlite3.so
+        - usr/lib/*-linux-gnu/libsqlite3.so.0*
+
+apps:
+  vernet:
+    command: vernet
+    desktop: meta/gui/vernet.desktop
+    extensions: [gnome]
+    plugs:
+      - network
+      - desktop
+      - desktop-legacy
+      - x11
+      - wayland
+      - home
+
+parts:
+  vernet:
+    source: .
+    source-type: git
+    plugin: nil      
+    build-packages:
+      - clang
+      - cmake
+      - curl
+      - libgtk-3-dev
+      - ninja-build
+      - unzip
+      - xz-utils
+      - zip
+      - libsqlite3-dev
+    stage-packages:
+      - libsqlite3-dev
+      - libsqlite3-0
+
+    override-build: |
+      # 1. Detect target architecture dynamically
+      ARCH=$(uname -m)
+      if [ "$ARCH" = "aarch64" ]; then
+        FLUTTER_ARCH="arm64"
+        DEB_ARCH="aarch64-linux-gnu"
+      else
+        FLUTTER_ARCH="x64"
+        DEB_ARCH="x86_64-linux-gnu"
+      fi
+      
+      # 2. Setup the isolated Flutter SDK
+      rm -rf /root/parts/vernet/build/flutter-distro
+      git clone --depth 1 -b stable https://github.com/flutter/flutter.git /root/parts/vernet/build/flutter-distro
+      export PATH="/root/parts/vernet/build/flutter-distro/bin:/root/parts/vernet/build/flutter-distro/bin/cache/dart-sdk/bin:$PATH"
+      
+      # 3. Cache system tools & fetch pub dependencies
+      flutter precache --linux
+      flutter clean
+      flutter pub get
+      
+      # 4. Run your code generation steps BEFORE compiling
+      dart run build_runner build --delete-conflicting-outputs
+      
+      # 5. Test and Compile your native release bundle
+      flutter build linux --release --target lib/main.dart
+      
+      # 6. Create the internal library directory structure inside the build output bundle
+      BUNDLE_LIB_DIR="build/linux/$FLUTTER_ARCH/release/bundle/lib"
+      mkdir -p "$BUNDLE_LIB_DIR"
+      
+      # 7. Copy the system's architecture-specific libsqlite3.so file into the bundle
+      cp /usr/lib/$DEB_ARCH/libsqlite3.so "$BUNDLE_LIB_DIR/libsqlite3.so"
+      
+      # 8. Copy all production artifacts to the active Snapcraft installation location
+      cp -r build/linux/$FLUTTER_ARCH/release/bundle/* $CRAFT_PART_INSTALL/

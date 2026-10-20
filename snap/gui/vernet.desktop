@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Vernet
+Comment=Know your network. Discover, scan & diagnose.
+Exec=vernet
+Icon=${SNAP}/meta/gui/vernet.png
+Terminal=false
+Categories=Network;Utility;
