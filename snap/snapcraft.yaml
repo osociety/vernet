@@ -1,6 +1,6 @@
 name: vernet
 title: Vernet - Know your network
-version: 1.4.9
+adopt-info: vernet
 summary: Know your network. Discover, scan & diagnose.
 description: |
   Take control of your home or office network with Vernet — a free,
@@ -88,9 +88,16 @@ parts:
       - zip
       - libsqlite3-dev
     stage-packages:
+      - libsqlite3-dev
       - libsqlite3-0
+      - net-tools
 
     override-build: |
+      # 0. Take the snap version from pubspec.yaml (1.4.10+67 -> 1.4.10)
+      craftctl default
+      VERSION=$(grep -m1 '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d+ -f1)
+      craftctl set version="$VERSION"
+
       # 1. Detect target architecture dynamically
       ARCH=$(uname -m)
       if [ "$ARCH" = "aarch64" ]; then

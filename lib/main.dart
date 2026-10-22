@@ -36,9 +36,12 @@ Future<void> main() async {
 
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
-
-  final appDocDirectory = await getApplicationDocumentsDirectory();
-  await configureNetworkToolsFlutter(appDocDirectory.path, rebuildData: true);
+  try {
+    final appDocDirectory = await getApplicationDocumentsDirectory();
+    await configureNetworkToolsFlutter(appDocDirectory.path, rebuildData: true);
+  } catch (e, st) {
+    debugPrint('Network tools init failed: $e\n$st');
+  }
 
   final bool allowed = await ConsentLoader.isConsentPageShown();
   await appSettings.load();
