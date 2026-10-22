@@ -46,14 +46,14 @@ class TestUtils {
       (methodCall) async {
         if (methodCall.method == 'getAll') {
           return <String, dynamic>{
-            'appName': 'vernet',
+            'appName': 'Vernet',
             'packageName': 'org.fsociety.vernet',
             'version': '1.0.0',
             'buildNumber': '1',
           };
         }
         return <String, dynamic>{
-          'appName': 'vernet',
+          'appName': 'Vernet',
           'packageName': 'org.fsociety.vernet',
           'version': '1.0.0',
           'buildNumber': '1',

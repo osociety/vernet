@@ -25,7 +25,7 @@ void main() {
     messenger.setMockMethodCallHandler(
       const MethodChannel('dev.fluttercommunity.plus/package_info'),
       (call) async => <String, dynamic>{
-        'appName': 'vernet',
+        'appName': 'Vernet',
         'packageName': 'org.fsociety.vernet',
         'version': '1.0.0',
         'buildNumber': '1',
