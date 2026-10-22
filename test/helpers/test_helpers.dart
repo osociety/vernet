@@ -24,7 +24,7 @@ void setupPackageInfoMock() {
     (MethodCall methodCall) async {
       if (methodCall.method == 'getAll') {
         return <String, dynamic>{
-          'appName': 'vernet',
+          'appName': 'Vernet',
           'packageName': 'org.fsociety.vernet',
           'version': '1.0.0',
           'buildNumber': '1',
@@ -37,7 +37,7 @@ void setupPackageInfoMock() {
 
 /// Sets up PackageInfo mock with custom values.
 void setupPackageInfoMockCustom({
-  String appName = 'vernet',
+  String appName = 'Vernet',
   String packageName = 'org.fsociety.vernet',
   String version = '1.0.0',
   String buildNumber = '1',

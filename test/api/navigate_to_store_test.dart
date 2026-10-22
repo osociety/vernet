@@ -19,7 +19,7 @@ void main() {
             (MethodCall methodCall) async {
       if (methodCall.method == 'getAll') {
         return <String, dynamic>{
-          'appName': 'vernet',
+          'appName': 'Vernet',
           'packageName': 'org.fsociety.vernet',
           'version': '1.0.0',
           'buildNumber': '1',
@@ -75,7 +75,7 @@ void main() {
               (MethodCall methodCall) async {
         if (methodCall.method == 'getAll') {
           return <String, dynamic>{
-            'appName': 'vernet',
+            'appName': 'Vernet',
             'packageName': 'org.fsociety.vernet.store',
             'version': '1.0.0-store',
             'buildNumber': '1',
