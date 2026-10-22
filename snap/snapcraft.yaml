@@ -55,14 +55,15 @@ lint:
     - library:
         - lib/*-linux-gnu/libcrypt.so.1
         - lib/*-linux-gnu/libtirpc.so.3*
-        - lib/libsqlite3.so
-        - usr/lib/*-linux-gnu/libsqlite3.so.0*
+        - lib/libsqlite3.so.0
 
 apps:
   vernet:
     command: vernet
     desktop: meta/gui/vernet.desktop
     extensions: [gnome]
+    environment:
+      LD_LIBRARY_PATH: $SNAP/lib:$LD_LIBRARY_PATH
     plugs:
       - network
       - desktop
@@ -87,7 +88,6 @@ parts:
       - zip
       - libsqlite3-dev
     stage-packages:
-      - libsqlite3-dev
       - libsqlite3-0
 
     override-build: |
@@ -111,18 +111,19 @@ parts:
       flutter clean
       flutter pub get
       
-      # 4. Run your code generation steps BEFORE compiling
+      # 4. Run code generation steps BEFORE compiling
       dart run build_runner build --delete-conflicting-outputs
       
-      # 5. Test and Compile your native release bundle
+      # 5. Compile the native release bundle
       flutter build linux --release --target lib/main.dart
       
-      # 6. Create the internal library directory structure inside the build output bundle
+      # 6. Create the internal library directory inside the build output bundle
       BUNDLE_LIB_DIR="build/linux/$FLUTTER_ARCH/release/bundle/lib"
       mkdir -p "$BUNDLE_LIB_DIR"
       
-      # 7. Copy the system's architecture-specific libsqlite3.so file into the bundle
-      cp /usr/lib/$DEB_ARCH/libsqlite3.so "$BUNDLE_LIB_DIR/libsqlite3.so"
+      # 7. Copy libsqlite3.so.0 — Dart's sqlite3 package calls dlopen("libsqlite3.so.0")
+      #    NOT the unversioned .so (which is only a dev symlink for compile-time linking)
+      cp /usr/lib/$DEB_ARCH/libsqlite3.so.0 "$BUNDLE_LIB_DIR/libsqlite3.so.0"
       
-      # 8. Copy all production artifacts to the active Snapcraft installation location
+      # 8. Copy all production artifacts to the Snapcraft installation location
       cp -r build/linux/$FLUTTER_ARCH/release/bundle/* $CRAFT_PART_INSTALL/
