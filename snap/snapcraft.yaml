@@ -66,6 +66,8 @@ apps:
       LD_LIBRARY_PATH: $SNAP/lib:$LD_LIBRARY_PATH
     plugs:
       - network
+      - network-observe
+      - network-manager-observe
       - desktop
       - desktop-legacy
       - x11
