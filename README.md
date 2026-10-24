@@ -45,36 +45,78 @@ Web is not currently supported.
 
 ## How to install
 
-### Instructions for macOS
+Vernet is available for Linux, Windows and macOS. Linux and Windows builds come in both **x64** and **arm64**.
 
-Note: macOS build hasn't been notarized yet.
+| Platform | Architectures | Install from |
+|---|---|---|
+| Linux | x64, arm64 | [Snap Store](https://snapcraft.io/vernet) or [GitHub releases](https://github.com/osociety/vernet/releases/latest) |
+| Windows | x64, arm64 | [Microsoft Store](https://apps.microsoft.com/detail/9N1170N3PHMM) or [GitHub releases](https://github.com/osociety/vernet/releases/latest) |
+| macOS | Apple silicon and Intel | [GitHub releases](https://github.com/osociety/vernet/releases/latest) |
 
-1. Star this repository.
-2. Download vernet-macos.zip from [releases](https://github.com/osociety/vernet/releases/latest)
-3. Extract downloaded zip file.
-4. Copy app file to the Applications folder.
-5. Go to Applications folder.
-6. Press down cmd + left click on vernet.
-7. In context menu, click on open.
+Not sure which architecture you have? On Linux, run `uname -m`: `x86_64` means x64 and `aarch64` means arm64. On Windows, open **Settings > System > About** and check "System type".
 
 ### Instructions for Linux
 
-1. Star this repository.
-2. Install `net-tools` package for `arp` command, otherwise app will not run.
-3. Download vernet-linux.zip from [releases](https://github.com/osociety/vernet/releases/latest)
-4. Extract downloaded zip file.
-5. Go to bundle folder and double click vernet file.
+#### Option 1: Snap Store (recommended)
 
-### Instruction for Windows
+```bash
+sudo snap install vernet --beta
+```
+
+Then connect the network permissions once, so the app can discover devices:
+
+```bash
+sudo snap connect vernet:network-observe
+sudo snap connect vernet:network-manager-observe
+```
+
+`snap install` picks the right build for your architecture (x64 or arm64) automatically.
+
+#### Option 2: Download from GitHub
+
 1. Star this repository.
-2. Download vernet-windows.zip from [releases](https://github.com/osociety/vernet/releases/latest)
-3. Extract downloaded zip file.
-4. Run vernet.exe
-5. Click on more info, tap on 'Run anyway'.
-5. Give permission if asked.
+2. Install the `net-tools` package for the `arp` command, otherwise the app will not run.
+   ```bash
+   sudo apt install net-tools
+   ```
+3. Download the zip for your architecture from [releases](https://github.com/osociety/vernet/releases/latest):
+   - `Vernet-<version>-linux-x64.zip` for x64
+   - `Vernet-<version>-linux-arm64.zip` for arm64
+4. Extract the downloaded zip file.
+5. Go to the `bundle` folder and double click the `vernet` file.
+
+### Instructions for Windows
+
+#### Option 1: Microsoft Store (recommended)
+
+Install Vernet from the [Microsoft Store](https://apps.microsoft.com/detail/<your-product-id>). The Store installs the right build for your device (x64 or arm64) and keeps it updated.
+
+#### Option 2: Download from GitHub
+
+1. Star this repository.
+2. Download the zip for your architecture from [releases](https://github.com/osociety/vernet/releases/latest):
+   - `Vernet-<version>-windows-x64.zip` for x64
+   - `Vernet-<version>-windows-arm64.zip` for arm64
+3. Extract the downloaded zip file.
+4. Run `vernet.exe`.
+5. Click on **More info**, then tap **Run anyway**.
+6. Give permission if asked.
+
+### Instructions for macOS
+
+Note: the macOS build hasn't been notarized yet.
+
+1. Star this repository.
+2. Download `Vernet-<version>-macos.zip` (or the `.dmg`) from [releases](https://github.com/osociety/vernet/releases/latest).
+3. Extract the downloaded zip file, or open the `.dmg`.
+4. Copy the app to the Applications folder.
+5. Go to the Applications folder.
+6. Hold down Cmd and click on Vernet.
+7. In the context menu, click **Open**.
 
 ## Publishing to F-Droid
 You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
+
 ## How to Contribute
 
 1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)
