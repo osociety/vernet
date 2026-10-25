@@ -137,3 +137,5 @@ You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.b
 
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
 
+*Vernet is an independent open-source project, licensed under Apache-2.0, and is not affiliated with or endorsed by any other organization or product with a similar name.*
+
