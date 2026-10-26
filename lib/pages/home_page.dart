@@ -10,6 +10,8 @@ import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
@@ -18,13 +20,22 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/services/isp_lookup_service.dart';
+import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
+import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/ui/speed_test_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    this.connectivityService,
+    this.wifiInfoLoader,
+  });
+
+  final NetworkConnectivityService? connectivityService;
+  final Future<WifiInfo?> Function({bool force})? wifiInfoLoader;
 
   @override
   _WifiDetailState createState() => _WifiDetailState();
@@ -33,6 +44,8 @@ class HomePage extends StatefulWidget {
 class _WifiDetailState extends State<HomePage> {
   WifiInfo? _wifiInfo;
   Future<WifiInfo?>? _wifiInfoFuture;
+  late final NetworkConnectivityService _connectivityService;
+  Future<NetworkConnectionStatus>? _internetStatusFuture;
   bool _isRefreshingWifi = false;
   bool _hasRunStartupScan = false;
   bool scanRunning = false;
@@ -42,6 +55,10 @@ class _WifiDetailState extends State<HomePage> {
   late Future<Settings?> _ispSettingsFuture;
 
   Future<WifiInfo?> _getWifiInfo({bool force = false}) async {
+    if (widget.wifiInfoLoader != null) {
+      _wifiInfo = await widget.wifiInfoLoader!(force: force);
+      return _wifiInfo;
+    }
     if (_wifiInfo != null && !force) {
       return _wifiInfo;
     }
@@ -103,6 +120,11 @@ class _WifiDetailState extends State<HomePage> {
     try {
       _wifiInfoFuture = _getWifiInfo(force: true);
       await _wifiInfoFuture;
+      if (mounted) {
+        setState(() {
+          _internetStatusFuture = _loadInternetStatus();
+        });
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -130,9 +152,31 @@ class _WifiDetailState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _connectivityService =
+        widget.connectivityService ?? NetworkConnectivityService();
     _refreshWifiInfo();
     _ispSettingsFuture = _loadIspSettings();
+    _internetStatusFuture = _loadInternetStatus();
     _configureSelectNotificationSubject();
+  }
+
+  Future<NetworkConnectionStatus> _loadInternetStatus() async {
+    final wifiInfo = await (_wifiInfoFuture ?? _getWifiInfo());
+    Settings? ispSettings;
+    try {
+      ispSettings = await _ispSettingsFuture;
+    } catch (_) {}
+    return _connectivityService.checkRouterToInternet(
+      wifiInfo: wifiInfo,
+      ispSettings: ispSettings,
+    );
+  }
+
+  void _showStatusDialog(BuildContext context, NetworkConnectionStatus status) {
+    showAdaptiveDialog(
+      context: context,
+      builder: (context) => NetworkTroubleshootDialog(status: status),
+    );
   }
 
   Future<Settings?> _loadIspSettings() async {
@@ -147,6 +191,7 @@ class _WifiDetailState extends State<HomePage> {
   Future<void> _refreshDashboard() async {
     setState(() {
       _ispSettingsFuture = _loadIspSettings();
+      _internetStatusFuture = _loadInternetStatus();
     });
     await _refreshWifiInfo();
   }
@@ -445,6 +490,7 @@ class _WifiDetailState extends State<HomePage> {
     BuildContext context,
     WifiInfo wifiInfo,
     AsyncSnapshot<Settings?> ispSnapshot,
+    NetworkConnectionStatus? internetStatus,
     bool isWide,
   ) {
     final colors = Theme.of(context).colorScheme;
@@ -462,6 +508,57 @@ class _WifiDetailState extends State<HomePage> {
         wifiInfo.gatewayIp.isEmpty ? 'Unavailable' : wifiInfo.gatewayIp,
       ),
       _RouteData(Icons.cloud_outlined, 'INTERNET PROVIDER', isp),
+    ];
+
+    final deviceToRouterStatus =
+        _connectivityService.checkDeviceToRouter(wifiInfo);
+
+    final routerToInternetStatus = internetStatus ??
+        (ispSnapshot.hasData
+            ? NetworkConnectionStatus(
+                type: NetworkConnectionType.routerToInternet,
+                state: NetworkConnectionState.connected,
+                title: 'Router Connected to Internet',
+                summary: 'Internet reachable',
+                description:
+                    'Successfully reached internet servers. Your router has an active WAN connection to your Internet Service Provider.',
+                details: {
+                  'Public IP': ispSnapshot.data!.client.ip,
+                  'Provider': ispSnapshot.data!.client.isp,
+                },
+              )
+            : ispSnapshot.hasError
+                ? const NetworkConnectionStatus(
+                    type: NetworkConnectionType.routerToInternet,
+                    state: NetworkConnectionState.disconnected,
+                    title: 'Router Disconnected from Internet',
+                    summary: 'Unable to reach internet servers',
+                    description:
+                        'We were unable to reach internet servers. Check your router WAN connection or contact your ISP.',
+                    troubleshootingSteps: [
+                      'Check if broadband cable is connected to router.',
+                      'Restart modem and router.',
+                      'Check for ISP service outage.',
+                    ],
+                  )
+                : const NetworkConnectionStatus(
+                    type: NetworkConnectionType.routerToInternet,
+                    state: NetworkConnectionState.checking,
+                    title: 'Checking Internet Connection…',
+                    summary: 'Checking connection to internet…',
+                    description:
+                        'Testing connection between your router and internet hosts.',
+                  ));
+
+    final connectors = [
+      _ConnectionSegmentData(
+        key: WidgetKey.deviceToRouterConnector.key,
+        status: deviceToRouterStatus,
+      ),
+      _ConnectionSegmentData(
+        key: WidgetKey.routerToInternetConnector.key,
+        status: routerToInternetStatus,
+      ),
     ];
 
     return Container(
@@ -497,21 +594,11 @@ class _WifiDetailState extends State<HomePage> {
                   Expanded(child: _RouteNode(data: nodes[i], centered: true)),
                   if (i < nodes.length - 1)
                     Expanded(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(top: 17, left: 6, right: 6),
-                        child: Container(
-                          height: 2,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                colors.primary.withAlpha(150),
-                                colors.tertiary.withAlpha(150),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
+                      child: _HorizontalConnectionSegment(
+                        key: connectors[i].key,
+                        status: connectors[i].status,
+                        onTap: () =>
+                            _showStatusDialog(context, connectors[i].status),
                       ),
                     ),
                 ],
@@ -523,14 +610,11 @@ class _WifiDetailState extends State<HomePage> {
                 for (var i = 0; i < nodes.length; i++) ...[
                   _RouteNode(data: nodes[i]),
                   if (i < nodes.length - 1)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        height: 18,
-                        width: 2,
-                        margin: const EdgeInsets.only(left: 21),
-                        color: colors.outlineVariant,
-                      ),
+                    _VerticalConnectionSegment(
+                      key: connectors[i].key,
+                      status: connectors[i].status,
+                      onTap: () =>
+                          _showStatusDialog(context, connectors[i].status),
                     ),
                 ],
               ],
@@ -584,172 +668,179 @@ class _WifiDetailState extends State<HomePage> {
                     return FutureBuilder<Settings?>(
                       future: _ispSettingsFuture,
                       builder: (context, ispSnapshot) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (isPhonePlatform || constraints.maxWidth < 600)
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'NETWORK OVERVIEW',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                letterSpacing: 1.4,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Your network',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'A live view of your Wi-Fi and internet connection.',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton.filledTonal(
-                                    tooltip: 'Refresh network information',
-                                    onPressed: _refreshDashboard,
-                                    icon: _isRefreshingWifi
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
+                        return FutureBuilder<NetworkConnectionStatus>(
+                          future: _internetStatusFuture,
+                          builder: (context, internetSnapshot) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (isPhonePlatform || constraints.maxWidth < 600)
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'NETWORK OVERVIEW',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    letterSpacing: 1.4,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                             ),
-                                          )
-                                        : const Icon(Icons.refresh),
-                                  ),
-                                ],
-                              )
-                            else
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'NETWORK OVERVIEW',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                letterSpacing: 1.4,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Your network',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'A live view of your Wi-Fi and internet connection.',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton.filledTonal(
-                                    tooltip: 'Refresh network information',
-                                    onPressed: _refreshDashboard,
-                                    icon: _isRefreshingWifi
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Your network',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleLarge
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                             ),
-                                          )
-                                        : const Icon(Icons.refresh),
-                                  ),
-                                ],
-                              ),
-                            const SizedBox(height: 16),
-                            _buildConnectionPath(
-                              context,
-                              wifiInfo,
-                              ispSnapshot,
-                              horizontalPath,
-                            ),
-                            const SizedBox(height: 20),
-                            if (isWide)
-                              IntrinsicHeight(
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(
-                                      child: _buildWifiPanel(context, wifiInfo),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    Expanded(
-                                      child: _buildIspPanel(
-                                        context,
-                                        ispSnapshot,
-                                        isWide: true,
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'A live view of your Wi-Fi and internet connection.',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 8),
+                                      IconButton.filledTonal(
+                                        tooltip: 'Refresh network information',
+                                        onPressed: _refreshDashboard,
+                                        icon: _isRefreshingWifi
+                                            ? const SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                ),
+                                              )
+                                            : const Icon(Icons.refresh),
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'NETWORK OVERVIEW',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    letterSpacing: 1.4,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Your network',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleLarge
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'A live view of your Wi-Fi and internet connection.',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      IconButton.filledTonal(
+                                        tooltip: 'Refresh network information',
+                                        onPressed: _refreshDashboard,
+                                        icon: _isRefreshingWifi
+                                            ? const SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                ),
+                                              )
+                                            : const Icon(Icons.refresh),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 16),
+                                _buildConnectionPath(
+                                  context,
+                                  wifiInfo,
+                                  ispSnapshot,
+                                  internetSnapshot.data,
+                                  horizontalPath,
                                 ),
-                              )
-                            else ...[
-                              _buildWifiPanel(context, wifiInfo),
-                              const SizedBox(height: 12),
-                              _buildIspPanel(
-                                context,
-                                ispSnapshot,
-                                isWide: false,
-                              ),
-                            ],
-                          ],
+                                const SizedBox(height: 20),
+                                if (isWide)
+                                  IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Expanded(
+                                          child:
+                                              _buildWifiPanel(context, wifiInfo),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Expanded(
+                                          child: _buildIspPanel(
+                                            context,
+                                            ispSnapshot,
+                                            isWide: true,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                else ...[
+                                  _buildWifiPanel(context, wifiInfo),
+                                  const SizedBox(height: 12),
+                                  _buildIspPanel(
+                                    context,
+                                    ispSnapshot,
+                                    isWide: false,
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
                         );
                       },
                     );
@@ -971,6 +1062,235 @@ class _RouteNode extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(child: details),
       ],
+    );
+  }
+}
+
+class _ConnectionSegmentData {
+  const _ConnectionSegmentData({required this.key, required this.status});
+  final Key key;
+  final NetworkConnectionStatus status;
+}
+
+class _HorizontalConnectionSegment extends StatelessWidget {
+  const _HorizontalConnectionSegment({
+    super.key,
+    required this.status,
+    required this.onTap,
+  });
+
+  final NetworkConnectionStatus status;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isConnected = status.isConnected;
+    final isChecking = status.isChecking;
+
+    final statusColor = isChecking
+        ? colors.onSurfaceVariant
+        : isConnected
+            ? Colors.green
+            : colors.error;
+
+    final iconData = isChecking
+        ? Icons.sync
+        : isConnected
+            ? Icons.check_circle
+            : Icons.cancel;
+
+    final label = status.label;
+
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Tooltip(
+          message: 'Network status: $label. Tap to view details.',
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.4,
+                      ),
+                ),
+                const SizedBox(height: 3),
+                SizedBox(
+                  height: 26,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        height: 2,
+                        decoration: BoxDecoration(
+                          color: isChecking
+                              ? colors.outlineVariant.withAlpha(120)
+                              : isConnected
+                                  ? Colors.green.withAlpha(150)
+                                  : colors.error.withAlpha(150),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: statusColor.withAlpha(180),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: isChecking
+                              ? SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.5,
+                                    color: statusColor,
+                                  ),
+                                )
+                              : Icon(
+                                  iconData,
+                                  size: 16,
+                                  color: statusColor,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _VerticalConnectionSegment extends StatelessWidget {
+  const _VerticalConnectionSegment({
+    super.key,
+    required this.status,
+    required this.onTap,
+  });
+
+  final NetworkConnectionStatus status;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isConnected = status.isConnected;
+    final isChecking = status.isChecking;
+
+    final statusColor = isChecking
+        ? colors.onSurfaceVariant
+        : isConnected
+            ? Colors.green
+            : colors.error;
+
+    final iconData = isChecking
+        ? Icons.sync
+        : isConnected
+            ? Icons.check_circle
+            : Icons.cancel;
+
+    final label = status.label;
+
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Tooltip(
+          message: 'Network status: $label. Tap to view details.',
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 32,
+                  height: 36,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 2,
+                        decoration: BoxDecoration(
+                          color: isChecking
+                              ? colors.outlineVariant.withAlpha(120)
+                              : isConnected
+                                  ? Colors.green.withAlpha(150)
+                                  : colors.error.withAlpha(150),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: statusColor.withAlpha(180),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Center(
+                          child: isChecking
+                              ? SizedBox(
+                                  width: 10,
+                                  height: 10,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.5,
+                                    color: statusColor,
+                                  ),
+                                )
+                              : Icon(
+                                  iconData,
+                                  size: 14,
+                                  color: statusColor,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.info_outline,
+                  size: 14,
+                  color: colors.onSurfaceVariant.withAlpha(160),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
