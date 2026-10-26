@@ -103,7 +103,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
-  json_serializable: ^6.13.1
+  json_serializable: ^6.15.2
   lint: ^2.14.0
   mocktail: ^1.0.5
   msix: ^3.18.0
