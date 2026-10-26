@@ -66,11 +66,13 @@ class NetworkConnectivityService {
   NetworkConnectionStatus checkDeviceToRouter(WifiInfo wifiInfo) {
     final hasValidIp = wifiInfo.ip.isNotEmpty && wifiInfo.ip != 'x.x.x.x';
 
-    final isWifi = (wifiInfo.name != WifiInfo.noWifiName &&
-            wifiInfo.name.isNotEmpty) ||
-        wifiInfo.metrics.normalizedLevel > 0;
+    final isWifi =
+        (wifiInfo.name != WifiInfo.noWifiName && wifiInfo.name.isNotEmpty) ||
+            wifiInfo.metrics.normalizedLevel > 0;
     final interfaceName = isWifi
-        ? (wifiInfo.name == WifiInfo.noWifiName ? 'Wi-Fi' : 'Wi-Fi (${wifiInfo.name})')
+        ? (wifiInfo.name == WifiInfo.noWifiName
+            ? 'Wi-Fi'
+            : 'Wi-Fi (${wifiInfo.name})')
         : 'LAN / Local Interface';
 
     if (hasValidIp) {
@@ -101,20 +103,20 @@ class NetworkConnectivityService {
       );
     }
 
-    return NetworkConnectionStatus(
+    return const NetworkConnectionStatus(
       type: NetworkConnectionType.deviceToRouter,
       state: NetworkConnectionState.disconnected,
       title: 'Device Disconnected from Router',
       summary: 'No active connection to local network',
       description:
           'Your device does not have an active IP address or connection to a local network interface or Wi-Fi router.',
-      troubleshootingSteps: const [
+      troubleshootingSteps: [
         'Ensure Wi-Fi or Ethernet is turned on in your device settings.',
         'Verify you are connected to the correct Wi-Fi network and entered the right password.',
         'Check if your router or access point is powered on and within range.',
         'Restart your device network interface or reconnect to the network.',
       ],
-      details: const {
+      details: {
         'Device IP': 'Not assigned',
         'Gateway IP': 'Unavailable',
         'Interface': 'Disconnected',
@@ -131,8 +133,7 @@ class NetworkConnectivityService {
   }) async {
     final target = host ?? targetHost;
 
-    if (wifiInfo != null &&
-        (wifiInfo.ip.isEmpty || wifiInfo.ip == 'x.x.x.x')) {
+    if (wifiInfo != null && (wifiInfo.ip.isEmpty || wifiInfo.ip == 'x.x.x.x')) {
       return NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
         state: NetworkConnectionState.disconnected,

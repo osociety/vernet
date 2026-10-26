@@ -10,7 +10,6 @@ import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
@@ -56,8 +55,7 @@ class _WifiDetailState extends State<HomePage> {
 
   Future<WifiInfo?> _getWifiInfo({bool force = false}) async {
     if (widget.wifiInfoLoader != null) {
-      _wifiInfo = await widget.wifiInfoLoader!(force: force);
-      return _wifiInfo;
+      return _wifiInfo = await widget.wifiInfoLoader!(force: force);
     }
     if (_wifiInfo != null && !force) {
       return _wifiInfo;
@@ -166,7 +164,7 @@ class _WifiDetailState extends State<HomePage> {
     try {
       ispSettings = await _ispSettingsFuture;
     } catch (_) {}
-    return _connectivityService.checkRouterToInternet(
+    return await _connectivityService.checkRouterToInternet(
       wifiInfo: wifiInfo,
       ispSettings: ispSettings,
     );
@@ -674,9 +672,11 @@ class _WifiDetailState extends State<HomePage> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (isPhonePlatform || constraints.maxWidth < 600)
+                                if (isPhonePlatform ||
+                                    constraints.maxWidth < 600)
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
                                         child: Column(
@@ -729,7 +729,8 @@ class _WifiDetailState extends State<HomePage> {
                                             ? const SizedBox(
                                                 width: 18,
                                                 height: 18,
-                                                child: CircularProgressIndicator(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   strokeWidth: 2,
                                                 ),
                                               )
@@ -791,7 +792,8 @@ class _WifiDetailState extends State<HomePage> {
                                             ? const SizedBox(
                                                 width: 18,
                                                 height: 18,
-                                                child: CircularProgressIndicator(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   strokeWidth: 2,
                                                 ),
                                               )
@@ -815,8 +817,8 @@ class _WifiDetailState extends State<HomePage> {
                                           CrossAxisAlignment.stretch,
                                       children: [
                                         Expanded(
-                                          child:
-                                              _buildWifiPanel(context, wifiInfo),
+                                          child: _buildWifiPanel(
+                                              context, wifiInfo),
                                         ),
                                         const SizedBox(width: 20),
                                         Expanded(
