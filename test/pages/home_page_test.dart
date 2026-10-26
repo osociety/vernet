@@ -194,6 +194,96 @@ void main() {
       );
     });
 
+    testWidgets('does not check internet when Wi-Fi is disconnected',
+        (tester) async {
+      bool internetProbeCalled = false;
+      final connectivityService = NetworkConnectivityService(
+        pingProbe: (host) async {
+          internetProbeCalled = true;
+          return const Duration(milliseconds: 25);
+        },
+        fallbackProbe: (host) async {
+          internetProbeCalled = true;
+          return true;
+        },
+      );
+
+      // When Wi-Fi is disconnected, internet probe should not be called
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        connectivityService: connectivityService,
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          null,
+          null,
+          null,
+          true,
+          '',
+          false,
+          WifiNetworkMetrics.disconnected(),
+        ),
+      );
+
+      expect(internetProbeCalled, isFalse);
+      expect(find.text('Disconnected'), findsWidgets);
+
+      // Tap router to internet connector to verify dialog shows it's unreachable due to Wi-Fi
+      await tester.tap(find.byKey(WidgetKey.routerToInternetConnector.key));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        find.text('Internet Unreachable (No Local Link)'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Connect to a Wi-Fi network or plug in an Ethernet cable.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Close'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+    });
+
+    testWidgets('checks internet after Wi-Fi is connected', (tester) async {
+      bool internetProbeCalled = false;
+      final connectivityService = NetworkConnectivityService(
+        pingProbe: (host) async {
+          internetProbeCalled = true;
+          return const Duration(milliseconds: 25);
+        },
+        fallbackProbe: (host) async {
+          internetProbeCalled = true;
+          return true;
+        },
+      );
+
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        connectivityService: connectivityService,
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          '192.168.1.15',
+          '00:11:22:33:44:55',
+          'Mock WiFi',
+          false,
+          '192.168.1.1',
+          true,
+          const WifiNetworkMetrics(
+            rawRssi: -50,
+            normalizedLevel: 3,
+            statusMessage: 'Good signal',
+          ),
+        ),
+      );
+
+      expect(internetProbeCalled, isTrue);
+      expect(find.text('Connected'), findsWidgets);
+    });
+
     testWidgets('keeps the tool shortcuts in the sidebar, not the dashboard',
         (tester) async {
       await pumpHomePage(tester, size: const Size(900, 800));

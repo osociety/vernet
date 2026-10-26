@@ -108,21 +108,27 @@ class _WifiDetailState extends State<HomePage> {
     return _wifiInfo;
   }
 
+  void _startNetworkPipeline({bool force = false}) {
+    setState(() {
+      if (force) {
+        devices.clear();
+        _hasRunStartupScan = false;
+      }
+      _wifiInfoFuture = _getWifiInfo(force: force);
+      _ispSettingsFuture = _loadIspSettingsAfterWifi(_wifiInfoFuture!);
+      _internetStatusFuture =
+          _loadInternetStatusAfterWifi(_wifiInfoFuture!, _ispSettingsFuture);
+    });
+  }
+
   Future<void> _refreshWifiInfo() async {
     if (_isRefreshingWifi) return;
     setState(() {
-      devices.clear();
-      _hasRunStartupScan = false;
       _isRefreshingWifi = true;
     });
     try {
-      _wifiInfoFuture = _getWifiInfo(force: true);
+      _startNetworkPipeline(force: true);
       await _wifiInfoFuture;
-      if (mounted) {
-        setState(() {
-          _internetStatusFuture = _loadInternetStatus();
-        });
-      }
     } finally {
       if (mounted) {
         setState(() {
@@ -152,18 +158,60 @@ class _WifiDetailState extends State<HomePage> {
     super.initState();
     _connectivityService =
         widget.connectivityService ?? NetworkConnectivityService();
-    _refreshWifiInfo();
-    _ispSettingsFuture = _loadIspSettings();
-    _internetStatusFuture = _loadInternetStatus();
+    _startNetworkPipeline();
     _configureSelectNotificationSubject();
   }
 
-  Future<NetworkConnectionStatus> _loadInternetStatus() async {
-    final wifiInfo = await (_wifiInfoFuture ?? _getWifiInfo());
+  Future<Settings?> _loadIspSettingsAfterWifi(
+    Future<WifiInfo?> wifiFuture,
+  ) async {
+    final wifiInfo = await wifiFuture;
+    if (wifiInfo == null || !_isConnected(wifiInfo)) {
+      return null;
+    }
+    if (!appSettings.inAppInternet) return null;
+    try {
+      final settings =
+          await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
+      final organization = await _ispLookupService.lookup(settings.client.ip);
+      if (organization != null) settings.client.isp = organization;
+      return settings;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<NetworkConnectionStatus> _loadInternetStatusAfterWifi(
+    Future<WifiInfo?> wifiFuture,
+    Future<Settings?> ispFuture,
+  ) async {
+    final wifiInfo = await wifiFuture;
+    if (wifiInfo == null || !_isConnected(wifiInfo)) {
+      return const NetworkConnectionStatus(
+        type: NetworkConnectionType.routerToInternet,
+        state: NetworkConnectionState.disconnected,
+        title: 'Internet Unreachable (No Local Link)',
+        summary: 'Not connected to Wi-Fi / router',
+        description:
+            'Your device is not connected to any Wi-Fi router or local network interface. An active local network connection is required before internet connectivity can be checked.',
+        troubleshootingSteps: [
+          'Connect to a Wi-Fi network or plug in an Ethernet cable.',
+          'Verify that Wi-Fi is enabled in your device settings.',
+          'Once connected to the router, internet connectivity will be tested automatically.',
+        ],
+        details: {
+          'Wi-Fi / Interface Status': 'Disconnected',
+          'Internet Status': 'Unreachable',
+        },
+      );
+    }
+
+    // Only if Wi-Fi or interface is connected: check connection to internet service
     Settings? ispSettings;
     try {
-      ispSettings = await _ispSettingsFuture;
+      ispSettings = await ispFuture;
     } catch (_) {}
+
     return await _connectivityService.checkRouterToInternet(
       wifiInfo: wifiInfo,
       ispSettings: ispSettings,
@@ -177,20 +225,7 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
-  Future<Settings?> _loadIspSettings() async {
-    if (!appSettings.inAppInternet) return null;
-    final settings =
-        await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
-    final organization = await _ispLookupService.lookup(settings.client.ip);
-    if (organization != null) settings.client.isp = organization;
-    return settings;
-  }
-
   Future<void> _refreshDashboard() async {
-    setState(() {
-      _ispSettingsFuture = _loadIspSettings();
-      _internetStatusFuture = _loadInternetStatus();
-    });
     await _refreshWifiInfo();
   }
 
@@ -203,16 +238,19 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
-  Widget _buildWifiPanel(BuildContext context, WifiInfo info) {
+  Widget _buildWifiPanel(BuildContext context, WifiInfo info,
+      {bool isChecking = false}) {
     final colors = Theme.of(context).colorScheme;
     final level = info.metrics.normalizedLevel.clamp(0, 4);
     final connected = _isConnected(info);
     final signalColor = level >= 3 ? colors.primary : colors.tertiary;
-    final signalDescription = info.metrics.rawRssi != null && level > 0
-        ? '${info.metrics.statusMessage} · ${info.metrics.rawRssi} ${StringValue.signalStrengthUnit}'
-        : connected
-            ? info.metrics.statusMessage
-            : 'Signal unavailable';
+    final signalDescription = isChecking
+        ? 'Measuring signal…'
+        : info.metrics.rawRssi != null && level > 0
+            ? '${info.metrics.statusMessage} · ${info.metrics.rawRssi} ${StringValue.signalStrengthUnit}'
+            : connected
+                ? info.metrics.statusMessage
+                : 'Signal unavailable';
 
     return _OverviewPanel(
       child: Column(
@@ -241,14 +279,22 @@ class _WifiDetailState extends State<HomePage> {
                 const SizedBox(width: 8),
               ],
               _StatusPill(
-                label: connected ? 'CONNECTED' : 'NOT CONNECTED',
-                color: connected ? colors.primary : colors.error,
+                label: isChecking
+                    ? 'CHECKING…'
+                    : connected
+                        ? 'CONNECTED'
+                        : 'NOT CONNECTED',
+                color: isChecking
+                    ? colors.onSurfaceVariant
+                    : connected
+                        ? colors.primary
+                        : colors.error,
               ),
             ],
           ),
           const SizedBox(height: 14),
           Text(
-            info.name,
+            isChecking ? 'Checking Wi-Fi network…' : info.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -298,13 +344,20 @@ class _WifiDetailState extends State<HomePage> {
           Row(
             children: [
               Expanded(
-                  child: _NetworkValue(label: 'DEVICE IP', value: info.ip)),
+                child: _NetworkValue(
+                  label: 'DEVICE IP',
+                  value: isChecking ? 'Checking…' : info.ip,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: _NetworkValue(
                   label: 'GATEWAY',
-                  value:
-                      info.gatewayIp.isEmpty ? 'Unavailable' : info.gatewayIp,
+                  value: isChecking
+                      ? 'Checking…'
+                      : (info.gatewayIp.isEmpty
+                          ? 'Unavailable'
+                          : info.gatewayIp),
                 ),
               ),
             ],
@@ -489,8 +542,9 @@ class _WifiDetailState extends State<HomePage> {
     WifiInfo wifiInfo,
     AsyncSnapshot<Settings?> ispSnapshot,
     NetworkConnectionStatus? internetStatus,
-    bool isWide,
-  ) {
+    bool isWide, {
+    bool isWifiChecking = false,
+  }) {
     final colors = Theme.of(context).colorScheme;
     final isp = ispSnapshot.data?.client.isp ??
         (appSettings.inAppInternet
@@ -499,54 +553,105 @@ class _WifiDetailState extends State<HomePage> {
                 : 'Looking up provider…'
             : 'Lookup paused');
     final nodes = [
-      _RouteData(Icons.devices, 'THIS DEVICE', wifiInfo.ip),
+      _RouteData(
+        Icons.devices,
+        'THIS DEVICE',
+        isWifiChecking
+            ? 'Checking…'
+            : (wifiInfo.ip.isEmpty || wifiInfo.ip == 'x.x.x.x'
+                ? 'Unavailable'
+                : wifiInfo.ip),
+      ),
       _RouteData(
         Icons.router_outlined,
         'WI-FI ROUTER',
-        wifiInfo.gatewayIp.isEmpty ? 'Unavailable' : wifiInfo.gatewayIp,
+        isWifiChecking
+            ? 'Checking…'
+            : (wifiInfo.gatewayIp.isEmpty ? 'Unavailable' : wifiInfo.gatewayIp),
       ),
       _RouteData(Icons.cloud_outlined, 'INTERNET PROVIDER', isp),
     ];
 
-    final deviceToRouterStatus =
-        _connectivityService.checkDeviceToRouter(wifiInfo);
+    final NetworkConnectionStatus deviceToRouterStatus;
+    if (isWifiChecking) {
+      deviceToRouterStatus = const NetworkConnectionStatus(
+        type: NetworkConnectionType.deviceToRouter,
+        state: NetworkConnectionState.checking,
+        title: 'Checking Device to Router Link',
+        summary: 'Checking Wi-Fi / interface…',
+        description:
+            'Detecting your local network interface and verifying the connection to your Wi-Fi router or gateway.',
+      );
+    } else {
+      deviceToRouterStatus = _connectivityService.checkDeviceToRouter(wifiInfo);
+    }
 
-    final routerToInternetStatus = internetStatus ??
-        (ispSnapshot.hasData
-            ? NetworkConnectionStatus(
-                type: NetworkConnectionType.routerToInternet,
-                state: NetworkConnectionState.connected,
-                title: 'Router Connected to Internet',
-                summary: 'Internet reachable',
-                description:
-                    'Successfully reached internet servers. Your router has an active WAN connection to your Internet Service Provider.',
-                details: {
-                  'Public IP': ispSnapshot.data!.client.ip,
-                  'Provider': ispSnapshot.data!.client.isp,
-                },
-              )
-            : ispSnapshot.hasError
-                ? const NetworkConnectionStatus(
-                    type: NetworkConnectionType.routerToInternet,
-                    state: NetworkConnectionState.disconnected,
-                    title: 'Router Disconnected from Internet',
-                    summary: 'Unable to reach internet servers',
-                    description:
-                        'We were unable to reach internet servers. Check your router WAN connection or contact your ISP.',
-                    troubleshootingSteps: [
-                      'Check if broadband cable is connected to router.',
-                      'Restart modem and router.',
-                      'Check for ISP service outage.',
-                    ],
-                  )
-                : const NetworkConnectionStatus(
-                    type: NetworkConnectionType.routerToInternet,
-                    state: NetworkConnectionState.checking,
-                    title: 'Checking Internet Connection…',
-                    summary: 'Checking connection to internet…',
-                    description:
-                        'Testing connection between your router and internet hosts.',
-                  ));
+    final NetworkConnectionStatus routerToInternetStatus;
+    if (deviceToRouterStatus.isChecking) {
+      routerToInternetStatus = const NetworkConnectionStatus(
+        type: NetworkConnectionType.routerToInternet,
+        state: NetworkConnectionState.checking,
+        title: 'Waiting for Wi-Fi Connection…',
+        summary: 'Waiting for Wi-Fi / LAN connection…',
+        description:
+            'We must first establish a connection to your Wi-Fi router or local network interface before checking internet connectivity.',
+      );
+    } else if (deviceToRouterStatus.isDisconnected) {
+      routerToInternetStatus = const NetworkConnectionStatus(
+        type: NetworkConnectionType.routerToInternet,
+        state: NetworkConnectionState.disconnected,
+        title: 'Internet Unreachable (No Local Link)',
+        summary: 'Not connected to Wi-Fi / router',
+        description:
+            'Your device is not connected to any Wi-Fi router or local network interface. An active local network connection is required before internet connectivity can be checked.',
+        troubleshootingSteps: [
+          'Connect to a Wi-Fi network or plug in an Ethernet cable.',
+          'Verify that Wi-Fi is enabled in your device settings.',
+          'Once connected to the router, internet connectivity will be tested automatically.',
+        ],
+        details: {
+          'Wi-Fi / Interface Status': 'Disconnected',
+          'Internet Status': 'Unreachable',
+        },
+      );
+    } else {
+      routerToInternetStatus = internetStatus ??
+          (ispSnapshot.hasData
+              ? NetworkConnectionStatus(
+                  type: NetworkConnectionType.routerToInternet,
+                  state: NetworkConnectionState.connected,
+                  title: 'Router Connected to Internet',
+                  summary: 'Internet reachable',
+                  description:
+                      'Successfully reached internet servers. Your router has an active WAN connection to your Internet Service Provider.',
+                  details: {
+                    'Public IP': ispSnapshot.data!.client.ip,
+                    'Provider': ispSnapshot.data!.client.isp,
+                  },
+                )
+              : ispSnapshot.hasError
+                  ? const NetworkConnectionStatus(
+                      type: NetworkConnectionType.routerToInternet,
+                      state: NetworkConnectionState.disconnected,
+                      title: 'Router Disconnected from Internet',
+                      summary: 'Unable to reach internet servers',
+                      description:
+                          'We were unable to reach internet servers. Check your router WAN connection or contact your ISP.',
+                      troubleshootingSteps: [
+                        'Check if broadband cable is connected to router.',
+                        'Restart modem and router.',
+                        'Check for ISP service outage.',
+                      ],
+                    )
+                  : const NetworkConnectionStatus(
+                      type: NetworkConnectionType.routerToInternet,
+                      state: NetworkConnectionState.checking,
+                      title: 'Checking Internet Connection…',
+                      summary: 'Checking connection to internet…',
+                      description:
+                          'Testing connection between your router and internet hosts.',
+                    ));
+    }
 
     final connectors = [
       _ConnectionSegmentData(
@@ -643,15 +748,6 @@ class _WifiDetailState extends State<HomePage> {
                 constraints: const BoxConstraints(maxWidth: 1180),
                 child: FutureBuilder<WifiInfo?>(
                   future: _wifiInfoFuture ?? _getWifiInfo(),
-                  initialData: WifiInfo(
-                    null,
-                    null,
-                    null,
-                    true,
-                    '',
-                    false,
-                    WifiNetworkMetrics.disconnected(),
-                  ),
                   builder: (context, wifiSnapshot) {
                     final wifiInfo = wifiSnapshot.data ??
                         WifiInfo(
@@ -663,6 +759,10 @@ class _WifiDetailState extends State<HomePage> {
                           false,
                           WifiNetworkMetrics.disconnected(),
                         );
+                    final isWifiChecking = _isRefreshingWifi ||
+                        wifiSnapshot.connectionState ==
+                            ConnectionState.waiting ||
+                        wifiSnapshot.data == null;
                     return FutureBuilder<Settings?>(
                       future: _ispSettingsFuture,
                       builder: (context, ispSnapshot) {
@@ -808,6 +908,7 @@ class _WifiDetailState extends State<HomePage> {
                                   ispSnapshot,
                                   internetSnapshot.data,
                                   horizontalPath,
+                                  isWifiChecking: isWifiChecking,
                                 ),
                                 const SizedBox(height: 20),
                                 if (isWide)
@@ -818,7 +919,10 @@ class _WifiDetailState extends State<HomePage> {
                                       children: [
                                         Expanded(
                                           child: _buildWifiPanel(
-                                              context, wifiInfo),
+                                            context,
+                                            wifiInfo,
+                                            isChecking: isWifiChecking,
+                                          ),
                                         ),
                                         const SizedBox(width: 20),
                                         Expanded(
@@ -832,7 +936,11 @@ class _WifiDetailState extends State<HomePage> {
                                     ),
                                   )
                                 else ...[
-                                  _buildWifiPanel(context, wifiInfo),
+                                  _buildWifiPanel(
+                                    context,
+                                    wifiInfo,
+                                    isChecking: isWifiChecking,
+                                  ),
                                   const SizedBox(height: 12),
                                   _buildIspPanel(
                                     context,
