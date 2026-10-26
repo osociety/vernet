@@ -14,6 +14,7 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -149,6 +150,63 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SettingsPage), findsOneWidget);
+    });
+
+    testWidgets(
+        'HomePage displays connection path connectors and opens troubleshoot dialog',
+        (tester) async {
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+
+      // Verify connection path section is shown
+      expect(find.text('CONNECTION PATH'), findsOneWidget);
+
+      // Verify device to router connector exists
+      final deviceToRouterFinder =
+          find.byKey(WidgetKey.deviceToRouterConnector.key);
+      await TestUtils.waitForWidget(tester, deviceToRouterFinder);
+
+      // Verify router to internet connector exists
+      final routerToInternetFinder =
+          find.byKey(WidgetKey.routerToInternetConnector.key);
+      expect(routerToInternetFinder, findsOneWidget);
+
+      // Verify the connection status text is displayed
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Text &&
+              (widget.data == 'Connected' ||
+                  widget.data == 'Disconnected' ||
+                  widget.data == 'Checking…'),
+        ),
+        findsWidgets,
+      );
+
+      // Tap device to router connector to open dialog
+      await tester.tap(deviceToRouterFinder);
+      await tester.pumpAndSettle();
+
+      // Verify NetworkTroubleshootDialog appears
+      expect(find.byType(NetworkTroubleshootDialog), findsOneWidget);
+
+      // Close the dialog
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(NetworkTroubleshootDialog), findsNothing);
+
+      // Tap router to internet connector to open dialog
+      await tester.tap(routerToInternetFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(NetworkTroubleshootDialog), findsOneWidget);
+
+      // Close the dialog
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(NetworkTroubleshootDialog), findsNothing);
     });
   });
 }
