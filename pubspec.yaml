@@ -93,7 +93,7 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.4.9
 
-  drift_dev: ^2.35.1
+  drift_dev: ^2.35.2
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
