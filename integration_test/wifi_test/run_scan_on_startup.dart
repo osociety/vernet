@@ -58,6 +58,8 @@ void main() {
 
         await TestUtils.tapHomeButton(tester, find);
 
+        await tester.pumpAndSettle();
+
         final startupScanStatus = find.byWidgetPredicate(
           (widget) =>
               widget is Text &&
