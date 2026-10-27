@@ -41,6 +41,7 @@ void main() {
   });
 
   group('Run device scan on startup', () {
+    globals.testingActive = true;
     // Flaky in GitHub CI across platforms; disabled pending investigation.
     testWidgets(
       'if settings for startup is on, then it should run',
