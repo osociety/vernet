@@ -3,7 +3,7 @@ description: A simple way to understand and check your internet connection
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.12+69
+version: 1.4.13+70
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -18,7 +18,7 @@ dependencies:
   cupertino_icons: ^2.0.0
   dart_ping: ^10.0.1
   # Remove git url and use pub version once fix is available in source. 
-  drift: ^2.35.2
+  drift: ^2.35.3
   drift_flutter: ^0.3.1
   external_app_launcher: ^4.0.4
   flutter:
@@ -77,7 +77,7 @@ dependencies:
       ref: master # branch name
   # A little widget that given an Observable gives you an updated SpeedOMeter.
   speedometer: ^1.2.2
-  sqlite3: ^3.4.0
+  sqlite3: ^3.8.0
   syncfusion_flutter_gauges: ^35.1.40+1
   # Time zone database and time zone aware DateTime.
   timezone: ^0.11.2
@@ -93,7 +93,7 @@ dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.4.9
 
-  drift_dev: ^2.35.1
+  drift_dev: ^2.35.2
   flutter_test:
     sdk: flutter
   # Code generator for unions/pattern-matching/copy.
@@ -103,7 +103,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   # Collection of lint rules for Dart and Flutter projects.
-  json_serializable: ^6.13.1
+  json_serializable: ^6.15.2
   lint: ^2.14.0
   mocktail: ^1.0.5
   msix: ^3.18.0
