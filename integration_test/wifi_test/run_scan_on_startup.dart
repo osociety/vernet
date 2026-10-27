@@ -58,10 +58,6 @@ void main() {
 
         await TestUtils.tapHomeButton(tester, find);
 
-        // pump with a longer interval to rebuild HomePage after navigation
-        // and allow platform channels to respond.
-        await tester.pumpAndSettle(const Duration(seconds: 10));
-
         final startupScanStatus = find.byWidgetPredicate(
           (widget) =>
               widget is Text &&
@@ -71,7 +67,6 @@ void main() {
         );
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
-      skip: true,
     );
   });
 }
