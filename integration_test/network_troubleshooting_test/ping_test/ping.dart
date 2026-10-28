@@ -41,7 +41,7 @@ void main() {
       await appSettings.load();
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
 
       await TestUtils.tapNavigationItem('Check a website', tester, find);
       final interface = await NetInterface.localInterface();
