@@ -38,6 +38,9 @@ jobs:
         with:
           java_version: ${{ matrix.os != 'macos' && '17' || '' }}
 
+      - name: Run analyzer
+        run: flutter analyze
+        
       - name: Run unit tests with coverage
         run: flutter test --coverage
 

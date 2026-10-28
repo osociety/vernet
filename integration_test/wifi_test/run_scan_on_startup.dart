@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -68,15 +70,9 @@ void main() {
           description: 'startup scan status on the dashboard',
         );
 
-        await tester.pump(const Duration(seconds: 2));
-        final texts = tester
-            .widgetList<Text>(find.byType(Text))
-            .map((t) => t.data ?? t.textSpan?.toPlainText())
-            .toList();
-        debugPrint('Visible texts: $texts');
-
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
+      skip: !(Platform.isAndroid || Platform.isIOS || Platform.isMacOS),
     );
   });
 }
