@@ -24,7 +24,7 @@ jobs:
   integration-tests:
     name: Integration tests and coverage
     # if: github.event_name == 'push'
-    needs: unit-tests
+    # needs: unit-tests
     uses: ./.github/workflows/flutter_test_main.yml
     secrets: inherit
 
