@@ -67,6 +67,14 @@ void main() {
                   widget.data?.contains('devices found') == true),
           description: 'startup scan status on the dashboard',
         );
+
+        await tester.pump(const Duration(seconds: 2));
+        final texts = tester
+            .widgetList<Text>(find.byType(Text))
+            .map((t) => t.data ?? t.textSpan?.toPlainText())
+            .toList();
+        debugPrint('Visible texts: $texts');
+
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
     );
