@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -67,8 +69,10 @@ void main() {
                   widget.data?.contains('devices found') == true),
           description: 'startup scan status on the dashboard',
         );
+
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
+      skip: !(Platform.isAndroid || Platform.isIOS || Platform.isMacOS),
     );
   });
 }
