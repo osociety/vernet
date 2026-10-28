@@ -30,7 +30,7 @@ jobs:
 
   android-integration-tests:
     name: Android integration tests
-    if: github.event_name == 'push'
+    # if: github.event_name == 'push'
     needs: integration-tests
     uses: ./.github/workflows/android-integration-test.yml
     secrets: inherit
