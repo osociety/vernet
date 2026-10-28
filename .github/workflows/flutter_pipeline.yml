@@ -16,16 +16,22 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  unit-and-integration-tests:
+  unit-tests:
+    name: Unit tests and analysis
+    uses: ./.github/workflows/flutter_unit_test.yml
+    secrets: inherit
+
+  integration-tests:
     name: Integration tests and coverage
     if: github.event_name == 'push'
+    needs: unit-tests
     uses: ./.github/workflows/flutter_test_main.yml
     secrets: inherit
 
   android-integration-tests:
     name: Android integration tests
     if: github.event_name == 'push'
-    needs: unit-and-integration-tests
+    needs: integration-tests
     uses: ./.github/workflows/android-integration-test.yml
     secrets: inherit
 
@@ -33,7 +39,7 @@ jobs:
     name: Detect release and Hosting changes
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs: unit-and-integration-tests
+    needs: unit-tests
     outputs:
       release: ${{ steps.detect.outputs.release }}
       tag_name: ${{ steps.detect.outputs.tag_name }}
