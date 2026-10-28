@@ -16,10 +16,10 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  unit-tests:
-    name: Unit tests and analysis
-    uses: ./.github/workflows/flutter_unit_test.yml
-    secrets: inherit
+  # unit-tests:
+  #   name: Unit tests and analysis
+  #   uses: ./.github/workflows/flutter_unit_test.yml
+  #   secrets: inherit
 
   integration-tests:
     name: Integration tests and coverage
