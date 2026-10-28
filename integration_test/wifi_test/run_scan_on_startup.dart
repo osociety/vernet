@@ -58,7 +58,7 @@ void main() {
 
         await TestUtils.tapHomeButton(tester, find);
 
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 500));
 
         final startupScanStatus = find.byWidgetPredicate(
           (widget) =>
