@@ -14,6 +14,8 @@ void main() {
   setUp(() {
     plugin = MockLocalNotificationsPlugin();
     NotificationService.flutterLocalNotificationsPlugin = plugin;
+    // Windows skips notifications unless this test-only flag is enabled.
+    NotificationService.debugIgnorePlatformCheck = true;
     when(
       () => plugin.show(
         id: any(named: 'id'),
@@ -23,6 +25,10 @@ void main() {
         payload: any(named: 'payload'),
       ),
     ).thenAnswer((_) async {});
+  });
+
+  tearDown(() {
+    NotificationService.debugIgnorePlatformCheck = false;
   });
 
   test('scan notification includes device count and navigation action',
