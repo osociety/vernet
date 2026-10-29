@@ -158,3 +158,6 @@ firebase/.firebase/
 
 # Graphify generated output
 graphify-out/
+
+# Qoder local workspace config
+.qoder/

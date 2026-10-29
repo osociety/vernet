@@ -14,6 +14,7 @@ import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
+import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
@@ -101,7 +102,9 @@ class _WifiDetailState extends State<HomePage> {
             scanRunning = false;
           });
         }
-        await NotificationService.showNotificationWithActions();
+        await NotificationService.showNotificationWithActions(
+          deviceCount: devices.length,
+        );
       });
     }
 
@@ -138,16 +141,6 @@ class _WifiDetailState extends State<HomePage> {
     }
   }
 
-  void _configureSelectNotificationSubject() {
-    NotificationService.selectNotificationStream.stream.listen((
-      String? payload,
-    ) async {
-      await Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil('/hostscan', ModalRoute.withName('/'));
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -159,7 +152,6 @@ class _WifiDetailState extends State<HomePage> {
     _connectivityService =
         widget.connectivityService ?? NetworkConnectivityService();
     _startNetworkPipeline();
-    _configureSelectNotificationSubject();
   }
 
   Future<Settings?> _loadIspSettingsAfterWifi(
@@ -235,6 +227,13 @@ class _WifiDetailState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => HostScanPage()),
+    );
+  }
+
+  void _openScanHistory() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (context) => const ScanHistoryPage()),
     );
   }
 
@@ -376,26 +375,36 @@ class _WifiDetailState extends State<HomePage> {
             ),
           ],
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              key: WidgetKey.scanForDevicesButton.key,
-              onPressed: _openHostScan,
-              icon: scanRunning
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.radar),
-              label: Text(
-                scanRunning
-                    ? 'Scanning your network…'
-                    : appSettings.runScanOnStartup && devices.isNotEmpty
-                        ? '${devices.length} devices found'
-                        : 'Scan your network',
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  key: WidgetKey.scanForDevicesButton.key,
+                  onPressed: _openHostScan,
+                  icon: scanRunning
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.radar),
+                  label: Text(
+                    scanRunning
+                        ? 'Scanning your network…'
+                        : appSettings.runScanOnStartup && devices.isNotEmpty
+                            ? '${devices.length} devices found'
+                            : 'Scan your network',
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              IconButton.outlined(
+                key: WidgetKey.scanHistoryIconButton.key,
+                tooltip: StringValue.previousScansTitle,
+                onPressed: _openScanHistory,
+                icon: const Icon(Icons.history),
+              ),
+            ],
           ),
         ],
       ),

@@ -17,7 +17,23 @@ import 'package:vernet/values/tooltip_messages.dart';
 class HostScanWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HostScanBloc, HostScanState>(
+    return BlocConsumer<HostScanBloc, HostScanState>(
+      listenWhen: (previous, current) =>
+          previous is! LoadSuccess && current is LoadSuccess,
+      listener: (context, state) {
+        if (state is LoadSuccess) {
+          final deviceCount = state.activeHosts.length;
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Scan complete - ${_deviceCountLabel(deviceCount)} found',
+                ),
+              ),
+            );
+        }
+      },
       builder: (context, state) {
         return state.map(
           initial: (_) => Container(),
@@ -70,7 +86,10 @@ class HostScanWidget extends StatelessWidget {
       children: [
         AdaptiveListTile(
           title: Text(
-            "Found ${activeHostList.length} connected devices",
+            loading
+                ? 'Found ${activeHostList.length} connected devices so far'
+                : 'Scan complete - '
+                    '${_deviceCountLabel(activeHostList.length)} found',
             textAlign: TextAlign.center,
           ),
           trailing: loading
@@ -169,3 +188,6 @@ class HostScanWidget extends StatelessWidget {
     );
   }
 }
+
+String _deviceCountLabel(int count) =>
+    '$count ${count == 1 ? 'device' : 'devices'}';
