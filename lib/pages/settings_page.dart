@@ -219,7 +219,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   context: context,
                   applicationName: 'Vernet',
                   applicationVersion: '${info.version}+${info.buildNumber}',
-                  applicationIcon: const Icon(Icons.radar),
+                  applicationIcon: ClipOval(
+                    child: Image.asset(
+                      'assets/app_icon.png',
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                   children: [
                     AdaptiveListTile(
                       leading: const Icon(Icons.bug_report),

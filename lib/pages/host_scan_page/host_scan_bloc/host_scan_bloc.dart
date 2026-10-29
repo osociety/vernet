@@ -117,12 +117,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       'Testing mode enabled ${globals.testingActive}',
     );
 
-    if (!globals.testingActive) {
-      // Because notification is not working in test mode in github actions
-      await NotificationService.showNotificationWithActions(
-        deviceCount: devicesSet.length,
-      );
-    }
+    await NotificationService.showNotificationWithActions(
+      deviceCount: devicesSet.length,
+    );
 
     emit(HostScanState.loadSuccess(devicesSet));
   }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -58,9 +60,7 @@ void main() {
 
         await TestUtils.tapHomeButton(tester, find);
 
-        // pump with a longer interval to rebuild HomePage after navigation
-        // and allow platform channels to respond.
-        await tester.pumpAndSettle(const Duration(seconds: 10));
+        await tester.pump(const Duration(milliseconds: 500));
 
         final startupScanStatus = find.byWidgetPredicate(
           (widget) =>
@@ -69,9 +69,10 @@ void main() {
                   widget.data?.contains('devices found') == true),
           description: 'startup scan status on the dashboard',
         );
+
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
-      skip: true,
+      skip: !(Platform.isAndroid || Platform.isIOS || Platform.isMacOS),
     );
   });
 }

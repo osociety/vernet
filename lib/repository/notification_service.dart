@@ -144,6 +144,10 @@ class NotificationService {
   }
 
   static Future<void> showNotificationWithActions({int? deviceCount}) async {
+    if (globals.testingActive) {
+      // Because notification is not working in test mode in github actions
+      return;
+    }
     if (Platform.isWindows && !debugIgnorePlatformCheck) {
       return await Future.value();
     }

@@ -5,6 +5,7 @@ import 'package:dart_ping/dart_ping.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
+import 'package:vernet/values/globals.dart' as globals;
 
 typedef PingProbe = Future<Duration?> Function(String host);
 typedef FallbackProbe = Future<bool> Function(String host);
@@ -149,6 +150,21 @@ class NetworkConnectivityService {
           'Target Host': target,
           'Local Status': 'Disconnected from local network',
         },
+        targetHost: target,
+      );
+    }
+
+    // In test/integration-test mode skip real network probes so that
+    // pumpAndSettle() can complete without timing out.
+    if (globals.testingActive) {
+      return NetworkConnectionStatus(
+        type: NetworkConnectionType.routerToInternet,
+        state: NetworkConnectionState.disconnected,
+        title: 'Internet Check Skipped (Test Mode)',
+        summary: 'Network probes disabled in tests',
+        description:
+            'Real network probes are skipped during automated tests to avoid timeouts.',
+        details: const {'Target Host': 'skipped'},
         targetHost: target,
       );
     }
