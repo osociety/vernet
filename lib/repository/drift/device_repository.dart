@@ -47,16 +47,15 @@ class DeviceRepository extends Repository<DeviceData> {
     return (database!.select(database.device)
           ..where((dd) => dd.scanId.equals(scanId)))
         .watch()
-        .map((devices) {
-      final sortedDevices = List<DeviceData>.of(devices)
-        ..sort(
-          (a, b) => _compareIpAddresses(
-            a.internetAddress,
-            b.internetAddress,
-          ),
-        );
-      return sortedDevices;
-    });
+        .map(_sortByIpAddress);
+  }
+
+  Future<List<DeviceData>> getListForScan(int scanId) async {
+    final database = await _database.open();
+    final devices = await (database!.select(database.device)
+          ..where((dd) => dd.scanId.equals(scanId)))
+        .get();
+    return _sortByIpAddress(devices);
   }
 
   Future<int> countByScanId(int scanId) async {
@@ -75,6 +74,16 @@ class DeviceRepository extends Repository<DeviceData> {
     );
     return count ?? 0;
   }
+}
+
+List<DeviceData> _sortByIpAddress(List<DeviceData> devices) {
+  return List<DeviceData>.of(devices)
+    ..sort(
+      (a, b) => _compareIpAddresses(
+        a.internetAddress,
+        b.internetAddress,
+      ),
+    );
 }
 
 int _compareIpAddresses(String leftAddress, String rightAddress) {

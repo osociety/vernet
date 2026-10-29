@@ -38,11 +38,11 @@ class NotificationService {
   /// Defines a iOS/MacOS notification category for plain actions.
   static const String darwinNotificationCategoryPlain = 'plainCategory';
 
-  /// A notification action which triggers a url launch event
-  static const String urlLaunchActionId = 'id_1';
-
   /// A notification action which triggers a App navigation event
   static const String navigationActionId = 'id_3';
+
+  /// Payload used for notifications that should open the device scan page.
+  static const String hostScanPayload = 'hostscan';
 
   static String? selectedNotificationPayload;
 
@@ -143,7 +143,7 @@ class NotificationService {
     }
   }
 
-  static Future<void> showNotificationWithActions() async {
+  static Future<void> showNotificationWithActions({int? deviceCount}) async {
     if (globals.testingActive) {
       // Because notification is not working in test mode in github actions
       return;
@@ -161,7 +161,7 @@ class NotificationService {
       ticker: 'ticker',
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
-          urlLaunchActionId,
+          navigationActionId,
           'View',
         ),
       ],
@@ -181,7 +181,7 @@ class NotificationService {
         LinuxNotificationDetails(
       actions: <LinuxNotificationAction>[
         LinuxNotificationAction(
-          key: urlLaunchActionId,
+          key: navigationActionId,
           label: 'View',
         ),
       ],
@@ -196,9 +196,12 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.show(
       id: id++,
       title: 'Device search complete',
-      body: 'Vernet finished looking for devices on your network',
+      body: deviceCount == null
+          ? 'Vernet finished looking for devices on your network'
+          : 'Scan complete - found ${_deviceCountLabel(deviceCount)} '
+              'on your network',
       notificationDetails: notificationDetails,
-      payload: 'item z',
+      payload: hostScanPayload,
     );
   }
 
@@ -290,3 +293,6 @@ class NotificationService {
     }
   }
 }
+
+String _deviceCountLabel(int count) =>
+    '$count ${count == 1 ? 'device' : 'devices'}';

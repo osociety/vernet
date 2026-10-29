@@ -161,5 +161,60 @@ void main() {
       final count = await deviceRepo.countByScanId(999999);
       expect(count, equals(0));
     });
+
+    test('getListForScan filters by scan and sorts by IP', () async {
+      final firstScan = await scanRepo.put(
+        ScanData(
+          id: 1,
+          gatewayIp: '192.168.0',
+          startTime: DateTime(2024, 1, 1, 10),
+          onGoing: false,
+        ),
+      );
+      final secondScan = await scanRepo.put(
+        ScanData(
+          id: 2,
+          gatewayIp: '192.168.0',
+          startTime: DateTime(2024, 1, 1, 11),
+          onGoing: false,
+        ),
+      );
+
+      await deviceRepo.put(
+        DeviceData(
+          id: 10,
+          internetAddress: '192.168.0.20',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: firstScan.id,
+        ),
+      );
+      await deviceRepo.put(
+        DeviceData(
+          id: 11,
+          internetAddress: '192.168.0.3',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: firstScan.id,
+        ),
+      );
+      await deviceRepo.put(
+        DeviceData(
+          id: 12,
+          internetAddress: '192.168.0.5',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: secondScan.id,
+        ),
+      );
+
+      final firstScanDevices = await deviceRepo.getListForScan(firstScan.id);
+
+      expect(
+        firstScanDevices.map((device) => device.internetAddress),
+        ['192.168.0.3', '192.168.0.20'],
+      );
+      expect((await deviceRepo.getListForScan(secondScan.id)).single.id, 12);
+    });
   });
 }

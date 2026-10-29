@@ -128,5 +128,32 @@ void main() {
       expect(emitted, isNotEmpty);
       expect(emitted.first.id, scan.id);
     });
+
+    test('getRecentScans returns newest scans first and honours limit',
+        () async {
+      final older = await scanRepo.put(
+        ScanData(
+          id: 1,
+          gatewayIp: '192.168.0',
+          startTime: DateTime(2024, 1, 1, 10),
+          endTime: DateTime(2024, 1, 1, 10, 0, 30),
+          onGoing: false,
+        ),
+      );
+      final newer = await scanRepo.put(
+        ScanData(
+          id: 2,
+          gatewayIp: '10.0.0',
+          startTime: DateTime(2024, 1, 2, 11),
+          endTime: DateTime(2024, 1, 2, 11, 1),
+          onGoing: false,
+        ),
+      );
+
+      final recent = await scanRepo.getRecentScans();
+
+      expect(recent.map((scan) => scan.id), [newer.id, older.id]);
+      expect((await scanRepo.getRecentScans(limit: 1)).single.id, newer.id);
+    });
   });
 }

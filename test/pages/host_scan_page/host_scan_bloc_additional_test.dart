@@ -44,6 +44,10 @@ class FakeScanRepository implements ScanRepository {
   Future<List<ScanData>> getList() async => throw UnimplementedError();
 
   @override
+  Future<List<ScanData>> getRecentScans({int limit = 50}) async =>
+      throw UnimplementedError();
+
+  @override
   Future<ScanData?> get(int id) async => throw UnimplementedError();
 
   @override

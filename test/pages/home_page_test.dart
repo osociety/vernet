@@ -1,15 +1,32 @@
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/database/database_service.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/home_page.dart';
+import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/values/keys.dart';
+import 'package:vernet/values/strings.dart';
+
+class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
+  _InMemoryDatabaseService(this.db);
+
+  final AppDatabase db;
+
+  @override
+  Future<AppDatabase?> open() async => db;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -92,8 +109,7 @@ void main() {
       expect(find.text('INTERNET SERVICE'), findsOneWidget);
     });
 
-    testWidgets(
-        'shows connection line status and opens detail dialog on click',
+    testWidgets('shows connection line status and opens detail dialog on click',
         (tester) async {
       final connectivityService = NetworkConnectivityService(
         pingProbe: (host) async => const Duration(milliseconds: 20),
@@ -149,8 +165,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
     });
 
-    testWidgets(
-        'shows Disconnected and troubleshooting dialog when offline',
+    testWidgets('shows Disconnected and troubleshooting dialog when offline',
         (tester) async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
@@ -292,6 +307,34 @@ void main() {
       expect(find.text('Website and address tools'), findsNothing);
       expect(find.byKey(const ValueKey('ping')), findsNothing);
       expect(find.text('Internet lookups are off'), findsOneWidget);
+    });
+
+    testWidgets('opens scan history from the Wi-Fi panel', (tester) async {
+      await getIt.reset();
+      final db = AppDatabase(NativeDatabase.memory());
+      final databaseService = _InMemoryDatabaseService(db);
+      getIt
+        ..registerSingleton<ScanRepository>(ScanRepository(databaseService))
+        ..registerSingleton<DeviceRepository>(
+            DeviceRepository(databaseService));
+      addTearDown(() async {
+        await getIt.reset();
+        await db.close();
+      });
+
+      await pumpHomePage(tester, size: const Size(900, 800));
+
+      expect(
+        find.byKey(WidgetKey.scanHistoryIconButton.key),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(WidgetKey.scanHistoryIconButton.key));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(ScanHistoryPage), findsOneWidget);
+      expect(find.text(StringValue.previousScansTitle), findsOneWidget);
     });
 
     testWidgets('keeps the mobile header left aligned', (tester) async {

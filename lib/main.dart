@@ -67,6 +67,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+  StreamSubscription<String?>? _notificationTapSubscription;
 
   @override
   void initState() {
@@ -75,7 +76,26 @@ class _MyAppState extends State<MyApp> {
     if (!globals.testingActive) {
       NotificationService.grantPermissions();
     }
+    _notificationTapSubscription =
+        NotificationService.selectNotificationStream.stream
+            .listen(_openScanFromNotification);
     getCurrentAppTheme();
+  }
+
+  @override
+  void dispose() {
+    _notificationTapSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _openScanFromNotification(String? payload) {
+    if (payload != NotificationService.hostScanPayload) {
+      return;
+    }
+    MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/hostscan',
+      ModalRoute.withName('/'),
+    );
   }
 
   Future<void> getCurrentAppTheme() async {

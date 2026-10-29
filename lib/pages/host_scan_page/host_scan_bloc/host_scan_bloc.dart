@@ -117,7 +117,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       'Testing mode enabled ${globals.testingActive}',
     );
 
-    await NotificationService.showNotificationWithActions();
+    await NotificationService.showNotificationWithActions(
+      deviceCount: devicesSet.length,
+    );
 
     emit(HostScanState.loadSuccess(devicesSet));
   }

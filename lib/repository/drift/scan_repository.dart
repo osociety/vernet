@@ -23,6 +23,22 @@ class ScanRepository extends Repository<ScanData> {
     return await database!.select(database.scan).get();
   }
 
+  /// Returns the most recent scans first, used by the previous-scans report.
+  Future<List<ScanData>> getRecentScans({int limit = 50}) async {
+    final database = await _database.open();
+    return await (database!.select(database.scan)
+          ..orderBy(
+            [
+              (scan) => OrderingTerm(
+                    expression: scan.startTime,
+                    mode: OrderingMode.desc,
+                  ),
+            ],
+          )
+          ..limit(limit))
+        .get();
+  }
+
   @override
   Future<ScanData> put(ScanData t) async {
     final database = await _database.open();

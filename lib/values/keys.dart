@@ -19,6 +19,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   veryShortPortChip('veryShortPortChip'),
   runScanOnStartup('runScanOnStartup'),
   rescanIconButton('rescanIconButton'),
+  scanHistoryIconButton('scanHistoryIconButton'),
   changeThemeTile('changeThemeTile'),
   inAppInternetSwitch('inAppInternetSwitch'),
   checkForUpdatesButton('checkForUpdatesButton'),

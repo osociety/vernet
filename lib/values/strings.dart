@@ -20,6 +20,42 @@ class StringValue {
       'Use this only if you want to look for devices on another local network';
   static const String customSubnetHint = 'e.g., 10.0.0.1';
   static const String hostScanPageTitle = 'Find devices';
+  static const String previousScansTitle = 'Previous scans';
+  static const String scanReportTitle = 'Scan report';
+  static const String scanHistoryEmptyPlaceholder =
+      'No previous scans yet.\nRun a scan to see its report here.';
+  static const String scanHistoryEmptyTitle = 'No scans yet';
+  static const String scanHistoryRefresh = 'Refresh';
+  static const String scanHistoryLoadError =
+      'We could not load previous scans.';
+  static const String scanHistoryOverviewTitle = 'Scan activity';
+  static const String scanHistoryScansLabel = 'Scans';
+  static const String scanHistoryDevicesFoundLabel = 'Devices found';
+  static const String scanHistoryLatestScanLabel = 'Latest scan';
+  static const String scanHistoryDevicesPerScanLabel =
+      'Recent devices per scan';
+  static const String scanHistoryListTitle = 'Scan history';
+  static const String scanHistoryNetworkColumn = 'Network';
+  static const String scanHistoryStartedColumn = 'Started';
+  static const String scanHistoryDurationColumn = 'Duration';
+  static const String scanHistoryDevicesColumn = 'Devices';
+  static const String scanHistoryStatusColumn = 'Status';
+  static const String scanReportCompleted = 'Completed';
+  static const String scanReportInProgress = 'In progress';
+  static const String scanReportDiscoveredDevices = 'Discovered devices';
+  static const String scanReportNoDevices = 'No devices in this scan.';
+  static const String scanReportLoadError = 'We could not load this report.';
+  static const String scanReportScanWindow = 'Scan window';
+  static const String scanReportStarted = 'Started';
+  static const String scanReportEnded = 'Ended';
+  static const String scanReportStillRunning = 'Still running';
+  static const String scanReportDuration = 'Duration';
+  static const String scanReportDeviceColumn = 'Device';
+  static const String scanReportIpColumn = 'IP address';
+  static const String scanReportMacColumn = 'MAC address';
+  static const String scanReportDeviceLabel = 'Device';
+  static const String scanReportDevicesLabel = 'Devices';
+  static const String unknownDevice = 'Unknown device';
   static const String loadingDevicesMessage =
       'Looking for devices connected to your local network';
   static const String dnsLookupEmptyPlaceholder =
@@ -27,8 +63,7 @@ class StringValue {
   static const String reverseDnsLookupEmptyPlaceholder =
       'No name found yet.\nThe device name will appear here.';
 
-  static const String speedTestServer =
-      'Information provided by speedtest.net';
+  static const String speedTestServer = 'Information provided by speedtest.net';
 
   static const String ispPageTitle = 'Service Provider Details';
 
