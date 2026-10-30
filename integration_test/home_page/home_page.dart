@@ -159,7 +159,7 @@ void main() {
       expect(find.byType(HostScanPage), findsOneWidget);
     });
 
-    testWidgets('scan startup waits for the page transition to finish',
+    testWidgets('scan runs to completion from the dashboard scan button',
         (tester) async {
       final fakeScanner = await _installFakeScanner([
         const DeviceData(
@@ -182,19 +182,14 @@ void main() {
       await tester.ensureVisible(devicesButton);
       await tester.pumpAndSettle();
 
-      // Tap without settling so the frame in the middle of the push can be
-      // inspected: scan startup must not run while the route animates.
+      // Whether the scan waits for the route transition is asserted in
+      // test/pages/host_scan_page/host_scan_page_test.dart, where the clock is
+      // fake. Here pump() blocks on real platform frames, so how much of the
+      // transition fits inside a pump depends on how fast the runner draws.
       await tester.tap(devicesButton);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
 
       expect(find.byType(HostScanPage), findsOneWidget);
-      expect(
-        fakeScanner.startCalls,
-        0,
-        reason: 'scan setup must wait until the page transition completes',
-      );
-      expect(find.byType(CircularProgressIndicator), findsWidgets);
 
       await TestUtils.waitForAnyWidget(
         tester,

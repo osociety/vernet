@@ -78,6 +78,16 @@ void main() {
   group('host scanner end-to-end test', () {
     testWidgets('tap on the scan for devices button, verify device found',
         (tester) async {
+      // The Android CI emulator is on 10.0.2.x, a NAT sandbox with four live
+      // addresses and ~250 that silently drop ICMP, so a full /24 sweep spends
+      // a ping timeout per dead host and outlasts _waitForScanToFinish. Hosts
+      // 1..16 cover every address the emulator has; desktop keeps the full
+      // range and still finds real devices.
+      if (Platform.isAndroid) {
+        await AppSettings.instance.setFirstSubnet(1);
+        await AppSettings.instance.setLastSubnet(16);
+      }
+
       // Load app widget.
       await tester.pumpWidget(const MyApp(true));
 
