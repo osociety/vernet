@@ -67,13 +67,29 @@ jobs:
 
           release=false
           tag_name=""
-          if grep -Fxq 'pubspec.yaml' <<< "$changed_files"; then
-            version="$(sed -nE 's/^version: ([0-9]+\.[0-9]+\.[0-9]+\+[0-9]+)$/\1/p' pubspec.yaml)"
-            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ ]]; then
-              echo "::error::pubspec.yaml must contain a release version like 1.2.3+45."
-              exit 1
-            fi
 
+          read_version() {
+            sed -nE 's/^version: ([0-9]+\.[0-9]+\.[0-9]+\+[0-9]+)$/\1/p'
+          }
+
+          version="$(read_version < pubspec.yaml)"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$ ]]; then
+            echo "::error::pubspec.yaml must contain a release version like 1.2.3+45."
+            exit 1
+          fi
+
+          base_ref="$BASE_SHA"
+          if [[ "$base_ref" =~ ^0+$ ]]; then
+            base_ref="$(git rev-parse "${HEAD_SHA}^" 2>/dev/null || true)"
+          fi
+          previous_version=""
+          if [[ -n "$base_ref" ]]; then
+            previous_version="$(git show "${base_ref}:pubspec.yaml" 2>/dev/null | read_version || true)"
+          fi
+
+          # Any pubspec.yaml edit used to count as a release, so a dependency
+          # bump alone demanded a changelog. Only a version change is a release.
+          if [[ "$version" != "$previous_version" ]]; then
             build_number="${version##*+}"
             changelog="android/fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
             if ! grep -Fxq "$changelog" <<< "$changed_files" || [[ ! -s "$changelog" ]]; then

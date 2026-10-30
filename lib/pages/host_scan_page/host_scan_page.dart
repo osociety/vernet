@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,13 +54,19 @@ class _ScanStartGate extends StatefulWidget {
 }
 
 class _ScanStartGateState extends State<_ScanStartGate> {
+  /// Frames stop arriving when the window is occluded or the platform pauses
+  /// vsync, so the scan cannot depend on the transition reporting completion.
+  static const Duration _fallbackDelay = Duration(seconds: 1);
+
   Animation<double>? _animation;
+  Timer? _fallback;
   bool _started = false;
   bool _checkScheduled = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _fallback ??= Timer(_fallbackDelay, _start);
     _scheduleCheck();
   }
 
@@ -100,17 +108,17 @@ class _ScanStartGateState extends State<_ScanStartGate> {
   void _start() {
     if (_started) return;
     _started = true;
+    _fallback?.cancel();
+    _fallback = null;
     _animation?.removeStatusListener(_handleStatus);
     _animation = null;
-    // Post-frame, so the last transition frame is not competing with setup.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<HostScanBloc>().add(const HostScanEvent.initialized());
-    });
+    if (!mounted) return;
+    context.read<HostScanBloc>().add(const HostScanEvent.initialized());
   }
 
   @override
   void dispose() {
+    _fallback?.cancel();
     _animation?.removeStatusListener(_handleStatus);
     super.dispose();
   }
