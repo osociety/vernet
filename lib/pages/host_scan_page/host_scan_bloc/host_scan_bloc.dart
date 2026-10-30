@@ -54,6 +54,13 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     progress.dispose();
   }
 
+  /// Progress can keep arriving after the page is gone; that must never throw
+  /// inside the scan, which would abort it.
+  void _setProgress(double value) {
+    if (_progressDisposed) return;
+    progress.value = value;
+  }
+
   /// Adds a device or replaces the existing row with the same id in place, so
   /// lazily resolved details update the list without duplicating or reordering.
   void _upsertDevice(DeviceData device) {
@@ -132,14 +139,14 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     debugPrint(
       'Starting new scan with subnet: $subnet, ip: $ip, gatewayIp: $gatewayIp',
     );
-    progress.value = 0;
+    _setProgress(0);
 
     try {
       final deviceStream = getIt<DeviceScannerService>().startNewScan(
         subnet!,
         ip!,
         gatewayIp!,
-        onProgress: (double value) => progress.value = value,
+        onProgress: _setProgress,
       );
       await for (final DeviceData device in deviceStream) {
         _upsertDevice(device);
@@ -155,7 +162,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       if (!emit.isDone) emit(const HostScanState.loadFailure());
       return;
     }
-    progress.value = 100;
+    _setProgress(100);
     debugPrint(
       'Testing mode enabled ${globals.testingActive}',
     );
@@ -174,7 +181,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Emitter<HostScanState> emit,
   ) async {
     emit(const HostScanState.loadInProgress());
-    progress.value = 0;
+    _setProgress(0);
 
     final deviceStream = await getIt<DeviceScannerService>().getOnGoingScan();
     // guard against emitting after handler completion by checking emit.isDone
@@ -202,7 +209,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         await for (final List<ScanData> scanList in scanStream) {
           final scan = scanList.first;
           if (scan.onGoing == false) {
-            progress.value = 100;
+            _setProgress(100);
             if (!emit.isDone) {
               emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
             }
@@ -220,7 +227,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     // emission above covers the normal app flow, but tests and some platform
     // configurations may not register a ScanRepository or provide a scan id.
     if (!emit.isDone) {
-      progress.value = 100;
+      _setProgress(100);
       emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
     }
   }

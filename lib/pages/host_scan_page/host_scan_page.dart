@@ -30,10 +30,67 @@ class HostScanPage extends StatelessWidget {
         ],
       ),
       body: BlocProvider(
-        create: (context) =>
-            getIt<HostScanBloc>()..add(const HostScanEvent.initialized()),
-        child: HostScanWidget(),
+        create: (context) => getIt<HostScanBloc>(),
+        child: _ScanStartGate(child: HostScanWidget()),
       ),
     );
   }
+}
+
+/// Starts the scan once the page transition has finished.
+///
+/// Scan startup (database write, network tools isolate, mDNS) costs several
+/// frames; running it while the route animates makes the push stutter.
+class _ScanStartGate extends StatefulWidget {
+  const _ScanStartGate({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ScanStartGate> createState() => _ScanStartGateState();
+}
+
+class _ScanStartGateState extends State<_ScanStartGate> {
+  Animation<double>? _animation;
+  bool _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.status == AnimationStatus.completed) {
+      _start();
+      return;
+    }
+    if (animation != _animation) {
+      _animation?.removeStatusListener(_handleStatus);
+      _animation = animation..addStatusListener(_handleStatus);
+    }
+  }
+
+  void _handleStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) _start();
+  }
+
+  void _start() {
+    if (_started) return;
+    _started = true;
+    _animation?.removeStatusListener(_handleStatus);
+    _animation = null;
+    // Post-frame, so the last transition frame is not competing with setup.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<HostScanBloc>().add(const HostScanEvent.initialized());
+    });
+  }
+
+  @override
+  void dispose() {
+    _animation?.removeStatusListener(_handleStatus);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

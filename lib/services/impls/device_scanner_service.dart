@@ -60,6 +60,11 @@ class DeviceScannerService extends ScannerService {
     StackTrace? discoveryStackTrace;
     var cancelled = false;
 
+    // Rows inserted by this scan, keyed by address. Discovery and mDNS report
+    // the same hosts, and details resolve later, so every lookup goes through
+    // memory instead of a database round trip per host.
+    final deviceByAddress = <String, DeviceData>{};
+
     void emitDevice(DeviceData device) {
       if (controller.isClosed || !controller.hasListener) return;
       controller.add(device);
@@ -82,6 +87,7 @@ class DeviceScannerService extends ScannerService {
         scanId: device.scanId,
       );
       await _deviceRepository.update(updated);
+      deviceByAddress[updated.internetAddress] = updated;
       return updated;
     }
 
@@ -90,8 +96,7 @@ class DeviceScannerService extends ScannerService {
       int scanId,
     ) async {
       try {
-        final existing =
-            await _deviceRepository.getDevice(scanId, activeHost.address);
+        final existing = deviceByAddress[activeHost.address];
         if (existing != null) {
           emitDevice(existing);
           return;
@@ -99,16 +104,18 @@ class DeviceScannerService extends ScannerService {
 
         // Details resolve lazily in the scanner, so show the host as soon as
         // it is discovered instead of waiting for reverse DNS.
+        final macAddress = await _macAddressOf(activeHost);
         var device = await _deviceRepository.put(
           DeviceData(
             id: _newDeviceId(),
             internetAddress: activeHost.address,
-            macAddress: await _macAddressOf(activeHost),
+            macAddress: macAddress,
             currentDeviceIp: ip,
             gatewayIp: gatewayIp,
             scanId: scanId,
           ),
         );
+        deviceByAddress[device.internetAddress] = device;
         emitDevice(device);
         debugPrint('Device found: ${device.internetAddress}');
 
@@ -126,8 +133,7 @@ class DeviceScannerService extends ScannerService {
         final mdnsInfo = await activeHost.mdnsInfo;
         if (mdnsInfo == null) return;
 
-        final existing =
-            await _deviceRepository.getDevice(scanId, activeHost.address);
+        final existing = deviceByAddress[activeHost.address];
         if (existing != null) {
           final name = await _deviceNameOf(activeHost);
           final mdnsDomainName = mdnsInfo.mdnsDomainName;
@@ -157,6 +163,7 @@ class DeviceScannerService extends ScannerService {
             scanId: scanId,
           ),
         );
+        deviceByAddress[device.internetAddress] = device;
         emitDevice(device);
         debugPrint('Device found via mDNS: ${device.internetAddress}');
       } catch (error) {

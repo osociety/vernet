@@ -36,7 +36,7 @@ class HostScanWidget extends StatelessWidget {
       },
       builder: (context, state) {
         return state.map(
-          initial: (_) => Container(),
+          initial: (_) => const Center(child: CircularProgressIndicator()),
           loadInProgress: (value) {
             return Center(
               child: Container(

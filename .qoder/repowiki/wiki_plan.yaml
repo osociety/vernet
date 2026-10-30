@@ -1,0 +1,42 @@
+version: 1
+repowiki:
+  notes:
+    - text: "Vernet is a Flutter app for network diagnostics targeting Android, iOS (partial), Linux, macOS and Windows; all logic lives in Dart under lib/ and platform folders should not be edited unless unavoidable."
+    - text: "Follow the real layout: pages in lib/pages, feature blocs in lib/pages/<feature>/<feature>_bloc, network/platform work in lib/services, drift repositories in lib/repository/drift, drift tables in lib/models/drift, shared adaptive widgets in lib/ui/adaptive, strings in lib/values/strings.dart and widget keys in lib/values/keys.dart."
+    - text: "Dependency direction is pages/widgets -> bloc -> services -> repositories -> models; UI must never perform network I/O, and drift queries belong only in repositories."
+    - text: "State uses flutter_bloc with freezed events/states for multi-state flows (HostScanBloc), while simple one-shot tools may hold an injectable service in a StatefulWidget (ScanHistoryPage, WakeOnLanPage)."
+    - text: "Services, repositories and blocs are registered with get_it + injectable; configureDependencies(Env.test) is used by tests and integration tests, and generated files (injection.config.dart, *.freezed.dart, *.g.dart) are never edited by hand."
+    - text: "Persistence is drift: AppDatabase (schemaVersion 1) with Scan and Device tables, opened through DatabaseService<AppDatabase>; queries such as getRecentScans, countByScanId and getListForScan live in ScanRepository and DeviceRepository."
+    - text: "Vernet ships one UI to phones and desktop: wrap page bodies in LayoutBuilder + Align(topCenter) + ConstrainedBox, use maxWidth 900 for lists, 900-1100 for reports and 1180 for dashboards, 16px phone padding and 24px+ desktop padding, and set crossAxisAlignment explicitly."
+    - text: "User-visible text must come from StringValue; interactive widgets used by tests get a WidgetKey entry. New routes are registered in onGenerateRoute in lib/main.dart."
+    - text: "NotificationService is a static service around flutter_local_notifications; scan completion notifications use payload 'hostscan', and lib/main.dart listens to selectNotificationStream to push '/hostscan'."
+    - text: "NotificationService.showNotificationWithActions returns early when globals.testingActive is true and on Windows unless debugIgnorePlatformCheck is set; tests that verify the plugin call must enable debugIgnorePlatformCheck."
+    - text: "Unit and widget tests mirror lib under test/ and drift tests use AppDatabase(NativeDatabase.memory()). Integration suites live under integration_test, are imported into the single entry point integration_test/app_test.dart, and nested suite files omit the _test.dart suffix."
+    - text: "Integration suites must call IntegrationTestWidgetsFlutterBinding.ensureInitialized(), set globals.testingActive and NotificationService.skipPermissionRequests, mock platform channels via TestUtils.configureAndroidChannelMocks, and use integration_test/wifi_test/wifi_test_runner.dart clearDatabase between tests."
+    - text: "Visual verification uses widget tests at 390x844 (phone) and 1280x1000 or wider (desktop); Flutter reports RenderFlex overflows automatically, so fixed-width chips and status labels must use Flexible + ellipsis."
+    - text: "Dart MCP (analyze_files) is the fastest static check, GitHub MCP handles PR and issue workflows, and the Repo Wiki reflects the state of this repository; regenerate or edit it after structural changes."
+    - text: "Use README.md, AGENTS.md and ARCHITECTURE.md as sources, but correct their stale claims about lib/widgets, lib/providers and lib/routing; the actual layout is described in these notes."
+  documents:
+    - title: Architecture
+      goal: "Explain the layered architecture, the real repository layout, dependency injection, routing, and the mobile+desktop responsive rules that every page must follow."
+      template: architecture
+    - title: Scan Report Feature
+      parent: Architecture
+      goal: "Document the scan lifecycle from HostScanBloc through drift persistence to the scan history list and scan detail report, including entry points, responsive layouts, empty and in-progress states, and the files that implement them."
+    - title: Data and Persistence
+      parent: Architecture
+      goal: "Document the drift tables Scan and Device, AppDatabase configuration, the repository query methods used by the scan report, and the in-memory database pattern used in tests."
+    - title: Notifications and Deep Linking
+      parent: Architecture
+      goal: "Explain NotificationService initialization, scan completion notifications with device counts, the 'hostscan' payload and selectNotificationStream routing in lib/main.dart, plus test-mode guards and the Windows debug flag."
+    - title: Testing Strategy
+      parent: Architecture
+      goal: "Describe the test pyramid for this repo: mirrored unit and widget tests, drift in-memory repository tests, the single-entry integration_test/app_test.dart runner, the scan report integration suite, responsive width checks, and platform-specific CI pitfalls such as Windows notification guards."
+knowledgecard:
+  notes:
+    - text: "Treat lib/pages as the feature layer, lib/services as network/platform work, lib/repository/drift as the only place for SQL, and lib/models/drift for drift tables; do not introduce lib/widgets or lib/routing folders because they do not exist here."
+    - text: "The scan report feature spans lib/pages/host_scan_page/scan_history/scan_history_page.dart, ScanRepository.getRecentScans, DeviceRepository.countByScanId/getListForScan, and integration_test/scan_report/scan_report.dart."
+    - text: "Use StringValue for text and WidgetKey for testable interactive widgets; add both to lib/values when introducing UI."
+    - text: "All pages must be usable at 390px and at 900px+ with content width constrained; desktop layouts use tables or two-pane structures rather than stretched phone columns."
+    - text: "Tests must pass on Windows CI: enable NotificationService.debugIgnorePlatformCheck in notification tests, and never rely on real notification delivery in integration tests."
+    - text: "Run dart analyze and flutter test before reporting done, then flutter test integration_test -d macos for the end-to-end suites."

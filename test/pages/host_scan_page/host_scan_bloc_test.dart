@@ -21,6 +21,7 @@ class FakeScannerService implements DeviceScannerService {
   final Stream<DeviceData> Function()? streamFactory;
   final StreamController<List<DeviceData>> ongoingController =
       StreamController<List<DeviceData>>();
+  void Function(double progress)? progressCallback;
 
   @override
   Stream<DeviceData> startNewScan(
@@ -29,6 +30,7 @@ class FakeScannerService implements DeviceScannerService {
     String gatewayIp, {
     void Function(double progress)? onProgress,
   }) {
+    progressCallback = onProgress;
     return streamFactory?.call() ?? Stream.fromIterable(devices);
   }
 
@@ -179,6 +181,35 @@ void main() {
 
       expect(bloc.devicesSet.length, 1);
       expect(bloc.devicesSet.single.hostMake, 'printer.local');
+    });
+
+    test('progress after the page is closed does not abort the scan',
+        () async {
+      await bloc.close();
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () => Stream<DeviceData>.fromIterable(const []),
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere(
+        (state) => state.maybeMap(
+          loadInProgress: (_) => true,
+          orElse: () => false,
+        ),
+      );
+      expect(scanner.progressCallback, isNotNull);
+
+      // Leaving the scan page disposes the bloc while the scan keeps running.
+      await bloc.close();
+
+      expect(() => scanner.progressCallback?.call(42), returnsNormally);
     });
 
     test('emits loadFailure when the scan stream fails', () async {

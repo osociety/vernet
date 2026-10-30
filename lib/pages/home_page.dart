@@ -49,10 +49,20 @@ class _WifiDetailState extends State<HomePage> {
   bool _isRefreshingWifi = false;
   bool _hasRunStartupScan = false;
   bool scanRunning = false;
-  Set<DeviceData> devices = {};
+  final Map<int, DeviceData> devices = {};
   SpeedTestDart tester = SpeedTestDart();
   final IspLookupService _ispLookupService = IspLookupService();
   late Future<Settings?> _ispSettingsFuture;
+  Timer? _deviceRefreshTimer;
+
+  /// Discovery emits a placeholder and then an updated row per host. Rebuilding
+  /// the whole dashboard for each event drops frames, so coalesce the updates.
+  void _scheduleDeviceRefresh() {
+    _deviceRefreshTimer ??= Timer(const Duration(milliseconds: 250), () {
+      _deviceRefreshTimer = null;
+      if (mounted) setState(() {});
+    });
+  }
 
   Future<WifiInfo?> _getWifiInfo({bool force = false}) async {
     if (widget.wifiInfoLoader != null) {
@@ -93,12 +103,12 @@ class _WifiDetailState extends State<HomePage> {
       getIt<DeviceScannerService>()
           .startNewScan(_wifiInfo!.subnet, wifiIP, gatewayIp)
           .listen((device) {
-        if (mounted) {
-          setState(() {
-            devices.add(device);
-          });
-        }
+        if (!mounted) return;
+        devices[device.id] = device;
+        _scheduleDeviceRefresh();
       }).onDone(() async {
+        _deviceRefreshTimer?.cancel();
+        _deviceRefreshTimer = null;
         if (mounted) {
           setState(() {
             scanRunning = false;
@@ -145,6 +155,7 @@ class _WifiDetailState extends State<HomePage> {
 
   @override
   void dispose() {
+    _deviceRefreshTimer?.cancel();
     super.dispose();
   }
 
