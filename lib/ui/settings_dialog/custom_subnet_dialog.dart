@@ -40,6 +40,22 @@ class _CustomSubnetDialogState extends BaseSettingsDialog<CustomSubnetDialog> {
 
   @override
   String? validate(String? value) {
+    final input = (value ?? '').trim();
+    if (input.isEmpty) {
+      return null;
+    }
+    final parts = input.split('.');
+    if (parts.length != 4 ||
+        parts.any((part) => part.isEmpty || int.tryParse(part) == null)) {
+      return StringValue.customSubnetInvalid;
+    }
+    final octets = parts.map(int.parse).toList();
+    if (octets.any((octet) => octet < 0 || octet > 255)) {
+      return StringValue.customSubnetInvalid;
+    }
+    if (octets[3] == 0 || octets[3] == 255) {
+      return StringValue.customSubnetNotUsableHost;
+    }
     return null;
   }
 }

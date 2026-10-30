@@ -66,6 +66,43 @@ void main() {
   });
 
   group('DeviceRepository additional tests', () {
+    test('update replaces lazily resolved device details', () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+      final inserted = await deviceRepo.put(
+        DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          internetAddress: '192.168.0.2',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: scan.id,
+        ),
+      );
+
+      await deviceRepo.update(
+        DeviceData(
+          id: inserted.id,
+          internetAddress: inserted.internetAddress,
+          macAddress: '00:11:22:33:44:55',
+          hostMake: 'Resolved Host',
+          currentDeviceIp: inserted.currentDeviceIp,
+          gatewayIp: inserted.gatewayIp,
+          scanId: inserted.scanId,
+        ),
+      );
+
+      final fetched = await deviceRepo.get(inserted.id);
+      expect(fetched?.hostMake, 'Resolved Host');
+      expect(fetched?.macAddress, '00:11:22:33:44:55');
+      expect(await deviceRepo.countByScanId(scan.id), 1);
+    });
+
     test('get returns null for non-existent device', () async {
       final result = await deviceRepo.get(999999);
       expect(result, isNull);

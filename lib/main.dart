@@ -9,6 +9,8 @@ import 'package:sidebarx/sidebarx.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/api/update_checker.dart';
+import 'package:vernet/database/database_service.dart';
+import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/injection.dart';
@@ -38,7 +40,12 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   try {
     final appDocDirectory = await getApplicationDocumentsDirectory();
-    await configureNetworkToolsFlutter(appDocDirectory.path, rebuildData: true);
+    // ARP data is built once and refreshed per scan, so there is no need to
+    // wipe it on every launch. Vendor names are not displayed by the app.
+    await configureNetworkToolsFlutter(
+      appDocDirectory.path,
+      buildVendorTable: false,
+    );
   } catch (e, st) {
     debugPrint('Network tools init failed: $e\n$st');
   }
@@ -50,6 +57,17 @@ Future<void> main() async {
 
   runApp(MyApp(allowed));
   FlutterNativeSplash.remove();
+  unawaited(_warmUpDatabase());
+}
+
+/// Opens the local database while the first screen is shown, so the first scan
+/// does not pay the open cost inside its page transition.
+Future<void> _warmUpDatabase() async {
+  try {
+    await getIt<DatabaseService<AppDatabase>>().open();
+  } catch (error) {
+    debugPrint('Database warm-up failed: $error');
+  }
 }
 
 class MyApp extends StatefulWidget {

@@ -79,8 +79,11 @@ class NetworkConnectivityService {
     if (hasValidIp) {
       final details = <String, String>{
         'Device IP': wifiInfo.ip,
-        'Gateway IP':
-            wifiInfo.gatewayIp.isEmpty ? 'Unavailable' : wifiInfo.gatewayIp,
+        'Gateway IP': wifiInfo.gatewayIp.isEmpty
+            ? 'Unavailable'
+            : wifiInfo.isCustomGateway
+                ? '${wifiInfo.gatewayIp} (custom subnet)'
+                : wifiInfo.gatewayIp,
         'Interface': interfaceName,
       };
 

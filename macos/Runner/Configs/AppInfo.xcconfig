@@ -12,3 +12,17 @@ PRODUCT_BUNDLE_IDENTIFIER = org.fsociety.vernet.vernet
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2021 org.fsociety.vernet. All rights reserved.
+
+// Entitlements selection.
+//
+// com.apple.developer.networking.topology-observation is a managed capability that
+// Apple must grant for this App ID. A binary carrying the key without that grant is
+// killed at launch, and CI signs ad-hoc, so the default must stay empty.
+//
+// After Apple approves the capability, set this to "-Topology" and sign with the
+// refreshed provisioning profile.
+VERNET_ENTITLEMENTS_VARIANT =
+
+CODE_SIGN_ENTITLEMENTS[config=Debug] = Runner/DebugProfile$(VERNET_ENTITLEMENTS_VARIANT).entitlements
+CODE_SIGN_ENTITLEMENTS[config=Profile] = Runner/DebugProfile$(VERNET_ENTITLEMENTS_VARIANT).entitlements
+CODE_SIGN_ENTITLEMENTS[config=Release] = Runner/Release$(VERNET_ENTITLEMENTS_VARIANT).entitlements

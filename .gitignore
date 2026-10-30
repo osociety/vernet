@@ -159,5 +159,9 @@ firebase/.firebase/
 # Graphify generated output
 graphify-out/
 
-# Qoder local workspace config
-.qoder/
+# Generated Repo Wiki exports (hand-authored plan and skills stay tracked)
+.qoder/repowiki/en/
+.qoder/repowiki/zh/
+.qoder/repowiki/knowledge/
+.qoder/repowiki/content/
+.qoder/repowiki/meta/

@@ -317,10 +317,10 @@ packages:
     dependency: transitive
     description:
       name: equatable
-      sha256: "3bce007a596ff8b3119c45d68aaef631272537c03d30e5d4534dd24bf4c5eaa2"
+      sha256: ea36e500cbf0ec18361deabca755434f73e42fe53c5130021c7e2d6b5ebe1702
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "3.0.0"
   external_app_launcher:
     dependency: "direct main"
     description:
@@ -844,18 +844,18 @@ packages:
     dependency: transitive
     description:
       name: network_tools
-      sha256: d7f1ca7204060b4267d81a9f813f7c1c45f1484fbe660acd8941c4bcd093a820
+      sha256: "5804cd423d52a4a32b819b85cbfb7f8e752b0c1764ee457fea0979948ee1b2a6"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.10"
+    version: "6.0.11"
   network_tools_flutter:
     dependency: "direct main"
     description:
       name: network_tools_flutter
-      sha256: "749e9bf41e9305f9a54105c51c1b8ccd291c435993ecc9f0f051637904f86112"
+      sha256: e45bcc793b020b2f0fa1fb197101df5441faf733f5062a9f3f6fba25b2b2608c
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.5"
+    version: "3.0.6"
   nm:
     dependency: transitive
     description:
@@ -868,10 +868,10 @@ packages:
     dependency: transitive
     description:
       name: nsd
-      sha256: "2551fec29f6032459815a577f385f89e18099a3ca1c545b5dfb1e1a64b5705ec"
+      sha256: "1611a5c9f61d56ff2973e1488ae04112103e5203b4a7a1fb594b48cfb366fc14"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "4.1.0"
   nsd_android:
     dependency: transitive
     description:
@@ -884,18 +884,18 @@ packages:
     dependency: transitive
     description:
       name: nsd_ios
-      sha256: "57a4b8b218860346eba7e2d629c6fce1fa89a97645350130a15c45babb4b1324"
+      sha256: "562fffe753543a65190344d3acd0ed80d96c571ac1a05bf10780c5584b5055ac"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "2.0.1"
   nsd_macos:
     dependency: transitive
     description:
       name: nsd_macos
-      sha256: cca373ee5f28ea22140d595b5cd06e83ebc2d6e4ee3e17d7fa1fd6564e4cb352
+      sha256: "47cd355d84009befe02710c72bf1c1999b24d5f3fb3a3d914f8b77bcaca42542"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "2.0.1"
   nsd_platform_interface:
     dependency: transitive
     description:

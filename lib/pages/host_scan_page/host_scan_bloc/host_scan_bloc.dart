@@ -39,8 +39,42 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
   /// List of all ActiveHost devices that got found in the current scan
   final Set<DeviceData> devicesSet = {};
 
+  /// Scan progress in percent (0-100), fed by the scanner.
+  final ValueNotifier<double> progress = ValueNotifier<double>(0);
+  bool _progressDisposed = false;
+
   /// mDNS for each ip
   final Map<String, MdnsInfo> mDnsDevices = {};
+
+  @override
+  Future<void> close() async {
+    await super.close();
+    if (_progressDisposed) return;
+    _progressDisposed = true;
+    progress.dispose();
+  }
+
+  /// Progress can keep arriving after the page is gone; that must never throw
+  /// inside the scan, which would abort it.
+  void _setProgress(double value) {
+    if (_progressDisposed) return;
+    progress.value = value;
+  }
+
+  /// Adds a device or replaces the existing row with the same id in place, so
+  /// lazily resolved details update the list without duplicating or reordering.
+  void _upsertDevice(DeviceData device) {
+    final ordered = devicesSet.toList();
+    final index = ordered.indexWhere((existing) => existing.id == device.id);
+    if (index == -1) {
+      devicesSet.add(device);
+      return;
+    }
+    ordered[index] = device;
+    devicesSet
+      ..clear()
+      ..addAll(ordered);
+  }
 
   Future<void> _initialized(
     Initialized event,
@@ -105,14 +139,30 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     debugPrint(
       'Starting new scan with subnet: $subnet, ip: $ip, gatewayIp: $gatewayIp',
     );
+    _setProgress(0);
 
-    final deviceStream =
-        getIt<DeviceScannerService>().startNewScan(subnet!, ip!, gatewayIp!);
-    await for (final DeviceData device in deviceStream) {
-      devicesSet.add(device);
-      emit(const HostScanState.loadInProgress());
-      emit(HostScanState.foundNewDevice(devicesSet));
+    try {
+      final deviceStream = getIt<DeviceScannerService>().startNewScan(
+        subnet!,
+        ip!,
+        gatewayIp!,
+        onProgress: _setProgress,
+      );
+      await for (final DeviceData device in deviceStream) {
+        _upsertDevice(device);
+        if (!emit.isDone) {
+          emit(HostScanState.foundNewDevice(Set<DeviceData>.of(devicesSet)));
+        }
+      }
+    } catch (error) {
+      // A failed or crashed scan must not leave the UI (or the stored scan)
+      // waiting forever.
+      final detail = error is HostScanException ? ' (${error.kind})' : '';
+      debugPrint('Host scan failed$detail: $error');
+      if (!emit.isDone) emit(const HostScanState.loadFailure());
+      return;
     }
+    _setProgress(100);
     debugPrint(
       'Testing mode enabled ${globals.testingActive}',
     );
@@ -121,7 +171,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       deviceCount: devicesSet.length,
     );
 
-    emit(HostScanState.loadSuccess(devicesSet));
+    if (!emit.isDone) {
+      emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
+    }
   }
 
   Future<void> _loadScanAndShowResults(
@@ -129,14 +181,16 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     Emitter<HostScanState> emit,
   ) async {
     emit(const HostScanState.loadInProgress());
+    _setProgress(0);
 
     final deviceStream = await getIt<DeviceScannerService>().getOnGoingScan();
     // guard against emitting after handler completion by checking emit.isDone
     deviceStream.listen((devices) {
       if (!emit.isDone) {
-        devicesSet.addAll(devices);
-        emit(const HostScanState.loadInProgress());
-        emit(HostScanState.foundNewDevice(devicesSet));
+        for (final device in devices) {
+          _upsertDevice(device);
+        }
+        emit(HostScanState.foundNewDevice(Set<DeviceData>.of(devicesSet)));
       }
     });
 
@@ -155,8 +209,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         await for (final List<ScanData> scanList in scanStream) {
           final scan = scanList.first;
           if (scan.onGoing == false) {
+            _setProgress(100);
             if (!emit.isDone) {
-              emit(HostScanState.loadSuccess(devicesSet));
+              emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
             }
             break;
           }
@@ -172,7 +227,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     // emission above covers the normal app flow, but tests and some platform
     // configurations may not register a ScanRepository or provide a scan id.
     if (!emit.isDone) {
-      emit(HostScanState.loadSuccess(devicesSet));
+      _setProgress(100);
+      emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
     }
   }
 }

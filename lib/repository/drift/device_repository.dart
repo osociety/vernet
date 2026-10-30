@@ -34,6 +34,11 @@ class DeviceRepository extends Repository<DeviceData> {
         .getSingle();
   }
 
+  Future<void> update(DeviceData device) async {
+    final database = await _database.open();
+    await database!.update(database.device).replace(device);
+  }
+
   Future<DeviceData?> getDevice(int scanId, String address) async {
     final database = await _database.open();
     return await (database!.select(database.device)

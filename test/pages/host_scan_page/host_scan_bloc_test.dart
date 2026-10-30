@@ -16,14 +16,22 @@ class MockNetworkInfo extends Mock implements NetworkInfo {}
 /// a predetermined list of devices and allows callers to supply an
 /// ongoing-scan stream.
 class FakeScannerService implements DeviceScannerService {
-  FakeScannerService({required this.devices});
+  FakeScannerService({required this.devices, this.streamFactory});
   final List<DeviceData> devices;
+  final Stream<DeviceData> Function()? streamFactory;
   final StreamController<List<DeviceData>> ongoingController =
       StreamController<List<DeviceData>>();
+  void Function(double progress)? progressCallback;
 
   @override
-  Stream<DeviceData> startNewScan(String subnet, String ip, String gatewayIp) {
-    return Stream.fromIterable(devices);
+  Stream<DeviceData> startNewScan(
+    String subnet,
+    String ip,
+    String gatewayIp, {
+    void Function(double progress)? onProgress,
+  }) {
+    progressCallback = onProgress;
+    return streamFactory?.call() ?? Stream.fromIterable(devices);
   }
 
   @override
@@ -106,7 +114,8 @@ void main() {
       // Mock NetworkInfo for tests that trigger initialization
       when(() => mockNetworkInfo.getWifiGatewayIP())
           .thenAnswer((_) async => '192.168.0.1');
-      when(() => mockNetworkInfo.getWifiIP()).thenAnswer((_) async => '192.168.0.2');
+      when(() => mockNetworkInfo.getWifiIP())
+          .thenAnswer((_) async => '192.168.0.2');
 
       bloc = HostScanBloc();
     });
@@ -132,9 +141,98 @@ void main() {
         emitsInOrder([
           const HostScanState.loadInProgress(),
           isA<FoundNewDevice>(),
-          const HostScanState.loadInProgress(),
           isA<FoundNewDevice>(),
           isA<LoadSuccess>(),
+        ]),
+      );
+    });
+
+    test('resolved details replace the device without duplicating it',
+        () async {
+      await bloc.close();
+      const placeholder = DeviceData(
+        id: 7,
+        internetAddress: '10.0.0.7',
+        currentDeviceIp: '',
+        gatewayIp: '',
+        scanId: 1,
+      );
+      const resolved = DeviceData(
+        id: 7,
+        internetAddress: '10.0.0.7',
+        hostMake: 'printer.local',
+        currentDeviceIp: '',
+        gatewayIp: '',
+        scanId: 1,
+      );
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () => Stream.fromIterable([placeholder, resolved]),
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere((state) => state is LoadSuccess);
+
+      expect(bloc.devicesSet.length, 1);
+      expect(bloc.devicesSet.single.hostMake, 'printer.local');
+    });
+
+    test('progress after the page is closed does not abort the scan',
+        () async {
+      await bloc.close();
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () => Stream<DeviceData>.fromIterable(const []),
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere(
+        (state) => state.maybeMap(
+          loadInProgress: (_) => true,
+          orElse: () => false,
+        ),
+      );
+      expect(scanner.progressCallback, isNotNull);
+
+      // Leaving the scan page disposes the bloc while the scan keeps running.
+      await bloc.close();
+
+      expect(() => scanner.progressCallback?.call(42), returnsNormally);
+    });
+
+    test('emits loadFailure when the scan stream fails', () async {
+      await bloc.close();
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () =>
+            Stream<DeviceData>.error(StateError('scan crashed')),
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+
+      await expectLater(
+        bloc.stream,
+        emitsInOrder([
+          const HostScanState.loadInProgress(),
+          const HostScanState.loadFailure(),
         ]),
       );
     });
@@ -173,8 +271,7 @@ void main() {
 
     test('HostScanState loadInProgress state is correct', () {
       const state = HostScanState.loadInProgress();
-      expect(
-          state.maybeMap(loadInProgress: (_) => true, orElse: () => false),
+      expect(state.maybeMap(loadInProgress: (_) => true, orElse: () => false),
           isTrue);
     });
 
@@ -222,8 +319,8 @@ void main() {
 
     test('HostScanState loadFailure state is correct', () {
       const state = HostScanState.loadFailure();
-      expect(
-          state.maybeMap(loadFailure: (_) => true, orElse: () => false), isTrue);
+      expect(state.maybeMap(loadFailure: (_) => true, orElse: () => false),
+          isTrue);
     });
 
     test('HostScanState error state is correct', () {
