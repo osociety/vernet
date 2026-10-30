@@ -210,6 +210,130 @@ To implement a new feature:
 
 ------------------------------------------------------------------------
 
+# Agent Tooling
+
+Several tool ecosystems touch this repository and no agent has all of
+them. Apply what is available to you and ignore the rest. Never claim a
+check ran when the tool for it was missing.
+
+## Repository guidance
+
+Read these before a structural change. They are the source of truth and
+are deliberately not duplicated here.
+
+-   `.github/copilot-instructions.md` — 100 ranked rules covering
+    workflow and scope, Flutter architecture, error and dependency
+    handling, testing, verification, and reporting. Written for Copilot
+    but applicable to every agent.
+-   `.github/agents/` — `project-task`, `issue-fixer` and `test-repair`
+    agent definitions that wire those rules to the skills below.
+-   `ARCHITECTURE.md` — system design.
+
+## Project skills
+
+`.github/skills/` holds eight Copilot-format skills. `.qoder/skills/`
+holds two deep Qoder references plus a thin pointer to each Copilot skill,
+so Qoder agents can invoke them without the procedure being copied twice.
+
+Start from `project-task` when the right specialist is unclear. The
+specialists are `github-issue-implementation`, `flutter-feature-iteration`,
+`flutter-test-repair`, `github-actions-repository-workflows`,
+`android-fastlane-release`, `firebase-hosting-config` and `close-chat`.
+The Qoder-only references are `vernet-testing` and
+`vernet-feature-scaffold`.
+
+Edit `.github/skills/` for procedure changes and keep the `.qoder/skills/`
+pointers thin, otherwise the two ecosystems drift apart.
+
+Skills carry more detail than this section. Where they overlap, the skill
+wins inside its own domain.
+
+## Cross-agent MCP setup
+
+The same tooling is wired into every agent that can read a project config,
+so a task can move between IDEs mid-flight without losing context.
+
+-   `.agents/mcp-servers.json` is the canonical MCP manifest. It is
+    deliberately path-free: it names binaries and candidate locations, not
+    resolved paths.
+-   `node .agents/sync.mjs` generates each agent's config from it and
+    mirrors `.qoder/skills/` into that agent's project skills root.
+    `node .agents/sync.mjs --check` reports drift and exits non-zero.
+-   Targets are Antigravity, Claude Code, VS Code/Copilot, Gemini CLI,
+    Codex and Cursor. Qoder holds its MCP servers in app storage rather
+    than a repo file, so nothing is generated for it.
+-   Every generated file is gitignored, because it embeds absolute binary
+    paths resolved on this machine. The manifest and the script are the
+    tracked source of truth.
+
+To add or change a server, edit the manifest and re-run the sync. Never
+hand-edit a generated config — the next sync overwrites it.
+
+Two caveats the script cannot paper over. The GitHub server needs per-app
+authentication; agents that cannot do dynamic client registration read a
+token from the environment variable named in the manifest, and no secret is
+ever written to a file. And `codex mcp add` rewrites `~/.codex/config.toml`
+wholesale, so comments and key order there do not survive a sync.
+
+## Session start
+
+If serena is available, activate it before the first code navigation or
+edit: call `initial_instructions`, then `activate_project` with this
+repository. Serena answers nothing until both succeed. If it is
+unavailable or activation fails, fall back to grep and say so.
+
+## Code navigation
+
+`graphify-out/graph.json` is a live knowledge graph of the repository,
+rebuilt automatically when branches change. It is gitignored and local to
+each machine, so use it only when it exists.
+
+-   Architecture, dependency and "where should this live" questions:
+    `graphify query "<question>"`, or `graphify path A B` for
+    relationships. Cheapest first move for anything broad, when
+    available.
+-   Symbol structure inside one file: serena `get_symbols_overview` and
+    `find_symbol`. Graphify seeds on name matches and truncates, so it is
+    weaker for "which widget renders what" inside a large file.
+-   Files over roughly 300 lines: use serena when available, otherwise
+    read the whole file. Do not grep it in slices — slicing a large file
+    misses branches, especially conditional widget trees.
+-   Callers, subclasses, implementations: serena
+    `find_referencing_symbols` and `find_implementations`.
+-   Editing inside a single symbol: serena `replace_symbol_body`.
+-   A known symbol in a known file: grep directly. Indexing is wasted on
+    a single lookup.
+
+## Dart and Flutter diagnostics
+
+When the dart MCP is available, prefer it; otherwise use the equivalent
+`flutter` command and say which you ran.
+
+-   Analysis of changed files: dart MCP `analyze_files`, else
+    `flutter analyze`.
+-   Runtime exceptions and widget-tree questions: dart MCP
+    `get_runtime_errors` and `widget_inspector`.
+-   Layout bugs across phone (390px) and desktop widths are measured, not
+    inferred from source alone.
+
+## Large command output
+
+-   Redirect verbose output — CI logs, full test runs — to a file under
+    `/tmp` and grep it. Never pull a whole log into context, and never
+    pipe a test run through `tail` when you need its exit code.
+-   headroom `headroom_compress`, when available, is only for content
+    that must be reasoned over as a whole and cannot be reduced by grep.
+-   rtk `run_command`, when available, is for high-volume `git`, `grep`,
+    `find` and `ls` output.
+
+## Repository knowledge
+
+Qoder agents: call `SearchKnowledge` before exploring a module. Entries
+cover architecture, conventions and setup commands, and are cheaper than
+rediscovering the same structure each session.
+
+------------------------------------------------------------------------
+
 # Summary
 
 The most important rules:

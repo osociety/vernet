@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "comment": "Canonical MCP server list for this repository. Path-free on purpose: sync.mjs resolves each binary on the current machine, because GUI-launched agents do not inherit the shell PATH and a committed absolute path would be wrong elsewhere. Run `node .agents/sync.mjs` after editing.",
+  "skills": {
+    "source": ".qoder/skills",
+    "comment": "Repo-specific skills. .github/skills holds the procedures; .qoder/skills holds those plus thin pointers. Copied verbatim into each agent's project skills root."
+  },
+  "servers": {
+    "dart": {
+      "transport": "stdio",
+      "bin": "dart",
+      "candidates": [
+        "~/development/flutter/bin/dart"
+      ],
+      "args": [
+        "mcp-server"
+      ]
+    },
+    "serena": {
+      "transport": "stdio",
+      "bin": "serena",
+      "candidates": [
+        "~/.local/bin/serena"
+      ],
+      "args": [
+        "start-mcp-server",
+        "--context={{context}}",
+        "--project",
+        "{{projectDir}}"
+      ],
+      "contextByAgent": {
+        "antigravity": "antigravity",
+        "claude": "claude-code",
+        "codex": "codex",
+        "cursor": "vscode",
+        "gemini": "desktop-app",
+        "qoder": "ide",
+        "vscode": "vscode"
+      }
+    },
+    "headroom": {
+      "transport": "stdio",
+      "bin": "headroom",
+      "candidates": [
+        "~/.local/bin/headroom"
+      ],
+      "args": [
+        "mcp",
+        "serve"
+      ]
+    },
+    "rtk": {
+      "transport": "stdio",
+      "bin": "rtk-mcp",
+      "candidates": [
+        "~/.cargo/bin/rtk-mcp"
+      ],
+      "args": []
+    },
+    "github": {
+      "transport": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "bearerTokenEnvVar": "GITHUB_PERSONAL_ACCESS_TOKEN",
+      "note": "Requires per-app authentication. Qoder and Copilot do OAuth in-app. Agents that cannot do dynamic client registration (Codex) read a token from the named environment variable instead; the token itself is never written to any file."
+    },
+    "context7": {
+      "transport": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
