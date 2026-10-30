@@ -47,6 +47,22 @@ class _FakeScannerService implements DeviceScannerService {
   Future<int> getCurrentDevicesCount() async => devices.length;
 }
 
+/// Swaps the real scanner for a fake so a test does not depend on the network
+/// the runner happens to be on, and restores the original afterwards. A real
+/// scan against an unreachable subnet keeps the indeterminate spinner on screen
+/// for minutes, which makes pumpAndSettle time out rather than fail loudly.
+Future<_FakeScannerService> _installFakeScanner(List<DeviceData> devices) async {
+  final originalScanner = getIt<DeviceScannerService>();
+  final fakeScanner = _FakeScannerService(devices);
+  await getIt.unregister<DeviceScannerService>();
+  getIt.registerSingleton<DeviceScannerService>(fakeScanner);
+  addTearDown(() async {
+    await getIt.unregister<DeviceScannerService>();
+    getIt.registerSingleton<DeviceScannerService>(originalScanner);
+  });
+  return fakeScanner;
+}
+
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -127,6 +143,7 @@ void main() {
 
   group('HomePage Integration Tests', () {
     testWidgets('HomePage navigation to HostScanPage works', (tester) async {
+      await _installFakeScanner(const []);
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
@@ -144,8 +161,7 @@ void main() {
 
     testWidgets('scan startup waits for the page transition to finish',
         (tester) async {
-      final originalScanner = getIt<DeviceScannerService>();
-      final fakeScanner = _FakeScannerService([
+      final fakeScanner = await _installFakeScanner([
         const DeviceData(
           id: 1,
           internetAddress: '192.168.1.42',
@@ -156,19 +172,19 @@ void main() {
           scanId: 0,
         ),
       ]);
-      await getIt.unregister<DeviceScannerService>();
-      getIt.registerSingleton<DeviceScannerService>(fakeScanner);
-      addTearDown(() async {
-        await getIt.unregister<DeviceScannerService>();
-        getIt.registerSingleton<DeviceScannerService>(originalScanner);
-      });
 
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
+      // The button sits below the fold on a 411x683 phone viewport and the
+      // home page is a ListView, so bring it on screen before tapping.
+      final devicesButton = find.byKey(WidgetKey.scanForDevicesButton.key);
+      await tester.ensureVisible(devicesButton);
+      await tester.pumpAndSettle();
+
       // Tap without settling so the frame in the middle of the push can be
       // inspected: scan startup must not run while the route animates.
-      await tester.tap(find.byKey(WidgetKey.scanForDevicesButton.key));
+      await tester.tap(devicesButton);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
