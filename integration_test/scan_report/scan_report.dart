@@ -533,13 +533,22 @@ void main() {
       expect(find.byType(ScanHistoryPage), findsOneWidget);
       await _openScanReport(tester, scan.gatewayIp);
 
-      final deviceCount = await _deviceRepository.countByScanId(scan.id);
-      expect(find.text(_devicesFoundLabel(deviceCount)), findsOneWidget);
+      final devices = await _deviceRepository.getListForScan(scan.id);
+      expect(find.text(_devicesFoundLabel(devices.length)), findsOneWidget);
 
-      if (deviceCount > 0) {
-        expect(find.byType(AdaptiveListTile), findsWidgets);
-      } else {
+      if (devices.isEmpty) {
         expect(find.text(StringValue.scanReportNoDevices), findsOneWidget);
+        return;
+      }
+
+      // The desktop layout renders table rows and the phone layout list tiles,
+      // so assert on the addresses both of them show.
+      for (final device in devices.take(3)) {
+        expect(
+          find.textContaining(device.internetAddress),
+          findsWidgets,
+          reason: 'the report must list ${device.internetAddress}',
+        );
       }
     });
   });
