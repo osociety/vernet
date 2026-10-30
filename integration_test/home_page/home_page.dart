@@ -14,11 +14,38 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
 import '../settings/test_utils.dart';
+
+class _FakeScannerService implements DeviceScannerService {
+  _FakeScannerService(this.devices);
+
+  final List<DeviceData> devices;
+  int startCalls = 0;
+
+  @override
+  Stream<DeviceData> startNewScan(
+    String subnet,
+    String ip,
+    String gatewayIp, {
+    void Function(double progress)? onProgress,
+  }) {
+    startCalls++;
+    onProgress?.call(100);
+    return Stream<DeviceData>.fromIterable(devices);
+  }
+
+  @override
+  Future<Stream<List<DeviceData>>> getOnGoingScan() async =>
+      const Stream<List<DeviceData>>.empty();
+
+  @override
+  Future<int> getCurrentDevicesCount() async => devices.length;
+}
 
 void main() {
   globals.testingActive = true;
@@ -113,6 +140,51 @@ void main() {
 
       // Verify HostScanPage is displayed
       expect(find.byType(HostScanPage), findsOneWidget);
+    });
+
+    testWidgets('scan startup waits for the page transition to finish',
+        (tester) async {
+      final originalScanner = getIt<DeviceScannerService>();
+      final fakeScanner = _FakeScannerService([
+        const DeviceData(
+          id: 1,
+          internetAddress: '192.168.1.42',
+          macAddress: 'AA:BB:CC:DD:EE:FF',
+          hostMake: 'Test host',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+          scanId: 0,
+        ),
+      ]);
+      await getIt.unregister<DeviceScannerService>();
+      getIt.registerSingleton<DeviceScannerService>(fakeScanner);
+      addTearDown(() async {
+        await getIt.unregister<DeviceScannerService>();
+        getIt.registerSingleton<DeviceScannerService>(originalScanner);
+      });
+
+      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpAndSettle();
+
+      // Tap without settling so the frame in the middle of the push can be
+      // inspected: scan startup must not run while the route animates.
+      await tester.tap(find.byKey(WidgetKey.scanForDevicesButton.key));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(find.byType(HostScanPage), findsOneWidget);
+      expect(
+        fakeScanner.startCalls,
+        0,
+        reason: 'scan setup must wait until the page transition completes',
+      );
+      expect(find.byType(CircularProgressIndicator), findsWidgets);
+
+      await TestUtils.waitForAnyWidget(
+        tester,
+        find.text('Scan complete - 1 device found'),
+      );
+      expect(fakeScanner.startCalls, 1);
     });
 
     testWidgets('HomePage refresh button works', (tester) async {

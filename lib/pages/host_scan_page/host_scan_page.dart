@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
@@ -53,12 +54,35 @@ class _ScanStartGate extends StatefulWidget {
 class _ScanStartGateState extends State<_ScanStartGate> {
   Animation<double>? _animation;
   bool _started = false;
+  bool _checkScheduled = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_started) return;
-    final animation = ModalRoute.of(context)?.animation;
+    _scheduleCheck();
+  }
+
+  void _scheduleCheck() {
+    if (_started || _checkScheduled) return;
+    _checkScheduled = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _checkScheduled = false;
+      _check();
+    });
+    // The route may still be offstage with no animation frame pending.
+    SchedulerBinding.instance.ensureVisualUpdate();
+  }
+
+  void _check() {
+    if (_started || !mounted) return;
+    final route = ModalRoute.of(context);
+    final animation = route?.animation;
+    // The first frame of a push builds the route offstage with the animation
+    // pinned at 1.0 (hero measurement); that is not the transition finishing.
+    if (route != null && route.offstage) {
+      _scheduleCheck();
+      return;
+    }
     if (animation == null || animation.status == AnimationStatus.completed) {
       _start();
       return;
