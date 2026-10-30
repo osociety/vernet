@@ -119,4 +119,47 @@ void main() {
       isTrue,
     );
   });
+
+  testWidgets('starts the scan when the transition never completes',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  PageRouteBuilder<void>(
+                    transitionDuration: const Duration(seconds: 30),
+                    pageBuilder: (_, __, ___) => HostScanPage(),
+                  ),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    for (var i = 0; i < 20 && scanner.startCalls == 0; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    expect(
+      scanner.startCalls,
+      1,
+      reason: 'a window that stops drawing frames must still start the scan',
+    );
+
+    await tester.pump(const Duration(seconds: 30));
+  });
 }

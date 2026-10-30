@@ -56,7 +56,7 @@ void main() {
 
       await TestUtils.enterTextByKey(
         WidgetKey.settingsTextField,
-        '192.168.1.0',
+        '10.0.0.1',
         tester,
         find,
       );
@@ -68,7 +68,7 @@ void main() {
       );
       await appSettings.load();
 
-      expect(appSettings.customSubnet, '192.168.1.0');
+      expect(appSettings.customSubnet, '10.0.0.1');
     });
 
     testWidgets('First subnet test', (tester) async {
