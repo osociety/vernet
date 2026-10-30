@@ -38,7 +38,12 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   try {
     final appDocDirectory = await getApplicationDocumentsDirectory();
-    await configureNetworkToolsFlutter(appDocDirectory.path, rebuildData: true);
+    // ARP data is built once and refreshed per scan, so there is no need to
+    // wipe it on every launch. Vendor names are not displayed by the app.
+    await configureNetworkToolsFlutter(
+      appDocDirectory.path,
+      buildVendorTable: false,
+    );
   } catch (e, st) {
     debugPrint('Network tools init failed: $e\n$st');
   }

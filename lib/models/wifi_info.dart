@@ -2,7 +2,8 @@ import 'package:vernet/models/wifi_metrics.dart';
 
 class WifiInfo {
   WifiInfo(this._ip, this._bssid, this._name, this.unknown, this.gatewayIp,
-      this.isLocationOn, this.metrics);
+      this.isLocationOn, this.metrics,
+      {this.isCustomGateway = false});
 
   static Set<String> defaultBSSID = {'00:00:00:00:00:00'};
   final String? _bssid;
@@ -14,6 +15,10 @@ class WifiInfo {
   int totalDevices = 0;
   final String gatewayIp;
   final bool isLocationOn;
+
+  /// True when [gatewayIp] comes from the user's saved custom subnet instead
+  /// of the live network.
+  final bool isCustomGateway;
   String get subnet => gatewayIp.contains('.')
       ? gatewayIp.substring(0, gatewayIp.lastIndexOf('.'))
       : gatewayIp;

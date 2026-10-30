@@ -16,7 +16,12 @@ class FakeScannerService implements DeviceScannerService {
       StreamController<List<DeviceData>>();
 
   @override
-  Stream<DeviceData> startNewScan(String subnet, String ip, String gatewayIp) {
+  Stream<DeviceData> startNewScan(
+    String subnet,
+    String ip,
+    String gatewayIp, {
+    void Function(double progress)? onProgress,
+  }) {
     return Stream.fromIterable(devices);
   }
 

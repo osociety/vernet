@@ -41,20 +41,32 @@ class HostScanWidget extends StatelessWidget {
             return Center(
               child: Container(
                 margin: const EdgeInsets.all(30),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Text(
-                      appSettings.gatewayIP.isNotEmpty
-                          ? 'Looking for devices connected through ${appSettings.gatewayIP}'
-                          : StringValue.loadingDevicesMessage,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                child: ValueListenableBuilder<double>(
+                  valueListenable: context.read<HostScanBloc>().progress,
+                  builder: (context, progress, _) {
+                    final percent = progress.clamp(0, 100).toDouble();
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          value: percent > 0 ? percent / 100 : null,
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          appSettings.gatewayIP.isNotEmpty
+                              ? 'Looking for devices connected through ${appSettings.gatewayIP}'
+                              : StringValue.loadingDevicesMessage,
+                          textAlign: TextAlign.center,
+                        ),
+                        if (percent > 0) ...[
+                          const SizedBox(height: 8),
+                          Text('${percent.round()}% scanned'),
+                        ],
+                      ],
+                    );
+                  },
                 ),
               ),
             );
@@ -104,6 +116,35 @@ class HostScanWidget extends StatelessWidget {
                   icon: const Icon(Icons.replay),
                 ),
         ),
+        if (loading)
+          ValueListenableBuilder<double>(
+            valueListenable: context.read<HostScanBloc>().progress,
+            builder: (context, progress, _) {
+              final value = (progress / 100).clamp(0.0, 1.0);
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: value > 0 ? value : null,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Text(
+                      value > 0
+                          ? 'Scanning ${(value * 100).round()}%'
+                          : 'Starting scan...',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         Expanded(
           child: ListView.builder(
             itemCount: activeHostList.length,

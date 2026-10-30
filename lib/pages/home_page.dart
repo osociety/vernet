@@ -77,11 +77,13 @@ class _WifiDetailState extends State<HomePage> {
     final gatewayIp = appSettings.customSubnet.isNotEmpty
         ? appSettings.customSubnet
         : (wifiGatewayIP ?? wifiIP) ?? '';
+    final isCustomGateway = appSettings.customSubnet.isNotEmpty;
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
     final metrics = await WifiRepository.fetchWifiMetrics();
     _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null,
-        gatewayIp, isLocationOn, metrics);
+        gatewayIp, isLocationOn, metrics,
+        isCustomGateway: isCustomGateway);
 
     if (appSettings.runScanOnStartup && wifiIP != null && !_hasRunStartupScan) {
       setState(() {
@@ -357,6 +359,11 @@ class _WifiDetailState extends State<HomePage> {
                       : (info.gatewayIp.isEmpty
                           ? 'Unavailable'
                           : info.gatewayIp),
+                  badge: !isChecking &&
+                          info.isCustomGateway &&
+                          info.gatewayIp.isNotEmpty
+                      ? const _CustomValueBadge()
+                      : null,
                 ),
               ),
             ],
@@ -577,6 +584,11 @@ class _WifiDetailState extends State<HomePage> {
         isWifiChecking
             ? 'Checking…'
             : (wifiInfo.gatewayIp.isEmpty ? 'Unavailable' : wifiInfo.gatewayIp),
+        badge: !isWifiChecking &&
+                wifiInfo.isCustomGateway &&
+                wifiInfo.gatewayIp.isNotEmpty
+            ? const _CustomValueBadge()
+            : null,
       ),
       _RouteData(Icons.cloud_outlined, 'INTERNET PROVIDER', isp),
     ];
@@ -1041,10 +1053,11 @@ class _StatusPill extends StatelessWidget {
 }
 
 class _NetworkValue extends StatelessWidget {
-  const _NetworkValue({required this.label, required this.value});
+  const _NetworkValue({required this.label, required this.value, this.badge});
 
   final String label;
   final String value;
+  final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -1052,13 +1065,24 @@ class _NetworkValue extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colors.onSurfaceVariant,
-                letterSpacing: 0.7,
-                fontWeight: FontWeight.w700,
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      letterSpacing: 0.7,
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
+            ),
+            if (badge != null) ...[
+              const SizedBox(width: 6),
+              badge!,
+            ],
+          ],
         ),
         const SizedBox(height: 3),
         SelectableText(
@@ -1070,6 +1094,31 @@ class _NetworkValue extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CustomValueBadge extends StatelessWidget {
+  const _CustomValueBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: colors.tertiaryContainer,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        'CUSTOM',
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colors.onTertiaryContainer,
+              fontSize: 10,
+              letterSpacing: 0.8,
+              fontWeight: FontWeight.w800,
+            ),
+      ),
     );
   }
 }
@@ -1113,11 +1162,12 @@ class _IspMessage extends StatelessWidget {
 }
 
 class _RouteData {
-  const _RouteData(this.icon, this.label, this.value);
+  const _RouteData(this.icon, this.label, this.value, {this.badge});
 
   final IconData icon;
   final String label;
   final String value;
+  final Widget? badge;
 }
 
 class _RouteNode extends StatelessWidget {
@@ -1142,16 +1192,28 @@ class _RouteNode extends StatelessWidget {
       crossAxisAlignment:
           centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
-        Text(
-          data.label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: centered ? TextAlign.center : TextAlign.start,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colors.onSurfaceVariant,
-                letterSpacing: 0.6,
-                fontWeight: FontWeight.w700,
+        Row(
+          mainAxisAlignment:
+              centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Text(
+                data.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: centered ? TextAlign.center : TextAlign.start,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      letterSpacing: 0.6,
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
+            ),
+            if (data.badge != null) ...[
+              const SizedBox(width: 6),
+              data.badge!,
+            ],
+          ],
         ),
         const SizedBox(height: 4),
         Text(

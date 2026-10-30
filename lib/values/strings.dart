@@ -19,6 +19,10 @@ class StringValue {
   static const String customSubnetDesc =
       'Use this only if you want to look for devices on another local network';
   static const String customSubnetHint = 'e.g., 10.0.0.1';
+  static const String customSubnetInvalid =
+      'Enter a valid IPv4 address, like 10.0.0.1. Leave empty to use your current network.';
+  static const String customSubnetNotUsableHost =
+      'This looks like a network or broadcast address. Enter a device or router address, like 10.0.0.1.';
   static const String hostScanPageTitle = 'Find devices';
   static const String previousScansTitle = 'Previous scans';
   static const String scanReportTitle = 'Scan report';

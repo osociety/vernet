@@ -109,7 +109,41 @@ void main() {
       expect(find.text('INTERNET SERVICE'), findsOneWidget);
     });
 
-    testWidgets('shows connection line status and opens detail dialog on click',
+    testWidgets('does not badge the gateway for live network values',
+        (tester) async {
+      await pumpHomePage(tester, size: const Size(900, 800));
+
+      expect(find.text('192.168.1.1'), findsWidgets);
+      expect(find.text('CUSTOM'), findsNothing);
+    });
+
+    testWidgets('badges the gateway when a custom subnet is in use',
+        (tester) async {
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          '172.20.10.2',
+          '00:11:22:33:44:55',
+          'Mock WiFi',
+          false,
+          '192.168.1.0',
+          true,
+          const WifiNetworkMetrics(
+            rawRssi: -50,
+            normalizedLevel: 3,
+            statusMessage: 'Good signal',
+          ),
+          isCustomGateway: true,
+        ),
+      );
+
+      expect(find.text('192.168.1.0'), findsWidgets);
+      expect(find.text('CUSTOM'), findsWidgets);
+    });
+
+    testWidgets(
+        'shows connection line status and opens detail dialog on click',
         (tester) async {
       final connectivityService = NetworkConnectivityService(
         pingProbe: (host) async => const Duration(milliseconds: 20),
