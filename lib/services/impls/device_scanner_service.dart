@@ -205,6 +205,10 @@ class DeviceScannerService extends ScannerService {
                   );
 
         final seenAddresses = <String>{};
+        debugPrint(
+          'Scanning host ids ${effectiveRange.first}..${effectiveRange.last} '
+          'on subnet $subnet',
+        );
         hostSubscription = HostScannerService.instance
             .getAllPingableDevices(
           subnet,
