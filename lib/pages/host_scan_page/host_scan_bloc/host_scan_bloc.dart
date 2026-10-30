@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -76,6 +77,29 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       ..addAll(ordered);
   }
 
+  /// The /24 prefix of every non-loopback IPv4 interface, used to tell a live
+  /// network report from a stale one.
+  static Future<Set<String>> _localInterfaceSubnets() async {
+    final interfaces = await NetworkInterface.list(
+      type: InternetAddressType.IPv4,
+    );
+    return {
+      for (final interface in interfaces)
+        for (final address in interface.addresses)
+          if (address.address.contains('.'))
+            address.address.substring(0, address.address.lastIndexOf('.')),
+    };
+  }
+
+  /// True when [candidate] sits on a subnet this device actually has, or when
+  /// no interface could be enumerated and there is nothing to check against.
+  static bool _onKnownSubnet(String candidate, Set<String> knownSubnets) {
+    if (knownSubnets.isEmpty) return true;
+    final lastDot = candidate.lastIndexOf('.');
+    return lastDot > 0 &&
+        knownSubnets.contains(candidate.substring(0, lastDot));
+  }
+
   Future<void> _initialized(
     Initialized event,
     Emitter<HostScanState> emit,
@@ -92,28 +116,47 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     }
 
     final interface = await NetInterface.localInterface();
-    ip = (await info.getWifiIP()) ?? interface?.ipAddress;
+    final wifiIp = await info.getWifiIP();
     debugPrint(
       'Local Network Id: ${interface?.networkId} and ip: ${interface?.ipAddress}',
     );
+
+    // network_info_plus keeps reporting the last Wi-Fi network it saw even after
+    // the device has left it: the Android emulator answers 192.168.1.x while
+    // sitting on 10.0.2.x, and a Mac joined to a hotspot does the same. Scanning
+    // such a subnet has no route, so every probe runs to its timeout and the
+    // scan looks hung. Accept a reported address only when a real interface is
+    // on that subnet.
+    final knownSubnets = await _localInterfaceSubnets();
+    ip = wifiIp != null && _onKnownSubnet(wifiIp, knownSubnets)
+        ? wifiIp
+        : interface?.ipAddress ?? wifiIp;
+
     if (appSettings.customSubnet.isNotEmpty) {
       gatewayIp = appSettings.customSubnet;
       debugPrint('Taking gatewayIp from appSettings: $gatewayIp');
-    } else if (wifiGatewayIP != null) {
-      gatewayIp = wifiGatewayIP;
-      debugPrint(
-        'Taking gatewayIp from NetworkInfo().getWifiGatewayIP(): $gatewayIp',
-      );
-    } else if (ip != null) {
-      // NetworkInfo().getWifiGatewayIP() is null on android 35, so fail-safe
-      // to NetworkInfo().getWifiIP()
-      gatewayIp = ip;
-      debugPrint('Taking gatewayIp from NetworkInfo().getWifiIP(): $gatewayIp');
-    } else if (interface != null) {
-      gatewayIp = interface.ipAddress;
-      debugPrint(
-        'Taking gatewayIp from NetInterface.localInterface(): $gatewayIp',
-      );
+    } else {
+      // getWifiGatewayIP() is null on android 35, so the device's own address is
+      // the fail-safe; only its subnet prefix is used from here on.
+      final detected = <String, String?>{
+        'NetworkInfo().getWifiGatewayIP()': wifiGatewayIP,
+        'NetworkInfo().getWifiIP()': wifiIp,
+        'NetInterface.localInterface()': interface?.ipAddress,
+      };
+      for (final source in detected.entries) {
+        final value = source.value;
+        if (value == null) continue;
+        if (!_onKnownSubnet(value, knownSubnets)) {
+          debugPrint(
+            'Ignoring ${source.key} $value: no local interface is on that '
+            'subnet (known: ${knownSubnets.join(', ')})',
+          );
+          continue;
+        }
+        gatewayIp = value;
+        debugPrint('Taking gatewayIp from ${source.key}: $gatewayIp');
+        break;
+      }
     }
     if (gatewayIp == null) {
       emit(const HostScanState.error());

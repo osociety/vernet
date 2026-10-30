@@ -1,0 +1,3 @@
+Added scan reports: see your previous scans and open a report with the devices found, scan time, and status.
+Scanning is faster: devices appear sooner and starting a scan no longer stutters.
+Fixed scans failing when you leave the scan screen, plus bug fixes and improvements.
