@@ -10,7 +10,7 @@ Use this when a Vernet test fails locally or in CI, or when configuring an exist
 
 ## Procedure
 
-1. Identify the exact failing test, command, platform, and first project-owned stack frame. For CI failures, inspect the job log and workflow before assuming the test itself is defective.
+1. Identify the exact failing test, command, platform, and first project-owned stack frame. For CI failures, inspect the job log and workflow before assuming the test itself is defective. If a recent fix made a previously skipped path run, suspect a latent test bug rather than a regression, and compare against the last green run before changing production code.
 2. Classify the test as unit, widget, or integration. Read the nearest test and implementation; for app structure or ownership questions, use the repository graph when present and consult `ARCHITECTURE.md` for structural changes.
 3. Reproduce with the narrowest exact command. Check the available Flutter devices before running device-dependent tests. For plugin, notification, network, or permission failures, separate unsupported test-environment behavior from a production defect and use deterministic fakes where appropriate.
 4. Make one focused change and add or update a regression assertion for the failure. Preserve the existing test architecture and avoid weakening assertions, adding timing sleeps, or depending on live DNS/network state.

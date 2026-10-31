@@ -82,6 +82,20 @@ setUp(() async {
 - For real scan flows, poll `getCurrentScanId()` and
   `ScanRepository.get(id)` until `onGoing == false`, then continue. Print and
   return early when the environment cannot scan so CI does not hang.
+- An early return skips only the current run. When a production fix makes that
+  flow run, everything past the guard executes for the first time, and a
+  failure there is usually a latent test bug, not a regression from the fix.
+  Check this before diagnosing a new CI failure.
+- Runner subnets differ, so "passed on macOS" is weak evidence: the macOS
+  runner is on `192.168.0.x` and a real scan finds nothing, while Linux and
+  Windows sit on `10.1.0.0/24` and find devices. A test that branches on
+  `deviceCount > 0` can only fail on the latter.
+- Do not assert a widget type the page swaps by width. `ScanDetailPage` renders
+  `_DesktopDeviceRow` at >=900px and `AdaptiveListTile` below; assert on text
+  both layouts show, such as the device address or make.
+- When a branch cannot be reached locally, force it once (seed devices for the
+  live `scan.id`), then revert. Confirm the negative control as well: the old
+  assertion must fail with the same error CI reported.
 - Always clear the database in `setUp` and `tearDown`; suites share one app
   process and one database file.
 
@@ -119,6 +133,12 @@ clean before reporting done. GitHub MCP is available for PR and CI log
 inspection, and browser-use for verifying UI behavior when a desktop device is
 available. Do not pipe long `flutter test` runs through `tail` when you need the
 exit code; it masks failures.
+
+On macOS, keep the `vernet.app` window frontmost while a device suite runs. An
+occluded window starves frames, and the live binding blocks every `pump()` on a
+real frame, so the suite crawls to roughly one test per five minutes at ~0% CPU
+and looks like a hang. The `expanded` reporter also repeats each test name at
+start and completion, which reads as a loop but is not one.
 
 ## Definition of done
 
