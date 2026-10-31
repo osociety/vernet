@@ -18,7 +18,7 @@ Use this skill when the user asks to close, wrap up, or preserve the useful resu
    Preserve unrelated notes. Never store secrets, credentials, personal data that is not needed, or speculative conclusions.
 3. Decide whether the session revealed a durable change to repository guidance. Update only the relevant skill or agent when its instructions are incomplete, incorrect, or missing a reusable lesson. Keep instructions consistent across overlapping guidance and avoid copying whole sections.
 4. Review this skill itself. If the closeout workflow exposed a reusable gap, update this skill narrowly; do not edit it merely to record the current session or create self-referential update churn.
-5. Verify any edited memory or customization for scope, duplication, and internal consistency. For customization files, preserve valid frontmatter and ensure the skill name matches its directory. Do not run application tests for documentation-only closeout edits.
+5. Verify any edited memory or customization for scope, duplication, and internal consistency. Re-read a memory file immediately before editing it: several agent sessions can share these directories, and a concurrent writer may have already added a related entry, or a contradictory one that needs correcting. For customization files, preserve valid frontmatter and ensure the skill name matches its directory. Do not run application tests for documentation-only closeout edits.
 6. Respond with a brief closeout: what durable information was recorded, which guidance files changed (if any), the task's final state and exact verification status, and any remaining handoff item. Be explicit if there was nothing worth retaining.
 
 ## Boundaries
