@@ -435,8 +435,9 @@ class _SpeedTestView extends StatelessWidget {
 
   LineChartData _createChartData(
       BuildContext context, SpeedTestState state, ColorScheme colors) {
-    final allSpeeds = [...state.downloadSpeeds, ...state.uploadSpeeds];
-    final rawMax = allSpeeds.isEmpty ? 100.0 : allSpeeds.reduce(max);
+    // Calculate Y-axis max based on active test only
+    final activeSpeeds = _getActiveSpeeds(state);
+    final rawMax = activeSpeeds.isEmpty ? 100.0 : activeSpeeds.reduce(max);
     // Round up to nearest 25 for clean Y-axis labels
     final maxY = (rawMax * 1.2).clamp(10.0, double.infinity);
     final roundedMaxY = (maxY / 25).ceil() * 25.0;
@@ -534,6 +535,18 @@ class _SpeedTestView extends StatelessWidget {
     return state.downloadSpeeds.length > state.uploadSpeeds.length
         ? state.downloadSpeeds.length
         : state.uploadSpeeds.length;
+  }
+
+  List<double> _getActiveSpeeds(SpeedTestState state) {
+    // Return speeds for the active test only
+    if (!state.uploadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
+      return state.downloadSpeeds;
+    }
+    if (state.downloadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+      return state.uploadSpeeds;
+    }
+    // Fallback to all speeds
+    return [...state.downloadSpeeds, ...state.uploadSpeeds];
   }
 
   LineChartBarData _createLineChartBar(List<double> speeds, Color color, int otherLength) {
