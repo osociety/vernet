@@ -198,12 +198,19 @@ void main() {
       expect(fakeScanner.startCalls, 1);
     });
 
-    testWidgets('HomePage refresh button works', (tester) async {
+    testWidgets('HomePage pull to refresh works', (tester) async {
       await tester.pumpWidget(const MyApp(true));
       await tester.pumpAndSettle();
 
-      await TestUtils.waitForWidget(tester, find.byIcon(Icons.refresh));
-      await tester.tap(find.byIcon(Icons.refresh));
+      // Verify RefreshIndicator is present
+      expect(find.byType(RefreshIndicator), findsOneWidget);
+
+      // Perform pull-to-refresh gesture
+      await tester.fling(
+        find.byType(RefreshIndicator),
+        const Offset(0, 300),
+        1000,
+      );
       await tester.pumpAndSettle();
 
       // Page should still be visible (no crash)

@@ -33,16 +33,14 @@ import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({
+  const HomePage({
+    super.key,
     this.connectivityService,
     this.wifiInfoLoader,
-  }) : super(key: globalKey);
+  });
 
   final NetworkConnectivityService? connectivityService;
   final Future<WifiInfo?> Function({bool force})? wifiInfoLoader;
-
-  static final GlobalKey<_WifiDetailState> globalKey =
-      GlobalKey<_WifiDetailState>();
 
   @override
   _WifiDetailState createState() => _WifiDetailState();
@@ -268,8 +266,6 @@ class _WifiDetailState extends State<HomePage> {
     _scoreComputeScheduled = false;
     await _refreshWifiInfo();
   }
-
-  void refreshDashboard() => _refreshDashboard();
 
   bool _isConnected(WifiInfo info) => info.ip != 'x.x.x.x';
 
@@ -820,14 +816,16 @@ class _WifiDetailState extends State<HomePage> {
           final verticalPadding = isWide ? 20.0 : 14.0;
           final topPadding = isMobileLayout ? 8.0 : verticalPadding;
 
-          final content = ListView(
-            padding: EdgeInsets.only(
-              left: horizontalPadding,
-              right: horizontalPadding,
-              top: topPadding,
-              bottom: verticalPadding,
-            ),
-            children: [
+          final content = RefreshIndicator(
+            onRefresh: _refreshDashboard,
+            child: ListView(
+              padding: EdgeInsets.only(
+                left: horizontalPadding,
+                right: horizontalPadding,
+                top: topPadding,
+                bottom: verticalPadding,
+              ),
+              children: [
               Align(
                 alignment: Alignment.topCenter,
                 child: ConstrainedBox(
@@ -868,68 +866,46 @@ class _WifiDetailState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   if (!isMobileLayout)
-                                    Row(
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'NETWORK OVERVIEW',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelMedium
-                                                    ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                      letterSpacing: 1.4,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
+                                        Text(
+                                          'NETWORK OVERVIEW',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                letterSpacing: 1.4,
+                                                fontWeight:
+                                                    FontWeight.w700,
                                               ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                'Your network',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleLarge
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'A live view of your Wi-Fi and internet connection.',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
                                         ),
-                                        const SizedBox(width: 8),
-                                        IconButton.filledTonal(
-                                          tooltip:
-                                              'Refresh network information',
-                                          onPressed: _refreshDashboard,
-                                          icon: _isRefreshingWifi
-                                              ? const SizedBox(
-                                                  width: 18,
-                                                  height: 18,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                  ),
-                                                )
-                                              : const Icon(Icons.refresh),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Your network',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge
+                                              ?.copyWith(
+                                                fontWeight:
+                                                    FontWeight.w700,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'A live view of your Wi-Fi and internet connection.',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -1045,7 +1021,8 @@ class _WifiDetailState extends State<HomePage> {
                 ),
               ),
             ],
-          );
+          ),
+        );
 
           return content;
         },
