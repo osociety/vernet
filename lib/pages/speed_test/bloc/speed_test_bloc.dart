@@ -33,7 +33,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
   final SpeedTestDart _tester = SpeedTestDart();
   final Random _rng = Random();
-  static const int _numberOfTests = 4;
+  static const int _numberOfTests = 3;
   Timer? _progressTimer;
 
   Future<void> _onInit(_Init event, Emitter<SpeedTestState> emit) async {
