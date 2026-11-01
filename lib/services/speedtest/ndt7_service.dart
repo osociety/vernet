@@ -296,6 +296,19 @@ class Ndt7Service {
   _Ndt7Measurement? _parseNdt7Message(String message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
+      
+      // Try TCPInfo first (contains MinRTT, RTT, retransmissions)
+      final tcpInfo = data['TCPInfo'] as Map<String, dynamic>?;
+      if (tcpInfo != null) {
+        return _Ndt7Measurement(
+          minRTT: tcpInfo['MinRTT'] != null
+              ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0 // Convert from microseconds to milliseconds
+              : null,
+          retransmissions: tcpInfo['Retransmissions'] as int?,
+        );
+      }
+      
+      // Fall back to AppInfo (contains throughput)
       final appInfo = data['AppInfo'] as Map<String, dynamic>?;
       if (appInfo == null) return null;
 
@@ -303,10 +316,6 @@ class Ndt7Service {
         throughputMbps: appInfo['ThroughputValue'] != null
             ? (appInfo['ThroughputValue'] as num).toDouble()
             : null,
-        minRTT: appInfo['MinRTT'] != null
-            ? (appInfo['MinRTT'] as num).toDouble()
-            : null,
-        retransmissions: appInfo['Retransmissions'] as int?,
       );
     } catch (_) {
       return null;
