@@ -15,6 +15,7 @@ import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
 import 'package:vernet/pages/network_score/network_score_detail_page.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 import '../settings/test_utils.dart';
