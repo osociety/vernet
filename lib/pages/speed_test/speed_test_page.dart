@@ -481,23 +481,19 @@ class _SpeedTestView extends StatelessWidget {
         border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
       ),
       minX: 0,
-      maxX: ((state.downloadSpeeds.length > state.uploadSpeeds.length
-                  ? state.downloadSpeeds.length
-                  : state.uploadSpeeds.length) -
-              1)
-          .toDouble()
-          .clamp(0.0, double.infinity) +
-          0.5, // Add small buffer to prevent line from extending beyond chart
+      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 0.5,
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
-        if (state.downloadSpeeds.isNotEmpty)
+        // Show download graph only when download is running or just finished
+        if (state.downloadSpeeds.isNotEmpty && !state.uploadSpeedTestDone)
           _createLineChartBar(
             state.downloadSpeeds,
             const Color(0xFF43EA6A),
             state.uploadSpeeds.length,
           ),
-        if (state.uploadSpeeds.isNotEmpty)
+        // Show upload graph only when upload is running
+        if (state.uploadSpeeds.isNotEmpty && state.downloadSpeedTestDone)
           _createLineChartBar(
             state.uploadSpeeds,
             const Color(0xFFFFD700),
@@ -524,6 +520,20 @@ class _SpeedTestView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int _getActiveDataLength(SpeedTestState state) {
+    // Show download length when download is running, upload length when upload is running
+    if (!state.uploadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
+      return state.downloadSpeeds.length;
+    }
+    if (state.downloadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+      return state.uploadSpeeds.length;
+    }
+    // Fallback to the longer dataset
+    return state.downloadSpeeds.length > state.uploadSpeeds.length
+        ? state.downloadSpeeds.length
+        : state.uploadSpeeds.length;
   }
 
   LineChartBarData _createLineChartBar(List<double> speeds, Color color, int otherLength) {
