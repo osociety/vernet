@@ -187,10 +187,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         final speed = await _tester
             .testDownloadSpeed(servers: servers)
             .timeout(const Duration(seconds: 30));
-        emit(state.copyWith(
-          currentDownloadSpeed: speed,
-          downloadSpeeds: [speed],
-        ));
+        // Keep fake progress points for smooth graph, just update current speed
+        emit(state.copyWith(currentDownloadSpeed: speed));
       } on TimeoutException {
         _progressTimer?.cancel();
         _progressTimer = null;
@@ -224,10 +222,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         final speed = await _tester
             .testUploadSpeed(servers: servers)
             .timeout(const Duration(seconds: 30));
-        emit(state.copyWith(
-          currentUploadSpeed: speed,
-          uploadSpeeds: [speed],
-        ));
+        // Keep fake progress points for smooth graph, just update current speed
+        emit(state.copyWith(currentUploadSpeed: speed));
       } on TimeoutException {
         _progressTimer?.cancel();
         _progressTimer = null;
