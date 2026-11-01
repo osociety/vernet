@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signal_strength_indicator/signal_strength_indicator.dart';
-import 'package:speed_test_dart/classes/server.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/database/drift/drift_database.dart';
@@ -59,7 +58,6 @@ class _WifiDetailState extends State<HomePage> {
   SpeedTestDart tester = SpeedTestDart();
   final IspLookupService _ispLookupService = IspLookupService();
   late Future<Settings?> _ispSettingsFuture;
-  late Future<List<Server>?> _speedTestServersFuture;
   Timer? _deviceRefreshTimer;
   late final NetworkScoreBloc _networkScoreBloc;
   DateTime? _lastConnectionCheck;
@@ -141,7 +139,6 @@ class _WifiDetailState extends State<HomePage> {
       }
       _wifiInfoFuture = _getWifiInfo(force: force);
       _ispSettingsFuture = _loadIspSettingsAfterWifi(_wifiInfoFuture!);
-      _speedTestServersFuture = _loadSpeedTestServersAfterSettings(_ispSettingsFuture);
       _internetStatusFuture =
           _loadInternetStatusAfterWifi(_wifiInfoFuture!, _ispSettingsFuture);
     });
@@ -203,21 +200,6 @@ class _WifiDetailState extends State<HomePage> {
       ));
 
       return settings;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<List<Server>?> _loadSpeedTestServersAfterSettings(
-    Future<Settings?> settingsFuture,
-  ) async {
-    try {
-      final settings = await settingsFuture;
-      if (settings == null) return null;
-      
-      final servers = await tester.getBestServers(servers: settings.servers);
-      servers.sort((a, b) => a.latency.compareTo(b.latency));
-      return servers;
     } catch (_) {
       return null;
     }
@@ -579,15 +561,11 @@ class _WifiDetailState extends State<HomePage> {
               runSpacing: 10,
               children: [
                 FilledButton.tonalIcon(
-                  onPressed: () async {
-                    final servers = await _speedTestServersFuture;
-                    if (!mounted) return;
-                    await Navigator.push(
+                  onPressed: () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SpeedTestPage(
-                          preloadedServers: servers,
-                        ),
+                        builder: (context) => const SpeedTestPage(),
                       ),
                     );
                   },

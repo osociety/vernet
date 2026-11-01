@@ -7,16 +7,44 @@ import 'package:speed_test_dart/classes/server.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
 
-class SpeedTestPage extends StatelessWidget {
+class SpeedTestPage extends StatefulWidget {
   const SpeedTestPage({super.key, this.preloadedServers});
 
   final List<Server>? preloadedServers;
 
   @override
+  State<SpeedTestPage> createState() => _SpeedTestPageState();
+}
+
+class _SpeedTestPageState extends State<SpeedTestPage> {
+  late final SpeedTestBloc _bloc;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = getIt<SpeedTestBloc>();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _bloc.add(SpeedTestEvent.init(preloadedServers: widget.preloadedServers));
+      _initialized = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    // Don't close the singleton BLoC
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<SpeedTestBloc>()
-        ..add(SpeedTestEvent.init(preloadedServers: preloadedServers)),
+    return BlocProvider<SpeedTestBloc>.value(
+      value: _bloc,
       child: const _SpeedTestView(),
     );
   }
