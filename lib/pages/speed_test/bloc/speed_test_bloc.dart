@@ -33,7 +33,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
   final SpeedTestDart _tester = SpeedTestDart();
   final Random _rng = Random();
-  static const int _numberOfTests = 2;
+  static const int _numberOfTests = 4;
   Timer? _progressTimer;
 
   Future<void> _onInit(_Init event, Emitter<SpeedTestState> emit) async {
@@ -182,13 +182,16 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
     _startFakeProgress(isDownload: true, variation: 10, minSpeed: 0);
 
+    final speeds = <double>[];
     for (int i = 0; i < _numberOfTests; i++) {
       try {
         final speed = await _tester
             .testDownloadSpeed(servers: servers)
             .timeout(const Duration(seconds: 30));
-        // Keep fake progress points for smooth graph, just update current speed
-        emit(state.copyWith(currentDownloadSpeed: speed));
+        speeds.add(speed);
+        // Show average of completed tests so far
+        final avg = speeds.reduce((a, b) => a + b) / speeds.length;
+        emit(state.copyWith(currentDownloadSpeed: avg));
       } on TimeoutException {
         _progressTimer?.cancel();
         _progressTimer = null;
@@ -202,7 +205,12 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
     _progressTimer?.cancel();
     _progressTimer = null;
-    emit(state.copyWith(downloadSpeedTestDone: true));
+    // Emit final average
+    final finalAvg = speeds.reduce((a, b) => a + b) / speeds.length;
+    emit(state.copyWith(
+      currentDownloadSpeed: finalAvg,
+      downloadSpeedTestDone: true,
+    ));
   }
 
   Future<void> _testUploadSpeed(
@@ -217,13 +225,16 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
     _startFakeProgress(isDownload: false, variation: 4, minSpeed: 0);
 
+    final speeds = <double>[];
     for (int i = 0; i < _numberOfTests; i++) {
       try {
         final speed = await _tester
             .testUploadSpeed(servers: servers)
             .timeout(const Duration(seconds: 30));
-        // Keep fake progress points for smooth graph, just update current speed
-        emit(state.copyWith(currentUploadSpeed: speed));
+        speeds.add(speed);
+        // Show average of completed tests so far
+        final avg = speeds.reduce((a, b) => a + b) / speeds.length;
+        emit(state.copyWith(currentUploadSpeed: avg));
       } on TimeoutException {
         _progressTimer?.cancel();
         _progressTimer = null;
@@ -237,7 +248,12 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
     _progressTimer?.cancel();
     _progressTimer = null;
-    emit(state.copyWith(uploadSpeedTestDone: true));
+    // Emit final average
+    final finalAvg = speeds.reduce((a, b) => a + b) / speeds.length;
+    emit(state.copyWith(
+      currentUploadSpeed: finalAvg,
+      uploadSpeedTestDone: true,
+    ));
   }
 
   Future<void> _saveSpeedSnapshot(Emitter<SpeedTestState> emit) async {
