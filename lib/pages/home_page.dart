@@ -17,6 +17,8 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
+import 'package:vernet/pages/speed_test/speed_test_page.dart';
+import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
@@ -428,6 +430,117 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
+  Widget _buildSpeedTestPanel(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return FutureBuilder<SpeedSnapshot?>(
+      future: NetworkScoreRepository().loadSpeedSnapshot(),
+      builder: (context, snapshot) {
+        final speedData = snapshot.data;
+        final hasData = speedData != null && speedData.downloadMbps > 0;
+        
+        return _OverviewPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _PanelIcon(icon: Icons.speed, color: colors.tertiary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'SPEED TEST',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            letterSpacing: 1.1,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                  if (hasData)
+                    _StatusPill(
+                      label: 'LAST RESULT',
+                      color: colors.onSurfaceVariant,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              if (hasData) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Download',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${speedData.downloadMbps.toStringAsFixed(1)} Mbps',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.primary,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Upload',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${speedData.uploadMbps.toStringAsFixed(1)} Mbps',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.tertiary,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ] else
+                Text(
+                  'Test your internet speed',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.onSurfaceVariant,
+                      ),
+                ),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SpeedTestPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.play_arrow),
+                  label: Text(hasData ? 'Run New Test' : 'Start Speed Test'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildConnectionPath(
     BuildContext context,
     WifiInfo wifiInfo,
@@ -772,6 +885,8 @@ class _WifiDetailState extends State<HomePage> {
                                     wifiInfo,
                                     isChecking: isWifiChecking,
                                   ),
+                                  const SizedBox(height: 20),
+                                  _buildSpeedTestPanel(context),
                                 ],
                               );
                             },
