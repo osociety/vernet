@@ -1,13 +1,31 @@
 import 'dart:async';
 
 import 'package:dart_ping/dart_ping.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/database/database_service.dart';
+import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
+import 'package:vernet/repository/network_score_repository.dart';
+import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/values/keys.dart';
+
+class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
+  _InMemoryDatabaseService(this.db);
+
+  final AppDatabase db;
+
+  @override
+  Future<AppDatabase?> open() async => db;
+}
 
 class FakePing implements Ping {
   FakePing(this._stream);
@@ -40,6 +58,37 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+
+    final db = AppDatabase(NativeDatabase.memory());
+    final databaseService = _InMemoryDatabaseService(db);
+    final scanRepository = ScanRepository(databaseService);
+    final deviceRepository = DeviceRepository(databaseService);
+    final networkScoreRepository = NetworkScoreRepository();
+    final networkScoreService = NetworkScoreService(
+      scanRepository: scanRepository,
+      deviceRepository: deviceRepository,
+      scoreRepository: networkScoreRepository,
+    );
+    final networkScoreBloc = NetworkScoreBloc(
+      scoreService: networkScoreService,
+      scoreRepository: networkScoreRepository,
+    );
+
+    GetIt.instance
+      ..registerSingleton<AppDatabase>(db)
+      ..registerSingleton<DatabaseService<AppDatabase>>(databaseService)
+      ..registerSingleton<ScanRepository>(scanRepository)
+      ..registerSingleton<DeviceRepository>(deviceRepository)
+      ..registerSingleton<NetworkScoreRepository>(networkScoreRepository)
+      ..registerSingleton<NetworkScoreService>(networkScoreService)
+      ..registerSingleton<NetworkScoreBloc>(networkScoreBloc);
+  });
+
+  tearDown(() async {
+    if (GetIt.instance.isRegistered<AppDatabase>()) {
+      await GetIt.instance<AppDatabase>().close();
+    }
+    await GetIt.instance.reset();
   });
 
   group('PingPage', () {

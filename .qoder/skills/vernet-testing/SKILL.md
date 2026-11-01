@@ -128,6 +128,8 @@ flutter test integration_test/scan_report/scan_report.dart -d macos
 flutter test integration_test/app_test.dart -d macos  # all suites
 ```
 
+**Iterative test fixing:** When debugging failing tests, run only the failing test file in isolation — not the full suite. The full suite takes 5+ minutes on a real device; a focused run takes seconds. Fix, re-run the focused file, repeat. Run the full suite once at the end as final confirmation.
+
 Use the Dart MCP `analyze_files` tool for fast static checks and keep its output
 clean before reporting done. GitHub MCP is available for PR and CI log
 inspection, and browser-use for verifying UI behavior when a desktop device is

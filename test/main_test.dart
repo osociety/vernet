@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
@@ -14,6 +15,10 @@ import 'package:vernet/repository/notification_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    configureDependencies(Env.test);
+  });
 
   setUp(() {
     NotificationService.skipPermissionRequests = true;
