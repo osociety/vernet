@@ -64,7 +64,6 @@ class NetworkScoreCard extends StatelessWidget {
   Widget _buildComputingCard(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return _ScoreCardContainer(
-      onTap: null,
       child: Row(
         children: [
           _ScoreIcon(icon: Icons.analytics, color: colors.primary),

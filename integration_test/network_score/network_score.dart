@@ -173,12 +173,12 @@ void main() {
     testWidgets('network score detail page displays score', (tester) async {
       final testScore = NetworkScore(
         overallScore: 75,
-        computedAt: DateTime(2024, 1, 1),
-        security: DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        computedAt: DateTime(2024),
+        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
+        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -200,12 +200,12 @@ void main() {
     testWidgets('network score detail page shows dimension bars', (tester) async {
       final testScore = NetworkScore(
         overallScore: 75,
-        computedAt: DateTime(2024, 1, 1),
-        security: DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        computedAt: DateTime(2024),
+        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
+        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -227,12 +227,12 @@ void main() {
     testWidgets('network score card navigates to detail page on tap', (tester) async {
       final testScore = NetworkScore(
         overallScore: 75,
-        computedAt: DateTime(2024, 1, 1),
-        security: DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        computedAt: DateTime(2024),
+        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
+        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -288,12 +288,12 @@ void main() {
 
       final testScore = NetworkScore(
         overallScore: 75,
-        computedAt: DateTime(2024, 1, 1),
-        security: DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        computedAt: DateTime(2024),
+        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
+        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -318,12 +318,12 @@ void main() {
 
       final testScore = NetworkScore(
         overallScore: 75,
-        computedAt: DateTime(2024, 1, 1),
-        security: DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        computedAt: DateTime(2024),
+        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
+        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -343,12 +343,12 @@ void main() {
     testWidgets('network score handles orientation changes', (tester) async {
       final testScore = NetworkScore(
         overallScore: 75,
-        computedAt: DateTime(2024, 1, 1),
-        security: DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        computedAt: DateTime(2024),
+        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
+        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(

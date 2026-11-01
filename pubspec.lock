@@ -665,7 +665,7 @@ packages:
     source: sdk
     version: "0.0.0"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       sha256: "1ca20c894b1717686a2319b8548763d812bc0aabdac580420a44c5178c57a867"
@@ -881,7 +881,7 @@ packages:
     source: hosted
     version: "3.1.0"
   network_tools:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: network_tools
       sha256: "315bbcde2f81be96823dc184f99caa56f75c75684460ade94bbc150a19f57a07"
@@ -1121,7 +1121,7 @@ packages:
     source: hosted
     version: "3.2.0"
   plugin_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: plugin_platform_interface
       sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
@@ -1599,7 +1599,7 @@ packages:
     source: hosted
     version: "3.2.6"
   url_launcher_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: url_launcher_platform_interface
       sha256: "552f8a1e663569be95a8190206a38187b531910283c3e982193e4f2733f01029"

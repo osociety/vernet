@@ -95,6 +95,16 @@ class SpeedSnapshot {
     this.ispName,
   });
 
+  factory SpeedSnapshot.fromJson(Map<String, dynamic> json) => SpeedSnapshot(
+        downloadMbps: (json['downloadMbps'] as num).toDouble(),
+        uploadMbps: (json['uploadMbps'] as num).toDouble(),
+        latencyMs: (json['latencyMs'] as num).toDouble(),
+        ispRating: (json['ispRating'] as num?)?.toDouble(),
+        ispAvgDownloadMbps: (json['ispAvgDownloadMbps'] as num?)?.toDouble(),
+        ispAvgUploadMbps: (json['ispAvgUploadMbps'] as num?)?.toDouble(),
+        ispName: json['ispName'] as String?,
+      );
+
   final double downloadMbps;
   final double uploadMbps;
   final double latencyMs;
@@ -112,16 +122,6 @@ class SpeedSnapshot {
         'ispAvgUploadMbps': ispAvgUploadMbps,
         'ispName': ispName,
       };
-
-  factory SpeedSnapshot.fromJson(Map<String, dynamic> json) => SpeedSnapshot(
-        downloadMbps: (json['downloadMbps'] as num).toDouble(),
-        uploadMbps: (json['uploadMbps'] as num).toDouble(),
-        latencyMs: (json['latencyMs'] as num).toDouble(),
-        ispRating: (json['ispRating'] as num?)?.toDouble(),
-        ispAvgDownloadMbps: (json['ispAvgDownloadMbps'] as num?)?.toDouble(),
-        ispAvgUploadMbps: (json['ispAvgUploadMbps'] as num?)?.toDouble(),
-        ispName: json['ispName'] as String?,
-      );
 }
 
 class PingSnapshot {
@@ -132,6 +132,14 @@ class PingSnapshot {
     this.minLatencyMs,
     this.maxLatencyMs,
   });
+
+  factory PingSnapshot.fromJson(Map<String, dynamic> json) => PingSnapshot(
+        avgLatencyMs: (json['avgLatencyMs'] as num).toDouble(),
+        packetLossPercent: (json['packetLossPercent'] as num).toDouble(),
+        jitterMs: (json['jitterMs'] as num?)?.toDouble(),
+        minLatencyMs: (json['minLatencyMs'] as num?)?.toDouble(),
+        maxLatencyMs: (json['maxLatencyMs'] as num?)?.toDouble(),
+      );
 
   final double avgLatencyMs;
   final double packetLossPercent;
@@ -146,14 +154,6 @@ class PingSnapshot {
         'minLatencyMs': minLatencyMs,
         'maxLatencyMs': maxLatencyMs,
       };
-
-  factory PingSnapshot.fromJson(Map<String, dynamic> json) => PingSnapshot(
-        avgLatencyMs: (json['avgLatencyMs'] as num).toDouble(),
-        packetLossPercent: (json['packetLossPercent'] as num).toDouble(),
-        jitterMs: (json['jitterMs'] as num?)?.toDouble(),
-        minLatencyMs: (json['minLatencyMs'] as num?)?.toDouble(),
-        maxLatencyMs: (json['maxLatencyMs'] as num?)?.toDouble(),
-      );
 }
 
 class IspInfo {
@@ -163,6 +163,13 @@ class IspInfo {
     this.avgDownloadMbps,
     this.avgUploadMbps,
   });
+
+  factory IspInfo.fromJson(Map<String, dynamic> json) => IspInfo(
+        ispName: json['ispName'] as String?,
+        ispRating: (json['ispRating'] as num?)?.toDouble(),
+        avgDownloadMbps: (json['avgDownloadMbps'] as num?)?.toDouble(),
+        avgUploadMbps: (json['avgUploadMbps'] as num?)?.toDouble(),
+      );
 
   final String? ispName;
   final double? ispRating;
@@ -175,11 +182,4 @@ class IspInfo {
         'avgDownloadMbps': avgDownloadMbps,
         'avgUploadMbps': avgUploadMbps,
       };
-
-  factory IspInfo.fromJson(Map<String, dynamic> json) => IspInfo(
-        ispName: json['ispName'] as String?,
-        ispRating: (json['ispRating'] as num?)?.toDouble(),
-        avgDownloadMbps: (json['avgDownloadMbps'] as num?)?.toDouble(),
-        avgUploadMbps: (json['avgUploadMbps'] as num?)?.toDouble(),
-      );
 }

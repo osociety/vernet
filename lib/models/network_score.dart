@@ -19,25 +19,11 @@ class DimensionScore {
     this.factors = const [],
   });
 
-  final String name;
-  final int value;
-  final String description;
-  final List<String> factors;
-
-  ScoreLevel get level => ScoreLevel.fromScore(value);
-
   factory DimensionScore.unknown(String name) => DimensionScore(
         name: name,
         value: 50,
         description: 'Not enough data to assess',
       );
-
-  Map<String, Object?> toJson() => {
-        'name': name,
-        'value': value,
-        'description': description,
-        'factors': factors,
-      };
 
   factory DimensionScore.fromJson(Map<String, dynamic> json) => DimensionScore(
         name: json['name'] as String,
@@ -48,6 +34,20 @@ class DimensionScore {
                 .toList() ??
             const [],
       );
+
+  final String name;
+  final int value;
+  final String description;
+  final List<String> factors;
+
+  ScoreLevel get level => ScoreLevel.fromScore(value);
+
+  Map<String, Object?> toJson() => {
+        'name': name,
+        'value': value,
+        'description': description,
+        'factors': factors,
+      };
 
   DimensionScore copyWith({
     String? name,
@@ -74,6 +74,23 @@ class NetworkScore {
     required this.vulnerabilities,
     this.metadata = const {},
   });
+
+  factory NetworkScore.fromJson(Map<String, dynamic> json) => NetworkScore(
+        overallScore: json['overallScore'] as int,
+        computedAt: DateTime.parse(json['computedAt'] as String),
+        security:
+            DimensionScore.fromJson(json['security'] as Map<String, dynamic>),
+        health: DimensionScore.fromJson(json['health'] as Map<String, dynamic>),
+        reliability: DimensionScore.fromJson(
+            json['reliability'] as Map<String, dynamic>),
+        speed:
+            DimensionScore.fromJson(json['speed'] as Map<String, dynamic>),
+        vulnerabilities: DimensionScore.fromJson(
+            json['vulnerabilities'] as Map<String, dynamic>),
+        metadata: (json['metadata'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, v as String)) ??
+            const {},
+      );
 
   final int overallScore;
   final DateTime computedAt;
@@ -106,23 +123,6 @@ class NetworkScore {
         'vulnerabilities': vulnerabilities.toJson(),
         'metadata': metadata,
       };
-
-  factory NetworkScore.fromJson(Map<String, dynamic> json) => NetworkScore(
-        overallScore: json['overallScore'] as int,
-        computedAt: DateTime.parse(json['computedAt'] as String),
-        security:
-            DimensionScore.fromJson(json['security'] as Map<String, dynamic>),
-        health: DimensionScore.fromJson(json['health'] as Map<String, dynamic>),
-        reliability: DimensionScore.fromJson(
-            json['reliability'] as Map<String, dynamic>),
-        speed:
-            DimensionScore.fromJson(json['speed'] as Map<String, dynamic>),
-        vulnerabilities: DimensionScore.fromJson(
-            json['vulnerabilities'] as Map<String, dynamic>),
-        metadata: (json['metadata'] as Map<String, dynamic>?)
-                ?.map((k, v) => MapEntry(k, v as String)) ??
-            const {},
-      );
 
   NetworkScore copyWith({
     int? overallScore,

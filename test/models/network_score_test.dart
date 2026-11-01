@@ -7,31 +7,31 @@ void main() {
       final score = NetworkScore(
         overallScore: 85,
         computedAt: DateTime(2024, 1, 15, 10, 30),
-        security: DimensionScore(
+        security: const DimensionScore(
           name: 'Security',
           value: 90,
           description: 'Good security',
           factors: ['✓ All devices identified'],
         ),
-        health: DimensionScore(
+        health: const DimensionScore(
           name: 'Health',
           value: 80,
           description: 'Good health',
           factors: ['✓ Strong signal'],
         ),
-        reliability: DimensionScore(
+        reliability: const DimensionScore(
           name: 'Reliability',
           value: 75,
           description: 'Moderate reliability',
           factors: ['~ Moderate latency'],
         ),
-        speed: DimensionScore(
+        speed: const DimensionScore(
           name: 'Speed',
           value: 70,
           description: 'Moderate speed',
           factors: ['~ Average download'],
         ),
-        vulnerabilities: DimensionScore(
+        vulnerabilities: const DimensionScore(
           name: 'Vulnerabilities',
           value: 95,
           description: 'Low risk',
@@ -58,11 +58,11 @@ void main() {
       final original = NetworkScore(
         overallScore: 85,
         computedAt: DateTime(2024, 1, 15),
-        security: DimensionScore(name: 'Security', value: 90, description: ''),
-        health: DimensionScore(name: 'Health', value: 80, description: ''),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: ''),
-        speed: DimensionScore(name: 'Speed', value: 70, description: ''),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 95, description: ''),
+        security: const DimensionScore(name: 'Security', value: 90, description: ''),
+        health: const DimensionScore(name: 'Health', value: 80, description: ''),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: ''),
+        speed: const DimensionScore(name: 'Speed', value: 70, description: ''),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 95, description: ''),
       );
 
       final modified = original.copyWith(
@@ -80,11 +80,11 @@ void main() {
       final score = NetworkScore(
         overallScore: 85,
         computedAt: DateTime.now(),
-        security: DimensionScore(name: 'Security', value: 90, description: ''),
-        health: DimensionScore(name: 'Health', value: 80, description: ''),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: ''),
-        speed: DimensionScore(name: 'Speed', value: 70, description: ''),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 95, description: ''),
+        security: const DimensionScore(name: 'Security', value: 90, description: ''),
+        health: const DimensionScore(name: 'Health', value: 80, description: ''),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: ''),
+        speed: const DimensionScore(name: 'Speed', value: 70, description: ''),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 95, description: ''),
       );
 
       expect(score.dimensions.length, 5);
@@ -102,11 +102,11 @@ void main() {
         NetworkScore(
           overallScore: 85,
           computedAt: DateTime.now(),
-          security: DimensionScore(name: '', value: 0, description: ''),
-          health: DimensionScore(name: '', value: 0, description: ''),
-          reliability: DimensionScore(name: '', value: 0, description: ''),
-          speed: DimensionScore(name: '', value: 0, description: ''),
-          vulnerabilities: DimensionScore(name: '', value: 0, description: ''),
+          security: const DimensionScore(name: '', value: 0, description: ''),
+          health: const DimensionScore(name: '', value: 0, description: ''),
+          reliability: const DimensionScore(name: '', value: 0, description: ''),
+          speed: const DimensionScore(name: '', value: 0, description: ''),
+          vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
         ).level,
         ScoreLevel.good,
       );
@@ -115,11 +115,11 @@ void main() {
         NetworkScore(
           overallScore: 50,
           computedAt: DateTime.now(),
-          security: DimensionScore(name: '', value: 0, description: ''),
-          health: DimensionScore(name: '', value: 0, description: ''),
-          reliability: DimensionScore(name: '', value: 0, description: ''),
-          speed: DimensionScore(name: '', value: 0, description: ''),
-          vulnerabilities: DimensionScore(name: '', value: 0, description: ''),
+          security: const DimensionScore(name: '', value: 0, description: ''),
+          health: const DimensionScore(name: '', value: 0, description: ''),
+          reliability: const DimensionScore(name: '', value: 0, description: ''),
+          speed: const DimensionScore(name: '', value: 0, description: ''),
+          vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
         ).level,
         ScoreLevel.moderate,
       );
@@ -128,11 +128,11 @@ void main() {
         NetworkScore(
           overallScore: 30,
           computedAt: DateTime.now(),
-          security: DimensionScore(name: '', value: 0, description: ''),
-          health: DimensionScore(name: '', value: 0, description: ''),
-          reliability: DimensionScore(name: '', value: 0, description: ''),
-          speed: DimensionScore(name: '', value: 0, description: ''),
-          vulnerabilities: DimensionScore(name: '', value: 0, description: ''),
+          security: const DimensionScore(name: '', value: 0, description: ''),
+          health: const DimensionScore(name: '', value: 0, description: ''),
+          reliability: const DimensionScore(name: '', value: 0, description: ''),
+          speed: const DimensionScore(name: '', value: 0, description: ''),
+          vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
         ).level,
         ScoreLevel.poor,
       );
@@ -142,22 +142,22 @@ void main() {
       final scoreWithData = NetworkScore(
         overallScore: 85,
         computedAt: DateTime.now(),
-        security: DimensionScore(name: '', value: 0, description: ''),
-        health: DimensionScore(name: '', value: 0, description: ''),
-        reliability: DimensionScore(name: '', value: 0, description: ''),
-        speed: DimensionScore(name: '', value: 0, description: ''),
-        vulnerabilities: DimensionScore(name: '', value: 0, description: ''),
+        security: const DimensionScore(name: '', value: 0, description: ''),
+        health: const DimensionScore(name: '', value: 0, description: ''),
+        reliability: const DimensionScore(name: '', value: 0, description: ''),
+        speed: const DimensionScore(name: '', value: 0, description: ''),
+        vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
         metadata: {'key': 'value'},
       );
 
       final scoreWithoutData = NetworkScore(
         overallScore: 85,
         computedAt: DateTime.now(),
-        security: DimensionScore(name: '', value: 0, description: ''),
-        health: DimensionScore(name: '', value: 0, description: ''),
-        reliability: DimensionScore(name: '', value: 0, description: ''),
-        speed: DimensionScore(name: '', value: 0, description: ''),
-        vulnerabilities: DimensionScore(name: '', value: 0, description: ''),
+        security: const DimensionScore(name: '', value: 0, description: ''),
+        health: const DimensionScore(name: '', value: 0, description: ''),
+        reliability: const DimensionScore(name: '', value: 0, description: ''),
+        speed: const DimensionScore(name: '', value: 0, description: ''),
+        vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
       );
 
       expect(scoreWithData.hasData, true);
@@ -175,13 +175,13 @@ void main() {
     });
 
     test('level returns correct ScoreLevel', () {
-      expect(DimensionScore(name: '', value: 85, description: '').level, ScoreLevel.good);
-      expect(DimensionScore(name: '', value: 50, description: '').level, ScoreLevel.moderate);
-      expect(DimensionScore(name: '', value: 30, description: '').level, ScoreLevel.poor);
+      expect(const DimensionScore(name: '', value: 85, description: '').level, ScoreLevel.good);
+      expect(const DimensionScore(name: '', value: 50, description: '').level, ScoreLevel.moderate);
+      expect(const DimensionScore(name: '', value: 30, description: '').level, ScoreLevel.poor);
     });
 
     test('serializes and deserializes correctly', () {
-      final dimension = DimensionScore(
+      const dimension = DimensionScore(
         name: 'Security',
         value: 90,
         description: 'Good security',
@@ -199,7 +199,7 @@ void main() {
     });
 
     test('copyWith creates modified copy', () {
-      final original = DimensionScore(
+      const original = DimensionScore(
         name: 'Security',
         value: 90,
         description: 'Good',

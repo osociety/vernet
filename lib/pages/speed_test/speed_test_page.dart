@@ -462,7 +462,6 @@ class _SpeedTestView extends StatelessWidget {
 
     return LineChartData(
       gridData: FlGridData(
-        show: true,
         drawVerticalLine: false,
         horizontalInterval: roundedMaxY / 4,
         getDrawingHorizontalLine: (value) {
@@ -473,15 +472,14 @@ class _SpeedTestView extends StatelessWidget {
         },
       ),
       titlesData: FlTitlesData(
-        show: true,
         rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          
         ),
         topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          
         ),
         bottomTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
@@ -710,7 +708,7 @@ class _SpeedTestView extends StatelessWidget {
                       colors,
                       Icons.network_ping,
                       'Latency',
-                      state.bestServers?.first.latency.toDouble() ?? 0,
+                      state.bestServers?.first.latency ?? 0,
                       colors.primary,
                       isWide: isWide,
                       unit: 'ms',
@@ -726,7 +724,7 @@ class _SpeedTestView extends StatelessWidget {
                 colors,
                 Icons.network_ping,
                 'Latency',
-                state.bestServers?.first.latency.toDouble() ?? 0,
+                state.bestServers?.first.latency ?? 0,
                 colors.primary,
                 isWide: isWide,
                 unit: 'ms',

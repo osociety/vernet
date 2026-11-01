@@ -461,7 +461,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
       ),
       child: Row(
         children: [
-          Icon(Icons.schedule, color: Colors.amber, size: 20),
+          const Icon(Icons.schedule, color: Colors.amber, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -739,4 +739,3 @@ class _ActionTile extends StatelessWidget {
     );
   }
 }
-

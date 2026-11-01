@@ -147,7 +147,6 @@ void main() {
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
-        downloadSpeedTestDone: false,
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.completeDownload()),
       expect: () => [
@@ -165,7 +164,6 @@ void main() {
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
-        uploadSpeedTestDone: false,
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.completeUpload()),
       expect: () => [
@@ -183,7 +181,6 @@ void main() {
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
-        bestServers: null,
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
       expect: () => [],

@@ -14,11 +14,11 @@ void main() {
       final score = NetworkScore(
         overallScore: 85,
         computedAt: DateTime(2024, 1, 15, 10, 30),
-        security: DimensionScore(name: 'Security', value: 90, description: 'Good'),
-        health: DimensionScore(name: 'Health', value: 80, description: 'Good'),
-        reliability: DimensionScore(name: 'Reliability', value: 75, description: 'Moderate'),
-        speed: DimensionScore(name: 'Speed', value: 70, description: 'Moderate'),
-        vulnerabilities: DimensionScore(name: 'Vulnerabilities', value: 95, description: 'Low risk'),
+        security: const DimensionScore(name: 'Security', value: 90, description: 'Good'),
+        health: const DimensionScore(name: 'Health', value: 80, description: 'Good'),
+        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Moderate'),
+        speed: const DimensionScore(name: 'Speed', value: 70, description: 'Moderate'),
+        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 95, description: 'Low risk'),
         metadata: {'gateway': '192.168.1.1'},
       );
 
@@ -43,11 +43,11 @@ void main() {
       final score = NetworkScore(
         overallScore: 85,
         computedAt: DateTime.now(),
-        security: DimensionScore(name: '', value: 0, description: ''),
-        health: DimensionScore(name: '', value: 0, description: ''),
-        reliability: DimensionScore(name: '', value: 0, description: ''),
-        speed: DimensionScore(name: '', value: 0, description: ''),
-        vulnerabilities: DimensionScore(name: '', value: 0, description: ''),
+        security: const DimensionScore(name: '', value: 0, description: ''),
+        health: const DimensionScore(name: '', value: 0, description: ''),
+        reliability: const DimensionScore(name: '', value: 0, description: ''),
+        speed: const DimensionScore(name: '', value: 0, description: ''),
+        vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
       );
 
       await repository.saveScore(score);
@@ -59,7 +59,7 @@ void main() {
 
     test('saveSpeedSnapshot and loadSpeedSnapshot persist correctly', () async {
       final repository = NetworkScoreRepository();
-      final snapshot = SpeedSnapshot(
+      const snapshot = SpeedSnapshot(
         downloadMbps: 85.5,
         uploadMbps: 25.3,
         latencyMs: 15.0,
@@ -88,7 +88,7 @@ void main() {
 
     test('savePingSnapshot and loadPingSnapshot persist correctly', () async {
       final repository = NetworkScoreRepository();
-      final snapshot = PingSnapshot(
+      const snapshot = PingSnapshot(
         avgLatencyMs: 25.5,
         packetLossPercent: 2.5,
         jitterMs: 5.0,
@@ -115,7 +115,7 @@ void main() {
 
     test('saveIspInfo and loadIspInfo persist correctly', () async {
       final repository = NetworkScoreRepository();
-      final info = IspInfo(
+      const info = IspInfo(
         ispName: 'Test ISP',
         ispRating: 4.5,
         avgDownloadMbps: 80.0,

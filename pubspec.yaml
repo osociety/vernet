@@ -21,6 +21,8 @@ dependencies:
   drift: ^2.35.3
   drift_flutter: ^0.3.1
   external_app_launcher: ^4.0.4
+  # Beautiful, interactive charts for Flutter. Lightweight and customizable.
+  fl_chart: ^0.69.0
   flutter:
     sdk: flutter
   # Bloc for state management, replace StatefulWidget
@@ -37,8 +39,6 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
   flutter_timezone: ^5.1.1
-  # Beautiful, interactive charts for Flutter. Lightweight and customizable.
-  fl_chart: ^0.69.0
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
@@ -47,6 +47,7 @@ dependencies:
   http: ^1.6.0
   # Convenient code generator for get_it
   injectable: ^3.0.0
+  intl: any
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
@@ -92,10 +93,10 @@ dependencies:
   wifi_signal_strength_indicator: ^1.0.7
 
 dev_dependencies:
-  # A build system for Dart code generation and modular compilation.
-  build_runner: ^2.4.9
   # Testing utilities for BLoC pattern
   bloc_test: ^10.0.0
+  # A build system for Dart code generation and modular compilation.
+  build_runner: ^2.4.9
 
   drift_dev: ^2.35.2
   flutter_test:
@@ -111,7 +112,10 @@ dev_dependencies:
   lint: ^2.14.0
   mocktail: ^1.0.5
   msix: ^3.18.0
+  network_tools: any
 
+  plugin_platform_interface: any
+  url_launcher_platform_interface: any
 dependency_overrides:
   flutter_isolate:
     git:

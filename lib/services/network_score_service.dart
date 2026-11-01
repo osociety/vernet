@@ -81,7 +81,7 @@ class NetworkScoreService {
 
   _StalenessInfo _computeStalenessDecay(NetworkScore? cachedScore) {
     if (cachedScore == null) {
-      return _StalenessInfo(decay: 0, reason: '');
+      return const _StalenessInfo(decay: 0, reason: '');
     }
 
     final now = DateTime.now();
@@ -89,7 +89,7 @@ class NetworkScoreService {
 
     // Decay: 5 points per hour after 2 hours, max 30 points
     if (hoursSinceLastComputation <= 2) {
-      return _StalenessInfo(decay: 0, reason: '');
+      return const _StalenessInfo(decay: 0, reason: '');
     }
 
     final decay = ((hoursSinceLastComputation - 2) * 5).clamp(0, 30);
@@ -105,7 +105,7 @@ class NetworkScoreService {
     try {
       final recentScans = await scanRepository.getRecentScans(limit: 5);
       if (recentScans.isEmpty) {
-        return DimensionScore(
+        return const DimensionScore(
           name: name,
           value: 50,
           description: 'Run a network scan to assess security',
@@ -132,7 +132,7 @@ class NetworkScoreService {
       if (unknownDeviceCount > 0) {
         final deduction = unknownDeviceCount * 5;
         score -= deduction;
-        factors.add('✗ $unknownDeviceCount unidentified device(s) on network (-${deduction} points)');
+        factors.add('✗ $unknownDeviceCount unidentified device(s) on network (-$deduction points)');
         factors.add('Tip: Identify unknown devices or run network scan to refresh device list');
       } else {
         factors.add('✓ All ${devices.length} device(s) identified');
@@ -151,7 +151,7 @@ class NetworkScoreService {
         factors: factors.isEmpty ? ['✓ All devices identified - network appears secure'] : factors,
       );
     } on Object {
-      return DimensionScore(
+      return const DimensionScore(
         name: name,
         value: 50,
         description: 'Unable to assess security',
@@ -176,7 +176,7 @@ class NetworkScoreService {
     var score = 0;
 
     if (wifiInfo == null) {
-      return DimensionScore(
+      return const DimensionScore(
         name: name,
         value: 0,
         description: 'Connect to Wi-Fi to assess network health',
@@ -281,7 +281,7 @@ class NetworkScoreService {
     try {
       final monitors = await serverMonitorService.loadMonitors();
       if (monitors.isEmpty) {
-        return DimensionScore(
+        return const DimensionScore(
           name: name,
           value: 0,
           description: 'Add monitors to track reliability',
@@ -382,7 +382,7 @@ class NetworkScoreService {
         factors: factors,
       );
     } on Object {
-      return DimensionScore(
+      return const DimensionScore(
         name: name,
         value: 0,
         description: 'Unable to assess reliability',
@@ -405,7 +405,7 @@ class NetworkScoreService {
     try {
       final snapshot = await scoreRepository.loadSpeedSnapshot();
       if (snapshot == null) {
-        return DimensionScore(
+        return const DimensionScore(
           name: name,
           value: 30,
           description: 'Run a speed test to assess performance',
@@ -508,7 +508,7 @@ class NetworkScoreService {
         } else {
           score += 4;
           factors.add('✗ Speed ${((1 - ratio) * 100).toStringAsFixed(0)}% below ISP average -11 points');
-          factors.add('Tip: You\'re getting less than promised - contact ISP or check for issues');
+          factors.add("Tip: You're getting less than promised - contact ISP or check for issues");
         }
       }
 
@@ -560,7 +560,7 @@ class NetworkScoreService {
         factors: factors,
       );
     } on Object {
-      return DimensionScore(
+      return const DimensionScore(
         name: name,
         value: 30,
         description: 'Unable to assess speed',
@@ -584,7 +584,7 @@ class NetworkScoreService {
 
     if (security.value >= 95) {
       // Near-perfect security - minimal baseline risk
-      return DimensionScore(
+      return const DimensionScore(
         name: name,
         value: 98,
         description: 'Excellent security posture',
@@ -597,7 +597,7 @@ class NetworkScoreService {
       );
     } else if (security.value >= 80) {
       // Good security - small baseline risk
-      return DimensionScore(
+      return const DimensionScore(
         name: name,
         value: 95,
         description: 'Low vulnerability risk',
