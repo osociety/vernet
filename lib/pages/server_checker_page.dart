@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/models/server_monitor.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 
@@ -24,6 +27,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
   final Map<String, ServerCheckResult> _latest = {};
   final Set<String> _running = {};
   List<ServerMonitor> _monitors = [];
+  List<ServerMonitor> _suggestedMonitors = [];
 
   @override
   void initState() {
@@ -47,6 +51,14 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
       });
       _start(monitor);
     }
+    // Load suggestions asynchronously without blocking UI
+    _loadSuggestions();
+  }
+
+  Future<void> _loadSuggestions() async {
+    final suggestions = await _getSuggestedMonitors();
+    if (!mounted) return;
+    setState(() => _suggestedMonitors = suggestions);
   }
 
   Future<void> _addMonitor() async {
@@ -56,9 +68,81 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     );
     if (monitor == null) return;
     await _service.saveMonitor(monitor);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
     if (!mounted) return;
     setState(() => _monitors = [..._monitors, monitor]);
     _start(monitor);
+    await _loadSuggestions();
+  }
+
+  Future<void> _quickAddMonitor(ServerMonitor monitor) async {
+    await _service.saveMonitor(monitor);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
+    if (!mounted) return;
+    setState(() => _monitors = [..._monitors, monitor]);
+    _start(monitor);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${monitor.name} added'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+    await _loadSuggestions();
+  }
+
+  Future<List<ServerMonitor>> _getSuggestedMonitors() async {
+    final existingHosts = _monitors.map((m) => m.host.toLowerCase()).toSet();
+    final suggestions = <ServerMonitor>[];
+
+    if (!existingHosts.any((h) => h.contains('192.168') || h.contains('10.') || h.contains('router'))) {
+      String gatewayIp = '192.168.1.1';
+      try {
+        final actualGateway = await NetworkInfo().getWifiGatewayIP();
+        if (actualGateway != null && actualGateway.isNotEmpty) {
+          gatewayIp = actualGateway;
+        }
+      } catch (e) {
+        debugPrint('Failed to get gateway IP: $e');
+      }
+
+      suggestions.add(ServerMonitor(
+        id: '',
+        name: 'Local Router',
+        host: gatewayIp,
+        type: ServerCheckType.icmp,
+      ));
+    }
+
+    if (!existingHosts.contains('google.com')) {
+      suggestions.add(const ServerMonitor(
+        id: '',
+        name: 'Google',
+        host: 'google.com',
+        type: ServerCheckType.https,
+      ));
+    }
+
+    if (!existingHosts.contains('cloudflare.com')) {
+      suggestions.add(const ServerMonitor(
+        id: '',
+        name: 'Cloudflare',
+        host: 'cloudflare.com',
+        type: ServerCheckType.https,
+      ));
+    }
+
+    if (!existingHosts.contains('github.com')) {
+      suggestions.add(const ServerMonitor(
+        id: '',
+        name: 'GitHub',
+        host: 'github.com',
+        type: ServerCheckType.https,
+      ));
+    }
+
+    return suggestions;
   }
 
   Future<void> _editMonitor(ServerMonitor monitor) async {
@@ -70,6 +154,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     final wasRunning = _running.contains(monitor.id);
     _stop(monitor.id);
     await _service.saveMonitor(updated);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
     if (!mounted) return;
     setState(() {
       _monitors = _monitors
@@ -86,6 +171,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     _subscriptions[monitor.id] =
         _service.monitor(monitor).listen((result) async {
       await _service.recordResult(monitor.id, result);
+      getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
       if (previous?.isUp != false && !result.isUp) {
         await _onServerDown(monitor.name);
       }
@@ -112,12 +198,14 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
   Future<void> _delete(ServerMonitor monitor) async {
     _stop(monitor.id);
     await _service.deleteMonitor(monitor.id);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
     if (!mounted) return;
     setState(() {
       _monitors.removeWhere((item) => item.id == monitor.id);
       _histories.remove(monitor.id);
       _latest.remove(monitor.id);
     });
+    await _loadSuggestions();
   }
 
   @override
@@ -137,84 +225,138 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
           label: const Text('Add server'),
         ),
         body: _monitors.isEmpty
-            ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text(
-                    'Add a server to monitor reachability, response time, and downtime.',
-                    textAlign: TextAlign.center,
-                  ),
+            ? _buildEmptyState()
+            : _buildMonitorList(),
+      );
+
+  Widget _buildEmptyState() {
+    final suggested = _suggestedMonitors;
+    if (suggested.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Text(
+            'Add a server to monitor reachability, response time, and downtime.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+      children: [
+        const Text(
+          'Quick Add',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Add these monitors to track network reliability:',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 16),
+        ...suggested.map((monitor) => Card(
+              child: ListTile(
+                leading: Icon(
+                  monitor.type == ServerCheckType.icmp
+                      ? Icons.router
+                      : Icons.language,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
-                itemCount: _monitors.length,
-                itemBuilder: (context, index) {
-                  final monitor = _monitors[index];
-                  final history = _histories[monitor.id] ?? [];
-                  final latest = _latest[monitor.id];
-                  final uptime = history.isEmpty
-                      ? null
-                      : history.where((item) => item.isUp).length *
-                          100 /
-                          history.length;
-                  final downtime = _downtime(history);
-                  final outages = _outages(history);
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(children: [
-                            Icon(
-                              latest == null
-                                  ? Icons.help_outline
-                                  : latest.isUp
-                                      ? Icons.check_circle
-                                      : Icons.error,
-                              color: latest == null
-                                  ? null
-                                  : latest.isUp
-                                      ? Colors.green
-                                      : Theme.of(context).colorScheme.error,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(monitor.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
-                                  Text(
-                                      '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              tooltip: 'Edit server',
-                              onPressed: () => _editMonitor(monitor),
-                              icon: const Icon(Icons.edit_outlined),
-                            ),
-                            IconButton(
-                              tooltip: _running.contains(monitor.id)
-                                  ? 'Stop monitoring'
-                                  : 'Start monitoring',
-                              onPressed: () => _running.contains(monitor.id)
-                                  ? _stop(monitor.id)
-                                  : _start(monitor),
-                              icon: Icon(_running.contains(monitor.id)
-                                  ? Icons.pause
-                                  : Icons.play_arrow),
-                            ),
-                            IconButton(
-                              tooltip: 'Delete server',
-                              onPressed: () => _delete(monitor),
-                              icon: const Icon(Icons.delete_outline),
-                            ),
-                          ]),
+                title: Text(monitor.name),
+                subtitle: Text(
+                    '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () => _quickAddMonitor(monitor),
+                ),
+              ),
+            )),
+        const SizedBox(height: 24),
+        const Divider(),
+        const SizedBox(height: 16),
+        Center(
+          child: Text(
+            'Or add a custom server using the + button below',
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMonitorList() {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
+      itemCount: _monitors.length,
+      itemBuilder: (context, index) {
+        final monitor = _monitors[index];
+        final history = _histories[monitor.id] ?? [];
+        final latest = _latest[monitor.id];
+        final uptime = history.isEmpty
+            ? null
+            : history.where((item) => item.isUp).length *
+                100 /
+                history.length;
+        final downtime = _downtime(history);
+        final outages = _outages(history);
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Icon(
+                    latest == null
+                        ? Icons.help_outline
+                        : latest.isUp
+                            ? Icons.check_circle
+                            : Icons.error,
+                    color: latest == null
+                        ? null
+                        : latest.isUp
+                            ? Colors.green
+                            : Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(monitor.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium),
+                        Text(
+                            '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Edit server',
+                    onPressed: () => _editMonitor(monitor),
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    tooltip: _running.contains(monitor.id)
+                        ? 'Stop monitoring'
+                        : 'Start monitoring',
+                    onPressed: () => _running.contains(monitor.id)
+                        ? _stop(monitor.id)
+                        : _start(monitor),
+                    icon: Icon(_running.contains(monitor.id)
+                        ? Icons.pause
+                        : Icons.play_arrow),
+                  ),
+                  IconButton(
+                    tooltip: 'Delete server',
+                    onPressed: () => _delete(monitor),
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+                ]),
                           if (latest != null)
                             Text(
                               '${latest.isUp ? 'Reachable' : 'Unreachable'} · ${latest.message} · ${_formatLatency(latest.latency)}',
@@ -245,9 +387,8 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                     ),
                   );
                 },
-              ),
-      );
-
+              );
+  }
   Duration _downtime(List<ServerCheckResult> history) {
     if (history.length < 2) return Duration.zero;
     var total = Duration.zero;

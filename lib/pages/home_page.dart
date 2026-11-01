@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signal_strength_indicator/signal_strength_indicator.dart';
@@ -16,6 +18,10 @@ import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/isp_page/isp_page.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
+import 'package:vernet/pages/network_score/network_score_card.dart';
+import 'package:vernet/pages/speed_test/speed_test_page.dart';
+import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
@@ -23,7 +29,6 @@ import 'package:vernet/services/isp_lookup_service.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
-import 'package:vernet/ui/speed_test_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -54,6 +59,8 @@ class _WifiDetailState extends State<HomePage> {
   final IspLookupService _ispLookupService = IspLookupService();
   late Future<Settings?> _ispSettingsFuture;
   Timer? _deviceRefreshTimer;
+  late final NetworkScoreBloc _networkScoreBloc;
+  DateTime? _lastConnectionCheck;
 
   /// Discovery emits a placeholder and then an updated row per host. Rebuilding
   /// the whole dashboard for each event drops frames, so coalesce the updates.
@@ -91,7 +98,8 @@ class _WifiDetailState extends State<HomePage> {
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
     final metrics = await WifiRepository.fetchWifiMetrics();
-    _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, wifiName == null,
+    final hasValidConnection = wifiIP != null && wifiIP != 'x.x.x.x' && wifiIP.isNotEmpty;
+    _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, !hasValidConnection,
         gatewayIp, isLocationOn, metrics,
         isCustomGateway: isCustomGateway);
 
@@ -164,6 +172,8 @@ class _WifiDetailState extends State<HomePage> {
     super.initState();
     _connectivityService =
         widget.connectivityService ?? NetworkConnectivityService();
+    _networkScoreBloc = getIt<NetworkScoreBloc>()
+      ..add(const NetworkScoreEvent.loadCached());
     _startNetworkPipeline();
   }
 
@@ -180,6 +190,15 @@ class _WifiDetailState extends State<HomePage> {
           await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
       final organization = await _ispLookupService.lookup(settings.client.ip);
       if (organization != null) settings.client.isp = organization;
+
+      // Save ISP info for network score computation
+      await NetworkScoreRepository().saveIspInfo(IspInfo(
+        ispName: settings.client.isp,
+        ispRating: settings.client.ispRating,
+        avgDownloadMbps: settings.client.ispAvarageDownloadSpeed / 1000,
+        avgUploadMbps: settings.client.ispAvarageUploadSpeed / 1000,
+      ));
+
       return settings;
     } catch (_) {
       return null;
@@ -192,6 +211,11 @@ class _WifiDetailState extends State<HomePage> {
   ) async {
     final wifiInfo = await wifiFuture;
     if (wifiInfo == null || !_isConnected(wifiInfo)) {
+      if (mounted) {
+        setState(() {
+          _lastConnectionCheck = DateTime.now();
+        });
+      }
       return const NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
         state: NetworkConnectionState.disconnected,
@@ -217,10 +241,18 @@ class _WifiDetailState extends State<HomePage> {
       ispSettings = await ispFuture;
     } catch (_) {}
 
-    return await _connectivityService.checkRouterToInternet(
+    final status = await _connectivityService.checkRouterToInternet(
       wifiInfo: wifiInfo,
       ispSettings: ispSettings,
     );
+    
+    if (mounted) {
+      setState(() {
+        _lastConnectionCheck = DateTime.now();
+      });
+    }
+    
+    return status;
   }
 
   void _showStatusDialog(BuildContext context, NetworkConnectionStatus status) {
@@ -231,10 +263,22 @@ class _WifiDetailState extends State<HomePage> {
   }
 
   Future<void> _refreshDashboard() async {
+    _scoreComputeScheduled = false;
     await _refreshWifiInfo();
   }
 
   bool _isConnected(WifiInfo info) => info.ip != 'x.x.x.x';
+
+  String _formatTimestamp(DateTime? timestamp) {
+    if (timestamp == null) return 'Not yet checked';
+    final now = DateTime.now();
+    final diff = now.difference(timestamp);
+    
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return DateFormat('MMM d, h:mm a').format(timestamp);
+  }
 
   void _openHostScan() {
     Navigator.push(
@@ -255,7 +299,7 @@ class _WifiDetailState extends State<HomePage> {
     final colors = Theme.of(context).colorScheme;
     final level = info.metrics.normalizedLevel.clamp(0, 4);
     final connected = _isConnected(info);
-    final signalColor = level >= 3 ? colors.primary : colors.tertiary;
+    final signalColor = level >= 3 ? Colors.green : Colors.amber;
     final signalDescription = isChecking
         ? 'Measuring signal…'
         : info.metrics.rawRssi != null && level > 0
@@ -454,7 +498,7 @@ class _WifiDetailState extends State<HomePage> {
               _StatusPill(
                 label: appSettings.inAppInternet ? 'PROVIDER LOOKUP' : 'PAUSED',
                 color: appSettings.inAppInternet
-                    ? colors.tertiary
+                    ? colors.primary
                     : colors.onSurfaceVariant,
               ),
             ],
@@ -517,13 +561,11 @@ class _WifiDetailState extends State<HomePage> {
               runSpacing: 10,
               children: [
                 FilledButton.tonalIcon(
-                  onPressed: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (context) => SpeedTestDialog(
-                        tester: tester,
-                        servers: settings.servers,
-                        odometerStart: settings.odometer.start / 100000000,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SpeedTestPage(),
                       ),
                     );
                   },
@@ -761,239 +803,296 @@ class _WifiDetailState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 700;
-        final isPhonePlatform = Platform.isAndroid || Platform.isIOS;
-        final horizontalPath = !isPhonePlatform && constraints.maxWidth >= 480;
-        final horizontalPadding = isWide ? 24.0 : 14.0;
-        final verticalPadding = isWide ? 20.0 : 14.0;
-        return ListView(
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
-          ),
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1180),
-                child: FutureBuilder<WifiInfo?>(
-                  future: _wifiInfoFuture ?? _getWifiInfo(),
-                  builder: (context, wifiSnapshot) {
-                    final wifiInfo = wifiSnapshot.data ??
-                        WifiInfo(
-                          null,
-                          null,
-                          null,
-                          true,
-                          '',
-                          false,
-                          WifiNetworkMetrics.disconnected(),
+    return BlocProvider<NetworkScoreBloc>.value(
+      value: _networkScoreBloc,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+          final isPhonePlatform = Platform.isAndroid || Platform.isIOS;
+          final horizontalPath =
+              !isPhonePlatform && constraints.maxWidth >= 480;
+          final horizontalPadding = isWide ? 24.0 : 14.0;
+          final verticalPadding = isWide ? 20.0 : 14.0;
+          return ListView(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: verticalPadding,
+            ),
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1180),
+                  child: FutureBuilder<WifiInfo?>(
+                    future: _wifiInfoFuture ?? _getWifiInfo(),
+                    builder: (context, wifiSnapshot) {
+                      final wifiInfo = wifiSnapshot.data ??
+                          WifiInfo(
+                            null,
+                            null,
+                            null,
+                            true,
+                            '',
+                            false,
+                            WifiNetworkMetrics.disconnected(),
+                          );
+                      final isWifiChecking = _isRefreshingWifi ||
+                          wifiSnapshot.connectionState ==
+                              ConnectionState.waiting ||
+                          wifiSnapshot.data == null;
+
+                      // Trigger score computation when data is available
+                      if (!isWifiChecking && wifiSnapshot.hasData) {
+                        _scheduleScoreCompute(
+                          wifiInfo,
+                          _internetStatusFuture,
                         );
-                    final isWifiChecking = _isRefreshingWifi ||
-                        wifiSnapshot.connectionState ==
-                            ConnectionState.waiting ||
-                        wifiSnapshot.data == null;
-                    return FutureBuilder<Settings?>(
-                      future: _ispSettingsFuture,
-                      builder: (context, ispSnapshot) {
-                        return FutureBuilder<NetworkConnectionStatus>(
-                          future: _internetStatusFuture,
-                          builder: (context, internetSnapshot) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (isPhonePlatform ||
-                                    constraints.maxWidth < 600)
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'NETWORK OVERVIEW',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .labelMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                    letterSpacing: 1.4,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              'Your network',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'A live view of your Wi-Fi and internet connection.',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      IconButton.filledTonal(
-                                        tooltip: 'Refresh network information',
-                                        onPressed: _refreshDashboard,
-                                        icon: _isRefreshingWifi
-                                            ? const SizedBox(
-                                                width: 18,
-                                                height: 18,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
-                                              )
-                                            : const Icon(Icons.refresh),
-                                      ),
-                                    ],
-                                  )
-                                else
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'NETWORK OVERVIEW',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .labelMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                    letterSpacing: 1.4,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              'Your network',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleLarge
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'A live view of your Wi-Fi and internet connection.',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium
-                                                  ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      IconButton.filledTonal(
-                                        tooltip: 'Refresh network information',
-                                        onPressed: _refreshDashboard,
-                                        icon: _isRefreshingWifi
-                                            ? const SizedBox(
-                                                width: 18,
-                                                height: 18,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
-                                              )
-                                            : const Icon(Icons.refresh),
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(height: 16),
-                                _buildConnectionPath(
-                                  context,
-                                  wifiInfo,
-                                  ispSnapshot,
-                                  internetSnapshot.data,
-                                  horizontalPath,
-                                  isWifiChecking: isWifiChecking,
-                                ),
-                                const SizedBox(height: 20),
-                                if (isWide)
-                                  IntrinsicHeight(
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
+                      }
+
+                      return FutureBuilder<Settings?>(
+                        future: _ispSettingsFuture,
+                        builder: (context, ispSnapshot) {
+                          return FutureBuilder<NetworkConnectionStatus>(
+                            future: _internetStatusFuture,
+                            builder: (context, internetSnapshot) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (isPhonePlatform ||
+                                      constraints.maxWidth < 600)
+                                    Row(
                                       children: [
                                         Expanded(
-                                          child: _buildWifiPanel(
-                                            context,
-                                            wifiInfo,
-                                            isChecking: isWifiChecking,
+                                          child: Text(
+                                            'Network',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleLarge
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
                                           ),
                                         ),
-                                        const SizedBox(width: 20),
+                                        IconButton.filledTonal(
+                                          tooltip:
+                                              'Refresh network information',
+                                          onPressed: _refreshDashboard,
+                                          icon: _isRefreshingWifi
+                                              ? const SizedBox(
+                                                  width: 18,
+                                                  height: 18,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                  ),
+                                                )
+                                              : const Icon(Icons.refresh),
+                                        ),
+                                      ],
+                                    )
+                                  else
+                                    Row(
+                                      children: [
                                         Expanded(
-                                          child: _buildIspPanel(
-                                            context,
-                                            ispSnapshot,
-                                            isWide: true,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'NETWORK OVERVIEW',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelMedium
+                                                    ?.copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary,
+                                                      letterSpacing: 1.4,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Text(
+                                                'Your network',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'A live view of your Wi-Fi and internet connection.',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyMedium
+                                                    ?.copyWith(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant,
+                                                    ),
+                                              ),
+                                            ],
                                           ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        IconButton.filledTonal(
+                                          tooltip:
+                                              'Refresh network information',
+                                          onPressed: _refreshDashboard,
+                                          icon: _isRefreshingWifi
+                                              ? const SizedBox(
+                                                  width: 18,
+                                                  height: 18,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                  ),
+                                                )
+                                              : const Icon(Icons.refresh),
                                         ),
                                       ],
                                     ),
-                                  )
-                                else ...[
-                                  _buildWifiPanel(
+                                  const SizedBox(height: 16),
+                                  NetworkScoreCard(
+                                    key: WidgetKey.networkScoreCard.key,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  BlocBuilder<NetworkScoreBloc, NetworkScoreState>(
+                                    builder: (context, state) {
+                                      final computedAt = state.maybeWhen(
+                                        success: (score) => score.computedAt,
+                                        orElse: () => null,
+                                      );
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              'Score: ${_formatTimestamp(computedAt)}',
+                                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Icon(
+                                              Icons.update,
+                                              size: 12,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildConnectionPath(
                                     context,
                                     wifiInfo,
-                                    isChecking: isWifiChecking,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildIspPanel(
-                                    context,
                                     ispSnapshot,
-                                    isWide: false,
+                                    internetSnapshot.data,
+                                    horizontalPath,
+                                    isWifiChecking: isWifiChecking,
                                   ),
+                                  const SizedBox(height: 4),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Connection: ${_formatTimestamp(_lastConnectionCheck)}',
+                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          Icons.wifi_find,
+                                          size: 12,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  if (isWide)
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            child: _buildWifiPanel(
+                                              context,
+                                              wifiInfo,
+                                              isChecking: isWifiChecking,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 20),
+                                          Expanded(
+                                            child: _buildIspPanel(
+                                              context,
+                                              ispSnapshot,
+                                              isWide: true,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  else ...[
+                                    _buildWifiPanel(
+                                      context,
+                                      wifiInfo,
+                                      isChecking: isWifiChecking,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildIspPanel(
+                                      context,
+                                      ispSnapshot,
+                                      isWide: false,
+                                    ),
+                                  ],
                                 ],
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
+  }
+
+  bool _scoreComputeScheduled = false;
+
+  void _scheduleScoreCompute(
+    WifiInfo wifiInfo,
+    Future<NetworkConnectionStatus>? internetStatusFuture,
+  ) {
+    // Only compute score once, but ensure it uses fresh data
+    if (_scoreComputeScheduled) return;
+    _scoreComputeScheduled = true;
+
+    internetStatusFuture?.then((status) {
+      if (mounted) {
+        // Compute event will update the cache and compute the score
+        _networkScoreBloc.add(NetworkScoreEvent.compute(
+          wifiInfo: wifiInfo,
+          connectivityStatus: status,
+        ));
+      }
+    });
   }
 }
 

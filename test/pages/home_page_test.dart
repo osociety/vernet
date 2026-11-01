@@ -2,20 +2,23 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
-import 'package:vernet/injection.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
+import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
+import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -34,6 +37,31 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     AppSettings.instance.resetForTesting();
+
+    final db = AppDatabase(NativeDatabase.memory());
+    final databaseService = _InMemoryDatabaseService(db);
+    final scanRepository = ScanRepository(databaseService);
+    final deviceRepository = DeviceRepository(databaseService);
+    final networkScoreRepository = NetworkScoreRepository();
+    final networkScoreService = NetworkScoreService(
+      scanRepository: scanRepository,
+      deviceRepository: deviceRepository,
+      scoreRepository: networkScoreRepository,
+    );
+    final networkScoreBloc = NetworkScoreBloc(
+      scoreService: networkScoreService,
+      scoreRepository: networkScoreRepository,
+    );
+
+    GetIt.instance
+      ..registerSingleton<AppDatabase>(db)
+      ..registerSingleton<DatabaseService<AppDatabase>>(databaseService)
+      ..registerSingleton<ScanRepository>(scanRepository)
+      ..registerSingleton<DeviceRepository>(deviceRepository)
+      ..registerSingleton<NetworkScoreRepository>(networkScoreRepository)
+      ..registerSingleton<NetworkScoreService>(networkScoreService)
+      ..registerSingleton<NetworkScoreBloc>(networkScoreBloc);
+
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('dev.fluttercommunity.plus/network_info'),
@@ -45,6 +73,13 @@ void main() {
         _ => null,
       },
     );
+  });
+
+  tearDown(() async {
+    if (GetIt.instance.isRegistered<AppDatabase>()) {
+      await GetIt.instance<AppDatabase>().close();
+    }
+    await GetIt.instance.reset();
   });
 
   Future<void> pumpHomePage(
@@ -344,18 +379,6 @@ void main() {
     });
 
     testWidgets('opens scan history from the Wi-Fi panel', (tester) async {
-      await getIt.reset();
-      final db = AppDatabase(NativeDatabase.memory());
-      final databaseService = _InMemoryDatabaseService(db);
-      getIt
-        ..registerSingleton<ScanRepository>(ScanRepository(databaseService))
-        ..registerSingleton<DeviceRepository>(
-            DeviceRepository(databaseService));
-      addTearDown(() async {
-        await getIt.reset();
-        await db.close();
-      });
-
       await pumpHomePage(tester, size: const Size(900, 800));
 
       expect(
@@ -374,10 +397,8 @@ void main() {
     testWidgets('keeps the mobile header left aligned', (tester) async {
       await pumpHomePage(tester, size: const Size(390, 844));
 
-      final overview = tester.widget<Text>(find.text('NETWORK OVERVIEW'));
-      final title = tester.widget<Text>(find.text('Your network'));
-      expect(overview.textAlign, isNull);
-      expect(title.textAlign, isNull);
+      final network = tester.widget<Text>(find.text('Network'));
+      expect(network.textAlign, isNull);
     });
 
     testWidgets('matches Wi-Fi and internet panel heights on desktop',

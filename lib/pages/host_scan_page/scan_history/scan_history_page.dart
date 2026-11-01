@@ -1333,7 +1333,7 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final color = inProgress ? colorScheme.tertiary : colorScheme.primary;
+    final color = inProgress ? Colors.amber : colorScheme.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(

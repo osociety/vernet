@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
 import 'package:flutter/material.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
+import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -96,6 +99,7 @@ class _PingPageState extends BasePage<PingPage> {
             _pingSummary = event;
             _stats = event.stats ?? _stats;
           });
+          _savePingSnapshot(event);
         } else {
           setState(() {
             _pingPackets.add(event);
@@ -105,6 +109,24 @@ class _PingPageState extends BasePage<PingPage> {
       },
       onDone: _stop,
     );
+  }
+
+  void _savePingSnapshot(PingSummary summary) {
+    final stats = summary.stats;
+    final packetLoss = summary.transmitted > 0
+        ? ((summary.transmitted - summary.received) * 100) / summary.transmitted
+        : 0.0;
+
+    NetworkScoreRepository().savePingSnapshot(PingSnapshot(
+      avgLatencyMs: stats?.avg?.inMilliseconds.toDouble() ?? 0,
+      packetLossPercent: packetLoss,
+      jitterMs: stats?.jitter?.inMilliseconds.toDouble(),
+      minLatencyMs: stats?.min?.inMilliseconds.toDouble(),
+      maxLatencyMs: stats?.max?.inMilliseconds.toDouble(),
+    ));
+
+    // Trigger score recomputation with fresh ping data
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
   }
 
   void _stop() {

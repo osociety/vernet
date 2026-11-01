@@ -4,13 +4,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    configureDependencies(Env.test);
+  });
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -50,7 +54,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 
-      expect(find.byType(HomePage), findsOneWidget);
+      expect(find.byType(TabBarPage), findsOneWidget);
     });
 
     testWidgets('MyApp with allowed=false shows LocationConsentPage',

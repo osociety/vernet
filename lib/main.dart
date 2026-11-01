@@ -30,6 +30,7 @@ import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/isp_lookup_service.dart';
+import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 AppSettings appSettings = AppSettings.instance;
@@ -152,9 +153,7 @@ class _MyAppState extends State<MyApp> {
               }
             },
             title: 'Vernet',
-            theme: themeChangeProvider.darkTheme
-                ? ThemeData.dark()
-                : ThemeData.light(),
+            theme: createSemanticTheme(themeChangeProvider.darkTheme),
             home: homePage,
           );
         },

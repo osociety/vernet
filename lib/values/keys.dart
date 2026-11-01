@@ -77,7 +77,10 @@ enum WidgetKey implements Comparable<WidgetKey> {
   deviceDetailPingButton('deviceDetailPingButton'),
   deviceDetailWolButton('deviceDetailWolButton'),
   deviceToRouterConnector('deviceToRouterConnector'),
-  routerToInternetConnector('routerToInternetConnector');
+  routerToInternetConnector('routerToInternetConnector'),
+  networkScoreCard('networkScoreCard'),
+  networkScoreGauge('networkScoreGauge'),
+  networkScoreRefreshButton('networkScoreRefreshButton');
 
   const WidgetKey(this.value);
   final String value;
