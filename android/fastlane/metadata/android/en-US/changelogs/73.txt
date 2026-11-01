@@ -1,0 +1,3 @@
+Renamed home page to "Your network" with pull-to-refresh on mobile and desktop.
+Network score now refreshes automatically after following improvement suggestions.
+Fixed Android crash on launch.
