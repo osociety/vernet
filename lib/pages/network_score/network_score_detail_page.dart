@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/models/network_score.dart';
+import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
+import 'package:vernet/repository/network_score_repository.dart';
+import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -325,7 +328,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
             onTap: () => _showHealthTips(context),
           ),
         // Reliability actions
-        if (currentScore.reliability.value < 100)
+        if (currentScore.reliability.value < 100) ...[
           _ActionTile(
             icon: Icons.monitor_heart,
             title: 'Monitor Servers',
@@ -336,6 +339,10 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
               MaterialPageRoute(builder: (context) => const ServerCheckerPage()),
             ),
           ),
+          _QuickAddMonitorsSection(
+            onAddMonitor: (monitor) => _quickAddMonitor(context, monitor),
+          ),
+        ],
         // Speed actions
         if (currentScore.speed.value < 100)
           _ActionTile(
@@ -392,6 +399,27 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
       return 'Improve server response times';
     }
     return 'Track reliability of important services';
+  }
+
+  Future<void> _quickAddMonitor(BuildContext context, ServerMonitor monitor) async {
+    final service = ServerMonitorService();
+    final newMonitor = ServerMonitor(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: monitor.name,
+      host: monitor.host,
+      type: monitor.type,
+      intervalSeconds: monitor.intervalSeconds,
+    );
+    await service.saveMonitor(newMonitor);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${monitor.name} added'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _showHealthTips(BuildContext context) {
@@ -660,6 +688,169 @@ class _DimensionBar extends StatelessWidget {
         minHeight: 8,
         backgroundColor: color.withAlpha(30),
         color: color,
+      ),
+    );
+  }
+}
+
+class _QuickAddMonitorsSection extends StatefulWidget {
+  const _QuickAddMonitorsSection({required this.onAddMonitor});
+
+  final Future<void> Function(ServerMonitor monitor) onAddMonitor;
+
+  @override
+  State<_QuickAddMonitorsSection> createState() =>
+      _QuickAddMonitorsSectionState();
+}
+
+class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
+  List<ServerMonitor> _missingMonitors = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMissingMonitors();
+  }
+
+  Future<void> _loadMissingMonitors() async {
+    final service = ServerMonitorService();
+    final monitors = await service.loadMonitors();
+    final missing = <ServerMonitor>[];
+
+    final hasRouterMonitor = monitors.any((m) =>
+        m.type == ServerCheckType.icmp &&
+        m.name.toLowerCase().contains('router'));
+    final hasInternetMonitor =
+        monitors.any((m) => m.type == ServerCheckType.https);
+
+    if (!hasRouterMonitor) {
+      missing.add(const ServerMonitor(
+        id: '',
+        name: 'Local Router',
+        host: '192.168.1.1',
+        type: ServerCheckType.icmp,
+        intervalSeconds: 60,
+      ));
+    }
+
+    if (!hasInternetMonitor) {
+      missing.add(const ServerMonitor(
+        id: '',
+        name: 'Google',
+        host: 'google.com',
+        type: ServerCheckType.https,
+        intervalSeconds: 60,
+      ));
+    }
+
+    if (mounted) {
+      setState(() {
+        _missingMonitors = missing;
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const SizedBox.shrink();
+    }
+
+    if (_missingMonitors.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.secondaryContainer.withAlpha(80),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.secondary.withAlpha(60)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.bolt, color: colors.secondary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Quick Add Required Monitors',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.onSecondaryContainer,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Add these monitors to get full reliability score:',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colors.onSecondaryContainer.withAlpha(200),
+                ),
+          ),
+          const SizedBox(height: 12),
+          ..._missingMonitors.map((monitor) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () async {
+                      await widget.onAddMonitor(monitor);
+                      await _loadMissingMonitors();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(
+                            monitor.type == ServerCheckType.icmp
+                                ? Icons.router
+                                : Icons.language,
+                            color: colors.secondary,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  monitor.name,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  '${monitor.type.name.toUpperCase()} · ${monitor.host}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: colors.onSurface.withAlpha(180),
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.add_circle_outline,
+                              color: colors.secondary, size: 24),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              )),
+        ],
       ),
     );
   }

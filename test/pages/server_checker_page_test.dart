@@ -65,7 +65,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: ServerCheckerPage()));
 
     expect(find.text('Server checker'), findsOneWidget);
-    expect(find.textContaining('Add a server to monitor'), findsOneWidget);
+    expect(find.text('Quick Add'), findsOneWidget);
     expect(find.text('Add server'), findsOneWidget);
   });
 
