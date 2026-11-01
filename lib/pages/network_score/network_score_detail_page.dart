@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/server_monitor.dart';
@@ -8,7 +9,6 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
-import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/values/strings.dart';
@@ -725,12 +725,21 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
         monitors.any((m) => m.type == ServerCheckType.https);
 
     if (!hasRouterMonitor) {
-      missing.add(const ServerMonitor(
+      String gatewayIp = '192.168.1.1';
+      try {
+        final actualGateway = await NetworkInfo().getWifiGatewayIP();
+        if (actualGateway != null && actualGateway.isNotEmpty) {
+          gatewayIp = actualGateway;
+        }
+      } catch (e) {
+        debugPrint('Failed to get gateway IP: $e');
+      }
+
+      missing.add(ServerMonitor(
         id: '',
         name: 'Local Router',
-        host: '192.168.1.1',
+        host: gatewayIp,
         type: ServerCheckType.icmp,
-        intervalSeconds: 60,
       ));
     }
 
@@ -740,7 +749,6 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
         name: 'Google',
         host: 'google.com',
         type: ServerCheckType.https,
-        intervalSeconds: 60,
       ));
     }
 

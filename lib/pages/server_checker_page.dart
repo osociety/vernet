@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
@@ -26,6 +27,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
   final Map<String, ServerCheckResult> _latest = {};
   final Set<String> _running = {};
   List<ServerMonitor> _monitors = [];
+  List<ServerMonitor> _suggestedMonitors = [];
 
   @override
   void initState() {
@@ -49,6 +51,14 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
       });
       _start(monitor);
     }
+    // Load suggestions asynchronously without blocking UI
+    _loadSuggestions();
+  }
+
+  Future<void> _loadSuggestions() async {
+    final suggestions = await _getSuggestedMonitors();
+    if (!mounted) return;
+    setState(() => _suggestedMonitors = suggestions);
   }
 
   Future<void> _addMonitor() async {
@@ -62,6 +72,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     if (!mounted) return;
     setState(() => _monitors = [..._monitors, monitor]);
     _start(monitor);
+    await _loadSuggestions();
   }
 
   Future<void> _quickAddMonitor(ServerMonitor monitor) async {
@@ -78,44 +89,60 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
         ),
       );
     }
+    await _loadSuggestions();
   }
 
-  List<ServerMonitor> get _suggestedMonitors {
+  Future<List<ServerMonitor>> _getSuggestedMonitors() async {
     final existingHosts = _monitors.map((m) => m.host.toLowerCase()).toSet();
-    return [
-      if (!existingHosts.any((h) => h.contains('192.168') || h.contains('10.') || h.contains('router')))
-        const ServerMonitor(
-          id: '',
-          name: 'Local Router',
-          host: '192.168.1.1',
-          type: ServerCheckType.icmp,
-          intervalSeconds: 60,
-        ),
-      if (!existingHosts.contains('google.com'))
-        const ServerMonitor(
-          id: '',
-          name: 'Google',
-          host: 'google.com',
-          type: ServerCheckType.https,
-          intervalSeconds: 60,
-        ),
-      if (!existingHosts.contains('cloudflare.com'))
-        const ServerMonitor(
-          id: '',
-          name: 'Cloudflare',
-          host: 'cloudflare.com',
-          type: ServerCheckType.https,
-          intervalSeconds: 60,
-        ),
-      if (!existingHosts.contains('github.com'))
-        const ServerMonitor(
-          id: '',
-          name: 'GitHub',
-          host: 'github.com',
-          type: ServerCheckType.https,
-          intervalSeconds: 60,
-        ),
-    ];
+    final suggestions = <ServerMonitor>[];
+
+    if (!existingHosts.any((h) => h.contains('192.168') || h.contains('10.') || h.contains('router'))) {
+      String gatewayIp = '192.168.1.1';
+      try {
+        final actualGateway = await NetworkInfo().getWifiGatewayIP();
+        if (actualGateway != null && actualGateway.isNotEmpty) {
+          gatewayIp = actualGateway;
+        }
+      } catch (e) {
+        debugPrint('Failed to get gateway IP: $e');
+      }
+
+      suggestions.add(ServerMonitor(
+        id: '',
+        name: 'Local Router',
+        host: gatewayIp,
+        type: ServerCheckType.icmp,
+      ));
+    }
+
+    if (!existingHosts.contains('google.com')) {
+      suggestions.add(const ServerMonitor(
+        id: '',
+        name: 'Google',
+        host: 'google.com',
+        type: ServerCheckType.https,
+      ));
+    }
+
+    if (!existingHosts.contains('cloudflare.com')) {
+      suggestions.add(const ServerMonitor(
+        id: '',
+        name: 'Cloudflare',
+        host: 'cloudflare.com',
+        type: ServerCheckType.https,
+      ));
+    }
+
+    if (!existingHosts.contains('github.com')) {
+      suggestions.add(const ServerMonitor(
+        id: '',
+        name: 'GitHub',
+        host: 'github.com',
+        type: ServerCheckType.https,
+      ));
+    }
+
+    return suggestions;
   }
 
   Future<void> _editMonitor(ServerMonitor monitor) async {
@@ -178,6 +205,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
       _histories.remove(monitor.id);
       _latest.remove(monitor.id);
     });
+    await _loadSuggestions();
   }
 
   @override
@@ -237,7 +265,8 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(monitor.name),
-                subtitle: Text('${monitor.type.name.toUpperCase()} · ${monitor.host}'),
+                subtitle: Text(
+                    '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.add_circle_outline),
                   onPressed: () => _quickAddMonitor(monitor),

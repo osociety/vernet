@@ -1,5 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -28,6 +29,18 @@ class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+
+    // Mock network_info_plus platform channel to prevent hanging in tests
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/network_info'),
+      (MethodCall methodCall) async {
+        if (methodCall.method == 'getWifiGatewayIP') {
+          return '192.168.1.1';
+        }
+        return null;
+      },
+    );
 
     final db = AppDatabase(NativeDatabase.memory());
     final databaseService = _InMemoryDatabaseService(db);
@@ -63,6 +76,7 @@ void main() {
 
   testWidgets('shows the empty state and add action', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: ServerCheckerPage()));
+    await tester.pumpAndSettle();
 
     expect(find.text('Server checker'), findsOneWidget);
     expect(find.text('Quick Add'), findsOneWidget);
