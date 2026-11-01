@@ -880,13 +880,35 @@ class _WifiDetailState extends State<HomePage> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  _buildWifiPanel(
-                                    context,
-                                    wifiInfo,
-                                    isChecking: isWifiChecking,
-                                  ),
-                                  const SizedBox(height: 20),
-                                  _buildSpeedTestPanel(context),
+                                  if (isWide)
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: _buildWifiPanel(
+                                            context,
+                                            wifiInfo,
+                                            isChecking: isWifiChecking,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: _buildSpeedTestPanel(context),
+                                        ),
+                                      ],
+                                    )
+                                  else
+                                    Column(
+                                      children: [
+                                        _buildWifiPanel(
+                                          context,
+                                          wifiInfo,
+                                          isChecking: isWifiChecking,
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _buildSpeedTestPanel(context),
+                                      ],
+                                    ),
                                 ],
                               );
                             },
