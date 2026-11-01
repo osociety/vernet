@@ -15,6 +15,7 @@ import 'device_detail/device_detail.dart' as device_detail_test;
 import 'dns/lookup/lookup.dart' as lookup_test;
 import 'dns/reverse_lookup/reverse_lookup.dart' as reverse_lookup;
 import 'home_page/home_page.dart' as home_page_test;
+import 'network_score/network_score.dart' as network_score_test;
 import 'network_troubleshooting_test/ping_test/ping.dart' as ping_test;
 import 'scan_report/scan_report.dart' as scan_report_test;
 import 'server_checker/server_checker_test.dart' as server_checker_test;
@@ -63,6 +64,7 @@ void main() {
   device_detail_test.main();
   scan_report_test.main();
   speed_test_test.main();
+  network_score_test.main();
 
   tearDownAll(() {
     server.close();
