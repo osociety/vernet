@@ -124,7 +124,7 @@ jobs:
         uses: abirismyname/create-discussion@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository-id: ${{ vars.GITHUB_REPOSITORY_ID }}
+          repository-id: ${{ vars.REPOSITORY_ID }}
           category-id: ${{ vars.DISCUSSION_CATEGORY_ID }}
           title: "Vernet ${{ env.RELEASE_TAG }}"
           body: |
