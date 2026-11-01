@@ -321,21 +321,35 @@ class _SpeedTestView extends StatelessWidget {
                           ),
                     ),
                     if (state.ispInfo!.ispRating != null) ...[
+                      const SizedBox(height: 8),
+                      Semantics(
+                        label:
+                            'Provider rating: ${state.ispInfo!.ispRating!.toStringAsFixed(1)} out of 5',
+                        child: ExcludeSemantics(
+                          child: Row(
+                            children: List.generate(5, (index) {
+                              final rating =
+                                  state.ispInfo!.ispRating!.clamp(0.0, 5.0);
+                              final starValue = rating - index;
+                              final icon = starValue >= 1
+                                  ? Icons.star
+                                  : starValue >= 0.5
+                                      ? Icons.star_half
+                                      : Icons.star_border;
+                              final color = starValue >= 0.5
+                                  ? Colors.amber
+                                  : colors.outlineVariant;
+                              return Icon(icon, size: 16, color: color);
+                            }),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 14,
-                            color: Colors.amber,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Rating: ${state.ispInfo!.ispRating!.toStringAsFixed(1)}',
-                            style:
-                                Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
+                      Text(
+                        '${state.ispInfo!.ispRating!.toStringAsFixed(1)} out of 5',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
                       ),
                     ],
                   ],
