@@ -19,6 +19,7 @@ class SpeedTestPage extends StatefulWidget {
 class _SpeedTestPageState extends State<SpeedTestPage> {
   late final SpeedTestBloc _bloc;
   bool _initialized = false;
+  bool _autoStarted = false;
 
   @override
   void initState() {
@@ -45,7 +46,22 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
   Widget build(BuildContext context) {
     return BlocProvider<SpeedTestBloc>.value(
       value: _bloc,
-      child: const _SpeedTestView(),
+      child: BlocListener<SpeedTestBloc, SpeedTestState>(
+        listener: (context, state) {
+          // Auto-start test once servers are loaded and test hasn't started yet
+          if (!_autoStarted &&
+              !state.isLoading &&
+              state.bestServers != null &&
+              state.bestServers!.isNotEmpty &&
+              !state.speedTestStarted &&
+              !state.downloadSpeedTestDone &&
+              !state.uploadSpeedTestDone) {
+            _autoStarted = true;
+            _bloc.add(const SpeedTestEvent.startTest());
+          }
+        },
+        child: const _SpeedTestView(),
+      ),
     );
   }
 }
@@ -721,37 +737,25 @@ class _SpeedTestView extends StatelessWidget {
   Widget _buildActionButton(
       BuildContext context, SpeedTestState state, {required ColorScheme colors}) {
     final hasServers = state.bestServers != null && state.bestServers!.isNotEmpty;
-    final canStart = !state.speedTestStarted && hasServers;
+    final isTestComplete = state.downloadSpeedTestDone && state.uploadSpeedTestDone && !state.speedTestStarted;
+
+    // Only show button after test completes (for "Test Again")
+    if (!isTestComplete) {
+      return const SizedBox.shrink();
+    }
 
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: canStart
+        onPressed: hasServers
             ? () {
                 context
                     .read<SpeedTestBloc>()
                     .add(const SpeedTestEvent.startTest());
               }
             : null,
-        icon: state.speedTestStarted
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Icon(Icons.play_arrow),
-        label: Text(
-          state.speedTestStarted
-              ? 'Testing...'
-              : !hasServers
-                  ? 'No Servers Available'
-                  : state.downloadSpeedTestDone && state.uploadSpeedTestDone
-                      ? 'Test Again'
-                      : 'Start Test',
-        ),
+        icon: const Icon(Icons.refresh),
+        label: const Text('Test Again'),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: colors.primary,
