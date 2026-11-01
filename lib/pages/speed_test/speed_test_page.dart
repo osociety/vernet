@@ -482,7 +482,7 @@ class _SpeedTestView extends StatelessWidget {
         border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
       ),
       minX: 0,
-      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 0.5,
+      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 1.0,
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
