@@ -294,7 +294,6 @@ void main() {
       await TestUtils.waitForAnyWidget(
         tester,
         find.byKey(WidgetKey.wakeOnLanStatusText.key),
-        timeout: const Duration(seconds: 15),
       );
 
       // Scroll to status text in case it's below the fold

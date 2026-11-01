@@ -185,17 +185,6 @@ void main() {
   });
 }
 
-Future<void> _waitForFinder(WidgetTester tester, Finder finder) async {
-  final deadline = DateTime.now().add(const Duration(seconds: 10));
-  while (finder.evaluate().isEmpty && DateTime.now().isBefore(deadline)) {
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
-    );
-    await tester.pump();
-  }
-  expect(finder, findsWidgets);
-}
-
 Future<void> _waitForText(WidgetTester tester, Finder finder) async {
   final deadline = DateTime.now().add(const Duration(seconds: 10));
   while (finder.evaluate().isEmpty && DateTime.now().isBefore(deadline)) {
