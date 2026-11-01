@@ -7,8 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signal_strength_indicator/signal_strength_indicator.dart';
-import 'package:speed_test_dart/classes/settings.dart';
-import 'package:speed_test_dart/speed_test_dart.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
@@ -17,15 +15,11 @@ import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
-import 'package:vernet/pages/isp_page/isp_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
-import 'package:vernet/pages/speed_test/speed_test_page.dart';
-import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
-import 'package:vernet/services/isp_lookup_service.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
@@ -55,9 +49,6 @@ class _WifiDetailState extends State<HomePage> {
   bool _hasRunStartupScan = false;
   bool scanRunning = false;
   final Map<int, DeviceData> devices = {};
-  SpeedTestDart tester = SpeedTestDart();
-  final IspLookupService _ispLookupService = IspLookupService();
-  late Future<Settings?> _ispSettingsFuture;
   Timer? _deviceRefreshTimer;
   late final NetworkScoreBloc _networkScoreBloc;
   DateTime? _lastConnectionCheck;
@@ -138,9 +129,8 @@ class _WifiDetailState extends State<HomePage> {
         _hasRunStartupScan = false;
       }
       _wifiInfoFuture = _getWifiInfo(force: force);
-      _ispSettingsFuture = _loadIspSettingsAfterWifi(_wifiInfoFuture!);
       _internetStatusFuture =
-          _loadInternetStatusAfterWifi(_wifiInfoFuture!, _ispSettingsFuture);
+          _loadInternetStatusAfterWifi(_wifiInfoFuture!);
     });
   }
 
@@ -177,37 +167,8 @@ class _WifiDetailState extends State<HomePage> {
     _startNetworkPipeline();
   }
 
-  Future<Settings?> _loadIspSettingsAfterWifi(
-    Future<WifiInfo?> wifiFuture,
-  ) async {
-    final wifiInfo = await wifiFuture;
-    if (wifiInfo == null || !_isConnected(wifiInfo)) {
-      return null;
-    }
-    if (!appSettings.inAppInternet) return null;
-    try {
-      final settings =
-          await tester.getSettings(headers: {"User-Agent": "Mozilla/4.0"});
-      final organization = await _ispLookupService.lookup(settings.client.ip);
-      if (organization != null) settings.client.isp = organization;
-
-      // Save ISP info for network score computation
-      await NetworkScoreRepository().saveIspInfo(IspInfo(
-        ispName: settings.client.isp,
-        ispRating: settings.client.ispRating,
-        avgDownloadMbps: settings.client.ispAvarageDownloadSpeed / 1000,
-        avgUploadMbps: settings.client.ispAvarageUploadSpeed / 1000,
-      ));
-
-      return settings;
-    } catch (_) {
-      return null;
-    }
-  }
-
   Future<NetworkConnectionStatus> _loadInternetStatusAfterWifi(
     Future<WifiInfo?> wifiFuture,
-    Future<Settings?> ispFuture,
   ) async {
     final wifiInfo = await wifiFuture;
     if (wifiInfo == null || !_isConnected(wifiInfo)) {
@@ -236,22 +197,16 @@ class _WifiDetailState extends State<HomePage> {
     }
 
     // Only if Wi-Fi or interface is connected: check connection to internet service
-    Settings? ispSettings;
-    try {
-      ispSettings = await ispFuture;
-    } catch (_) {}
-
     final status = await _connectivityService.checkRouterToInternet(
       wifiInfo: wifiInfo,
-      ispSettings: ispSettings,
     );
-    
+
     if (mounted) {
       setState(() {
         _lastConnectionCheck = DateTime.now();
       });
     }
-    
+
     return status;
   }
 
@@ -473,154 +428,14 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
-  Widget _buildIspPanel(BuildContext context, AsyncSnapshot<Settings?> snapshot,
-      {required bool isWide}) {
-    final colors = Theme.of(context).colorScheme;
-    final settings = snapshot.data;
-
-    return _OverviewPanel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _PanelIcon(icon: Icons.public, color: colors.tertiary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'INTERNET SERVICE',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        letterSpacing: 1.1,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-              ),
-              _StatusPill(
-                label: appSettings.inAppInternet ? 'PROVIDER LOOKUP' : 'PAUSED',
-                color: appSettings.inAppInternet
-                    ? colors.primary
-                    : colors.onSurfaceVariant,
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          if (!appSettings.inAppInternet)
-            const _IspMessage(
-              icon: Icons.cloud_off_outlined,
-              title: 'Internet lookups are off',
-              message:
-                  'Turn on internet access in Settings to see provider details.',
-            )
-          else if (settings != null) ...[
-            Text(
-              settings.client.isp,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 6),
-            Semantics(
-              label:
-                  'Provider rating: ${settings.client.ispRating.toStringAsFixed(1)} out of 5',
-              child: ExcludeSemantics(
-                child: Row(
-                  children: List.generate(5, (index) {
-                    final rating = settings.client.ispRating.clamp(0, 5);
-                    final starValue = rating - index;
-                    final icon = starValue >= 1
-                        ? Icons.star
-                        : starValue >= 0.5
-                            ? Icons.star_half
-                            : Icons.star_border;
-                    final color = starValue >= 0.5
-                        ? colors.onSurfaceVariant
-                        : colors.outlineVariant;
-                    return Icon(icon, size: 18, color: color);
-                  }),
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              StringValue.speedTestServer,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-            ),
-            const SizedBox(height: 14),
-            Divider(color: colors.outlineVariant),
-            const SizedBox(height: 12),
-            _NetworkValue(
-                label: 'PUBLIC IP ADDRESS', value: settings.client.ip),
-            if (isWide) const Spacer(),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SpeedTestPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.speed),
-                  label: const Text('Test internet speed'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            IspPage(tester: tester, settings: settings),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_outward),
-                  label: const Text('Provider details'),
-                ),
-              ],
-            ),
-          ] else if (snapshot.hasError)
-            const _IspMessage(
-              icon: Icons.cloud_off_outlined,
-              title: 'Provider details unavailable',
-              message:
-                  'Check your internet connection and refresh to try again.',
-            )
-          else
-            const _IspMessage(
-              icon: Icons.language,
-              title: 'Finding your provider…',
-              message: 'Looking up your public IP and ISP details.',
-              showProgress: true,
-            ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildConnectionPath(
     BuildContext context,
     WifiInfo wifiInfo,
-    AsyncSnapshot<Settings?> ispSnapshot,
     NetworkConnectionStatus? internetStatus,
     bool isWide, {
     bool isWifiChecking = false,
   }) {
     final colors = Theme.of(context).colorScheme;
-    final isp = ispSnapshot.data?.client.isp ??
-        (appSettings.inAppInternet
-            ? ispSnapshot.hasError
-                ? 'Details unavailable'
-                : 'Looking up provider…'
-            : 'Lookup paused');
     final nodes = [
       _RouteData(
         Icons.devices,
@@ -643,7 +458,17 @@ class _WifiDetailState extends State<HomePage> {
             ? const _CustomValueBadge()
             : null,
       ),
-      _RouteData(Icons.cloud_outlined, 'INTERNET PROVIDER', isp),
+      _RouteData(
+        Icons.cloud_outlined,
+        'INTERNET',
+        isWifiChecking
+            ? 'Checking…'
+            : (internetStatus?.isConnected == true
+                ? 'Connected'
+                : internetStatus?.isChecking == true
+                    ? 'Checking…'
+                    : 'Disconnected'),
+      ),
     ];
 
     final NetworkConnectionStatus deviceToRouterStatus;
@@ -690,41 +515,14 @@ class _WifiDetailState extends State<HomePage> {
       );
     } else {
       routerToInternetStatus = internetStatus ??
-          (ispSnapshot.hasData
-              ? NetworkConnectionStatus(
-                  type: NetworkConnectionType.routerToInternet,
-                  state: NetworkConnectionState.connected,
-                  title: 'Router Connected to Internet',
-                  summary: 'Internet reachable',
-                  description:
-                      'Successfully reached internet servers. Your router has an active WAN connection to your Internet Service Provider.',
-                  details: {
-                    'Public IP': ispSnapshot.data!.client.ip,
-                    'Provider': ispSnapshot.data!.client.isp,
-                  },
-                )
-              : ispSnapshot.hasError
-                  ? const NetworkConnectionStatus(
-                      type: NetworkConnectionType.routerToInternet,
-                      state: NetworkConnectionState.disconnected,
-                      title: 'Router Disconnected from Internet',
-                      summary: 'Unable to reach internet servers',
-                      description:
-                          'We were unable to reach internet servers. Check your router WAN connection or contact your ISP.',
-                      troubleshootingSteps: [
-                        'Check if broadband cable is connected to router.',
-                        'Restart modem and router.',
-                        'Check for ISP service outage.',
-                      ],
-                    )
-                  : const NetworkConnectionStatus(
-                      type: NetworkConnectionType.routerToInternet,
-                      state: NetworkConnectionState.checking,
-                      title: 'Checking Internet Connection…',
-                      summary: 'Checking connection to internet…',
-                      description:
-                          'Testing connection between your router and internet hosts.',
-                    ));
+          const NetworkConnectionStatus(
+            type: NetworkConnectionType.routerToInternet,
+            state: NetworkConnectionState.checking,
+            title: 'Checking Internet Connection…',
+            summary: 'Checking connection to internet…',
+            description:
+                'Testing connection between your router and internet hosts.',
+          );
     }
 
     final connectors = [
@@ -856,15 +654,12 @@ class _WifiDetailState extends State<HomePage> {
                         );
                       }
 
-                      return FutureBuilder<Settings?>(
-                        future: _ispSettingsFuture,
-                        builder: (context, ispSnapshot) {
-                          return FutureBuilder<NetworkConnectionStatus>(
-                            future: _internetStatusFuture,
-                            builder: (context, internetSnapshot) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
+                      return FutureBuilder<NetworkConnectionStatus>(
+                        future: _internetStatusFuture,
+                        builder: (context, internetSnapshot) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
                                   if (!isMobileLayout)
                                     Column(
                                       crossAxisAlignment:
@@ -946,7 +741,6 @@ class _WifiDetailState extends State<HomePage> {
                                   _buildConnectionPath(
                                     context,
                                     wifiInfo,
-                                    ispSnapshot,
                                     internetSnapshot.data,
                                     horizontalPath,
                                     isWifiChecking: isWifiChecking,
@@ -973,51 +767,17 @@ class _WifiDetailState extends State<HomePage> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  if (isWide)
-                                    IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            child: _buildWifiPanel(
-                                              context,
-                                              wifiInfo,
-                                              isChecking: isWifiChecking,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          Expanded(
-                                            child: _buildIspPanel(
-                                              context,
-                                              ispSnapshot,
-                                              isWide: true,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  else ...[
-                                    _buildWifiPanel(
-                                      context,
-                                      wifiInfo,
-                                      isChecking: isWifiChecking,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    _buildIspPanel(
-                                      context,
-                                      ispSnapshot,
-                                      isWide: false,
-                                    ),
-                                  ],
+                                  _buildWifiPanel(
+                                    context,
+                                    wifiInfo,
+                                    isChecking: isWifiChecking,
+                                  ),
                                 ],
                               );
                             },
                           );
                         },
-                      );
-                    },
-                  ),
+                      ),
                 ),
               ),
             ],
@@ -1185,44 +945,6 @@ class _CustomValueBadge extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
       ),
-    );
-  }
-}
-
-class _IspMessage extends StatelessWidget {
-  const _IspMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.showProgress = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-  final bool showProgress;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 32, color: colors.onSurfaceVariant),
-        const SizedBox(height: 8),
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 6),
-        Text(
-          message,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-        ),
-        if (showProgress) ...[
-          const SizedBox(height: 16),
-          const LinearProgressIndicator(),
-        ],
-      ],
     );
   }
 }

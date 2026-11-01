@@ -139,9 +139,8 @@ void main() {
       expect(find.text('CONNECTION PATH'), findsOneWidget);
       expect(find.text('THIS DEVICE'), findsOneWidget);
       expect(find.text('WI-FI ROUTER'), findsOneWidget);
-      expect(find.text('INTERNET PROVIDER'), findsOneWidget);
+      expect(find.text('INTERNET'), findsOneWidget);
       expect(find.text('WI-FI CONNECTION'), findsOneWidget);
-      expect(find.text('INTERNET SERVICE'), findsOneWidget);
     });
 
     testWidgets('does not badge the gateway for live network values',
@@ -375,7 +374,7 @@ void main() {
       expect(find.text('Check your connection'), findsNothing);
       expect(find.text('Website and address tools'), findsNothing);
       expect(find.byKey(const ValueKey('ping')), findsNothing);
-      expect(find.text('Internet lookups are off'), findsOneWidget);
+      expect(find.text('WI-FI CONNECTION'), findsOneWidget);
     });
 
     testWidgets('opens scan history from the Wi-Fi panel', (tester) async {
@@ -399,25 +398,6 @@ void main() {
 
       expect(find.text('NETWORK OVERVIEW'), findsNothing);
       expect(find.text('Your network'), findsNothing);
-    });
-
-    testWidgets('matches Wi-Fi and internet panel heights on desktop',
-        (tester) async {
-      await pumpHomePage(tester, size: const Size(1100, 800));
-
-      final wifiPanel = find
-          .ancestor(
-            of: find.text('WI-FI CONNECTION'),
-            matching: find.byType(Container),
-          )
-          .first;
-      final ispPanel = find
-          .ancestor(
-            of: find.text('INTERNET SERVICE'),
-            matching: find.byType(Container),
-          )
-          .first;
-      expect(tester.getSize(wifiPanel).height, tester.getSize(ispPanel).height);
     });
   });
 }

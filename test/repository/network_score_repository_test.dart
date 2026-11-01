@@ -63,10 +63,6 @@ void main() {
         downloadMbps: 85.5,
         uploadMbps: 25.3,
         latencyMs: 15.0,
-        ispRating: 4.5,
-        ispAvgDownloadMbps: 80.0,
-        ispAvgUploadMbps: 20.0,
-        ispName: 'Test ISP',
       );
 
       await repository.saveSpeedSnapshot(snapshot);
@@ -76,8 +72,6 @@ void main() {
       expect(loaded!.downloadMbps, 85.5);
       expect(loaded.uploadMbps, 25.3);
       expect(loaded.latencyMs, 15.0);
-      expect(loaded.ispRating, 4.5);
-      expect(loaded.ispName, 'Test ISP');
     });
 
     test('loadSpeedSnapshot returns null when no snapshot saved', () async {
@@ -110,31 +104,6 @@ void main() {
     test('loadPingSnapshot returns null when no snapshot saved', () async {
       final repository = NetworkScoreRepository();
       final loaded = await repository.loadPingSnapshot();
-      expect(loaded, isNull);
-    });
-
-    test('saveIspInfo and loadIspInfo persist correctly', () async {
-      final repository = NetworkScoreRepository();
-      const info = IspInfo(
-        ispName: 'Test ISP',
-        ispRating: 4.5,
-        avgDownloadMbps: 80.0,
-        avgUploadMbps: 20.0,
-      );
-
-      await repository.saveIspInfo(info);
-      final loaded = await repository.loadIspInfo();
-
-      expect(loaded, isNotNull);
-      expect(loaded!.ispName, 'Test ISP');
-      expect(loaded.ispRating, 4.5);
-      expect(loaded.avgDownloadMbps, 80.0);
-      expect(loaded.avgUploadMbps, 20.0);
-    });
-
-    test('loadIspInfo returns null when no info saved', () async {
-      final repository = NetworkScoreRepository();
-      final loaded = await repository.loadIspInfo();
       expect(loaded, isNull);
     });
   });

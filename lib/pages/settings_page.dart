@@ -289,7 +289,7 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Vernet uses M-Lab\'s NDT7 protocol for internet speed testing. M-Lab is a research initiative providing open internet measurement data.',
+                "Vernet uses M-Lab's NDT7 protocol for internet speed testing. M-Lab is a research initiative providing open internet measurement data.",
               ),
               const SizedBox(height: 16),
               Text(

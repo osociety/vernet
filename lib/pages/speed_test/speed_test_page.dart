@@ -793,7 +793,7 @@ class _SpeedTestView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Speed tests are powered by M-Lab\'s NDT7 protocol, providing accurate and standardized internet measurements.',
+                "Speed tests are powered by M-Lab's NDT7 protocol, providing accurate and standardized internet measurements.",
               ),
               const SizedBox(height: 16),
               Text(

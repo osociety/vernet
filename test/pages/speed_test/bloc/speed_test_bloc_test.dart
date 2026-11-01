@@ -34,7 +34,6 @@ void main() {
       expect(bloc.state.downloadSpeeds, isEmpty);
       expect(bloc.state.uploadSpeeds, isEmpty);
       expect(bloc.state.bestServers, isNull);
-      expect(bloc.state.ispInfo, isNull);
       expect(bloc.state.fetchError, isNull);
     });
 
@@ -97,7 +96,6 @@ void main() {
               1,
             ),
       ],
-      skip: 1, // Skip the initial state emission
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(

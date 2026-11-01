@@ -141,7 +141,7 @@ void main() {
         service.dispose();
       });
 
-      test('throws Ndt7Exception on API error', () async {
+      test('throws Ndt7Exception on API error', () {
         final mockClient = MockClient((request) async {
           return http.Response('Server Error', 500);
         });
@@ -159,7 +159,7 @@ void main() {
         service.dispose();
       });
 
-      test('throws Ndt7Exception on empty results', () async {
+      test('throws Ndt7Exception on empty results', () {
         final mockClient = MockClient((request) async {
           return http.Response(jsonEncode({'results': []}), 200);
         });
@@ -181,8 +181,8 @@ void main() {
         service.dispose();
       });
 
-      test('throws Ndt7Exception on network error', () async {
-        final mockClient = MockClient((request) async {
+      test('throws Ndt7Exception on network error', () {
+        final mockClient = MockClient((request) {
           throw const SocketException('Connection failed');
         });
 
@@ -203,7 +203,7 @@ void main() {
         service.dispose();
       });
 
-      test('throws Ndt7Exception on invalid JSON', () async {
+      test('throws Ndt7Exception on invalid JSON', () {
         final mockClient = MockClient((request) async {
           return http.Response('invalid json', 200);
         });
@@ -227,7 +227,7 @@ void main() {
     });
 
     group('runTest', () {
-      test('service can be created with mock dependencies', () async {
+      test('service can be created with mock dependencies', () {
         final mockWebSocket = MockWebSocket();
         Future<WebSocket> mockWebSocketFactory(
           String url, {
@@ -312,11 +312,11 @@ void main() {
 
     group('Ndt7TestResult', () {
       test('toJson and fromJson roundtrip', () {
-        final result = Ndt7TestResult(
+        const result = Ndt7TestResult(
           downloadMbps: 100.5,
           uploadMbps: 50.2,
           latencyMs: 15.3,
-          server: const Ndt7Server(
+          server: Ndt7Server(
             machine: 'test.mlab',
             site: 'site1',
             urls: Ndt7ServerUrls(),
@@ -324,7 +324,6 @@ void main() {
           ),
           minRTT: 14.8,
           retransmissions: 5,
-          timestamp: DateTime(2024, 1, 1, 12, 0, 0),
         );
 
         final json = result.toJson();
