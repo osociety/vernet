@@ -74,14 +74,6 @@ void main() {
     await pumpVisibleFrame(tester);
   }
 
-  Future<void> openDrawerIfCompact(WidgetTester tester) async {
-    final menuButton = find.byIcon(Icons.menu);
-    if (menuButton.evaluate().isNotEmpty) {
-      await tester.tap(menuButton);
-      await pumpVisibleFrame(tester);
-    }
-  }
-
   group('MyApp', () {
     testWidgets('renders the redesigned entry point when allowed',
         (tester) async {
@@ -115,7 +107,6 @@ void main() {
 
       expect(find.byType(HomePage), findsOneWidget);
       expect(find.text('Scan your network'), findsWidgets);
-      expect(find.text('Service Provider Details'), findsWidgets);
       expect(find.byIcon(Icons.menu), findsNothing);
     });
 
@@ -141,22 +132,6 @@ void main() {
       await tester.tap(find.text('Home').last);
       await pumpVisibleFrame(tester);
       expect(find.byType(HomePage), findsOneWidget);
-    });
-
-    testWidgets('compact layout opens the drawer and selects provider details',
-        (tester) async {
-      await pumpTabBarPage(tester, size: const Size(390, 844));
-
-      expect(find.byIcon(Icons.menu), findsOneWidget);
-      expect(find.text('Service Provider Details'), findsNothing);
-
-      await openDrawerIfCompact(tester);
-      await tester.tap(find.text('Service Provider Details').last);
-      await pumpVisibleFrame(tester);
-
-      expect(find.text('Turn on internet access in Settings to continue.'),
-          findsOneWidget);
-      expect(find.text('Service Provider Details'), findsWidgets);
     });
   });
 }

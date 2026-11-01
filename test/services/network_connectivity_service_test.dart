@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:speed_test_dart/classes/classes.dart';
-import 'package:speed_test_dart/classes/odometer.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
@@ -170,50 +168,6 @@ void main() {
         expect(status.state, NetworkConnectionState.disconnected);
         expect(status.isDisconnected, isTrue);
         expect(status.troubleshootingSteps, isNotEmpty);
-      });
-
-      test('includes public IP and provider details when settings are provided',
-          () async {
-        final service = NetworkConnectivityService(
-          pingProbe: (host) async => const Duration(milliseconds: 18),
-        );
-        final wifiInfo = WifiInfo(
-          '192.168.1.20',
-          '00:11:22:33:44:55',
-          'HomeNet',
-          false,
-          '192.168.1.1',
-          true,
-          WifiNetworkMetrics.disconnected(),
-        );
-        final settings = Settings(
-          Client(
-            '203.0.113.1',
-            37.77,
-            -122.41,
-            'Example Fiber',
-            4.5,
-            4.0,
-            100,
-            50,
-            Coordinate(37.77, -122.41),
-          ),
-          Times(100, 100, 100, 50, 50, 50),
-          Download(5000, '', '0', 4),
-          Upload(5000, 100, 0, '0', 4, '0', '0', 1),
-          ServerConfig(''),
-          [],
-          Odometer(0, 1),
-        );
-
-        final status = await service.checkRouterToInternet(
-          wifiInfo: wifiInfo,
-          ispSettings: settings,
-        );
-
-        expect(status.isConnected, isTrue);
-        expect(status.details['Public IP'], '203.0.113.1');
-        expect(status.details['Provider'], 'Example Fiber');
       });
     });
   });

@@ -1,9 +1,14 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:speed_test_dart/classes/coordinate.dart';
-import 'package:speed_test_dart/classes/server.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
+import 'package:vernet/services/speedtest/ndt7_service.dart';
+
+class MockNdt7Service implements Ndt7Service {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   group('SpeedTestBloc', () {
@@ -12,7 +17,7 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
       SharedPreferences.setMockInitialValues({});
-      bloc = SpeedTestBloc();
+      bloc = SpeedTestBloc(ndt7Service: MockNdt7Service());
     });
 
     tearDown(() {
@@ -29,7 +34,6 @@ void main() {
       expect(bloc.state.downloadSpeeds, isEmpty);
       expect(bloc.state.uploadSpeeds, isEmpty);
       expect(bloc.state.bestServers, isNull);
-      expect(bloc.state.ispInfo, isNull);
       expect(bloc.state.fetchError, isNull);
     });
 
@@ -64,20 +68,19 @@ void main() {
       'emits [data] with servers when init with preloadedServers',
       build: () => bloc,
       act: (bloc) => bloc.add(
-        SpeedTestEvent.init(
+        const SpeedTestEvent.init(
           preloadedServers: [
-            Server(
-              1, // id
-              'Test Server', // name
-              'US', // country
-              'Test Sponsor', // sponsor
-              'test.com', // host
-              'http://test.com', // url
-              37.7749, // latitude
-              -122.4194, // longitude
-              5.0, // distance
-              10, // latency
-              Coordinate(37.7749, -122.4194), // geoCoordinate
+            Ndt7Server(
+              machine: 'mlab1.test',
+              site: 'site1',
+              urls: Ndt7ServerUrls(
+                downloadUrl: 'wss://mlab1.test/ndt/v7/download',
+                uploadUrl: 'wss://mlab1.test/ndt/v7/upload',
+              ),
+              location: Ndt7ServerLocation(
+                city: 'NYC',
+                country: 'US',
+              ),
             ),
           ],
         ),
@@ -93,7 +96,6 @@ void main() {
               1,
             ),
       ],
-      skip: 1, // Skip the initial state emission
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(
@@ -177,24 +179,38 @@ void main() {
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(
-      'startTest does nothing when no servers available',
+      'startTest emits error when no servers available',
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
-      expect: () => [],
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.fetchError,
+              'fetchError',
+              contains('No test servers available'),
+            ),
+      ],
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(
-      'startTest does nothing when servers list is empty',
+      'startTest emits error when servers list is empty',
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
         bestServers: [],
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
-      expect: () => [],
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.fetchError,
+              'fetchError',
+              contains('No test servers available'),
+            ),
+      ],
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(

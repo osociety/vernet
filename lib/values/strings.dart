@@ -69,8 +69,6 @@ class StringValue {
 
   static const String speedTestServer = 'Information provided by speedtest.net';
 
-  static const String ispPageTitle = 'Service Provider Details';
-
   static const String neighborDiscoveryPageTitle = 'Switch neighbors';
   static const String neighborDiscoveryEmptyPlaceholder =
       'No neighbors yet.\nQuery a switch or paste CDP/LLDP CLI output to see ports and platforms.';
