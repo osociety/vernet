@@ -394,11 +394,11 @@ void main() {
       expect(find.text(StringValue.previousScansTitle), findsOneWidget);
     });
 
-    testWidgets('keeps the mobile header left aligned', (tester) async {
+    testWidgets('hides inline header on mobile layout', (tester) async {
       await pumpHomePage(tester, size: const Size(390, 844));
 
-      final network = tester.widget<Text>(find.text('Network'));
-      expect(network.textAlign, isNull);
+      expect(find.text('NETWORK OVERVIEW'), findsNothing);
+      expect(find.text('Your network'), findsNothing);
     });
 
     testWidgets('matches Wi-Fi and internet panel heights on desktop',

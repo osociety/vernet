@@ -809,16 +809,23 @@ class _WifiDetailState extends State<HomePage> {
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 700;
           final isPhonePlatform = Platform.isAndroid || Platform.isIOS;
+          final isMobileLayout = isPhonePlatform || constraints.maxWidth < 600;
           final horizontalPath =
               !isPhonePlatform && constraints.maxWidth >= 480;
           final horizontalPadding = isWide ? 24.0 : 14.0;
           final verticalPadding = isWide ? 20.0 : 14.0;
-          return ListView(
-            padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-              vertical: verticalPadding,
-            ),
-            children: [
+          final topPadding = isMobileLayout ? 8.0 : verticalPadding;
+
+          final content = RefreshIndicator(
+            onRefresh: _refreshDashboard,
+            child: ListView(
+              padding: EdgeInsets.only(
+                left: horizontalPadding,
+                right: horizontalPadding,
+                top: topPadding,
+                bottom: verticalPadding,
+              ),
+              children: [
               Align(
                 alignment: Alignment.topCenter,
                 child: ConstrainedBox(
@@ -858,101 +865,47 @@ class _WifiDetailState extends State<HomePage> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  if (isPhonePlatform ||
-                                      constraints.maxWidth < 600)
-                                    Row(
+                                  if (!isMobileLayout)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: Text(
-                                            'Network',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleLarge
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                          ),
-                                        ),
-                                        IconButton.filledTonal(
-                                          tooltip:
-                                              'Refresh network information',
-                                          onPressed: _refreshDashboard,
-                                          icon: _isRefreshingWifi
-                                              ? const SizedBox(
-                                                  width: 18,
-                                                  height: 18,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                  ),
-                                                )
-                                              : const Icon(Icons.refresh),
-                                        ),
-                                      ],
-                                    )
-                                  else
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'NETWORK OVERVIEW',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelMedium
-                                                    ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                      letterSpacing: 1.4,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
+                                        Text(
+                                          'NETWORK OVERVIEW',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                letterSpacing: 1.4,
+                                                fontWeight:
+                                                    FontWeight.w700,
                                               ),
-                                              const SizedBox(height: 5),
-                                              Text(
-                                                'Your network',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleLarge
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'A live view of your Wi-Fi and internet connection.',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodyMedium
-                                                    ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurfaceVariant,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
                                         ),
-                                        const SizedBox(width: 8),
-                                        IconButton.filledTonal(
-                                          tooltip:
-                                              'Refresh network information',
-                                          onPressed: _refreshDashboard,
-                                          icon: _isRefreshingWifi
-                                              ? const SizedBox(
-                                                  width: 18,
-                                                  height: 18,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                  ),
-                                                )
-                                              : const Icon(Icons.refresh),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          'Your network',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge
+                                              ?.copyWith(
+                                                fontWeight:
+                                                    FontWeight.w700,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'A live view of your Wi-Fi and internet connection.',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -1068,7 +1021,10 @@ class _WifiDetailState extends State<HomePage> {
                 ),
               ),
             ],
-          );
+          ),
+        );
+
+          return content;
         },
       ),
     );
