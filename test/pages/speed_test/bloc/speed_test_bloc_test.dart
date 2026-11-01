@@ -177,5 +177,116 @@ void main() {
             ),
       ],
     );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'startTest does nothing when no servers available',
+      build: () => bloc,
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        bestServers: null,
+      ),
+      act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
+      expect: () => [],
+    );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'startTest does nothing when servers list is empty',
+      build: () => bloc,
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        bestServers: [],
+      ),
+      act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
+      expect: () => [],
+    );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'setDownloadSpeeds replaces download speeds list',
+      build: () => bloc,
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        downloadSpeeds: [10.0, 20.0],
+      ),
+      act: (bloc) => bloc.add(
+        const SpeedTestEvent.setDownloadSpeeds([30.0, 40.0, 50.0]),
+      ),
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.downloadSpeeds,
+              'downloadSpeeds',
+              [30.0, 40.0, 50.0],
+            ),
+      ],
+    );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'setUploadSpeeds replaces upload speeds list',
+      build: () => bloc,
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        uploadSpeeds: [5.0, 15.0],
+      ),
+      act: (bloc) => bloc.add(
+        const SpeedTestEvent.setUploadSpeeds([25.0, 35.0]),
+      ),
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.uploadSpeeds,
+              'uploadSpeeds',
+              [25.0, 35.0],
+            ),
+      ],
+    );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'toggleServerInfo toggles from expanded to collapsed',
+      build: () => bloc,
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        isServerInfoExpanded: true,
+      ),
+      act: (bloc) => bloc.add(const SpeedTestEvent.toggleServerInfo()),
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.isServerInfoExpanded,
+              'isServerInfoExpanded',
+              isFalse,
+            ),
+      ],
+    );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'reset clears all test data and errors',
+      build: () => bloc,
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        speedTestStarted: true,
+        downloadSpeedTestDone: true,
+        uploadSpeedTestDone: true,
+        currentDownloadSpeed: 100.0,
+        currentUploadSpeed: 50.0,
+        downloadSpeeds: [10.0, 20.0, 30.0],
+        uploadSpeeds: [5.0, 15.0, 25.0],
+        fetchError: 'Some error',
+        isServerInfoExpanded: true,
+      ),
+      act: (bloc) => bloc.add(const SpeedTestEvent.reset()),
+      expect: () => [
+        isA<SpeedTestState>()
+            .having((s) => s.isLoading, 'isLoading', isTrue)
+            .having((s) => s.speedTestStarted, 'speedTestStarted', isFalse)
+            .having((s) => s.downloadSpeedTestDone, 'downloadSpeedTestDone', isFalse)
+            .having((s) => s.uploadSpeedTestDone, 'uploadSpeedTestDone', isFalse)
+            .having((s) => s.currentDownloadSpeed, 'currentDownloadSpeed', 0.0)
+            .having((s) => s.currentUploadSpeed, 'currentUploadSpeed', 0.0)
+            .having((s) => s.downloadSpeeds, 'downloadSpeeds', isEmpty)
+            .having((s) => s.uploadSpeeds, 'uploadSpeeds', isEmpty)
+            .having((s) => s.fetchError, 'fetchError', isNull)
+            .having((s) => s.isServerInfoExpanded, 'isServerInfoExpanded', isFalse),
+      ],
+    );
   });
 }

@@ -35,6 +35,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
   final Random _rng = Random();
   static const int _numberOfTests = 3;
   Timer? _progressTimer;
+  double _downloadTarget = 0;
+  double _uploadTarget = 0;
 
   Future<void> _onInit(_Init event, Emitter<SpeedTestState> emit) async {
     await _loadIspInfo(emit);
@@ -151,17 +153,16 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
   void _startFakeProgress({
     required bool isDownload,
-    required double variation,
-    required double minSpeed,
   }) {
     _progressTimer?.cancel();
-    double currentSpeed = 0;
     _progressTimer = Timer.periodic(
       const Duration(milliseconds: 500),
       (Timer t) {
-        currentSpeed = currentSpeed + (_rng.nextDouble() * variation - (variation / 2 - 2));
-        if (currentSpeed < minSpeed) currentSpeed = minSpeed;
-        if (currentSpeed > 100) currentSpeed = 100;
+        final target = isDownload ? _downloadTarget : _uploadTarget;
+        // Add small variance around the target (±3 Mbps)
+        final variance = (_rng.nextDouble() * 6) - 3;
+        var currentSpeed = target + variance;
+        if (currentSpeed < 0) currentSpeed = 0;
         if (isDownload) {
           add(SpeedTestEvent.updateDownloadSpeed(currentSpeed));
         } else {
@@ -180,7 +181,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       downloadSpeeds: [0],
     ));
 
-    _startFakeProgress(isDownload: true, variation: 10, minSpeed: 0);
+    _downloadTarget = 50; // Start with reasonable estimate
+    _startFakeProgress(isDownload: true);
 
     final speeds = <double>[];
     for (int i = 0; i < _numberOfTests; i++) {
@@ -189,8 +191,9 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
             .testDownloadSpeed(servers: servers)
             .timeout(const Duration(seconds: 30));
         speeds.add(speed);
-        // Show average of completed tests so far
+        // Update target and show average of completed tests so far
         final avg = speeds.reduce((a, b) => a + b) / speeds.length;
+        _downloadTarget = avg;
         emit(state.copyWith(currentDownloadSpeed: avg));
       } on TimeoutException {
         _progressTimer?.cancel();
@@ -223,7 +226,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       downloadSpeeds: [],
     ));
 
-    _startFakeProgress(isDownload: false, variation: 8, minSpeed: 0);
+    _uploadTarget = 20; // Start with reasonable estimate
+    _startFakeProgress(isDownload: false);
 
     final speeds = <double>[];
     for (int i = 0; i < _numberOfTests; i++) {
@@ -232,8 +236,9 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
             .testUploadSpeed(servers: servers)
             .timeout(const Duration(seconds: 30));
         speeds.add(speed);
-        // Show average of completed tests so far
+        // Update target and show average of completed tests so far
         final avg = speeds.reduce((a, b) => a + b) / speeds.length;
+        _uploadTarget = avg;
         emit(state.copyWith(currentUploadSpeed: avg));
       } on TimeoutException {
         _progressTimer?.cancel();
@@ -263,7 +268,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     await NetworkScoreRepository().saveSpeedSnapshot(SpeedSnapshot(
       downloadMbps: state.currentDownloadSpeed,
       uploadMbps: state.currentUploadSpeed,
-      latencyMs: state.bestServers!.first.latency.toDouble(),
+      latencyMs: state.bestServers!.first.latency,
       ispRating: ispInfo?.ispRating,
       ispAvgDownloadMbps: ispInfo?.avgDownloadMbps,
       ispAvgUploadMbps: ispInfo?.avgUploadMbps,
