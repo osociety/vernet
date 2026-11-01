@@ -121,7 +121,7 @@ jobs:
 
       - name: Create release discussion
         if: github.event_name == 'release'
-        uses: abirismyname/create-discussion@v1
+        uses: abirismyname/create-discussion@v2.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository-id: ${{ vars.REPOSITORY_ID }}
