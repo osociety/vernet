@@ -179,24 +179,38 @@ void main() {
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(
-      'startTest does nothing when no servers available',
+      'startTest emits error when no servers available',
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
-      expect: () => [],
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.fetchError,
+              'fetchError',
+              contains('No test servers available'),
+            ),
+      ],
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(
-      'startTest does nothing when servers list is empty',
+      'startTest emits error when servers list is empty',
       build: () => bloc,
       seed: () => const SpeedTestState.data(
         isLoading: false,
         bestServers: [],
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
-      expect: () => [],
+      expect: () => [
+        isA<SpeedTestState>()
+            .having(
+              (s) => s.fetchError,
+              'fetchError',
+              contains('No test servers available'),
+            ),
+      ],
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(

@@ -47,7 +47,10 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
   }
 
   Future<void> _onStartTest(_StartTest event, Emitter<SpeedTestState> emit) async {
-    if (state.bestServers == null || state.bestServers!.isEmpty) return;
+    if (state.bestServers == null || state.bestServers!.isEmpty) {
+      emit(state.copyWith(fetchError: 'No test servers available. Please check your connection.'));
+      return;
+    }
 
     final server = state.bestServers!.first;
 
@@ -63,6 +66,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       packetLossPercent: null,
       retransmissions: null,
       serverLocation: null,
+      fetchError: null,
     ));
 
     try {
