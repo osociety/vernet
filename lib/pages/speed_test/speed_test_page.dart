@@ -486,8 +486,7 @@ class _SpeedTestView extends StatelessWidget {
                   : state.uploadSpeeds.length) -
               1)
           .toDouble()
-          .clamp(0.0, double.infinity) +
-          1,
+          .clamp(0.0, double.infinity),
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
