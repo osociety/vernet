@@ -223,7 +223,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       downloadSpeeds: [],
     ));
 
-    _startFakeProgress(isDownload: false, variation: 4, minSpeed: 0);
+    _startFakeProgress(isDownload: false, variation: 8, minSpeed: 0);
 
     final speeds = <double>[];
     for (int i = 0; i < _numberOfTests; i++) {
