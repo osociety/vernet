@@ -229,6 +229,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   children: [
                     AdaptiveListTile(
+                      leading: const Icon(Icons.speed),
+                      title: const Text('Speed Test Attribution'),
+                      subtitle: const Text('Powered by M-Lab NDT7'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showMlabInfo(context);
+                      },
+                    ),
+                    AdaptiveListTile(
                       leading: const Icon(Icons.bug_report),
                       title: const Text('Tell us about a problem'),
                       onTap: () {
@@ -268,4 +277,109 @@ class _SettingsPageState extends State<SettingsPage> {
   static const String _srcUrl = 'https://github.com/osociety/vernet';
   final String _issueUrl = '$_srcUrl/issues';
   final String _donateUrl = '$_srcUrl#support-and-donate';
+
+  void _showMlabInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Measurement Lab (M-Lab)'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Vernet uses M-Lab\'s NDT7 protocol for internet speed testing. M-Lab is a research initiative providing open internet measurement data.',
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Important Links',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              _buildMlabLink(
+                context,
+                icon: Icons.language,
+                title: 'M-Lab Website',
+                url: 'https://www.measurementlab.net/',
+              ),
+              _buildMlabLink(
+                context,
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                url: 'https://www.measurementlab.net/privacy-policy/',
+              ),
+              _buildMlabLink(
+                context,
+                icon: Icons.description_outlined,
+                title: 'Terms of Service',
+                url: 'https://www.measurementlab.net/terms-of-service/',
+              ),
+              _buildMlabLink(
+                context,
+                icon: Icons.info_outline,
+                title: 'About NDT Test',
+                url: 'https://www.measurementlab.net/tests/ndt/',
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Data Collection',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'M-Lab collects network performance data for research purposes. This includes your IP address, test results, and network characteristics. All data is made publicly available to support internet research.',
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMlabLink(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String url,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        onTap: () => launchURLWithWarning(context, url),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Icon(
+                Icons.open_in_new,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

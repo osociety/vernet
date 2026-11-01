@@ -12,8 +12,11 @@ sealed class SpeedTestState with _$SpeedTestState {
     @Default(0.0) double currentUploadSpeed,
     @Default(<double>[]) List<double> downloadSpeeds,
     @Default(<double>[]) List<double> uploadSpeeds,
-    IspInfo? ispInfo,
-    List<Server>? bestServers,
+    List<Ndt7Server>? bestServers,
     String? fetchError,
+    double? latencyMs,
+    double? packetLossPercent,
+    int? retransmissions,
+    String? serverLocation,
   }) = _SpeedTestStateData;
 }

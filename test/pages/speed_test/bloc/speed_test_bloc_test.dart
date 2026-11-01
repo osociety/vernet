@@ -1,9 +1,14 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:speed_test_dart/classes/coordinate.dart';
-import 'package:speed_test_dart/classes/server.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
+import 'package:vernet/services/speedtest/ndt7_service.dart';
+
+class MockNdt7Service implements Ndt7Service {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   group('SpeedTestBloc', () {
@@ -12,7 +17,7 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
       SharedPreferences.setMockInitialValues({});
-      bloc = SpeedTestBloc();
+      bloc = SpeedTestBloc(ndt7Service: MockNdt7Service());
     });
 
     tearDown(() {
@@ -64,20 +69,19 @@ void main() {
       'emits [data] with servers when init with preloadedServers',
       build: () => bloc,
       act: (bloc) => bloc.add(
-        SpeedTestEvent.init(
+        const SpeedTestEvent.init(
           preloadedServers: [
-            Server(
-              1, // id
-              'Test Server', // name
-              'US', // country
-              'Test Sponsor', // sponsor
-              'test.com', // host
-              'http://test.com', // url
-              37.7749, // latitude
-              -122.4194, // longitude
-              5.0, // distance
-              10, // latency
-              Coordinate(37.7749, -122.4194), // geoCoordinate
+            Ndt7Server(
+              machine: 'mlab1.test',
+              site: 'site1',
+              urls: Ndt7ServerUrls(
+                downloadUrl: 'wss://mlab1.test/ndt/v7/download',
+                uploadUrl: 'wss://mlab1.test/ndt/v7/upload',
+              ),
+              location: Ndt7ServerLocation(
+                city: 'NYC',
+                country: 'US',
+              ),
             ),
           ],
         ),

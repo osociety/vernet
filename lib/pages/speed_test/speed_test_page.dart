@@ -3,14 +3,15 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:speed_test_dart/classes/server.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
 
 class SpeedTestPage extends StatefulWidget {
   const SpeedTestPage({super.key, this.preloadedServers});
 
-  final List<Server>? preloadedServers;
+  final List<Ndt7Server>? preloadedServers;
 
   @override
   State<SpeedTestPage> createState() => _SpeedTestPageState();
@@ -191,14 +192,30 @@ class _SpeedTestView extends StatelessWidget {
                       right: horizontalPadding,
                       bottom: horizontalPadding,
                     ),
-                    child: Text(
-                      'Powered by Speedtest by Ookla®',
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: colors.onSurface
-                                    .withValues(alpha: 0.5),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () => _showMlabAttributionDialog(context),
+                          child: Text(
+                            'Powered by Measurement Lab (M-Lab)',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  decoration: TextDecoration.underline,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tap for terms & privacy info',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: colors.onSurface.withValues(alpha: 0.4),
+                                fontSize: 10,
                               ),
-                      textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -249,7 +266,7 @@ class _SpeedTestView extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           hasServers
-                              ? state.bestServers!.first.name
+                              ? state.bestServers!.first.displayName
                               : 'No servers available',
                           style: Theme.of(context)
                               .textTheme
@@ -283,75 +300,39 @@ class _SpeedTestView extends StatelessWidget {
                 children: [
                   const Divider(height: 1),
                   const SizedBox(height: 12),
-                  if (hasServers)
+                  if (state.serverLocation != null)
                     Row(
                       children: [
                         Icon(
-                          Icons.network_ping,
+                          Icons.location_on,
                           size: 16,
                           color: colors.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Latency: ${state.bestServers!.first.latency} ms',
+                          'Server: ${state.serverLocation}',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
                     ),
-                  if (state.ispInfo?.ispName != null) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      'Internet Provider',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colors.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      state.ispInfo!.ispName!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                    if (state.ispInfo!.ispRating != null) ...[
-                      const SizedBox(height: 8),
-                      Semantics(
-                        label:
-                            'Provider rating: ${state.ispInfo!.ispRating!.toStringAsFixed(1)} out of 5',
-                        child: ExcludeSemantics(
-                          child: Row(
-                            children: List.generate(5, (index) {
-                              final rating =
-                                  state.ispInfo!.ispRating!.clamp(0.0, 5.0);
-                              final starValue = rating - index;
-                              final icon = starValue >= 1
-                                  ? Icons.star
-                                  : starValue >= 0.5
-                                      ? Icons.star_half
-                                      : Icons.star_border;
-                              final color = starValue >= 0.5
-                                  ? Colors.amber
-                                  : colors.outlineVariant;
-                              return Icon(icon, size: 16, color: color);
-                            }),
-                          ),
+                  if (state.packetLossPercent != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.signal_wifi_off,
+                          size: 16,
+                          color: state.packetLossPercent! > 5
+                              ? colors.error
+                              : colors.primary,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${state.ispInfo!.ispRating!.toStringAsFixed(1)} out of 5',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Text(
+                          'Packet Loss: ${state.packetLossPercent!.toStringAsFixed(2)}%',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
                   ],
                 ],
               ),
@@ -708,7 +689,7 @@ class _SpeedTestView extends StatelessWidget {
                       colors,
                       Icons.network_ping,
                       'Latency',
-                      state.bestServers?.first.latency ?? 0,
+                      state.latencyMs ?? 0,
                       colors.primary,
                       isWide: isWide,
                       unit: 'ms',
@@ -724,7 +705,7 @@ class _SpeedTestView extends StatelessWidget {
                 colors,
                 Icons.network_ping,
                 'Latency',
-                state.bestServers?.first.latency ?? 0,
+                state.latencyMs ?? 0,
                 colors.primary,
                 isWide: isWide,
                 unit: 'ms',
@@ -796,6 +777,124 @@ class _SpeedTestView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: colors.primary,
           foregroundColor: colors.onPrimary,
+        ),
+      ),
+    );
+  }
+
+  void _showMlabAttributionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Measurement Lab (M-Lab)'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Speed tests are powered by M-Lab\'s NDT7 protocol, providing accurate and standardized internet measurements.',
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'About M-Lab',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Measurement Lab (M-Lab) is a research initiative that provides open internet measurement data. Learn more about their mission and data practices.',
+              ),
+              const SizedBox(height: 16),
+              _buildLinkTile(
+                context,
+                icon: Icons.language,
+                title: 'M-Lab Website',
+                subtitle: 'www.measurementlab.net',
+                url: 'https://www.measurementlab.net/',
+              ),
+              _buildLinkTile(
+                context,
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                subtitle: 'How M-Lab handles your data',
+                url: 'https://www.measurementlab.net/privacy-policy/',
+              ),
+              _buildLinkTile(
+                context,
+                icon: Icons.description_outlined,
+                title: 'Terms of Service',
+                subtitle: 'Usage terms and conditions',
+                url: 'https://www.measurementlab.net/terms-of-service/',
+              ),
+              _buildLinkTile(
+                context,
+                icon: Icons.info_outline,
+                title: 'About NDT Test',
+                subtitle: 'Technical documentation',
+                url: 'https://www.measurementlab.net/tests/ndt/',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLinkTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String url,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () => launchURLWithWarning(context, url),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: [
+              Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.6),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.open_in_new,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ],
+          ),
         ),
       ),
     );
