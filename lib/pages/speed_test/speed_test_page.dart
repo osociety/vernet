@@ -486,19 +486,19 @@ class _SpeedTestView extends StatelessWidget {
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
-        // Show download graph only when download is running or just finished
-        if (state.downloadSpeeds.isNotEmpty && !state.uploadSpeedTestDone)
+        // Show download graph only when download is running (upload not started)
+        if (state.downloadSpeeds.isNotEmpty && !state.downloadSpeedTestDone)
           _createLineChartBar(
             state.downloadSpeeds,
             const Color(0xFF43EA6A),
-            state.uploadSpeeds.length,
+            0,
           ),
-        // Show upload graph only when upload is running
-        if (state.uploadSpeeds.isNotEmpty && state.downloadSpeedTestDone)
+        // Show upload graph only when upload is running (download is done)
+        if (state.uploadSpeeds.isNotEmpty && state.downloadSpeedTestDone && !state.uploadSpeedTestDone)
           _createLineChartBar(
             state.uploadSpeeds,
             const Color(0xFFFFD700),
-            state.downloadSpeeds.length,
+            0,
           ),
       ],
       lineTouchData: LineTouchData(
@@ -524,12 +524,13 @@ class _SpeedTestView extends StatelessWidget {
   }
 
   int _getActiveDataLength(SpeedTestState state) {
-    // Show download length when download is running, upload length when upload is running
-    if (!state.uploadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
-      return state.downloadSpeeds.length;
-    }
-    if (state.downloadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+    // Show upload length when upload is running (download is done)
+    if (state.downloadSpeedTestDone && !state.uploadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
       return state.uploadSpeeds.length;
+    }
+    // Show download length when download is running
+    if (!state.downloadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
+      return state.downloadSpeeds.length;
     }
     // Fallback to the longer dataset
     return state.downloadSpeeds.length > state.uploadSpeeds.length
@@ -538,12 +539,13 @@ class _SpeedTestView extends StatelessWidget {
   }
 
   List<double> _getActiveSpeeds(SpeedTestState state) {
-    // Return speeds for the active test only
-    if (!state.uploadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
-      return state.downloadSpeeds;
-    }
-    if (state.downloadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+    // Show upload speeds when upload is running (download is done)
+    if (state.downloadSpeedTestDone && !state.uploadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
       return state.uploadSpeeds;
+    }
+    // Show download speeds when download is running
+    if (!state.downloadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
+      return state.downloadSpeeds;
     }
     // Fallback to all speeds
     return [...state.downloadSpeeds, ...state.uploadSpeeds];
