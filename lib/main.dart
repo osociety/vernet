@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:speed_test_dart/classes/settings.dart';
 import 'package:speed_test_dart/speed_test_dart.dart';
@@ -39,6 +41,11 @@ Future<void> main() async {
 
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
+
+  if (Platform.isAndroid) {
+    SharedPreferencesAndroid.registerWith();
+  }
+
   try {
     final appDocDirectory = await getApplicationDocumentsDirectory();
     // ARP data is built once and refreshed per scan, so there is no need to
@@ -462,7 +469,7 @@ class _HomePageState extends State<TabBarPage> {
   }
 
   String get _selectedPageTitle => switch (_currentIndex) {
-        0 => 'Home',
+        0 => 'Your network',
         1 => 'Scan your network',
         2 => 'Check a website',
         3 => 'Monitor server',

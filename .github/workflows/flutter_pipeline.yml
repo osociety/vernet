@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write
   pull-requests: read
+  discussions: write
 
 concurrency:
   group: flutter-main-pipeline-${{ github.ref }}
@@ -31,7 +32,7 @@ jobs:
   android-integration-tests:
     name: Android integration tests
     if: github.event_name == 'push'
-    needs: integration-tests
+    needs: unit-tests
     uses: ./.github/workflows/android-integration-test.yml
     secrets: inherit
 
@@ -128,6 +129,7 @@ jobs:
     if: github.event_name == 'push' && github.event.repository.fork != true && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
     needs:
       - detect-deployments
+      - integration-tests
       - android-integration-tests
     runs-on: ubuntu-latest
     environment: release
@@ -147,6 +149,7 @@ jobs:
     if: github.event_name == 'push' && github.event.repository.fork != true && needs.detect-deployments.outputs.release == 'true'
     needs:
       - detect-deployments
+      - integration-tests
       - android-integration-tests
     uses: ./.github/workflows/flutter_release.yml
     with:

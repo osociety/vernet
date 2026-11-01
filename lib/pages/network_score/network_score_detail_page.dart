@@ -313,10 +313,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                 ? 'Critical: Identify unknown devices on your network'
                 : 'Discover devices and assess security',
             color: colors.primary,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HostScanPage()),
-            ),
+            onTap: () => _navigateAndRefresh(context, HostScanPage()),
           ),
         // Health actions
         if (currentScore.health.value < 100)
@@ -334,10 +331,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
             title: 'Monitor Servers',
             subtitle: _getReliabilityActionSubtitle(currentScore.reliability),
             color: colors.secondary,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ServerCheckerPage()),
-            ),
+            onTap: () => _navigateAndRefresh(context, const ServerCheckerPage()),
           ),
           _QuickAddMonitorsSection(
             onAddMonitor: (monitor) => _quickAddMonitor(context, monitor),
@@ -361,10 +355,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
             title: 'Review Security',
             subtitle: 'Address vulnerabilities to improve score',
             color: colors.error,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HostScanPage()),
-            ),
+            onTap: () => _navigateAndRefresh(context, HostScanPage()),
           ),
       ],
     );
@@ -449,19 +440,21 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
   }
 
   Future<void> _runSpeedTest(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SpeedTestPage(),
-      ),
-    );
-    if (mounted) {
-      context.read<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
-    }
+    await _navigateAndRefresh(context, const SpeedTestPage());
   }
 
   void _refreshScore(BuildContext context) {
     context.read<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
+  }
+
+  Future<void> _navigateAndRefresh(BuildContext context, Widget page) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+    if (mounted) {
+      _refreshScore(context);
+    }
   }
 
   Widget _buildStalenessWarning(
