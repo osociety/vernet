@@ -75,11 +75,11 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
-    final downloadResult = await _runDownloadTest(
+    final downloadResult = await runDownloadTest(
       server,
       onProgress: onProgress,
     );
-    final uploadResult = await _runUploadTest(
+    final uploadResult = await runUploadTest(
       server,
       onProgress: onProgress,
     );
@@ -96,7 +96,8 @@ class Ndt7Service {
     );
   }
 
-  Future<_Ndt7Measurement> _runDownloadTest(
+  /// Runs download test only.
+  Future<Ndt7Measurement> runDownloadTest(
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
@@ -110,7 +111,8 @@ class Ndt7Service {
     }
   }
 
-  Future<_Ndt7Measurement> _runUploadTest(
+  /// Runs upload test only.
+  Future<Ndt7Measurement> runUploadTest(
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
@@ -135,7 +137,7 @@ class Ndt7Service {
     }
   }
 
-  Future<_Ndt7Measurement> _measureDownload(
+  Future<Ndt7Measurement> _measureDownload(
     WebSocket ws, {
     void Function(Ndt7Progress)? onProgress,
   }) {
@@ -145,7 +147,7 @@ class Ndt7Service {
     int? retransmissions;
     final throughputSamples = <double>[];
 
-    final completer = Completer<_Ndt7Measurement>();
+    final completer = Completer<Ndt7Measurement>();
     Timer? timeoutTimer;
 
     timeoutTimer = Timer(_downloadTestDuration, () {
@@ -154,7 +156,7 @@ class Ndt7Service {
             ? 0.0
             : throughputSamples.reduce((a, b) => a + b) /
                 throughputSamples.length;
-        completer.complete(_Ndt7Measurement(
+        completer.complete(Ndt7Measurement(
           throughputMbps: avgThroughput,
           minRTT: minRTT,
           retransmissions: retransmissions,
@@ -198,7 +200,7 @@ class Ndt7Service {
         if (!completer.isCompleted) {
           final elapsed = DateTime.now().difference(startTime);
           final throughputMbps = _calculateThroughput(totalBytes, elapsed);
-          completer.complete(_Ndt7Measurement(
+          completer.complete(Ndt7Measurement(
             throughputMbps: throughputMbps,
             minRTT: minRTT,
             retransmissions: retransmissions,
@@ -210,7 +212,7 @@ class Ndt7Service {
     return completer.future;
   }
 
-  Future<_Ndt7Measurement> _measureUpload(
+  Future<Ndt7Measurement> _measureUpload(
     WebSocket ws, {
     void Function(Ndt7Progress)? onProgress,
   }) {
@@ -220,7 +222,7 @@ class Ndt7Service {
     int? retransmissions;
     final throughputSamples = <double>[];
 
-    final completer = Completer<_Ndt7Measurement>();
+    final completer = Completer<Ndt7Measurement>();
     Timer? timeoutTimer;
     Timer? sendTimer;
 
@@ -231,7 +233,7 @@ class Ndt7Service {
             ? 0.0
             : throughputSamples.reduce((a, b) => a + b) /
                 throughputSamples.length;
-        completer.complete(_Ndt7Measurement(
+        completer.complete(Ndt7Measurement(
           throughputMbps: avgThroughput,
           minRTT: minRTT,
           retransmissions: retransmissions,
@@ -293,14 +295,14 @@ class Ndt7Service {
     return completer.future;
   }
 
-  _Ndt7Measurement? _parseNdt7Message(String message) {
+  Ndt7Measurement? _parseNdt7Message(String message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
       
       // Try TCPInfo first (contains MinRTT, RTT, retransmissions)
       final tcpInfo = data['TCPInfo'] as Map<String, dynamic>?;
       if (tcpInfo != null) {
-        return _Ndt7Measurement(
+        return Ndt7Measurement(
           minRTT: tcpInfo['MinRTT'] != null
               ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0 // Convert from microseconds to milliseconds
               : null,
@@ -312,7 +314,7 @@ class Ndt7Service {
       final appInfo = data['AppInfo'] as Map<String, dynamic>?;
       if (appInfo == null) return null;
 
-      return _Ndt7Measurement(
+      return Ndt7Measurement(
         throughputMbps: appInfo['ThroughputValue'] != null
             ? (appInfo['ThroughputValue'] as num).toDouble()
             : null,
@@ -347,8 +349,8 @@ Future<WebSocket> _defaultWebSocketFactory(
   return WebSocket.connect(url, protocols: protocols);
 }
 
-class _Ndt7Measurement {
-  const _Ndt7Measurement({
+class Ndt7Measurement {
+  const Ndt7Measurement({
     this.throughputMbps,
     this.minRTT,
     this.retransmissions,

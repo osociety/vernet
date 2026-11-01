@@ -10,6 +10,7 @@ class Ndt7Server {
     required this.site,
     required this.urls,
     this.location,
+    this.ttl,
   });
 
   factory Ndt7Server.fromJson(Map<String, dynamic> json) {
@@ -21,6 +22,7 @@ class Ndt7Server {
       location: json['location'] != null
           ? Ndt7ServerLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
+      ttl: json['ttl'] as int?,
     );
   }
 
@@ -28,6 +30,7 @@ class Ndt7Server {
   final String site;
   final Ndt7ServerUrls urls;
   final Ndt7ServerLocation? location;
+  final int? ttl;
 
   String get displayName => location?.city ?? site;
   String get displayCountry => location?.country ?? '';

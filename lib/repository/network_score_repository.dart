@@ -76,6 +76,9 @@ class SpeedSnapshot {
     this.retransmissions,
     this.serverLocation,
     this.testProvider,
+    this.timestamp,
+    this.ttlSeconds,
+    this.fetchedAt,
   });
 
   factory SpeedSnapshot.fromJson(Map<String, dynamic> json) => SpeedSnapshot(
@@ -86,6 +89,13 @@ class SpeedSnapshot {
         retransmissions: json['retransmissions'] as int?,
         serverLocation: json['serverLocation'] as String?,
         testProvider: json['testProvider'] as String?,
+        timestamp: json['timestamp'] != null
+            ? DateTime.parse(json['timestamp'] as String)
+            : null,
+        ttlSeconds: json['ttlSeconds'] as int?,
+        fetchedAt: json['fetchedAt'] != null
+            ? DateTime.parse(json['fetchedAt'] as String)
+            : null,
       );
 
   final double downloadMbps;
@@ -95,6 +105,9 @@ class SpeedSnapshot {
   final int? retransmissions;
   final String? serverLocation;
   final String? testProvider;
+  final DateTime? timestamp;
+  final int? ttlSeconds;
+  final DateTime? fetchedAt;
 
   Map<String, Object?> toJson() => {
         'downloadMbps': downloadMbps,
@@ -104,6 +117,9 @@ class SpeedSnapshot {
         'retransmissions': retransmissions,
         'serverLocation': serverLocation,
         'testProvider': testProvider,
+        'timestamp': timestamp?.toIso8601String(),
+        'ttlSeconds': ttlSeconds,
+        'fetchedAt': fetchedAt?.toIso8601String(),
       };
 }
 

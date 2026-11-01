@@ -60,6 +60,17 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
             _autoStarted = true;
             _bloc.add(const SpeedTestEvent.startTest());
           }
+          
+          // Show error message if test fails
+          if (state.fetchError != null && !state.speedTestStarted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.fetchError!),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
         },
         child: const _SpeedTestView(),
       ),
@@ -152,22 +163,17 @@ class _SpeedTestView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone &&
-                                  !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
                             _buildSpeedGraph(context, state,
                                 colors: colors, height: graphHeight),
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone &&
-                                  !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
                             SizedBox(height: spacing),
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone &&
-                                  !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
                             _buildResults(context, state,
                                 colors: colors, isWide: isWide),
-                          if (state.downloadSpeedTestDone &&
-                              state.uploadSpeedTestDone &&
-                              !state.speedTestStarted) ...[
+                          if (state.showSummary) ...[
                             SizedBox(height: spacing),
                             _buildSummary(context, state,
                                 colors: colors, isWide: isWide),
@@ -443,6 +449,7 @@ class _SpeedTestView extends StatelessWidget {
     final roundedMaxY = (maxY / 25).ceil() * 25.0;
 
     return LineChartData(
+      clipData: const FlClipData.all(),
       gridData: FlGridData(
         drawVerticalLine: false,
         horizontalInterval: roundedMaxY / 4,
@@ -482,7 +489,7 @@ class _SpeedTestView extends StatelessWidget {
         border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
       ),
       minX: 0,
-      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 1.0,
+      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 2.0,
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
@@ -790,10 +797,9 @@ class _SpeedTestView extends StatelessWidget {
   Widget _buildActionButton(
       BuildContext context, SpeedTestState state, {required ColorScheme colors}) {
     final hasServers = state.bestServers != null && state.bestServers!.isNotEmpty;
-    final isTestComplete = state.downloadSpeedTestDone && state.uploadSpeedTestDone && !state.speedTestStarted;
 
     // Only show button after test completes (for "Test Again")
-    if (!isTestComplete) {
+    if (!state.showSummary) {
       return const SizedBox.shrink();
     }
 

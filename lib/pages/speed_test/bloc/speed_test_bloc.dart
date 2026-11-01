@@ -54,10 +54,12 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
     final server = state.bestServers!.first;
 
+    // Reset state completely before starting
     emit(state.copyWith(
       speedTestStarted: true,
       downloadSpeedTestDone: false,
       uploadSpeedTestDone: false,
+      showSummary: false,
       downloadSpeeds: [],
       uploadSpeeds: [],
       currentDownloadSpeed: 0,
@@ -67,18 +69,28 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       retransmissions: null,
       serverLocation: null,
       fetchError: null,
+      isServerInfoExpanded: false,
     ));
 
     try {
       final result = await _runNdt7Test(server, emit);
       await _saveSpeedSnapshot(emit, result);
-    } catch (e) {
-      emit(state.copyWith(fetchError: 'Speed test failed: $e'));
-    } finally {
+      
+      // Wait a few seconds before showing summary
+      await Future.delayed(const Duration(seconds: 2));
+      
       emit(state.copyWith(
         speedTestStarted: false,
+        showSummary: true,
         isServerInfoExpanded: true,
       ));
+    } catch (e) {
+      emit(state.copyWith(
+        fetchError: 'Speed test failed: $e',
+        speedTestStarted: false,
+        showSummary: false,
+      ));
+      return;
     }
   }
 
@@ -146,50 +158,81 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     Ndt7Server server,
     Emitter<SpeedTestState> emit,
   ) async {
+    // Run download test
     emit(state.copyWith(
       currentDownloadSpeed: 0,
       downloadSpeeds: [0],
     ));
 
-    final result = await _ndt7Service.runTest(
+    final downloadResult = await _ndt7Service.runDownloadTest(
       server,
       onProgress: (progress) {
-        if (progress.isDownload) {
-          final speeds = List<double>.from(state.downloadSpeeds)..add(progress.speed);
-          emit(state.copyWith(
-            currentDownloadSpeed: progress.speed,
-            downloadSpeeds: speeds,
-          ));
-        } else {
-          final speeds = List<double>.from(state.uploadSpeeds)..add(progress.speed);
-          emit(state.copyWith(
-            currentUploadSpeed: progress.speed,
-            uploadSpeeds: speeds,
-          ));
-        }
+        final speeds = List<double>.from(state.downloadSpeeds)..add(progress.speed);
+        emit(state.copyWith(
+          currentDownloadSpeed: progress.speed,
+          downloadSpeeds: speeds,
+        ));
       },
     );
 
+    // Mark download as complete
     emit(state.copyWith(
-      currentDownloadSpeed: result.downloadMbps,
+      currentDownloadSpeed: downloadResult.throughputMbps ?? 0,
       downloadSpeedTestDone: true,
-      currentUploadSpeed: result.uploadMbps,
+    ));
+
+    // Brief pause before upload
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Run upload test
+    emit(state.copyWith(
+      currentUploadSpeed: 0,
+      uploadSpeeds: [0],
+    ));
+
+    final uploadResult = await _ndt7Service.runUploadTest(
+      server,
+      onProgress: (progress) {
+        final speeds = List<double>.from(state.uploadSpeeds)..add(progress.speed);
+        emit(state.copyWith(
+          currentUploadSpeed: progress.speed,
+          uploadSpeeds: speeds,
+        ));
+      },
+    );
+
+    // Mark upload as complete
+    emit(state.copyWith(
+      currentUploadSpeed: uploadResult.throughputMbps ?? 0,
       uploadSpeedTestDone: true,
-      latencyMs: result.latencyMs,
-      packetLossPercent: result.packetLossPercent,
-      retransmissions: result.retransmissions,
+      latencyMs: downloadResult.minRTT ?? uploadResult.minRTT ?? 0,
+      packetLossPercent: null,
+      retransmissions: downloadResult.retransmissions ?? uploadResult.retransmissions,
       serverLocation: server.location != null
           ? '${server.location!.city ?? ''}, ${server.location!.country ?? ''}'
           : server.site,
     ));
 
-    return result;
+    return Ndt7TestResult(
+      downloadMbps: downloadResult.throughputMbps ?? 0,
+      uploadMbps: uploadResult.throughputMbps ?? 0,
+      latencyMs: downloadResult.minRTT ?? uploadResult.minRTT ?? 0,
+      server: server,
+      minRTT: downloadResult.minRTT ?? uploadResult.minRTT,
+      retransmissions: downloadResult.retransmissions ?? uploadResult.retransmissions,
+      timestamp: DateTime.now(),
+    );
   }
 
   Future<void> _saveSpeedSnapshot(
     Emitter<SpeedTestState> emit,
     Ndt7TestResult result,
   ) async {
+    final server = state.bestServers?.firstWhere(
+      (s) => s.machine == result.server.machine,
+      orElse: () => result.server,
+    );
+    
     await NetworkScoreRepository().saveSpeedSnapshot(SpeedSnapshot(
       downloadMbps: result.downloadMbps,
       uploadMbps: result.uploadMbps,
@@ -198,6 +241,9 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       retransmissions: result.retransmissions,
       serverLocation: result.server.location?.city,
       testProvider: 'mlab',
+      timestamp: DateTime.now(),
+      ttlSeconds: server?.ttl,
+      fetchedAt: DateTime.now(),
     ));
 
     getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());

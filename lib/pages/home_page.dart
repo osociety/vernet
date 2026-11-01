@@ -456,83 +456,115 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                   ),
                   if (hasData)
-                    _StatusPill(
-                      label: 'LAST RESULT',
-                      color: colors.onSurfaceVariant,
+                    Text(
+                      speedData.timestamp != null
+                          ? _formatTimestamp(speedData.timestamp)
+                          : 'Last result',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
                     ),
                 ],
               ),
               const SizedBox(height: 14),
               if (hasData) ...[
+                // Download speed
                 Row(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Download',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${speedData.downloadMbps.toStringAsFixed(1)} Mbps',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.primary,
-                                ),
-                          ),
-                        ],
-                      ),
+                    Icon(
+                      Icons.download,
+                      size: 20,
+                      color: colors.primary,
                     ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Upload',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Download',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${speedData.uploadMbps.toStringAsFixed(1)} Mbps',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.tertiary,
-                                ),
-                          ),
-                        ],
-                      ),
                     ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Latency',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
+                    const Spacer(),
+                    Text(
+                      '${speedData.downloadMbps.toStringAsFixed(1)} Mbps',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colors.primary,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${speedData.latencyMs.toStringAsFixed(0)} ms',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  color: colors.secondary,
-                                ),
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                const SizedBox(height: 20),
+                // Upload speed
+                Row(
+                  children: [
+                    Icon(
+                      Icons.upload,
+                      size: 20,
+                      color: colors.tertiary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Upload',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${speedData.uploadMbps.toStringAsFixed(1)} Mbps',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colors.tertiary,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Latency with color coding
+                Row(
+                  children: [
+                    Icon(
+                      Icons.network_ping,
+                      size: 20,
+                      color: _getLatencyColor(speedData.latencyMs, colors),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Latency',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${speedData.latencyMs.toStringAsFixed(0)} ms',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: _getLatencyColor(speedData.latencyMs, colors),
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // M-Lab attribution
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 14,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Powered by M-Lab',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
               ] else
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -568,6 +600,20 @@ class _WifiDetailState extends State<HomePage> {
         );
       },
     );
+  }
+
+  Color _getLatencyColor(double latencyMs, ColorScheme colors) {
+    if (latencyMs < 20) {
+      return const Color(0xFF4CAF50); // Green - excellent
+    } else if (latencyMs < 50) {
+      return const Color(0xFF8BC34A); // Light green - good
+    } else if (latencyMs < 100) {
+      return const Color(0xFFFFC107); // Yellow/amber - fair
+    } else if (latencyMs < 200) {
+      return const Color(0xFFFF9800); // Orange - poor
+    } else {
+      return const Color(0xFFF44336); // Red - very poor
+    }
   }
 
   Widget _buildConnectionPath(
