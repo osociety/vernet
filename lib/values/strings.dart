@@ -81,4 +81,11 @@ class StringValue {
   static const String deviceDetailPageTitle = 'Device details';
   static const String signalStrength = 'Signal Strength';
   static const String signalStrengthUnit = 'dBm';
+
+  static const String networkScoreTitle = 'Network Score';
+  static const String networkScoreSecurity = 'Security';
+  static const String networkScoreHealth = 'Health';
+  static const String networkScoreReliability = 'Reliability';
+  static const String networkScoreSpeed = 'Speed';
+  static const String networkScoreVulnerabilities = 'Vulnerabilities';
 }

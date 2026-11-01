@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/models/server_monitor.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 
@@ -56,6 +58,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     );
     if (monitor == null) return;
     await _service.saveMonitor(monitor);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
     if (!mounted) return;
     setState(() => _monitors = [..._monitors, monitor]);
     _start(monitor);
@@ -70,6 +73,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     final wasRunning = _running.contains(monitor.id);
     _stop(monitor.id);
     await _service.saveMonitor(updated);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
     if (!mounted) return;
     setState(() {
       _monitors = _monitors
@@ -86,6 +90,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     _subscriptions[monitor.id] =
         _service.monitor(monitor).listen((result) async {
       await _service.recordResult(monitor.id, result);
+      getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
       if (previous?.isUp != false && !result.isUp) {
         await _onServerDown(monitor.name);
       }
@@ -112,6 +117,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
   Future<void> _delete(ServerMonitor monitor) async {
     _stop(monitor.id);
     await _service.deleteMonitor(monitor.id);
+    getIt<NetworkScoreBloc>().add(const NetworkScoreEvent.refresh());
     if (!mounted) return;
     setState(() {
       _monitors.removeWhere((item) => item.id == monitor.id);

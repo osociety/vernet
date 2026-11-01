@@ -37,6 +37,8 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
   flutter_timezone: ^5.1.1
+  # Beautiful, interactive charts for Flutter. Lightweight and customizable.
+  fl_chart: ^0.69.0
   # Annotations for freezed
   freezed_annotation: ^3.1.0
   # Service locator
@@ -92,6 +94,8 @@ dependencies:
 dev_dependencies:
   # A build system for Dart code generation and modular compilation.
   build_runner: ^2.4.9
+  # Testing utilities for BLoC pattern
+  bloc_test: ^9.1.0
 
   drift_dev: ^2.35.2
   flutter_test:
