@@ -18,6 +18,7 @@ on:
     
 permissions:
   contents: write
+  discussions: write
 
 env:
   ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
@@ -78,6 +79,7 @@ jobs:
     needs: create-tag
     permissions:
       contents: write
+      discussions: write
     env:
       RELEASE_TAG: ${{ inputs.tag_name || github.event.release.tag_name || github.ref_name }}
     steps:
@@ -105,6 +107,42 @@ jobs:
               --title "Vernet ${RELEASE_TAG}" \
               --notes-file "$changelog"
           fi
+
+      - name: Create release discussion
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ env.RELEASE_TAG }}
+        run: |
+          set -euo pipefail
+          build_number="$(sed -nE 's/^version: [0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/\1/p' pubspec.yaml)"
+          changelog="android/fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
+
+          discussion_title="Vernet ${RELEASE_TAG}"
+
+          match_count="$(gh api graphql \
+            -f query='query($q: String!) { search(query: $q, type: DISCUSSION, first: 1) { nodeCount } }' \
+            -f q="repo:osociety/vernet is:discussion in:title \"${discussion_title}\"" \
+            --jq '.data.search.nodeCount' 2>/dev/null || echo 0)"
+
+          if [[ "$match_count" -gt 0 ]]; then
+            echo "Discussion already exists for ${RELEASE_TAG}, skipping."
+            exit 0
+          fi
+
+          changelog_body="$(cat "$changelog")"
+          release_url="https://github.com/osociety/vernet/releases/tag/${RELEASE_TAG}"
+          body="## What's new in ${RELEASE_TAG}
+
+${changelog_body}
+
+Download from the [release page](${release_url})."
+
+          gh api graphql \
+            -f query='mutation($repo: ID!, $category: ID!, $title: String!, $body: String!) { createDiscussion(input: {repositoryId: $repo, categoryId: $category, title: $title, body: $body}) { discussion { url } } }' \
+            -f repo=MDEwOlJlcG9zaXRvcnkzNzQxNTk4MjM= \
+            -f category=DIC_kwDOFk05z84CSZCI \
+            -f title="$discussion_title" \
+            -f body="$body"
 
   release-android: 
     runs-on: ubuntu-latest
