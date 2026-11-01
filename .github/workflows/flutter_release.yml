@@ -131,11 +131,7 @@ jobs:
 
           changelog_body="$(cat "$changelog")"
           release_url="https://github.com/osociety/vernet/releases/tag/${RELEASE_TAG}"
-          body="## What's new in ${RELEASE_TAG}
-
-${changelog_body}
-
-Download from the [release page](${release_url})."
+          body="## What's new in ${RELEASE_TAG}\n\n${changelog_body}\n\nDownload from the [release page](${release_url})."
 
           gh api graphql \
             -f query='mutation($repo: ID!, $category: ID!, $title: String!, $body: String!) { createDiscussion(input: {repositoryId: $repo, categoryId: $category, title: $title, body: $body}) { discussion { url } } }' \
