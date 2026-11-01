@@ -432,6 +432,16 @@ class _HomePageState extends State<TabBarPage> {
                     icon: const Icon(Icons.menu),
                     onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                   ),
+                  actions: _currentIndex == 0
+                      ? [
+                          IconButton(
+                            tooltip: 'Refresh network information',
+                            onPressed: () =>
+                                HomePage.globalKey.currentState?.refreshDashboard(),
+                            icon: const Icon(Icons.refresh),
+                          ),
+                        ]
+                      : null,
                 )
               : null,
           drawer: isCompact
@@ -462,7 +472,7 @@ class _HomePageState extends State<TabBarPage> {
   }
 
   String get _selectedPageTitle => switch (_currentIndex) {
-        0 => 'Home',
+        0 => 'Your network',
         1 => 'Scan your network',
         2 => 'Check a website',
         3 => 'Monitor server',
@@ -477,7 +487,7 @@ class _HomePageState extends State<TabBarPage> {
       };
 
   Widget get _selectedPage => switch (_currentIndex) {
-        0 => const HomePage(),
+        0 => HomePage(),
         1 => HostScanPage(),
         2 => const PingPage(),
         3 => const ServerCheckerPage(),
