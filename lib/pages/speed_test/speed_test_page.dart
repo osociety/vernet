@@ -397,7 +397,7 @@ class _SpeedTestView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '${state.currentDownloadSpeed.toStringAsFixed(1)} Mbps',
+                      '${(state.downloadSpeedTestDone && !state.uploadSpeedTestDone ? state.currentUploadSpeed : state.currentDownloadSpeed).toStringAsFixed(1)} Mbps',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: colors.onPrimaryContainer,
