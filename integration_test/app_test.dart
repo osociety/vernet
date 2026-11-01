@@ -20,6 +20,7 @@ import 'scan_report/scan_report.dart' as scan_report_test;
 import 'server_checker/server_checker_test.dart' as server_checker_test;
 import 'settings/settings.dart' as settings_test;
 import 'settings/test_utils.dart';
+import 'speed_test/speed_test.dart' as speed_test_test;
 import 'test_port.dart';
 import 'wake_on_lan/wake_on_lan_test.dart' as wake_on_lan_test;
 import 'wifi_test/wifi_test_runner.dart' as wifi_test_runner;
@@ -61,6 +62,7 @@ void main() {
   server_checker_test.main();
   device_detail_test.main();
   scan_report_test.main();
+  speed_test_test.main();
 
   tearDownAll(() {
     server.close();
