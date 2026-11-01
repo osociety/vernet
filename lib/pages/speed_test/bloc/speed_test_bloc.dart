@@ -13,8 +13,8 @@ part 'speed_test_bloc.freezed.dart';
 
 @singleton
 class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
-  SpeedTestBloc({Ndt7Service? ndt7Service})
-      : _ndt7Service = ndt7Service ?? getIt<Ndt7Service>(),
+  SpeedTestBloc({required Ndt7Service ndt7Service})
+      : _ndt7Service = ndt7Service,
         super(const SpeedTestState.data()) {
     on<_Init>(_onInit);
     on<_LoadServers>(_onLoadServers);
