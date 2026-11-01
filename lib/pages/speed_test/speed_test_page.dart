@@ -494,11 +494,13 @@ class _SpeedTestView extends StatelessWidget {
           _createLineChartBar(
             state.downloadSpeeds,
             const Color(0xFF43EA6A),
+            state.uploadSpeeds.length,
           ),
         if (state.uploadSpeeds.isNotEmpty)
           _createLineChartBar(
             state.uploadSpeeds,
             const Color(0xFFFFD700),
+            state.downloadSpeeds.length,
           ),
       ],
       lineTouchData: LineTouchData(
@@ -523,11 +525,20 @@ class _SpeedTestView extends StatelessWidget {
     );
   }
 
-  LineChartBarData _createLineChartBar(List<double> speeds, Color color) {
+  LineChartBarData _createLineChartBar(List<double> speeds, Color color, int otherLength) {
+    final paddedSpeeds = List<double>.from(speeds);
+    // Pad with last value to match the other dataset's length
+    if (paddedSpeeds.length < otherLength && paddedSpeeds.isNotEmpty) {
+      final lastValue = paddedSpeeds.last;
+      while (paddedSpeeds.length < otherLength) {
+        paddedSpeeds.add(lastValue);
+      }
+    }
+    
     return LineChartBarData(
       spots: List.generate(
-        speeds.length,
-        (i) => FlSpot(i.toDouble(), speeds[i]),
+        paddedSpeeds.length,
+        (i) => FlSpot(i.toDouble(), paddedSpeeds[i]),
       ),
       isCurved: true,
       color: color,
