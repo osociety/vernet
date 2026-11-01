@@ -281,14 +281,25 @@ void main() {
         find,
       );
 
+      // Dismiss keyboard on Android so the button is tappable
+      await tester.tap(find.byKey(WidgetKey.wakeOnLanMacField.key));
+      await tester.pumpAndSettle();
+
+      // Scroll to and tap the send button
+      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSendButton.key));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSendButton.key));
 
-      // Wait for the async send to finish (real UDP on macOS is fast)
+      // Wait for the async send to finish
       await TestUtils.waitForAnyWidget(
         tester,
         find.byKey(WidgetKey.wakeOnLanStatusText.key),
-        timeout: const Duration(seconds: 10),
+        timeout: const Duration(seconds: 15),
       );
+
+      // Scroll to status text in case it's below the fold
+      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanStatusText.key));
+      await tester.pumpAndSettle();
 
       final statusText = tester
           .widget<Text>(find.byKey(WidgetKey.wakeOnLanStatusText.key))
@@ -396,12 +407,20 @@ void main() {
         find,
       );
 
+      // Scroll to and tap the save button
+      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
+      await tester.pumpAndSettle();
+
+      // Scroll to the saved tile in case it's below the fold on Android
+      final savedLabel = _savedDeviceLabel('Gaming Rig');
+      await tester.ensureVisible(savedLabel);
       await tester.pumpAndSettle();
 
       // The label is also present in the editable form field, so target the
       // saved tile's Text widget specifically.
-      expect(_savedDeviceLabel('Gaming Rig'), findsOneWidget);
+      expect(savedLabel, findsOneWidget);
       // Placeholder should now be gone
       expect(find.text(StringValue.wakeOnLanEmptyPlaceholder), findsNothing);
     });
@@ -503,6 +522,8 @@ void main() {
         tester,
         find,
       );
+      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
 
@@ -513,11 +534,18 @@ void main() {
         tester,
         find,
       );
+      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
 
+      // Scroll to the saved tile in case it's below the fold on Android
+      final secondLabel = _savedDeviceLabel('Second Label');
+      await tester.ensureVisible(secondLabel);
+      await tester.pumpAndSettle();
+
       // Only one tile for this MAC should exist
-      expect(_savedDeviceLabel('Second Label'), findsOneWidget);
+      expect(secondLabel, findsOneWidget);
       expect(_savedDeviceLabel('First Label'), findsNothing);
     });
 
