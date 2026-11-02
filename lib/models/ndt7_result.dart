@@ -130,14 +130,6 @@ class Ndt7TestResult {
   final int? retransmissions;
   final DateTime? timestamp;
 
-  /// Packet loss percentage (estimated from retransmissions if available).
-  double? get packetLossPercent {
-    if (retransmissions == null) return null;
-    // Rough estimate: retransmissions as percentage of total packets
-    // NDT7 doesn't directly report packet loss, so we estimate from retransmissions
-    return (retransmissions! / 1000).clamp(0.0, 100.0);
-  }
-
   Map<String, dynamic> toJson() => {
         'downloadMbps': downloadMbps,
         'uploadMbps': uploadMbps,

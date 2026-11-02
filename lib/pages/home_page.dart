@@ -894,44 +894,57 @@ class _WifiDetailState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 if (!isMobileLayout)
-                                  Column(
+                                  Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'NETWORK OVERVIEW',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelMedium
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              letterSpacing: 1.4,
-                                              fontWeight: FontWeight.w700,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'NETWORK OVERVIEW',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    letterSpacing: 1.4,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
                                             ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Your network',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleLarge
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'A live view of your Wi-Fi and internet connection.',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium
+                                                  ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        'Your network',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'A live view of your Wi-Fi and internet connection.',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurfaceVariant,
-                                            ),
+                                      IconButton(
+                                        onPressed: _refreshDashboard,
+                                        icon: const Icon(Icons.refresh),
+                                        tooltip: 'Refresh dashboard',
                                       ),
                                     ],
                                   ),

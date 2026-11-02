@@ -21,6 +21,7 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
   late final SpeedTestBloc _bloc;
   bool _initialized = false;
   bool _autoStarted = false;
+  String? _lastShownError;
 
   @override
   void initState() {
@@ -61,8 +62,11 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
             _bloc.add(const SpeedTestEvent.startTest());
           }
 
-          // Show error message if test fails
-          if (state.fetchError != null && !state.speedTestStarted) {
+          // Show error message only when it changes
+          if (state.fetchError != null &&
+              state.fetchError != _lastShownError &&
+              !state.speedTestStarted) {
+            _lastShownError = state.fetchError;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.fetchError!),
@@ -162,25 +166,21 @@ class _SpeedTestView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone ||
-                                  !state.uploadSpeedTestDone))
+                          if ((state.downloadSpeeds.isNotEmpty ||
+                                  state.uploadSpeeds.isNotEmpty) &&
+                              !state.showSummary)
                             _buildSpeedGraph(context, state,
                                 colors: colors, height: graphHeight),
-                          if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone ||
-                                  !state.uploadSpeedTestDone))
+                          if ((state.downloadSpeeds.isNotEmpty ||
+                                  state.uploadSpeeds.isNotEmpty) &&
+                              !state.showSummary)
                             SizedBox(height: spacing),
-                          if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone ||
-                                  !state.uploadSpeedTestDone))
+                          if (!state.showSummary)
                             _buildResults(context, state,
                                 colors: colors, isWide: isWide),
-                          if (state.showSummary) ...[
-                            SizedBox(height: spacing),
+                          if (state.showSummary)
                             _buildSummary(context, state,
                                 colors: colors, isWide: isWide),
-                          ],
                           SizedBox(height: spacing),
                           _buildServerInfo(context, state,
                               colors: colors, isWide: isWide),
@@ -686,129 +686,299 @@ class _SpeedTestView extends StatelessWidget {
 
   Widget _buildSummary(BuildContext context, SpeedTestState state,
       {required ColorScheme colors, required bool isWide}) {
+    final downloadSpeed = state.currentDownloadSpeed;
+    final uploadSpeed = state.currentUploadSpeed;
+    final latency = state.latencyMs;
+    final rating = _getSpeedRating(downloadSpeed);
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 450),
+      duration: const Duration(milliseconds: 600),
       curve: Curves.easeOutCubic,
       builder: (context, t, child) => Opacity(
         opacity: t,
         child: Transform.translate(
-          offset: Offset(0, 24 * (1 - t)),
+          offset: Offset(0, 30 * (1 - t)),
           child: child,
         ),
       ),
-      child: Card(
-        child: Padding(
-          padding: EdgeInsets.all(isWide ? 24.0 : 16.0),
-          child: Column(
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: colors.primary,
-                size: isWide ? 64 : 48,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Test Complete',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSummaryItem(
-                      context,
-                      colors,
-                      Icons.download,
-                      'Download',
-                      state.currentDownloadSpeed,
-                      const Color(0xFF43EA6A),
-                      isWide: isWide,
-                    ),
-                  ),
-                  SizedBox(width: isWide ? 24 : 16),
-                  Expanded(
-                    child: _buildSummaryItem(
-                      context,
-                      colors,
-                      Icons.upload,
-                      'Upload',
-                      state.currentUploadSpeed,
-                      const Color(0xFFFFD700),
-                      isWide: isWide,
-                    ),
-                  ),
-                  if (isWide) ...[
-                    SizedBox(width: isWide ? 24 : 16),
-                    Expanded(
-                      child: _buildSummaryItem(
-                        context,
-                        colors,
-                        Icons.network_ping,
-                        'Latency',
-                        state.latencyMs ?? 0,
-                        colors.primary,
-                        isWide: isWide,
-                        unit: 'ms',
-                      ),
-                    ),
-                  ],
+      child: Column(
+        children: [
+          // Hero speed card
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colors.primaryContainer,
+                  colors.primaryContainer.withValues(alpha: 0.7),
                 ],
               ),
-              if (!isWide) ...[
-                const SizedBox(height: 16),
-                _buildSummaryItem(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isWide ? 40.0 : 24.0,
+                vertical: isWide ? 32.0 : 28.0,
+              ),
+              child: Column(
+                children: [
+                  // Speed rating badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: rating.color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(rating.icon, size: 16, color: rating.color),
+                        const SizedBox(width: 6),
+                        Text(
+                          rating.label,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: rating.color,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Animated download speed
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: downloadSpeed),
+                    duration: const Duration(milliseconds: 1200),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, _) => Column(
+                      children: [
+                        Text(
+                          value.toStringAsFixed(1),
+                          style:
+                              Theme.of(context).textTheme.displayLarge?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: colors.onPrimaryContainer,
+                                    height: 1.0,
+                                  ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Mbps Download',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
+                                color: colors.onPrimaryContainer
+                                    .withValues(alpha: 0.7),
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Gauge arc
+                  CustomPaint(
+                    size: Size(isWide ? 280 : 220, isWide ? 140 : 110),
+                    painter: _SpeedGaugePainter(
+                      progress: (downloadSpeed / 500).clamp(0.0, 1.0),
+                      color: colors.primary,
+                      strokeWidth: isWide ? 10 : 8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Upload & Latency row
+          Row(
+            children: [
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  colors,
+                  Icons.arrow_upward,
+                  'Upload',
+                  uploadSpeed,
+                  'Mbps',
+                  const Color(0xFFFFD700),
+                  isWide: isWide,
+                ),
+              ),
+              SizedBox(width: isWide ? 16 : 12),
+              Expanded(
+                child: _buildMetricCard(
                   context,
                   colors,
                   Icons.network_ping,
                   'Latency',
-                  state.latencyMs ?? 0,
-                  colors.primary,
+                  latency,
+                  'ms',
+                  _getLatencyColor(latency ?? 999, colors),
                   isWide: isWide,
-                  unit: 'ms',
                 ),
-              ],
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 16),
+          // What you can do
+          _buildCapabilities(context, colors, downloadSpeed, isWide: isWide),
+        ],
       ),
     );
   }
 
-  Widget _buildSummaryItem(
+  Widget _buildMetricCard(
     BuildContext context,
     ColorScheme colors,
     IconData icon,
     String label,
-    double value,
+    double? value,
+    String unit,
     Color color, {
     required bool isWide,
-    String unit = 'Mbps',
   }) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: isWide ? 32 : 28),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: 0.6),
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${value.toStringAsFixed(1)} $unit',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 20.0 : 16.0,
+        vertical: isWide ? 20.0 : 16.0,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colors.onSurface.withValues(alpha: 0.6),
+                ),
+          ),
+          const SizedBox(height: 4),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: value ?? 0),
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeOutCubic,
+            builder: (context, v, _) => Text(
+              value != null ? '${v.toStringAsFixed(1)} $unit' : '--',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  Widget _buildCapabilities(BuildContext context, ColorScheme colors,
+      double downloadSpeed,
+      {required bool isWide}) {
+    final capabilities = _getCapabilities(downloadSpeed);
+    if (capabilities.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isWide ? 20.0 : 16.0),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'What you can do',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface.withValues(alpha: 0.8),
+                ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: capabilities
+                .map((cap) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(cap.icon, size: 14, color: colors.primary),
+                          const SizedBox(width: 6),
+                          Text(
+                            cap.label,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.onSurface,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ))
+                .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SpeedRating _getSpeedRating(double speed) {
+    if (speed >= 200) {
+      return const SpeedRating('Excellent', Icons.bolt, Color(0xFF43EA6A));
+    } else if (speed >= 100) {
+      return const SpeedRating('Great', Icons.rocket_launch, Color(0xFF43EA6A));
+    } else if (speed >= 50) {
+      return const SpeedRating('Good', Icons.check_circle, Color(0xFF8BC34A));
+    } else if (speed >= 25) {
+      return const SpeedRating('Fair', Icons.remove_circle, Color(0xFFFFD700));
+    } else if (speed >= 10) {
+      return const SpeedRating('Slow', Icons.trending_down, Color(0xFFFF9800));
+    } else {
+      return const SpeedRating('Very Slow', Icons.warning, Color(0xFFF44336));
+    }
+  }
+
+  Color _getLatencyColor(double latencyMs, ColorScheme colors) {
+    if (latencyMs < 20) return const Color(0xFF43EA6A);
+    if (latencyMs < 50) return const Color(0xFF8BC34A);
+    if (latencyMs < 100) return const Color(0xFFFFD700);
+    return const Color(0xFFF44336);
+  }
+
+  List<Capability> _getCapabilities(double downloadSpeed) {
+    final caps = <Capability>[];
+    if (downloadSpeed >= 5) caps.add(const Capability(Icons.music_note, 'Music'));
+    if (downloadSpeed >= 10) caps.add(const Capability(Icons.videocam, 'Video calls'));
+    if (downloadSpeed >= 25) caps.add(const Capability(Icons.hd, 'HD streaming'));
+    if (downloadSpeed >= 50) caps.add(const Capability(Icons.sports_esports, 'Gaming'));
+    if (downloadSpeed >= 100) caps.add(const Capability(Icons.tv, '4K streaming'));
+    if (downloadSpeed >= 200) caps.add(const Capability(Icons.cloud_upload, 'Fast uploads'));
+    return caps;
   }
 
   Widget _buildActionButton(BuildContext context, SpeedTestState state,
@@ -963,4 +1133,67 @@ class _SpeedTestView extends StatelessWidget {
       ),
     );
   }
+}
+
+class SpeedRating {
+  const SpeedRating(this.label, this.icon, this.color);
+  final String label;
+  final IconData icon;
+  final Color color;
+}
+
+class Capability {
+  const Capability(this.icon, this.label);
+  final IconData icon;
+  final String label;
+}
+
+class _SpeedGaugePainter extends CustomPainter {
+  _SpeedGaugePainter({
+    required this.progress,
+    required this.color,
+    required this.strokeWidth,
+  });
+
+  final double progress;
+  final Color color;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height);
+    final radius = (size.width / 2) - strokeWidth;
+
+    final bgPaint = Paint()
+      ..color = color.withValues(alpha: 0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      pi,
+      pi,
+      false,
+      bgPaint,
+    );
+
+    final progressPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      pi,
+      pi * progress,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SpeedGaugePainter oldDelegate) =>
+      progress != oldDelegate.progress || color != oldDelegate.color;
 }
