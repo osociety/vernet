@@ -115,7 +115,11 @@ jobs:
           build_number="$(sed -nE 's/^version: [0-9]+\.[0-9]+\.[0-9]+\+([0-9]+)$/\1/p' pubspec.yaml)"
           changelog_file="android/fastlane/metadata/android/en-US/changelogs/${build_number}.txt"
           if [[ -f "$changelog_file" ]]; then
-            echo "body=$(cat "$changelog_file")" >> "$GITHUB_OUTPUT"
+            {
+              echo "body<<CHANGELOG_EOF"
+              cat "$changelog_file"
+              echo "CHANGELOG_EOF"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "body=See release notes." >> "$GITHUB_OUTPUT"
           fi
