@@ -99,86 +99,6 @@ void main() {
     );
 
     blocTest<SpeedTestBloc, SpeedTestState>(
-      'emits [data] with updated download speed',
-      build: () => bloc,
-      seed: () => const SpeedTestState.data(
-        isLoading: false,
-        bestServers: [],
-      ),
-      act: (bloc) => bloc.add(const SpeedTestEvent.updateDownloadSpeed(45.5)),
-      expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.currentDownloadSpeed,
-              'currentDownloadSpeed',
-              45.5,
-            )
-            .having(
-              (s) => s.downloadSpeeds,
-              'downloadSpeeds',
-              [45.5],
-            ),
-      ],
-    );
-
-    blocTest<SpeedTestBloc, SpeedTestState>(
-      'emits [data] with updated upload speed',
-      build: () => bloc,
-      seed: () => const SpeedTestState.data(
-        isLoading: false,
-        bestServers: [],
-      ),
-      act: (bloc) => bloc.add(const SpeedTestEvent.updateUploadSpeed(25.3)),
-      expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.currentUploadSpeed,
-              'currentUploadSpeed',
-              25.3,
-            )
-            .having(
-              (s) => s.uploadSpeeds,
-              'uploadSpeeds',
-              [25.3],
-            ),
-      ],
-    );
-
-    blocTest<SpeedTestBloc, SpeedTestState>(
-      'emits [data] when completeDownload is added',
-      build: () => bloc,
-      seed: () => const SpeedTestState.data(
-        isLoading: false,
-      ),
-      act: (bloc) => bloc.add(const SpeedTestEvent.completeDownload()),
-      expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.downloadSpeedTestDone,
-              'downloadSpeedTestDone',
-              isTrue,
-            ),
-      ],
-    );
-
-    blocTest<SpeedTestBloc, SpeedTestState>(
-      'emits [data] when completeUpload is added',
-      build: () => bloc,
-      seed: () => const SpeedTestState.data(
-        isLoading: false,
-      ),
-      act: (bloc) => bloc.add(const SpeedTestEvent.completeUpload()),
-      expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.uploadSpeedTestDone,
-              'uploadSpeedTestDone',
-              isTrue,
-            ),
-      ],
-    );
-
-    blocTest<SpeedTestBloc, SpeedTestState>(
       'startTest emits error when no servers available',
       build: () => bloc,
       seed: () => const SpeedTestState.data(
@@ -209,46 +129,6 @@ void main() {
               (s) => s.fetchError,
               'fetchError',
               contains('No test servers available'),
-            ),
-      ],
-    );
-
-    blocTest<SpeedTestBloc, SpeedTestState>(
-      'setDownloadSpeeds replaces download speeds list',
-      build: () => bloc,
-      seed: () => const SpeedTestState.data(
-        isLoading: false,
-        downloadSpeeds: [10.0, 20.0],
-      ),
-      act: (bloc) => bloc.add(
-        const SpeedTestEvent.setDownloadSpeeds([30.0, 40.0, 50.0]),
-      ),
-      expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.downloadSpeeds,
-              'downloadSpeeds',
-              [30.0, 40.0, 50.0],
-            ),
-      ],
-    );
-
-    blocTest<SpeedTestBloc, SpeedTestState>(
-      'setUploadSpeeds replaces upload speeds list',
-      build: () => bloc,
-      seed: () => const SpeedTestState.data(
-        isLoading: false,
-        uploadSpeeds: [5.0, 15.0],
-      ),
-      act: (bloc) => bloc.add(
-        const SpeedTestEvent.setUploadSpeeds([25.0, 35.0]),
-      ),
-      expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.uploadSpeeds,
-              'uploadSpeeds',
-              [25.0, 35.0],
             ),
       ],
     );

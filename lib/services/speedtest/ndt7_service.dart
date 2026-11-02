@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:vernet/models/ndt7_result.dart';
@@ -33,6 +32,10 @@ class Ndt7Service {
   static const _ndt7Subprotocol = 'net.measurementlab.ndt.v7';
   static const _downloadTestDuration = Duration(seconds: 10);
   static const _uploadTestDuration = Duration(seconds: 10);
+  static const _connectionTimeout = Duration(seconds: 15);
+
+  Timer? _activeTimer;
+  WebSocket? _activeWebSocket;
 
   /// Discovers nearest M-Lab servers using the Locate v2 API.
   Future<List<Ndt7Server>> discoverServers() async {
@@ -126,21 +129,64 @@ class Ndt7Service {
     }
   }
 
-  Future<WebSocket> _connectWebSocket(String url) {
+  Future<WebSocket> _connectWebSocket(String url) async {
+    final completer = Completer<WebSocket>();
+    Timer? timer;
+
     try {
-      return _webSocketFactory(
+      timer = Timer(_connectionTimeout, () {
+        if (!completer.isCompleted) {
+          completer.completeError(
+            Ndt7Exception(
+              'WebSocket connection timed out after ${_connectionTimeout.inSeconds}s',
+            ),
+          );
+        }
+      });
+
+      final ws = await _webSocketFactory(
         url,
         protocols: [_ndt7Subprotocol],
       );
+
+      if (!completer.isCompleted) {
+        timer.cancel();
+        completer.complete(ws);
+      } else {
+        // Timeout already fired — close the late connection.
+        await ws.close();
+      }
     } on WebSocketException catch (e) {
-      throw Ndt7Exception('WebSocket connection failed: ${e.message}', null, e);
+      timer?.cancel();
+      if (!completer.isCompleted) {
+        completer.completeError(
+          Ndt7Exception('WebSocket connection failed: ${e.message}', null, e),
+        );
+      }
+    } on SocketException catch (e) {
+      timer?.cancel();
+      if (!completer.isCompleted) {
+        completer.completeError(
+          Ndt7Exception('Network error: ${e.message}', null, e),
+        );
+      }
+    } catch (e) {
+      timer?.cancel();
+      if (!completer.isCompleted) {
+        completer.completeError(
+          Ndt7Exception('WebSocket connection failed: $e', null, e),
+        );
+      }
     }
+
+    return await completer.future;
   }
 
   Future<Ndt7Measurement> _measureDownload(
     WebSocket ws, {
     void Function(Ndt7Progress)? onProgress,
   }) {
+    _activeWebSocket = ws;
     final startTime = DateTime.now();
     var totalBytes = 0;
     double? minRTT;
@@ -148,18 +194,13 @@ class Ndt7Service {
     final throughputSamples = <double>[];
 
     final completer = Completer<Ndt7Measurement>();
-    Timer? timeoutTimer;
-
-    timeoutTimer = Timer(_downloadTestDuration, () {
+    _activeTimer = Timer(_downloadTestDuration, () {
+      _activeTimer = null;
       if (!completer.isCompleted) {
-        final avgThroughput = throughputSamples.isEmpty
-            ? 0.0
-            : throughputSamples.reduce((a, b) => a + b) /
-                throughputSamples.length;
-        completer.complete(Ndt7Measurement(
-          throughputMbps: avgThroughput,
-          minRTT: minRTT,
-          retransmissions: retransmissions,
+        completer.complete(_buildMeasurement(
+          throughputSamples,
+          minRTT,
+          retransmissions,
         ));
       }
     });
@@ -182,13 +223,26 @@ class Ndt7Service {
         } else if (message is String) {
           final measurement = _parseNdt7Message(message);
           if (measurement != null) {
-            minRTT ??= measurement.minRTT;
-            retransmissions ??= measurement.retransmissions;
+            if (measurement.minRTT != null) {
+              minRTT = minRTT == null
+                  ? measurement.minRTT
+                  : (measurement.minRTT! < minRTT!
+                      ? measurement.minRTT
+                      : minRTT);
+            }
+            if (measurement.retransmissions != null) {
+              retransmissions = retransmissions == null
+                  ? measurement.retransmissions
+                  : (measurement.retransmissions! > retransmissions!
+                      ? measurement.retransmissions
+                      : retransmissions);
+            }
           }
         }
       },
       onError: (error) {
-        timeoutTimer?.cancel();
+        _activeTimer?.cancel();
+        _activeTimer = null;
         if (!completer.isCompleted) {
           completer.completeError(
             Ndt7Exception('Download test failed: $error', null, error),
@@ -196,7 +250,8 @@ class Ndt7Service {
         }
       },
       onDone: () {
-        timeoutTimer?.cancel();
+        _activeTimer?.cancel();
+        _activeTimer = null;
         if (!completer.isCompleted) {
           final elapsed = DateTime.now().difference(startTime);
           final throughputMbps = _calculateThroughput(totalBytes, elapsed);
@@ -215,7 +270,8 @@ class Ndt7Service {
   Future<Ndt7Measurement> _measureUpload(
     WebSocket ws, {
     void Function(Ndt7Progress)? onProgress,
-  }) {
+  }) async {
+    _activeWebSocket = ws;
     final startTime = DateTime.now();
     var totalBytes = 0;
     double? minRTT;
@@ -223,93 +279,131 @@ class Ndt7Service {
     final throughputSamples = <double>[];
 
     final completer = Completer<Ndt7Measurement>();
-    Timer? timeoutTimer;
-    Timer? sendTimer;
+    var sendLoopActive = true;
 
-    timeoutTimer = Timer(_uploadTestDuration, () {
-      sendTimer?.cancel();
-      if (!completer.isCompleted) {
-        final avgThroughput = throughputSamples.isEmpty
-            ? 0.0
-            : throughputSamples.reduce((a, b) => a + b) /
-                throughputSamples.length;
-        completer.complete(Ndt7Measurement(
-          throughputMbps: avgThroughput,
-          minRTT: minRTT,
-          retransmissions: retransmissions,
-        ));
-      }
-    });
-
-    // Send data in chunks
-    const chunkSize = 8192;
-    final rng = Random();
-    sendTimer = Timer.periodic(const Duration(milliseconds: 10), (_) {
-      if (ws.readyState != WebSocket.open) {
-        sendTimer?.cancel();
-        return;
-      }
-
-      final data = Uint8List(chunkSize);
-      for (var i = 0; i < chunkSize; i++) {
-        data[i] = rng.nextInt(256);
-      }
-      ws.add(data);
-      totalBytes += chunkSize;
-
-      final elapsed = DateTime.now().difference(startTime);
-      final throughputMbps = _calculateThroughput(totalBytes, elapsed);
-
-      onProgress?.call(Ndt7Progress(
-        elapsed: elapsed.inMilliseconds / 1000.0,
-        speed: throughputMbps,
-        bytesTransferred: totalBytes,
-        isDownload: false,
-      ));
-
-      throughputSamples.add(throughputMbps);
-    });
-
-    // Listen for server measurements
+    // Listen for server messages BEFORE the send loop so that onDone
+    // fires reliably when the timer closes the WebSocket below.
     ws.listen(
       (message) {
         if (message is String) {
           final measurement = _parseNdt7Message(message);
           if (measurement != null) {
-            minRTT ??= measurement.minRTT;
-            retransmissions ??= measurement.retransmissions;
+            if (measurement.minRTT != null) {
+              minRTT = minRTT == null
+                  ? measurement.minRTT
+                  : (measurement.minRTT! < minRTT!
+                      ? measurement.minRTT
+                      : minRTT);
+            }
+            if (measurement.retransmissions != null) {
+              retransmissions = retransmissions == null
+                  ? measurement.retransmissions
+                  : (measurement.retransmissions! > retransmissions!
+                      ? measurement.retransmissions
+                      : retransmissions);
+            }
           }
         }
       },
       onError: (error) {
-        sendTimer?.cancel();
-        timeoutTimer?.cancel();
+        sendLoopActive = false;
+        _activeTimer?.cancel();
+        _activeTimer = null;
         if (!completer.isCompleted) {
           completer.completeError(
             Ndt7Exception('Upload test failed: $error', null, error),
           );
         }
       },
+      onDone: () {
+        _activeTimer?.cancel();
+        _activeTimer = null;
+        if (!completer.isCompleted) {
+          completer.complete(_buildMeasurement(
+            throughputSamples,
+            minRTT,
+            retransmissions,
+          ));
+        }
+      },
     );
 
-    return completer.future;
+    _activeTimer = Timer(_uploadTestDuration, () {
+      _activeTimer = null;
+      sendLoopActive = false;
+      // Close the WebSocket to trigger onDone above. The NDT7 server
+      // may not close its side on its own, so the client must initiate.
+      ws.close();
+    });
+
+    const chunkSize = 8192;
+    var sampleIndex = 0;
+    var batchCount = 0;
+    while (sendLoopActive && ws.readyState == WebSocket.open) {
+      final data = Uint8List(chunkSize);
+      for (var i = 0; i < chunkSize; i++) {
+        data[i] = i & 0xFF;
+      }
+      ws.add(data);
+      totalBytes += chunkSize;
+      batchCount++;
+
+      // Yield to the event loop every 16 sends (~128 KB) to let the
+      // WebSocket flush and TCP backpressure propagate.
+      if (batchCount >= 16) {
+        batchCount = 0;
+        await Future<void>.delayed(Duration.zero);
+      }
+
+      final elapsed = DateTime.now().difference(startTime);
+      final throughputMbps = _calculateThroughput(totalBytes, elapsed);
+
+      // Skip the first 3 samples to avoid initial spike noise.
+      if (sampleIndex >= 3) {
+        onProgress?.call(Ndt7Progress(
+          elapsed: elapsed.inMilliseconds / 1000.0,
+          speed: throughputMbps,
+          bytesTransferred: totalBytes,
+          isDownload: false,
+        ));
+        throughputSamples.add(throughputMbps);
+      }
+      sampleIndex++;
+    }
+
+    return await completer.future;
+  }
+
+  Ndt7Measurement _buildMeasurement(
+    List<double> throughputSamples,
+    double? minRTT,
+    int? retransmissions,
+  ) {
+    final avgThroughput = throughputSamples.isEmpty
+        ? 0.0
+        : throughputSamples.reduce((a, b) => a + b) / throughputSamples.length;
+    return Ndt7Measurement(
+      throughputMbps: avgThroughput,
+      minRTT: minRTT,
+      retransmissions: retransmissions,
+    );
   }
 
   Ndt7Measurement? _parseNdt7Message(String message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
-      
+
       // Try TCPInfo first (contains MinRTT, RTT, retransmissions)
       final tcpInfo = data['TCPInfo'] as Map<String, dynamic>?;
       if (tcpInfo != null) {
         return Ndt7Measurement(
           minRTT: tcpInfo['MinRTT'] != null
-              ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0 // Convert from microseconds to milliseconds
+              ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
               : null,
           retransmissions: tcpInfo['Retransmissions'] as int?,
         );
       }
-      
+
       // Fall back to AppInfo (contains throughput)
       final appInfo = data['AppInfo'] as Map<String, dynamic>?;
       if (appInfo == null) return null;
@@ -319,7 +413,8 @@ class Ndt7Service {
             ? (appInfo['ThroughputValue'] as num).toDouble()
             : null,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Ndt7Service: failed to parse message: $e');
       return null;
     }
   }
@@ -329,10 +424,14 @@ class Ndt7Service {
     final bits = bytes * 8;
     final seconds = elapsed.inMilliseconds / 1000.0;
     final bps = bits / seconds;
-    return bps / 1000000; // Convert to Mbps
+    return bps / 1000000;
   }
 
   void dispose() {
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
     _httpClient.close();
   }
 }

@@ -228,8 +228,10 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     List<String> factors,
     ColorScheme colors,
   ) {
-    final gainedPoints = factors.where((f) => f.startsWith('✓')).toList();
-    final deductedPoints = factors.where((f) => f.startsWith('✗') || f.startsWith('~')).toList();
+    final parsedFactors = _parseFactorsWithPoints(factors);
+    final gainedPoints = parsedFactors.where((f) => f.points > 0).toList();
+    final deductedPoints = parsedFactors.where((f) => f.points < 0).toList();
+    final neutralPoints = parsedFactors.where((f) => f.points == 0).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,8 +245,14 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                 ),
           ),
           const SizedBox(height: 6),
-          ...gainedPoints.map((factor) => _buildFactorItem(context, factor, colors, true)),
-          if (deductedPoints.isNotEmpty) const SizedBox(height: 12),
+          ...gainedPoints.map((factor) => _buildFactorItemWithPoints(
+                context,
+                factor,
+                colors,
+                true,
+              )),
+          if (deductedPoints.isNotEmpty || neutralPoints.isNotEmpty)
+            const SizedBox(height: 12),
         ],
         if (deductedPoints.isNotEmpty) ...[
           Text(
@@ -255,37 +263,124 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                 ),
           ),
           const SizedBox(height: 6),
-          ...deductedPoints.map((factor) => _buildFactorItem(context, factor, colors, false)),
+          ...deductedPoints.map((factor) => _buildFactorItemWithPoints(
+                context,
+                factor,
+                colors,
+                false,
+              )),
+          if (neutralPoints.isNotEmpty) const SizedBox(height: 12),
+        ],
+        if (neutralPoints.isNotEmpty) ...[
+          Text(
+            'Info',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 6),
+          ...neutralPoints.map((factor) => _buildFactorItemWithPoints(
+                context,
+                factor,
+                colors,
+                true,
+              )),
         ],
       ],
     );
   }
 
-  Widget _buildFactorItem(
+  List<_ParsedFactor> _parseFactorsWithPoints(List<String> factors) {
+    return factors.map((factor) {
+      final regex = RegExp(r'\(([^)]*?(-?\d+)\s*points?)\)', caseSensitive: false);
+      final match = regex.firstMatch(factor);
+      
+      if (match != null) {
+        final points = int.parse(match.group(2)!);
+        return _ParsedFactor(
+          text: factor.replaceAll(regex, '').trim(),
+          points: points,
+        );
+      }
+      
+      // Check for patterns like "-50 points" or "-12 points"
+      final simpleRegex = RegExp(r'(-\d+)\s*points?', caseSensitive: false);
+      final simpleMatch = simpleRegex.firstMatch(factor);
+      
+      if (simpleMatch != null) {
+        final points = int.parse(simpleMatch.group(1)!);
+        return _ParsedFactor(
+          text: factor.replaceAll(simpleRegex, '').trim(),
+          points: points,
+        );
+      }
+      
+      return _ParsedFactor(text: factor, points: 0);
+    }).toList();
+  }
+
+  Widget _buildFactorItemWithPoints(
     BuildContext context,
-    String factor,
+    _ParsedFactor factor,
     ColorScheme colors,
     bool isPositive,
   ) {
+    final hasPoints = factor.points != 0;
+    final pointText = hasPoints
+        ? '${factor.points > 0 ? "+" : ""}${factor.points}'
+        : null;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            isPositive ? Icons.check_circle : Icons.error_outline,
+            factor.text.startsWith('✓')
+                ? Icons.check_circle
+                : factor.text.startsWith('✗')
+                    ? Icons.error_outline
+                    : factor.text.startsWith('~')
+                        ? Icons.warning_amber
+                        : Icons.info_outline,
             size: 14,
-            color: isPositive ? Colors.green : colors.error,
+            color: factor.text.startsWith('✓')
+                ? Colors.green
+                : factor.text.startsWith('✗')
+                    ? colors.error
+                    : factor.text.startsWith('~')
+                        ? Colors.amber
+                        : colors.onSurfaceVariant,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              factor,
+              factor.text,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
             ),
           ),
+          if (hasPoints) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: (factor.points > 0 ? Colors.green : colors.error)
+                    .withAlpha(20),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                pointText!,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: factor.points > 0 ? Colors.green : colors.error,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                    ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -930,4 +1025,11 @@ class _ActionTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ParsedFactor {
+  const _ParsedFactor({required this.text, required this.points});
+
+  final String text;
+  final int points;
 }

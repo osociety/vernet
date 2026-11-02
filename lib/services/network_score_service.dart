@@ -311,8 +311,6 @@ class NetworkScoreService {
       }
 
       var totalUptimePercent = 0.0;
-      var totalLatencyMs = 0;
-      var latencyCount = 0;
       var monitorCount = 0;
 
       for (final monitor in monitors) {
@@ -323,15 +321,6 @@ class NetworkScoreService {
         final upCount = history.where((r) => r.isUp).length;
         final uptimePercent = (upCount / history.length) * 100;
         totalUptimePercent += uptimePercent;
-
-        final latencies = history
-            .where((r) => r.isUp && r.latency != null)
-            .map((r) => r.latency!.inMilliseconds)
-            .toList();
-        if (latencies.isNotEmpty) {
-          totalLatencyMs += latencies.reduce((a, b) => a + b) ~/ latencies.length;
-          latencyCount++;
-        }
       }
 
       if (monitorCount == 0) {
@@ -347,21 +336,7 @@ class NetworkScoreService {
       }
 
       final avgUptime = totalUptimePercent / monitorCount;
-      var score = (avgUptime * 0.7).round();
-
-      if (latencyCount > 0) {
-        final avgLatency = totalLatencyMs ~/ latencyCount;
-        if (avgLatency < 100) {
-          score += 30;
-          factors.add('✓ Low average latency (${avgLatency}ms)');
-        } else if (avgLatency < 300) {
-          score += 15;
-          factors.add('~ Moderate average latency (${avgLatency}ms) -15 points');
-        } else {
-          score += 5;
-          factors.add('~ High average latency (${avgLatency}ms) -25 points');
-        }
-      }
+      var score = avgUptime.round();
 
       // Cap score based on required monitor types
       if (!hasRouterMonitor && !hasUpstreamMonitor) {
@@ -528,6 +503,10 @@ class NetworkScoreService {
         } else {
           factors.add('✗ High packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -5 points');
         }
+      } else {
+        // No ping data available - show missing points
+        factors.add('✗ No ping data available -10 points');
+        factors.add('Tip: Run a connectivity check to measure packet loss and jitter');
       }
 
       // Add test provider info
@@ -537,6 +516,11 @@ class NetworkScoreService {
           factors.add('📍 Server: ${snapshot.serverLocation}');
         }
       }
+
+      // Scale score from 70-point max to 100-point scale
+      // Max possible: 30 (download) + 15 (upload) + 15 (latency) + 5 (packet loss) + 5 (jitter) = 70
+      const maxPossibleScore = 70;
+      score = ((score / maxPossibleScore) * 100).round();
 
       score = score.clamp(0, 100);
 

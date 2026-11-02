@@ -187,7 +187,7 @@ void main() {
     // auto-starts a test once servers are loaded. Each test installs a
     // fresh bloc backed by a fake Ndt7Service, so runs are deterministic
     // and never reach M-Lab. Tests that install a serving fake must wait
-    // for 'Test Complete' before finishing so tearDown can close the bloc
+    // for 'Test Again' before finishing so tearDown can close the bloc
     // without a suspended startTest handler emitting after close.
 
     testWidgets('speed test page displays loading state initially',
@@ -209,14 +209,14 @@ void main() {
       await TestUtils.waitForWidget(tester, find.text('Test Server'));
       expect(find.text('Test City'), findsOneWidget);
 
-      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+      await TestUtils.waitForWidget(tester, find.text('Test Again'));
     });
 
     testWidgets('speed test page displays M-Lab attribution', (tester) async {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+      await TestUtils.waitForWidget(tester, find.text('Test Again'));
 
       await tester.tap(find.text('Powered by Measurement Lab (M-Lab)'));
       await tester.pumpAndSettle();
@@ -237,7 +237,7 @@ void main() {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+      await TestUtils.waitForWidget(tester, find.text('Test Again'));
 
       expect(find.text('Test Again'), findsOneWidget);
       expect(find.text('Powered by Measurement Lab (M-Lab)'), findsOneWidget);
@@ -253,7 +253,7 @@ void main() {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+      await TestUtils.waitForWidget(tester, find.text('Test Again'));
 
       expect(find.text('Test Again'), findsOneWidget);
       expect(find.text('Latency'), findsOneWidget);
@@ -269,15 +269,15 @@ void main() {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+      await TestUtils.waitForWidget(tester, find.text('Test Again'));
 
       tester.view.physicalSize = const Size(844, 390);
       await tester.pumpAndSettle();
-      expect(find.text('Test Complete'), findsOneWidget);
+      expect(find.text('Test Again'), findsOneWidget);
 
       tester.view.physicalSize = const Size(390, 844);
       await tester.pumpAndSettle();
-      expect(find.text('Test Complete'), findsOneWidget);
+      expect(find.text('Test Again'), findsOneWidget);
     });
 
     testWidgets('speed test page error state has go back button',

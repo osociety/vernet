@@ -19,12 +19,6 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     on<_Init>(_onInit);
     on<_LoadServers>(_onLoadServers);
     on<_StartTest>(_onStartTest);
-    on<_UpdateDownloadSpeed>(_onUpdateDownloadSpeed);
-    on<_UpdateUploadSpeed>(_onUpdateUploadSpeed);
-    on<_SetDownloadSpeeds>(_onSetDownloadSpeeds);
-    on<_SetUploadSpeeds>(_onSetUploadSpeeds);
-    on<_CompleteDownload>(_onCompleteDownload);
-    on<_CompleteUpload>(_onCompleteUpload);
     on<_ToggleServerInfo>(_onToggleServerInfo);
     on<_Reset>(_onReset);
   }
@@ -42,19 +36,22 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     }
   }
 
-  Future<void> _onLoadServers(_LoadServers event, Emitter<SpeedTestState> emit) async {
+  Future<void> _onLoadServers(
+      _LoadServers event, Emitter<SpeedTestState> emit) async {
     await _loadServers(emit);
   }
 
-  Future<void> _onStartTest(_StartTest event, Emitter<SpeedTestState> emit) async {
+  Future<void> _onStartTest(
+      _StartTest event, Emitter<SpeedTestState> emit) async {
     if (state.bestServers == null || state.bestServers!.isEmpty) {
-      emit(state.copyWith(fetchError: 'No test servers available. Please check your connection.'));
+      emit(state.copyWith(
+        fetchError: 'No test servers available. Please check your connection.',
+      ));
       return;
     }
 
     final server = state.bestServers!.first;
 
-    // Reset state completely before starting
     emit(state.copyWith(
       speedTestStarted: true,
       downloadSpeedTestDone: false,
@@ -75,10 +72,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     try {
       final result = await _runNdt7Test(server, emit);
       await _saveSpeedSnapshot(emit, result);
-      
-      // Wait a few seconds before showing summary
-      await Future.delayed(const Duration(seconds: 2));
-      
+
       emit(state.copyWith(
         speedTestStarted: false,
         showSummary: true,
@@ -90,43 +84,11 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         speedTestStarted: false,
         showSummary: false,
       ));
-      return;
     }
   }
 
-  void _onUpdateDownloadSpeed(_UpdateDownloadSpeed event, Emitter<SpeedTestState> emit) {
-    final speeds = List<double>.from(state.downloadSpeeds)..add(event.speed);
-    emit(state.copyWith(
-      currentDownloadSpeed: event.speed,
-      downloadSpeeds: speeds,
-    ));
-  }
-
-  void _onUpdateUploadSpeed(_UpdateUploadSpeed event, Emitter<SpeedTestState> emit) {
-    final speeds = List<double>.from(state.uploadSpeeds)..add(event.speed);
-    emit(state.copyWith(
-      currentUploadSpeed: event.speed,
-      uploadSpeeds: speeds,
-    ));
-  }
-
-  void _onSetDownloadSpeeds(_SetDownloadSpeeds event, Emitter<SpeedTestState> emit) {
-    emit(state.copyWith(downloadSpeeds: event.speeds));
-  }
-
-  void _onSetUploadSpeeds(_SetUploadSpeeds event, Emitter<SpeedTestState> emit) {
-    emit(state.copyWith(uploadSpeeds: event.speeds));
-  }
-
-  void _onCompleteDownload(_CompleteDownload event, Emitter<SpeedTestState> emit) {
-    emit(state.copyWith(downloadSpeedTestDone: true));
-  }
-
-  void _onCompleteUpload(_CompleteUpload event, Emitter<SpeedTestState> emit) {
-    emit(state.copyWith(uploadSpeedTestDone: true));
-  }
-
-  void _onToggleServerInfo(_ToggleServerInfo event, Emitter<SpeedTestState> emit) {
+  void _onToggleServerInfo(
+      _ToggleServerInfo event, Emitter<SpeedTestState> emit) {
     emit(state.copyWith(isServerInfoExpanded: !state.isServerInfoExpanded));
   }
 
@@ -158,7 +120,6 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     Ndt7Server server,
     Emitter<SpeedTestState> emit,
   ) async {
-    // Run download test
     emit(state.copyWith(
       currentDownloadSpeed: 0,
       downloadSpeeds: [0],
@@ -167,7 +128,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     final downloadResult = await _ndt7Service.runDownloadTest(
       server,
       onProgress: (progress) {
-        final speeds = List<double>.from(state.downloadSpeeds)..add(progress.speed);
+        final speeds = List<double>.from(state.downloadSpeeds)
+          ..add(progress.speed);
         emit(state.copyWith(
           currentDownloadSpeed: progress.speed,
           downloadSpeeds: speeds,
@@ -175,16 +137,11 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       },
     );
 
-    // Mark download as complete
     emit(state.copyWith(
       currentDownloadSpeed: downloadResult.throughputMbps ?? 0,
       downloadSpeedTestDone: true,
     ));
 
-    // Brief pause before upload
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // Run upload test
     emit(state.copyWith(
       currentUploadSpeed: 0,
       uploadSpeeds: [0],
@@ -193,7 +150,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     final uploadResult = await _ndt7Service.runUploadTest(
       server,
       onProgress: (progress) {
-        final speeds = List<double>.from(state.uploadSpeeds)..add(progress.speed);
+        final speeds =
+            List<double>.from(state.uploadSpeeds)..add(progress.speed);
         emit(state.copyWith(
           currentUploadSpeed: progress.speed,
           uploadSpeeds: speeds,
@@ -201,13 +159,16 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       },
     );
 
-    // Mark upload as complete
+    final latencyMs = downloadResult.minRTT ?? uploadResult.minRTT;
+    final retransmissions =
+        downloadResult.retransmissions ?? uploadResult.retransmissions;
+
     emit(state.copyWith(
       currentUploadSpeed: uploadResult.throughputMbps ?? 0,
       uploadSpeedTestDone: true,
-      latencyMs: downloadResult.minRTT ?? uploadResult.minRTT ?? 0,
+      latencyMs: latencyMs,
       packetLossPercent: null,
-      retransmissions: downloadResult.retransmissions ?? uploadResult.retransmissions,
+      retransmissions: retransmissions,
       serverLocation: server.location != null
           ? '${server.location!.city ?? ''}, ${server.location!.country ?? ''}'
           : server.site,
@@ -216,10 +177,10 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     return Ndt7TestResult(
       downloadMbps: downloadResult.throughputMbps ?? 0,
       uploadMbps: uploadResult.throughputMbps ?? 0,
-      latencyMs: downloadResult.minRTT ?? uploadResult.minRTT ?? 0,
+      latencyMs: latencyMs ?? 0,
       server: server,
-      minRTT: downloadResult.minRTT ?? uploadResult.minRTT,
-      retransmissions: downloadResult.retransmissions ?? uploadResult.retransmissions,
+      minRTT: latencyMs,
+      retransmissions: retransmissions,
       timestamp: DateTime.now(),
     );
   }
@@ -232,12 +193,11 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       (s) => s.machine == result.server.machine,
       orElse: () => result.server,
     );
-    
-    await NetworkScoreRepository().saveSpeedSnapshot(SpeedSnapshot(
+
+    await getIt<NetworkScoreRepository>().saveSpeedSnapshot(SpeedSnapshot(
       downloadMbps: result.downloadMbps,
       uploadMbps: result.uploadMbps,
       latencyMs: result.latencyMs,
-      packetLossPercent: result.packetLossPercent,
       retransmissions: result.retransmissions,
       serverLocation: result.server.location?.city,
       testProvider: 'mlab',

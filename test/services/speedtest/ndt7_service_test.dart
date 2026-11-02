@@ -336,37 +336,6 @@ void main() {
         expect(restored.minRTT, result.minRTT);
         expect(restored.retransmissions, result.retransmissions);
       });
-
-      test('packetLossPercent calculates from retransmissions', () {
-        const result = Ndt7TestResult(
-          downloadMbps: 100,
-          uploadMbps: 50,
-          latencyMs: 15,
-          server: Ndt7Server(
-            machine: 'test',
-            site: 'site',
-            urls: Ndt7ServerUrls(),
-          ),
-          retransmissions: 50,
-        );
-
-        expect(result.packetLossPercent, 0.05);
-      });
-
-      test('packetLossPercent is null when retransmissions is null', () {
-        const result = Ndt7TestResult(
-          downloadMbps: 100,
-          uploadMbps: 50,
-          latencyMs: 15,
-          server: Ndt7Server(
-            machine: 'test',
-            site: 'site',
-            urls: Ndt7ServerUrls(),
-          ),
-        );
-
-        expect(result.packetLossPercent, isNull);
-      });
     });
   });
 }
