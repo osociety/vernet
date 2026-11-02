@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dart_ping/dart_ping.dart';
-import 'package:speed_test_dart/classes/settings.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -132,7 +131,6 @@ class NetworkConnectivityService {
   /// Diagnoses the WAN link between the router and the broader internet.
   Future<NetworkConnectionStatus> checkRouterToInternet({
     WifiInfo? wifiInfo,
-    Settings? ispSettings,
     String? host,
   }) async {
     final target = host ?? targetHost;
@@ -193,10 +191,6 @@ class NetworkConnectivityService {
       if (latency != null) {
         details['Ping Latency'] = '${latency.inMilliseconds} ms';
       }
-      if (ispSettings != null) {
-        details['Public IP'] = ispSettings.client.ip;
-        details['Provider'] = ispSettings.client.isp;
-      }
 
       return NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
@@ -217,9 +211,6 @@ class NetworkConnectivityService {
       'Test Target': target,
       'Connection Status': 'Host unreachable / No response',
     };
-    if (ispSettings != null) {
-      details['Public IP'] = ispSettings.client.ip;
-    }
 
     return NetworkConnectionStatus(
       type: NetworkConnectionType.routerToInternet,

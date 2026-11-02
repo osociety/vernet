@@ -1373,15 +1373,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.2"
-  speed_test_dart:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: "3e9af741927d73ca164d997fae8eae52a8650fb5"
-      url: "https://github.com/git-elliot/speed_test_dart.git"
-    source: git
-    version: "1.0.6+0"
   speedometer:
     dependency: "direct main"
     description:
@@ -1454,14 +1445,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  sync:
-    dependency: transitive
-    description:
-      name: sync
-      sha256: f2ebb89eac969abb02b498562a35c4da63d6843396c4fe81948cd06a76845fce
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.0"
   sync_http:
     dependency: transitive
     description:

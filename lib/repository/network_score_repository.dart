@@ -9,7 +9,6 @@ class NetworkScoreRepository {
   static const _scoreKey = 'networkScore.lastScore';
   static const _speedSnapshotKey = 'networkScore.speedSnapshot';
   static const _pingSnapshotKey = 'networkScore.pingSnapshot';
-  static const _ispInfoKey = 'networkScore.ispInfo';
 
   Future<NetworkScore?> loadLastScore() async {
     final prefs = await SharedPreferences.getInstance();
@@ -66,22 +65,6 @@ class NetworkScoreRepository {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_pingSnapshotKey, jsonEncode(snapshot.toJson()));
   }
-
-  Future<IspInfo?> loadIspInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final encoded = prefs.getString(_ispInfoKey);
-    if (encoded == null) return null;
-    try {
-      return IspInfo.fromJson(jsonDecode(encoded) as Map<String, dynamic>);
-    } on Object {
-      return null;
-    }
-  }
-
-  Future<void> saveIspInfo(IspInfo info) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_ispInfoKey, jsonEncode(info.toJson()));
-  }
 }
 
 class SpeedSnapshot {
@@ -89,38 +72,54 @@ class SpeedSnapshot {
     required this.downloadMbps,
     required this.uploadMbps,
     required this.latencyMs,
-    this.ispRating,
-    this.ispAvgDownloadMbps,
-    this.ispAvgUploadMbps,
-    this.ispName,
+    this.packetLossPercent,
+    this.retransmissions,
+    this.serverLocation,
+    this.testProvider,
+    this.timestamp,
+    this.ttlSeconds,
+    this.fetchedAt,
   });
 
   factory SpeedSnapshot.fromJson(Map<String, dynamic> json) => SpeedSnapshot(
         downloadMbps: (json['downloadMbps'] as num).toDouble(),
         uploadMbps: (json['uploadMbps'] as num).toDouble(),
         latencyMs: (json['latencyMs'] as num).toDouble(),
-        ispRating: (json['ispRating'] as num?)?.toDouble(),
-        ispAvgDownloadMbps: (json['ispAvgDownloadMbps'] as num?)?.toDouble(),
-        ispAvgUploadMbps: (json['ispAvgUploadMbps'] as num?)?.toDouble(),
-        ispName: json['ispName'] as String?,
+        packetLossPercent: (json['packetLossPercent'] as num?)?.toDouble(),
+        retransmissions: json['retransmissions'] as int?,
+        serverLocation: json['serverLocation'] as String?,
+        testProvider: json['testProvider'] as String?,
+        timestamp: json['timestamp'] != null
+            ? DateTime.parse(json['timestamp'] as String)
+            : null,
+        ttlSeconds: json['ttlSeconds'] as int?,
+        fetchedAt: json['fetchedAt'] != null
+            ? DateTime.parse(json['fetchedAt'] as String)
+            : null,
       );
 
   final double downloadMbps;
   final double uploadMbps;
   final double latencyMs;
-  final double? ispRating;
-  final double? ispAvgDownloadMbps;
-  final double? ispAvgUploadMbps;
-  final String? ispName;
+  final double? packetLossPercent;
+  final int? retransmissions;
+  final String? serverLocation;
+  final String? testProvider;
+  final DateTime? timestamp;
+  final int? ttlSeconds;
+  final DateTime? fetchedAt;
 
   Map<String, Object?> toJson() => {
         'downloadMbps': downloadMbps,
         'uploadMbps': uploadMbps,
         'latencyMs': latencyMs,
-        'ispRating': ispRating,
-        'ispAvgDownloadMbps': ispAvgDownloadMbps,
-        'ispAvgUploadMbps': ispAvgUploadMbps,
-        'ispName': ispName,
+        'packetLossPercent': packetLossPercent,
+        'retransmissions': retransmissions,
+        'serverLocation': serverLocation,
+        'testProvider': testProvider,
+        'timestamp': timestamp?.toIso8601String(),
+        'ttlSeconds': ttlSeconds,
+        'fetchedAt': fetchedAt?.toIso8601String(),
       };
 }
 
@@ -153,33 +152,5 @@ class PingSnapshot {
         'jitterMs': jitterMs,
         'minLatencyMs': minLatencyMs,
         'maxLatencyMs': maxLatencyMs,
-      };
-}
-
-class IspInfo {
-  const IspInfo({
-    this.ispName,
-    this.ispRating,
-    this.avgDownloadMbps,
-    this.avgUploadMbps,
-  });
-
-  factory IspInfo.fromJson(Map<String, dynamic> json) => IspInfo(
-        ispName: json['ispName'] as String?,
-        ispRating: (json['ispRating'] as num?)?.toDouble(),
-        avgDownloadMbps: (json['avgDownloadMbps'] as num?)?.toDouble(),
-        avgUploadMbps: (json['avgUploadMbps'] as num?)?.toDouble(),
-      );
-
-  final String? ispName;
-  final double? ispRating;
-  final double? avgDownloadMbps;
-  final double? avgUploadMbps;
-
-  Map<String, Object?> toJson() => {
-        'ispName': ispName,
-        'ispRating': ispRating,
-        'avgDownloadMbps': avgDownloadMbps,
-        'avgUploadMbps': avgUploadMbps,
       };
 }

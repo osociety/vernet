@@ -99,7 +99,7 @@ void main() {
   });
 
   group('Speed Test Integration Tests', () {
-    // Note: Tests pump SpeedTestPage directly since ISP settings lookup
+    // Note: Tests pump SpeedTestPage directly since M-Lab server discovery
     // may not succeed in all test environments.
 
     testWidgets('speed test page displays loading state initially',
@@ -134,7 +134,7 @@ void main() {
       );
     });
 
-    testWidgets('speed test page displays Ookla attribution', (tester) async {
+    testWidgets('speed test page displays M-Lab attribution', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(home: SpeedTestPage()),
       );
@@ -143,9 +143,9 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
 
-      // Ookla attribution should be visible in main UI
-      final ooklaAttribution = find.text('Powered by Speedtest by Ookla®');
-      expect(ooklaAttribution, findsOneWidget);
+      // M-Lab attribution should be visible in main UI
+      final mlabAttribution = find.text('Powered by Measurement Lab (M-Lab)');
+      expect(mlabAttribution, findsOneWidget);
     });
 
     // Skip tests that depend on specific UI states or have layout issues
@@ -169,7 +169,7 @@ void main() {
       // Should display without overflow - check for either error or main UI
       final hasContent = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
           find.text('Speed Over Time').evaluate().isNotEmpty ||
-          find.text('Powered by Speedtest by Ookla®').evaluate().isNotEmpty;
+          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
       expect(hasContent, isTrue);
     }, skip: true); // Layout overflow issues in test environment
 
@@ -191,7 +191,7 @@ void main() {
       // Should display without overflow
       final hasContent = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
           find.text('Speed Over Time').evaluate().isNotEmpty ||
-          find.text('Powered by Speedtest by Ookla®').evaluate().isNotEmpty;
+          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
       expect(hasContent, isTrue);
     }, skip: true); // Layout overflow issues in test environment
 
@@ -210,7 +210,7 @@ void main() {
 
       // Should still show content
       final hasContentLandscape = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
-          find.text('Powered by Speedtest by Ookla®').evaluate().isNotEmpty;
+          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
       expect(hasContentLandscape, isTrue);
 
       // Change back to portrait
@@ -218,7 +218,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final hasContentPortrait = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
-          find.text('Powered by Speedtest by Ookla®').evaluate().isNotEmpty;
+          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
       expect(hasContentPortrait, isTrue);
     }, skip: true); // BLoC singleton state leakage between tests
 
@@ -238,7 +238,7 @@ void main() {
         expect(find.text('Go Back'), findsOneWidget);
       } else {
         // Main UI is shown, which is also acceptable
-        expect(find.text('Powered by Speedtest by Ookla®'), findsOneWidget);
+        expect(find.text('Powered by Measurement Lab (M-Lab)'), findsOneWidget);
       }
     }, skip: true); // BLoC singleton state leakage between tests
 

@@ -3,14 +3,15 @@ import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:speed_test_dart/classes/server.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
 
 class SpeedTestPage extends StatefulWidget {
   const SpeedTestPage({super.key, this.preloadedServers});
 
-  final List<Server>? preloadedServers;
+  final List<Ndt7Server>? preloadedServers;
 
   @override
   State<SpeedTestPage> createState() => _SpeedTestPageState();
@@ -58,6 +59,17 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
               !state.uploadSpeedTestDone) {
             _autoStarted = true;
             _bloc.add(const SpeedTestEvent.startTest());
+          }
+          
+          // Show error message if test fails
+          if (state.fetchError != null && !state.speedTestStarted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.fetchError!),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
         },
         child: const _SpeedTestView(),
@@ -151,22 +163,17 @@ class _SpeedTestView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone &&
-                                  !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
                             _buildSpeedGraph(context, state,
                                 colors: colors, height: graphHeight),
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone &&
-                                  !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
                             SizedBox(height: spacing),
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone &&
-                                  !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
                             _buildResults(context, state,
                                 colors: colors, isWide: isWide),
-                          if (state.downloadSpeedTestDone &&
-                              state.uploadSpeedTestDone &&
-                              !state.speedTestStarted) ...[
+                          if (state.showSummary) ...[
                             SizedBox(height: spacing),
                             _buildSummary(context, state,
                                 colors: colors, isWide: isWide),
@@ -191,14 +198,30 @@ class _SpeedTestView extends StatelessWidget {
                       right: horizontalPadding,
                       bottom: horizontalPadding,
                     ),
-                    child: Text(
-                      'Powered by Speedtest by Ookla®',
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: colors.onSurface
-                                    .withValues(alpha: 0.5),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () => _showMlabAttributionDialog(context),
+                          child: Text(
+                            'Powered by Measurement Lab (M-Lab)',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  decoration: TextDecoration.underline,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tap for terms & privacy info',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: colors.onSurface.withValues(alpha: 0.4),
+                                fontSize: 10,
                               ),
-                      textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -249,7 +272,7 @@ class _SpeedTestView extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           hasServers
-                              ? state.bestServers!.first.name
+                              ? state.bestServers!.first.displayName
                               : 'No servers available',
                           style: Theme.of(context)
                               .textTheme
@@ -283,75 +306,39 @@ class _SpeedTestView extends StatelessWidget {
                 children: [
                   const Divider(height: 1),
                   const SizedBox(height: 12),
-                  if (hasServers)
+                  if (state.serverLocation != null)
                     Row(
                       children: [
                         Icon(
-                          Icons.network_ping,
+                          Icons.location_on,
                           size: 16,
                           color: colors.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Latency: ${state.bestServers!.first.latency} ms',
+                          'Server: ${state.serverLocation}',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
                     ),
-                  if (state.ispInfo?.ispName != null) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      'Internet Provider',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colors.onSurfaceVariant,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      state.ispInfo!.ispName!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                    if (state.ispInfo!.ispRating != null) ...[
-                      const SizedBox(height: 8),
-                      Semantics(
-                        label:
-                            'Provider rating: ${state.ispInfo!.ispRating!.toStringAsFixed(1)} out of 5',
-                        child: ExcludeSemantics(
-                          child: Row(
-                            children: List.generate(5, (index) {
-                              final rating =
-                                  state.ispInfo!.ispRating!.clamp(0.0, 5.0);
-                              final starValue = rating - index;
-                              final icon = starValue >= 1
-                                  ? Icons.star
-                                  : starValue >= 0.5
-                                      ? Icons.star_half
-                                      : Icons.star_border;
-                              final color = starValue >= 0.5
-                                  ? Colors.amber
-                                  : colors.outlineVariant;
-                              return Icon(icon, size: 16, color: color);
-                            }),
-                          ),
+                  if (state.packetLossPercent != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.signal_wifi_off,
+                          size: 16,
+                          color: state.packetLossPercent! > 5
+                              ? colors.error
+                              : colors.primary,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${state.ispInfo!.ispRating!.toStringAsFixed(1)} out of 5',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Text(
+                          'Packet Loss: ${state.packetLossPercent!.toStringAsFixed(2)}%',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
                   ],
                 ],
               ),
@@ -454,13 +441,15 @@ class _SpeedTestView extends StatelessWidget {
 
   LineChartData _createChartData(
       BuildContext context, SpeedTestState state, ColorScheme colors) {
-    final allSpeeds = [...state.downloadSpeeds, ...state.uploadSpeeds];
-    final rawMax = allSpeeds.isEmpty ? 100.0 : allSpeeds.reduce(max);
+    // Calculate Y-axis max based on active test only
+    final activeSpeeds = _getActiveSpeeds(state);
+    final rawMax = activeSpeeds.isEmpty ? 100.0 : activeSpeeds.reduce(max);
     // Round up to nearest 25 for clean Y-axis labels
     final maxY = (rawMax * 1.2).clamp(10.0, double.infinity);
     final roundedMaxY = (maxY / 25).ceil() * 25.0;
 
     return LineChartData(
+      clipData: const FlClipData.all(),
       gridData: FlGridData(
         drawVerticalLine: false,
         horizontalInterval: roundedMaxY / 4,
@@ -500,25 +489,23 @@ class _SpeedTestView extends StatelessWidget {
         border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
       ),
       minX: 0,
-      maxX: ((state.downloadSpeeds.length > state.uploadSpeeds.length
-                  ? state.downloadSpeeds.length
-                  : state.uploadSpeeds.length) -
-              1)
-          .toDouble()
-          .clamp(0.0, double.infinity) +
-          1,
+      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 2.0,
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
-        if (state.downloadSpeeds.isNotEmpty)
+        // Show download graph only when download is running (upload not started)
+        if (state.downloadSpeeds.isNotEmpty && !state.downloadSpeedTestDone)
           _createLineChartBar(
             state.downloadSpeeds,
             const Color(0xFF43EA6A),
+            0,
           ),
-        if (state.uploadSpeeds.isNotEmpty)
+        // Show upload graph only when upload is running (download is done)
+        if (state.uploadSpeeds.isNotEmpty && state.downloadSpeedTestDone && !state.uploadSpeedTestDone)
           _createLineChartBar(
             state.uploadSpeeds,
             const Color(0xFFFFD700),
+            0,
           ),
       ],
       lineTouchData: LineTouchData(
@@ -543,11 +530,48 @@ class _SpeedTestView extends StatelessWidget {
     );
   }
 
-  LineChartBarData _createLineChartBar(List<double> speeds, Color color) {
+  int _getActiveDataLength(SpeedTestState state) {
+    // Show upload length when upload is running (download is done)
+    if (state.downloadSpeedTestDone && !state.uploadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+      return state.uploadSpeeds.length;
+    }
+    // Show download length when download is running
+    if (!state.downloadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
+      return state.downloadSpeeds.length;
+    }
+    // Fallback to the longer dataset
+    return state.downloadSpeeds.length > state.uploadSpeeds.length
+        ? state.downloadSpeeds.length
+        : state.uploadSpeeds.length;
+  }
+
+  List<double> _getActiveSpeeds(SpeedTestState state) {
+    // Show upload speeds when upload is running (download is done)
+    if (state.downloadSpeedTestDone && !state.uploadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+      return state.uploadSpeeds;
+    }
+    // Show download speeds when download is running
+    if (!state.downloadSpeedTestDone && state.downloadSpeeds.isNotEmpty) {
+      return state.downloadSpeeds;
+    }
+    // Fallback to all speeds
+    return [...state.downloadSpeeds, ...state.uploadSpeeds];
+  }
+
+  LineChartBarData _createLineChartBar(List<double> speeds, Color color, int otherLength) {
+    final paddedSpeeds = List<double>.from(speeds);
+    // Pad with last value to match the other dataset's length
+    if (paddedSpeeds.length < otherLength && paddedSpeeds.isNotEmpty) {
+      final lastValue = paddedSpeeds.last;
+      while (paddedSpeeds.length < otherLength) {
+        paddedSpeeds.add(lastValue);
+      }
+    }
+    
     return LineChartBarData(
       spots: List.generate(
-        speeds.length,
-        (i) => FlSpot(i.toDouble(), speeds[i]),
+        paddedSpeeds.length,
+        (i) => FlSpot(i.toDouble(), paddedSpeeds[i]),
       ),
       isCurved: true,
       color: color,
@@ -708,7 +732,7 @@ class _SpeedTestView extends StatelessWidget {
                       colors,
                       Icons.network_ping,
                       'Latency',
-                      state.bestServers?.first.latency ?? 0,
+                      state.latencyMs ?? 0,
                       colors.primary,
                       isWide: isWide,
                       unit: 'ms',
@@ -724,7 +748,7 @@ class _SpeedTestView extends StatelessWidget {
                 colors,
                 Icons.network_ping,
                 'Latency',
-                state.bestServers?.first.latency ?? 0,
+                state.latencyMs ?? 0,
                 colors.primary,
                 isWide: isWide,
                 unit: 'ms',
@@ -773,10 +797,9 @@ class _SpeedTestView extends StatelessWidget {
   Widget _buildActionButton(
       BuildContext context, SpeedTestState state, {required ColorScheme colors}) {
     final hasServers = state.bestServers != null && state.bestServers!.isNotEmpty;
-    final isTestComplete = state.downloadSpeedTestDone && state.uploadSpeedTestDone && !state.speedTestStarted;
 
     // Only show button after test completes (for "Test Again")
-    if (!isTestComplete) {
+    if (!state.showSummary) {
       return const SizedBox.shrink();
     }
 
@@ -796,6 +819,124 @@ class _SpeedTestView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: colors.primary,
           foregroundColor: colors.onPrimary,
+        ),
+      ),
+    );
+  }
+
+  void _showMlabAttributionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Measurement Lab (M-Lab)'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Speed tests are powered by M-Lab's NDT7 protocol, providing accurate and standardized internet measurements.",
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'About M-Lab',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Measurement Lab (M-Lab) is a research initiative that provides open internet measurement data. Learn more about their mission and data practices.',
+              ),
+              const SizedBox(height: 16),
+              _buildLinkTile(
+                context,
+                icon: Icons.language,
+                title: 'M-Lab Website',
+                subtitle: 'www.measurementlab.net',
+                url: 'https://www.measurementlab.net/',
+              ),
+              _buildLinkTile(
+                context,
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                subtitle: 'How M-Lab handles your data',
+                url: 'https://www.measurementlab.net/privacy-policy/',
+              ),
+              _buildLinkTile(
+                context,
+                icon: Icons.description_outlined,
+                title: 'Terms of Service',
+                subtitle: 'Usage terms and conditions',
+                url: 'https://www.measurementlab.net/terms-of-service/',
+              ),
+              _buildLinkTile(
+                context,
+                icon: Icons.info_outline,
+                title: 'About NDT Test',
+                subtitle: 'Technical documentation',
+                url: 'https://www.measurementlab.net/tests/ndt/',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLinkTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String url,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () => launchURLWithWarning(context, url),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: Row(
+            children: [
+              Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.6),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.open_in_new,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+            ],
+          ),
         ),
       ),
     );

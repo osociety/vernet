@@ -477,41 +477,6 @@ class NetworkScoreService {
         factors.add('Tip: Use wired connection, reduce network congestion, or contact ISP');
       }
 
-      // ISP rating scoring (max 15 points)
-      if (snapshot.ispRating != null && snapshot.ispRating! > 0) {
-        final rating = snapshot.ispRating!;
-        if (rating >= 4.5) {
-          score += 15;
-          factors.add('✓ ISP rating: ${rating.toStringAsFixed(1)}/5 (excellent)');
-        } else if (rating >= 4.0) {
-          score += 12;
-          factors.add('✓ ISP rating: ${rating.toStringAsFixed(1)}/5 (good)');
-        } else if (rating >= 3.0) {
-          score += 8;
-          factors.add('~ ISP rating: ${rating.toStringAsFixed(1)}/5 (average) -7 points');
-        } else {
-          score += 3;
-          factors.add('✗ ISP rating: ${rating.toStringAsFixed(1)}/5 (below average) -12 points');
-          factors.add('Tip: Consider switching ISPs if performance is consistently poor');
-        }
-      }
-
-      // Compare to ISP averages (max 15 points)
-      if (snapshot.ispAvgDownloadMbps != null && snapshot.ispAvgDownloadMbps! > 0) {
-        final ratio = downloadMbps / snapshot.ispAvgDownloadMbps!;
-        if (ratio >= 1.2) {
-          score += 15;
-          factors.add('✓ Speed ${((ratio - 1) * 100).toStringAsFixed(0)}% above ISP average');
-        } else if (ratio >= 0.8) {
-          score += 10;
-          factors.add('✓ Speed matches ISP average');
-        } else {
-          score += 4;
-          factors.add('✗ Speed ${((1 - ratio) * 100).toStringAsFixed(0)}% below ISP average -11 points');
-          factors.add("Tip: You're getting less than promised - contact ISP or check for issues");
-        }
-      }
-
       // Ping data scoring (max 10 points)
       final pingSnapshot = await scoreRepository.loadPingSnapshot();
       if (pingSnapshot != null) {
@@ -548,6 +513,28 @@ class NetworkScoreService {
             factors.add('✗ Jitter: ${jitter.toStringAsFixed(1)}ms (unstable) -5 points');
             factors.add('Tip: Use wired connection or reduce network congestion');
           }
+        }
+      } else if (snapshot.packetLossPercent != null) {
+        // Fallback to NDT7 packet loss if ping snapshot not available
+        if (snapshot.packetLossPercent! == 0) {
+          score += 5;
+          factors.add('✓ No packet loss (M-Lab)');
+        } else if (snapshot.packetLossPercent! < 1) {
+          score += 3;
+          factors.add('~ Minimal packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab)');
+        } else if (snapshot.packetLossPercent! < 5) {
+          score += 1;
+          factors.add('~ Some packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -4 points');
+        } else {
+          factors.add('✗ High packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -5 points');
+        }
+      }
+
+      // Add test provider info
+      if (snapshot.testProvider == 'mlab') {
+        factors.add('ℹ Measured via M-Lab NDT7 protocol');
+        if (snapshot.serverLocation != null) {
+          factors.add('📍 Server: ${snapshot.serverLocation}');
         }
       }
 
