@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
@@ -176,8 +179,7 @@ void main() {
       expect(find.text('CUSTOM'), findsWidgets);
     });
 
-    testWidgets(
-        'shows connection line status and opens detail dialog on click',
+    testWidgets('shows connection line status and opens detail dialog on click',
         (tester) async {
       final connectivityService = NetworkConnectivityService(
         pingProbe: (host) async => const Duration(milliseconds: 20),
@@ -398,6 +400,125 @@ void main() {
 
       expect(find.text('NETWORK OVERVIEW'), findsNothing);
       expect(find.text('Your network'), findsNothing);
+    });
+  });
+
+  group('HomePage speed test card timestamp', () {
+    const speedSnapshotKey = 'networkScore.speedSnapshot';
+
+    void seedSpeedSnapshot({DateTime? timestamp}) {
+      SharedPreferences.setMockInitialValues({
+        speedSnapshotKey: jsonEncode({
+          'downloadMbps': 250.4,
+          'uploadMbps': 42.1,
+          'latencyMs': 12.0,
+          'timestamp': timestamp?.toIso8601String(),
+        }),
+      });
+    }
+
+    testWidgets('shows absolute test time left of the M-Lab credit',
+        (tester) async {
+      final testedAt = DateTime.now().subtract(const Duration(days: 2));
+      seedSpeedSnapshot(timestamp: testedAt);
+
+      // Wide enough that the clock chip fits inline next to the title even
+      // with the square Ahem test glyphs.
+      await pumpHomePage(tester, size: const Size(1100, 800));
+
+      expect(find.text('SPEED TEST'), findsOneWidget);
+      final timeText = find.text(DateFormat('MMM d, h:mm a').format(testedAt));
+      expect(timeText, findsOneWidget);
+
+      // Timestamp sits next to the card title in the header row.
+      expect(
+        tester.getTopLeft(timeText).dx,
+        greaterThan(tester.getTopLeft(find.text('SPEED TEST')).dx),
+      );
+      expect(
+        tester.getTopLeft(timeText).dy,
+        lessThan(tester.getTopLeft(find.text('Download')).dy),
+      );
+      expect(find.byIcon(Icons.schedule), findsWidgets);
+
+      // The M-Lab credit stays right-aligned in its own attribution row.
+      expect(
+        tester.getTopRight(find.text('Powered by M-Lab')).dx,
+        greaterThan(tester.getTopRight(timeText).dx),
+      );
+
+      // The connection-path card shows its own fresh check time the same way.
+      expect(find.text('Just now'), findsWidgets);
+    });
+
+    testWidgets('shows relative age for recent results', (tester) async {
+      seedSpeedSnapshot(
+        timestamp: DateTime.now().subtract(const Duration(seconds: 30)),
+      );
+      await pumpHomePage(tester, size: const Size(900, 800));
+      // Both the speed card and the connection card just refreshed.
+      expect(find.text('Just now'), findsWidgets);
+
+      seedSpeedSnapshot(
+        timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
+      );
+      await pumpHomePage(tester, size: const Size(900, 800));
+      expect(find.text('45m ago'), findsOneWidget);
+
+      seedSpeedSnapshot(
+        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+      );
+      await pumpHomePage(tester, size: const Size(900, 800));
+      expect(find.text('3h ago'), findsOneWidget);
+    });
+
+    testWidgets('omits the timestamp when the snapshot has no time',
+        (tester) async {
+      seedSpeedSnapshot();
+
+      await pumpHomePage(tester, size: const Size(900, 800));
+
+      expect(find.text('Last result'), findsNothing);
+      expect(find.text('Powered by M-Lab'), findsOneWidget);
+    });
+
+    testWidgets('blurs only the placeholder numbers when no result exists',
+        (tester) async {
+      await pumpHomePage(tester, size: const Size(900, 800));
+
+      expect(find.text('Start Speed Test'), findsOneWidget);
+      for (final placeholder in ['00.0 Mbps', '0.0 Mbps', '00 ms']) {
+        expect(find.text(placeholder), findsOneWidget);
+        expect(
+          find.ancestor(
+            of: find.text(placeholder),
+            matching: find.byType(ImageFiltered),
+          ),
+          findsOneWidget,
+        );
+      }
+
+      // Labels and icons stay crisp — only the numbers are blurred.
+      expect(
+        find.ancestor(
+          of: find.text('Download'),
+          matching: find.byType(ImageFiltered),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('does not blur the values when a past result exists',
+        (tester) async {
+      seedSpeedSnapshot(
+        timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+      );
+
+      await pumpHomePage(tester, size: const Size(900, 800));
+
+      expect(find.text('250.4 Mbps'), findsOneWidget);
+      expect(find.text('42.1 Mbps'), findsOneWidget);
+      expect(find.byType(ImageFiltered), findsNothing);
     });
   });
 }

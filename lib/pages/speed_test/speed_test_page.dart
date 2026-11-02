@@ -60,7 +60,7 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
             _autoStarted = true;
             _bloc.add(const SpeedTestEvent.startTest());
           }
-          
+
           // Show error message if test fails
           if (state.fetchError != null && !state.speedTestStarted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -163,14 +163,17 @@ class _SpeedTestView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone ||
+                                  !state.uploadSpeedTestDone))
                             _buildSpeedGraph(context, state,
                                 colors: colors, height: graphHeight),
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone ||
+                                  !state.uploadSpeedTestDone))
                             SizedBox(height: spacing),
                           if (state.speedTestStarted ||
-                              (!state.downloadSpeedTestDone || !state.uploadSpeedTestDone))
+                              (!state.downloadSpeedTestDone ||
+                                  !state.uploadSpeedTestDone))
                             _buildResults(context, state,
                                 colors: colors, isWide: isWide),
                           if (state.showSummary) ...[
@@ -208,7 +211,8 @@ class _SpeedTestView extends StatelessWidget {
                                 .textTheme
                                 .labelSmall
                                 ?.copyWith(
-                                  color: colors.onSurface.withValues(alpha: 0.6),
+                                  color:
+                                      colors.onSurface.withValues(alpha: 0.6),
                                   decoration: TextDecoration.underline,
                                 ),
                           ),
@@ -216,7 +220,10 @@ class _SpeedTestView extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Tap for terms & privacy info',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
                                 color: colors.onSurface.withValues(alpha: 0.4),
                                 fontSize: 10,
                               ),
@@ -235,7 +242,8 @@ class _SpeedTestView extends StatelessWidget {
 
   Widget _buildServerInfo(BuildContext context, SpeedTestState state,
       {required ColorScheme colors, required bool isWide}) {
-    final hasServers = state.bestServers != null && state.bestServers!.isNotEmpty;
+    final hasServers =
+        state.bestServers != null && state.bestServers!.isNotEmpty;
 
     return Card(
       child: Column(
@@ -262,12 +270,10 @@ class _SpeedTestView extends StatelessWidget {
                       children: [
                         Text(
                           'Test Server',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -278,8 +284,7 @@ class _SpeedTestView extends StatelessWidget {
                               .textTheme
                               .bodyMedium
                               ?.copyWith(
-                                color:
-                                    colors.onSurface.withValues(alpha: 0.7),
+                                color: colors.onSurface.withValues(alpha: 0.7),
                               ),
                         ),
                       ],
@@ -404,11 +409,9 @@ class _SpeedTestView extends StatelessWidget {
                   : Center(
                       child: Text(
                         'Start the test to see speed graph',
-                        style:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: colors.onSurface
-                                      .withValues(alpha: 0.6),
-                                ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurface.withValues(alpha: 0.6),
+                            ),
                       ),
                     ),
             ),
@@ -461,15 +464,9 @@ class _SpeedTestView extends StatelessWidget {
         },
       ),
       titlesData: FlTitlesData(
-        rightTitles: const AxisTitles(
-          
-        ),
-        topTitles: const AxisTitles(
-          
-        ),
-        bottomTitles: const AxisTitles(
-          
-        ),
+        rightTitles: const AxisTitles(),
+        topTitles: const AxisTitles(),
+        bottomTitles: const AxisTitles(),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
@@ -489,7 +486,8 @@ class _SpeedTestView extends StatelessWidget {
         border: Border.all(color: colors.onSurface.withValues(alpha: 0.1)),
       ),
       minX: 0,
-      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) + 2.0,
+      maxX: _getActiveDataLength(state).toDouble().clamp(0.0, double.infinity) +
+          2.0,
       minY: 0,
       maxY: roundedMaxY,
       lineBarsData: [
@@ -501,7 +499,9 @@ class _SpeedTestView extends StatelessWidget {
             0,
           ),
         // Show upload graph only when upload is running (download is done)
-        if (state.uploadSpeeds.isNotEmpty && state.downloadSpeedTestDone && !state.uploadSpeedTestDone)
+        if (state.uploadSpeeds.isNotEmpty &&
+            state.downloadSpeedTestDone &&
+            !state.uploadSpeedTestDone)
           _createLineChartBar(
             state.uploadSpeeds,
             const Color(0xFFFFD700),
@@ -532,7 +532,9 @@ class _SpeedTestView extends StatelessWidget {
 
   int _getActiveDataLength(SpeedTestState state) {
     // Show upload length when upload is running (download is done)
-    if (state.downloadSpeedTestDone && !state.uploadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+    if (state.downloadSpeedTestDone &&
+        !state.uploadSpeedTestDone &&
+        state.uploadSpeeds.isNotEmpty) {
       return state.uploadSpeeds.length;
     }
     // Show download length when download is running
@@ -547,7 +549,9 @@ class _SpeedTestView extends StatelessWidget {
 
   List<double> _getActiveSpeeds(SpeedTestState state) {
     // Show upload speeds when upload is running (download is done)
-    if (state.downloadSpeedTestDone && !state.uploadSpeedTestDone && state.uploadSpeeds.isNotEmpty) {
+    if (state.downloadSpeedTestDone &&
+        !state.uploadSpeedTestDone &&
+        state.uploadSpeeds.isNotEmpty) {
       return state.uploadSpeeds;
     }
     // Show download speeds when download is running
@@ -558,7 +562,8 @@ class _SpeedTestView extends StatelessWidget {
     return [...state.downloadSpeeds, ...state.uploadSpeeds];
   }
 
-  LineChartBarData _createLineChartBar(List<double> speeds, Color color, int otherLength) {
+  LineChartBarData _createLineChartBar(
+      List<double> speeds, Color color, int otherLength) {
     final paddedSpeeds = List<double>.from(speeds);
     // Pad with last value to match the other dataset's length
     if (paddedSpeeds.length < otherLength && paddedSpeeds.isNotEmpty) {
@@ -567,7 +572,7 @@ class _SpeedTestView extends StatelessWidget {
         paddedSpeeds.add(lastValue);
       }
     }
-    
+
     return LineChartBarData(
       spots: List.generate(
         paddedSpeeds.length,
@@ -681,80 +686,92 @@ class _SpeedTestView extends StatelessWidget {
 
   Widget _buildSummary(BuildContext context, SpeedTestState state,
       {required ColorScheme colors, required bool isWide}) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(isWide ? 24.0 : 16.0),
-        child: Column(
-          children: [
-            Icon(
-              Icons.check_circle,
-              color: colors.primary,
-              size: isWide ? 64 : 48,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Test Complete',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeOutCubic,
+      builder: (context, t, child) => Opacity(
+        opacity: t,
+        child: Transform.translate(
+          offset: Offset(0, 24 * (1 - t)),
+          child: child,
+        ),
+      ),
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(isWide ? 24.0 : 16.0),
+          child: Column(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: colors.primary,
+                size: isWide ? 64 : 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Test Complete',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildSummaryItem(
+                      context,
+                      colors,
+                      Icons.download,
+                      'Download',
+                      state.currentDownloadSpeed,
+                      const Color(0xFF43EA6A),
+                      isWide: isWide,
+                    ),
                   ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSummaryItem(
-                    context,
-                    colors,
-                    Icons.download,
-                    'Download',
-                    state.currentDownloadSpeed,
-                    const Color(0xFF43EA6A),
-                    isWide: isWide,
-                  ),
-                ),
-                SizedBox(width: isWide ? 24 : 16),
-                Expanded(
-                  child: _buildSummaryItem(
-                    context,
-                    colors,
-                    Icons.upload,
-                    'Upload',
-                    state.currentUploadSpeed,
-                    const Color(0xFFFFD700),
-                    isWide: isWide,
-                  ),
-                ),
-                if (isWide) ...[
                   SizedBox(width: isWide ? 24 : 16),
                   Expanded(
                     child: _buildSummaryItem(
                       context,
                       colors,
-                      Icons.network_ping,
-                      'Latency',
-                      state.latencyMs ?? 0,
-                      colors.primary,
+                      Icons.upload,
+                      'Upload',
+                      state.currentUploadSpeed,
+                      const Color(0xFFFFD700),
                       isWide: isWide,
-                      unit: 'ms',
                     ),
                   ),
+                  if (isWide) ...[
+                    SizedBox(width: isWide ? 24 : 16),
+                    Expanded(
+                      child: _buildSummaryItem(
+                        context,
+                        colors,
+                        Icons.network_ping,
+                        'Latency',
+                        state.latencyMs ?? 0,
+                        colors.primary,
+                        isWide: isWide,
+                        unit: 'ms',
+                      ),
+                    ),
+                  ],
                 ],
-              ],
-            ),
-            if (!isWide) ...[
-              const SizedBox(height: 16),
-              _buildSummaryItem(
-                context,
-                colors,
-                Icons.network_ping,
-                'Latency',
-                state.latencyMs ?? 0,
-                colors.primary,
-                isWide: isWide,
-                unit: 'ms',
               ),
+              if (!isWide) ...[
+                const SizedBox(height: 16),
+                _buildSummaryItem(
+                  context,
+                  colors,
+                  Icons.network_ping,
+                  'Latency',
+                  state.latencyMs ?? 0,
+                  colors.primary,
+                  isWide: isWide,
+                  unit: 'ms',
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -794,9 +811,10 @@ class _SpeedTestView extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(
-      BuildContext context, SpeedTestState state, {required ColorScheme colors}) {
-    final hasServers = state.bestServers != null && state.bestServers!.isNotEmpty;
+  Widget _buildActionButton(BuildContext context, SpeedTestState state,
+      {required ColorScheme colors}) {
+    final hasServers =
+        state.bestServers != null && state.bestServers!.isNotEmpty;
 
     // Only show button after test completes (for "Test Again")
     if (!state.showSummary) {
@@ -906,7 +924,8 @@ class _SpeedTestView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             children: [
-              Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+              Icon(icon,
+                  size: 24, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -933,7 +952,10 @@ class _SpeedTestView extends StatelessWidget {
               Icon(
                 Icons.open_in_new,
                 size: 16,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.4),
               ),
             ],
           ),
