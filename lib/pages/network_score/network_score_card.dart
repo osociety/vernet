@@ -4,6 +4,7 @@ import 'package:vernet/models/network_score.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_detail_page.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
+import 'package:vernet/ui/timestamp_chip.dart';
 
 class NetworkScoreCard extends StatelessWidget {
   const NetworkScoreCard({super.key});
@@ -117,12 +118,21 @@ class NetworkScoreCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'NETWORK SCORE',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            letterSpacing: 1.1,
-                            fontWeight: FontWeight.w700,
-                          ),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        Text(
+                          'NETWORK SCORE',
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    letterSpacing: 1.1,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                        ),
+                        TimestampChip(timestamp: score.computedAt),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -143,11 +153,12 @@ class NetworkScoreCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             'Score reduced due to age',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: colors.tertiary,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colors.tertiary,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                           ),
                         ],
                       ),
@@ -217,7 +228,7 @@ class NetworkScoreCard extends StatelessWidget {
 
   Color _getScoreColor(int score, ColorScheme colors) {
     if (score >= 100) return Colors.green;
-    
+
     final level = ScoreLevel.fromScore(score);
     switch (level) {
       case ScoreLevel.good:

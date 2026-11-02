@@ -50,6 +50,7 @@ class _PortScanPageState extends State<PortScanPage>
   }
 
   void _handleEvent(ActiveHost? host) {
+    if (!mounted) return;
     if (host != null) {
       debugPrint('Found open port : ${host.openPorts}');
       setState(() {
@@ -59,6 +60,7 @@ class _PortScanPageState extends State<PortScanPage>
   }
 
   void _handleOnDone() {
+    if (!mounted) return;
     setState(() {
       _completed = true;
     });

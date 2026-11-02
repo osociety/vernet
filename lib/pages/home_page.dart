@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:signal_strength_indicator/signal_strength_indicator.dart';
@@ -25,6 +25,7 @@ import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
+import 'package:vernet/ui/timestamp_chip.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -91,7 +92,8 @@ class _WifiDetailState extends State<HomePage> {
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
     final metrics = await WifiRepository.fetchWifiMetrics();
-    final hasValidConnection = wifiIP != null && wifiIP != 'x.x.x.x' && wifiIP.isNotEmpty;
+    final hasValidConnection =
+        wifiIP != null && wifiIP != 'x.x.x.x' && wifiIP.isNotEmpty;
     _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, !hasValidConnection,
         gatewayIp, isLocationOn, metrics,
         isCustomGateway: isCustomGateway);
@@ -131,8 +133,7 @@ class _WifiDetailState extends State<HomePage> {
         _hasRunStartupScan = false;
       }
       _wifiInfoFuture = _getWifiInfo(force: force);
-      _internetStatusFuture =
-          _loadInternetStatusAfterWifi(_wifiInfoFuture!);
+      _internetStatusFuture = _loadInternetStatusAfterWifi(_wifiInfoFuture!);
     });
   }
 
@@ -226,17 +227,6 @@ class _WifiDetailState extends State<HomePage> {
 
   bool _isConnected(WifiInfo info) => info.ip != 'x.x.x.x';
 
-  String _formatTimestamp(DateTime? timestamp) {
-    if (timestamp == null) return 'Not yet checked';
-    final now = DateTime.now();
-    final diff = now.difference(timestamp);
-    
-    if (diff.inSeconds < 60) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    return DateFormat('MMM d, h:mm a').format(timestamp);
-  }
-
   void _openHostScan() {
     Navigator.push(
       context,
@@ -306,15 +296,6 @@ class _WifiDetailState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 14),
-          Text(
-            isChecking ? 'Checking Wi-Fi network…' : info.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 12),
           Row(
             children: [
               SignalStrengthIndicator.sector(
@@ -437,33 +418,27 @@ class _WifiDetailState extends State<HomePage> {
       builder: (context, snapshot) {
         final speedData = snapshot.data;
         final hasData = speedData != null && speedData.downloadMbps > 0;
-        
+        final testTimestamp = speedData?.timestamp;
+
         return _OverviewPanel(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
                 children: [
                   _PanelIcon(icon: Icons.speed, color: colors.tertiary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'SPEED TEST',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            letterSpacing: 1.1,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
+                  Text(
+                    'SPEED TEST',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          letterSpacing: 1.1,
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
-                  if (hasData)
-                    Text(
-                      speedData.timestamp != null
-                          ? _formatTimestamp(speedData.timestamp)
-                          : 'Last result',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                    ),
+                  if (testTimestamp != null)
+                    TimestampChip(timestamp: testTimestamp),
                 ],
               ),
               const SizedBox(height: 14),
@@ -540,7 +515,8 @@ class _WifiDetailState extends State<HomePage> {
                       '${speedData.latencyMs.toStringAsFixed(0)} ms',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: _getLatencyColor(speedData.latencyMs, colors),
+                            color:
+                                _getLatencyColor(speedData.latencyMs, colors),
                           ),
                     ),
                   ],
@@ -569,15 +545,80 @@ class _WifiDetailState extends State<HomePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'Test your internet speed',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colors.onSurfaceVariant,
-                          ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Icon(Icons.download, size: 20, color: colors.primary),
+                        const SizedBox(width: 8),
+                        Text('Download',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(color: colors.onSurfaceVariant)),
+                        const Spacer(),
+                        ImageFiltered(
+                          imageFilter: ImageFilter.blur(
+                              sigmaX: 6, sigmaY: 6, tileMode: TileMode.clamp),
+                          child: Text('00.0 Mbps',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.primary)),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.upload, size: 20, color: colors.tertiary),
+                        const SizedBox(width: 8),
+                        Text('Upload',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(color: colors.onSurfaceVariant)),
+                        const Spacer(),
+                        ImageFiltered(
+                          imageFilter: ImageFilter.blur(
+                              sigmaX: 6, sigmaY: 6, tileMode: TileMode.clamp),
+                          child: Text('0.0 Mbps',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.tertiary)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.network_ping,
+                            size: 20, color: colors.onSurfaceVariant),
+                        const SizedBox(width: 8),
+                        Text('Latency',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(color: colors.onSurfaceVariant)),
+                        const Spacer(),
+                        ImageFiltered(
+                          imageFilter: ImageFilter.blur(
+                              sigmaX: 6, sigmaY: 6, tileMode: TileMode.clamp),
+                          child: Text('00 ms',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.onSurfaceVariant)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               SizedBox(
@@ -735,10 +776,12 @@ class _WifiDetailState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
             children: [
               Icon(Icons.route, size: 18, color: colors.primary),
-              const SizedBox(width: 8),
               Text(
                 'CONNECTION PATH',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -746,6 +789,8 @@ class _WifiDetailState extends State<HomePage> {
                       fontWeight: FontWeight.w700,
                     ),
               ),
+              if (_lastConnectionCheck != null)
+                TimestampChip(timestamp: _lastConnectionCheck!),
             ],
           ),
           const SizedBox(height: 14),
@@ -812,189 +857,138 @@ class _WifiDetailState extends State<HomePage> {
                 bottom: verticalPadding,
               ),
               children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1180),
-                  child: FutureBuilder<WifiInfo?>(
-                    future: _wifiInfoFuture ?? _getWifiInfo(),
-                    builder: (context, wifiSnapshot) {
-                      final wifiInfo = wifiSnapshot.data ??
-                          WifiInfo(
-                            null,
-                            null,
-                            null,
-                            true,
-                            '',
-                            false,
-                            WifiNetworkMetrics.disconnected(),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1180),
+                    child: FutureBuilder<WifiInfo?>(
+                      future: _wifiInfoFuture ?? _getWifiInfo(),
+                      builder: (context, wifiSnapshot) {
+                        final wifiInfo = wifiSnapshot.data ??
+                            WifiInfo(
+                              null,
+                              null,
+                              null,
+                              true,
+                              '',
+                              false,
+                              WifiNetworkMetrics.disconnected(),
+                            );
+                        final isWifiChecking = _isRefreshingWifi ||
+                            wifiSnapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            wifiSnapshot.data == null;
+
+                        // Trigger score computation when data is available
+                        if (!isWifiChecking && wifiSnapshot.hasData) {
+                          _scheduleScoreCompute(
+                            wifiInfo,
+                            _internetStatusFuture,
                           );
-                      final isWifiChecking = _isRefreshingWifi ||
-                          wifiSnapshot.connectionState ==
-                              ConnectionState.waiting ||
-                          wifiSnapshot.data == null;
+                        }
 
-                      // Trigger score computation when data is available
-                      if (!isWifiChecking && wifiSnapshot.hasData) {
-                        _scheduleScoreCompute(
-                          wifiInfo,
-                          _internetStatusFuture,
-                        );
-                      }
-
-                      return FutureBuilder<NetworkConnectionStatus>(
-                        future: _internetStatusFuture,
-                        builder: (context, internetSnapshot) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                                  if (!isMobileLayout)
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'NETWORK OVERVIEW',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                letterSpacing: 1.4,
-                                                fontWeight:
-                                                    FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Your network',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge
-                                              ?.copyWith(
-                                                fontWeight:
-                                                    FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          'A live view of your Wi-Fi and internet connection.',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  const SizedBox(height: 16),
-                                  NetworkScoreCard(
-                                    key: WidgetKey.networkScoreCard.key,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  BlocBuilder<NetworkScoreBloc, NetworkScoreState>(
-                                    builder: (context, state) {
-                                      final computedAt = state.maybeWhen(
-                                        success: (score) => score.computedAt,
-                                        orElse: () => null,
-                                      );
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              'Score: ${_formatTimestamp(computedAt)}',
-                                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  ),
+                        return FutureBuilder<NetworkConnectionStatus>(
+                          future: _internetStatusFuture,
+                          builder: (context, internetSnapshot) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (!isMobileLayout)
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'NETWORK OVERVIEW',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              letterSpacing: 1.4,
+                                              fontWeight: FontWeight.w700,
                                             ),
-                                            const SizedBox(width: 4),
-                                            Icon(
-                                              Icons.update,
-                                              size: 12,
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'Your network',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
                                             ),
-                                          ],
-                                        ),
-                                      );
-                                    },
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'A live view of your Wi-Fi and internet connection.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 16),
-                                  _buildConnectionPath(
-                                    context,
-                                    wifiInfo,
-                                    internetSnapshot.data,
-                                    horizontalPath,
-                                    isWifiChecking: isWifiChecking,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'Connection: ${_formatTimestamp(_lastConnectionCheck)}',
-                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                              ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.wifi_find,
-                                          size: 12,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  if (isWide)
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: _buildWifiPanel(
-                                            context,
-                                            wifiInfo,
-                                            isChecking: isWifiChecking,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: _buildSpeedTestPanel(context),
-                                        ),
-                                      ],
-                                    )
-                                  else
-                                    Column(
-                                      children: [
-                                        _buildWifiPanel(
+                                const SizedBox(height: 16),
+                                NetworkScoreCard(
+                                  key: WidgetKey.networkScoreCard.key,
+                                ),
+                                const SizedBox(height: 16),
+                                _buildConnectionPath(
+                                  context,
+                                  wifiInfo,
+                                  internetSnapshot.data,
+                                  horizontalPath,
+                                  isWifiChecking: isWifiChecking,
+                                ),
+                                const SizedBox(height: 20),
+                                if (isWide)
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: _buildWifiPanel(
                                           context,
                                           wifiInfo,
                                           isChecking: isWifiChecking,
                                         ),
-                                        const SizedBox(height: 20),
-                                        _buildSpeedTestPanel(context),
-                                      ],
-                                    ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: _buildSpeedTestPanel(context),
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                    children: [
+                                      _buildWifiPanel(
+                                        context,
+                                        wifiInfo,
+                                        isChecking: isWifiChecking,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      _buildSpeedTestPanel(context),
+                                    ],
+                                  ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+          );
 
           return content;
         },
