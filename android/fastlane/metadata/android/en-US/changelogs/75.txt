@@ -1,0 +1,7 @@
+Fixed upload speed test showing only 6.5 Mbps despite high-speed internet.
+Improved network score transparency with point-by-point breakdown on detail page.
+Reliability score now based on uptime only (removed latency penalty).
+Added desktop refresh button to dashboard (mobile keeps pull-to-refresh).
+ Redesigned speed test result UI with hero card and capability chips.
+Fixed latency tracking to show correct minimum value.
+Fixed upload test hanging indefinitely.
