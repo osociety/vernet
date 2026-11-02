@@ -1,0 +1,5 @@
+New internet speed test powered by M-Lab: real-time download, upload, and latency results with a live graph on the home page.
+Added last-checked timestamps to the speed test, network score, and connection cards.
+Renamed home page to "Your network" with pull-to-refresh on mobile and desktop.
+Network score now refreshes automatically after following improvement suggestions.
+Fixed Android crash on launch.
