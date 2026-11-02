@@ -105,7 +105,8 @@ jobs:
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" \
               --title "Vernet ${RELEASE_TAG}" \
-              --notes-file "$changelog"
+              --notes-file "$changelog" \
+              --prerelease
           fi
 
       - name: Read changelog
