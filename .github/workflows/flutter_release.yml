@@ -105,7 +105,8 @@ jobs:
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" \
               --title "Vernet ${RELEASE_TAG}" \
-              --notes-file "$changelog"
+              --notes-file "$changelog" \
+              --prerelease
           fi
 
       - name: Read changelog
@@ -121,7 +122,7 @@ jobs:
 
       - name: Create release discussion
         if: github.event_name == 'release'
-        uses: abirismyname/create-discussion@v1
+        uses: abirismyname/create-discussion@v2.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository-id: ${{ vars.REPOSITORY_ID }}
