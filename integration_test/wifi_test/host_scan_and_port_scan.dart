@@ -190,9 +190,14 @@ void main() {
       final portScanButton = find.byKey(WidgetKey.portScanButton.key);
       await tester.tap(portScanButton);
       await tester.pumpAndSettle();
-      // Wait for the async port scan to finish since there is no UI animation to hold pumpAndSettle
-      await tester.pump(const Duration(seconds: 2));
-      expect(find.byType(AdaptiveListTile), findsAny);
+      // isOpen resolves in real async time (DNS lookup + socket connect), so
+      // pump frames until the result tile is built; fixed pumps race the
+      // future on slower CI machines and finish before it arrives.
+      await TestUtils.waitForAnyWidget(
+        tester,
+        find.byType(AdaptiveListTile),
+        timeout: const Duration(seconds: 30),
+      );
     });
   });
 
