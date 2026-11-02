@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
@@ -9,12 +10,152 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/speedtest/ndt7_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 import '../settings/test_utils.dart';
+
+const _fakeServers = <Ndt7Server>[
+  Ndt7Server(
+    machine: 'mlab1.fake.test',
+    site: 'fake-site',
+    urls: Ndt7ServerUrls(
+      downloadUrl: 'wss://fake.mlab.test/ndt/v7/download',
+      uploadUrl: 'wss://fake.mlab.test/ndt/v7/upload',
+    ),
+    location: Ndt7ServerLocation(city: 'Test City', country: 'TC'),
+  ),
+];
+
+/// Deterministic Ndt7Service fake. Either serves [servers] instantly or
+/// throws [error], so tests never reach the real M-Lab Locate API.
+class _FakeNdt7Service implements Ndt7Service {
+  _FakeNdt7Service({
+    List<Ndt7Server>? servers,
+    String? error,
+    Completer<List<Ndt7Server>>? discoveryGate,
+  })  : _servers = servers,
+        _error = error,
+        _discoveryGate = discoveryGate;
+
+  final List<Ndt7Server>? _servers;
+  final String? _error;
+  final Completer<List<Ndt7Server>>? _discoveryGate;
+
+  @override
+  Future<List<Ndt7Server>> discoverServers() {
+    final gate = _discoveryGate;
+    if (gate != null) return gate.future;
+    if (_servers == null) {
+      throw Ndt7Exception(_error ?? 'No M-Lab servers available');
+    }
+    return Future.value(_servers);
+  }
+
+  @override
+  Future<Ndt7Measurement> runDownloadTest(
+    Ndt7Server server, {
+    void Function(Ndt7Progress)? onProgress,
+  }) async {
+    for (final speed in const [12.0, 48.0, 95.0]) {
+      onProgress?.call(
+        Ndt7Progress(
+          elapsed: speed / 50,
+          speed: speed,
+          bytesTransferred: (speed * 125000).round(),
+          isDownload: true,
+        ),
+      );
+    }
+    return const Ndt7Measurement(
+      throughputMbps: 95.0,
+      minRTT: 12.0,
+      retransmissions: 3,
+    );
+  }
+
+  @override
+  Future<Ndt7Measurement> runUploadTest(
+    Ndt7Server server, {
+    void Function(Ndt7Progress)? onProgress,
+  }) async {
+    for (final speed in const [8.0, 19.0, 38.0]) {
+      onProgress?.call(
+        Ndt7Progress(
+          elapsed: speed / 25,
+          speed: speed,
+          bytesTransferred: (speed * 125000).round(),
+          isDownload: false,
+        ),
+      );
+    }
+    return const Ndt7Measurement(
+      throughputMbps: 38.0,
+      minRTT: 12.0,
+      retransmissions: 3,
+    );
+  }
+
+  @override
+  Future<Ndt7TestResult> runTest(
+    Ndt7Server server, {
+    void Function(Ndt7Progress)? onProgress,
+  }) async {
+    final download = await runDownloadTest(server, onProgress: onProgress);
+    final upload = await runUploadTest(server, onProgress: onProgress);
+    return Ndt7TestResult(
+      downloadMbps: download.throughputMbps ?? 0,
+      uploadMbps: upload.throughputMbps ?? 0,
+      latencyMs: download.minRTT ?? upload.minRTT ?? 0,
+      server: server,
+      timestamp: DateTime.now(),
+    );
+  }
+
+  @override
+  void dispose() {}
+}
+
+void _installSpeedTestBloc(Ndt7Service service) {
+  if (getIt.isRegistered<SpeedTestBloc>()) {
+    getIt.unregister<SpeedTestBloc>();
+  }
+  getIt.registerSingleton<SpeedTestBloc>(
+    SpeedTestBloc(ndt7Service: service),
+  );
+}
+
+void _restoreProductionSpeedTestBloc() {
+  if (getIt.isRegistered<SpeedTestBloc>()) {
+    getIt<SpeedTestBloc>().close();
+    getIt.unregister<SpeedTestBloc>();
+  }
+  getIt.registerSingleton<SpeedTestBloc>(
+    SpeedTestBloc(ndt7Service: Ndt7Service()),
+  );
+}
+
+Widget _hostScaffold() {
+  return MaterialApp(
+    home: Scaffold(
+      body: Builder(
+        builder: (context) => Center(
+          child: ElevatedButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SpeedTestPage()),
+            ),
+            child: const Text('Open Speed Test'),
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
 void main() {
   globals.testingActive = true;
@@ -35,121 +176,56 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     AppSettings.instance.resetForTesting();
     TestUtils.configureAndroidChannelMocks();
+  });
 
-    // Reset speed test BLoC state between tests
-    if (getIt.isRegistered<SpeedTestBloc>()) {
-      getIt<SpeedTestBloc>().add(const SpeedTestEvent.reset());
-    }
-
-    // Mock NetworkInfo
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('dev.fluttercommunity.plus/network_info'),
-      (MethodCall methodCall) async {
-        switch (methodCall.method) {
-          case 'wifiIPAddress':
-            return '192.168.1.10';
-          case 'wifiBSSID':
-            return '00:11:22:33:44:55';
-          case 'wifiName':
-            return 'MockWiFi';
-          case 'wifiGatewayAddress':
-            return '192.168.1.1';
-          default:
-            return null;
-        }
-      },
-    );
-
-    // Mock PermissionHandler
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('flutter.baseflow.com/permissions/methods'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'requestPermissions') {
-          final permissions = (methodCall.arguments as List<dynamic>?) ?? [];
-          return <int, int>{
-            for (final permission in permissions) permission as int: 1,
-          };
-        }
-        if (methodCall.method == 'checkPermissionStatus' ||
-            methodCall.method == 'checkServiceStatus') {
-          return 1;
-        }
-        return null;
-      },
-    );
-
-    // Mock PackageInfo
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('dev.fluttercommunity.plus/package_info'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'getAll') {
-          return <String, dynamic>{
-            'appName': 'Vernet',
-            'packageName': 'org.fsociety.vernet',
-            'version': '1.0.0',
-            'buildNumber': '1',
-          };
-        }
-        return null;
-      },
-    );
+  tearDown(() {
+    _restoreProductionSpeedTestBloc();
   });
 
   group('Speed Test Integration Tests', () {
-    // Note: Tests pump SpeedTestPage directly since M-Lab server discovery
-    // may not succeed in all test environments.
+    // SpeedTestPage pulls the SpeedTestBloc singleton from getIt and
+    // auto-starts a test once servers are loaded. Each test installs a
+    // fresh bloc backed by a fake Ndt7Service, so runs are deterministic
+    // and never reach M-Lab. Tests that install a serving fake must wait
+    // for 'Test Complete' before finishing so tearDown can close the bloc
+    // without a suspended startTest handler emitting after close.
 
     testWidgets('speed test page displays loading state initially',
         (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
+      // Gate discovery so the loading state cannot resolve mid-test.
+      _installSpeedTestBloc(
+        _FakeNdt7Service(discoveryGate: Completer<List<Ndt7Server>>()),
       );
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
       await tester.pump();
 
-      // Should show loading indicator
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
-    testWidgets('speed test page shows error or main UI after loading',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
-      );
+    testWidgets('speed test page shows main UI after loading', (tester) async {
+      _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
+      await TestUtils.waitForWidget(tester, find.text('Test Server'));
+      expect(find.text('Test City'), findsOneWidget);
 
-      // Should show either error message or main UI
-      final hasError = find.text('Speed Test Unavailable');
-      final hasMainUI = find.text('Speed Over Time');
-
-      expect(
-        hasError.evaluate().isNotEmpty || hasMainUI.evaluate().isNotEmpty,
-        isTrue,
-        reason: 'Should show either error state or main UI',
-      );
+      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
     });
 
     testWidgets('speed test page displays M-Lab attribution', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
-      );
+      _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
+      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+
+      await tester.tap(find.text('Powered by Measurement Lab (M-Lab)'));
       await tester.pumpAndSettle();
+      expect(find.text('Measurement Lab (M-Lab)'), findsOneWidget);
 
-      // M-Lab attribution should be visible in main UI
-      final mlabAttribution = find.text('Powered by Measurement Lab (M-Lab)');
-      expect(mlabAttribution, findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+      expect(find.text('Measurement Lab (M-Lab)'), findsNothing);
     });
-
-    // Skip tests that depend on specific UI states or have layout issues
-    // These can be re-enabled when speed test page is refactored
 
     testWidgets('speed test page responsive layout on phone size',
         (tester) async {
@@ -158,20 +234,14 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
-      );
+      _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
+      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
 
-      // Should display without overflow - check for either error or main UI
-      final hasContent = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
-          find.text('Speed Over Time').evaluate().isNotEmpty ||
-          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
-      expect(hasContent, isTrue);
-    }, skip: true); // Layout overflow issues in test environment
+      expect(find.text('Test Again'), findsOneWidget);
+      expect(find.text('Powered by Measurement Lab (M-Lab)'), findsOneWidget);
+    });
 
     testWidgets('speed test page responsive layout on desktop size',
         (tester) async {
@@ -180,145 +250,77 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
-      );
+      _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
+      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
 
-      // Should display without overflow
-      final hasContent = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
-          find.text('Speed Over Time').evaluate().isNotEmpty ||
-          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
-      expect(hasContent, isTrue);
-    }, skip: true); // Layout overflow issues in test environment
+      expect(find.text('Test Again'), findsOneWidget);
+      expect(find.text('Latency'), findsOneWidget);
+      expect(find.text('Powered by Measurement Lab (M-Lab)'), findsOneWidget);
+    });
 
     testWidgets('speed test page handles orientation changes', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
-      );
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
+      _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      // Change to landscape
+      await TestUtils.waitForWidget(tester, find.text('Test Complete'));
+
       tester.view.physicalSize = const Size(844, 390);
       await tester.pumpAndSettle();
+      expect(find.text('Test Complete'), findsOneWidget);
 
-      // Should still show content
-      final hasContentLandscape = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
-          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
-      expect(hasContentLandscape, isTrue);
-
-      // Change back to portrait
       tester.view.physicalSize = const Size(390, 844);
       await tester.pumpAndSettle();
-
-      final hasContentPortrait = find.text('Speed Test Unavailable').evaluate().isNotEmpty ||
-          find.text('Powered by Measurement Lab (M-Lab)').evaluate().isNotEmpty;
-      expect(hasContentPortrait, isTrue);
-    }, skip: true); // BLoC singleton state leakage between tests
+      expect(find.text('Test Complete'), findsOneWidget);
+    });
 
     testWidgets('speed test page error state has go back button',
         (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(home: SpeedTestPage()),
-      );
+      _installSpeedTestBloc(_FakeNdt7Service(error: 'Locate API unreachable'));
+      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
-
-      // Check if error state is shown (may not be if servers load successfully)
-      final hasErrorState = find.text('Speed Test Unavailable');
-      if (hasErrorState.evaluate().isNotEmpty) {
-        expect(find.text('Go Back'), findsOneWidget);
-      } else {
-        // Main UI is shown, which is also acceptable
-        expect(find.text('Powered by Measurement Lab (M-Lab)'), findsOneWidget);
-      }
-    }, skip: true); // BLoC singleton state leakage between tests
+      await TestUtils.waitForWidget(
+          tester, find.text('Speed Test Unavailable'));
+      // The message shows in both the body text and the error snackbar.
+      expect(find.textContaining('Could not find test servers'), findsWidgets);
+      expect(find.text('Go Back'), findsOneWidget);
+    });
 
     testWidgets('speed test page can be closed via go back button',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SpeedTestPage(),
-                    ),
-                  );
-                },
-                child: const Text('Open Speed Test'),
-              ),
-            ),
-          ),
-        ),
-      );
+      _installSpeedTestBloc(_FakeNdt7Service(error: 'Locate API unreachable'));
+      await tester.pumpWidget(_hostScaffold());
       await tester.pumpAndSettle();
 
-      // Open speed test page
       await tester.tap(find.text('Open Speed Test'));
-      await tester.pumpAndSettle();
+      await TestUtils.waitForWidget(
+          tester, find.text('Speed Test Unavailable'));
 
-      // Wait for page to load
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
-
-      // Try to go back - works in both error and main UI states
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-
-      // Should be back on the scaffold
-      expect(find.text('Open Speed Test'), findsOneWidget);
-    }, skip: true); // BLoC singleton state leakage between tests
+      await tester.tap(find.text('Go Back'));
+      await TestUtils.waitForWidget(tester, find.text('Open Speed Test'));
+    });
 
     testWidgets('speed test page handles rapid open/close cycles',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SpeedTestPage(),
-                    ),
-                  );
-                },
-                child: const Text('Open Speed Test'),
-              ),
-            ),
-          ),
-        ),
-      );
+      _installSpeedTestBloc(_FakeNdt7Service(error: 'Locate API unreachable'));
+      await tester.pumpWidget(_hostScaffold());
       await tester.pumpAndSettle();
 
-      // Rapid open/close cycles
-      for (int i = 0; i < 3; i++) {
+      for (var i = 0; i < 3; i++) {
         await tester.tap(find.text('Open Speed Test'));
-        await tester.pumpAndSettle();
-
-        await tester.pump(const Duration(seconds: 2));
-        await tester.pumpAndSettle();
-
-        // Navigate back
-        await tester.pageBack();
-        await tester.pumpAndSettle();
+        await TestUtils.waitForWidget(
+          tester,
+          find.text('Speed Test Unavailable'),
+        );
+        await tester.tap(find.text('Go Back'));
+        await TestUtils.waitForWidget(tester, find.text('Open Speed Test'));
       }
-
-      // Should not crash
-      expect(find.text('Open Speed Test'), findsOneWidget);
-    }, skip: true); // BLoC singleton state leakage between tests
+    });
   });
 }
