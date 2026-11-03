@@ -69,7 +69,9 @@ void main() {
         '${NeighborMibs.lldpRemManAddr}.3.0.8.1.1.10.20.30.40': integer(0),
       },
       locPortId: {'${NeighborMibs.lldpLocPortId}.8': str('Gi1/0/8')},
-      locPortDesc: {'${NeighborMibs.lldpLocPortDesc}.8': str('GigabitEthernet1/0/8')},
+      locPortDesc: {
+        '${NeighborMibs.lldpLocPortDesc}.8': str('GigabitEthernet1/0/8')
+      },
       vlans: {'${NeighborMibs.lldpXdot1RemVlan}.0.8.1': integer(40)},
       ifSpeeds: {'${NeighborMibs.ifHighSpeed}.8': integer(1000)},
     );
@@ -84,7 +86,8 @@ void main() {
     expect(neighbors.first.speedDuplex, '1 Gbps');
   });
 
-  test('maps CDP capabilities, mgmt address, half duplex, and ifIndex fallback', () {
+  test('maps CDP capabilities, mgmt address, half duplex, and ifIndex fallback',
+      () {
     const cachePrefix = NeighborMibs.cdpCache;
     final neighbors = NeighborMibMapper.mapCdp(
       cache: {

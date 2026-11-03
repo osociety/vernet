@@ -28,7 +28,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('DeviceUtil.getDeviceMake', () {
-    test('returns actual hostMake for current device (UI adds chip separately)', () {
+    test('returns actual hostMake for current device (UI adds chip separately)',
+        () {
       final device = _device(
         internetAddress: '192.168.0.10',
       );
@@ -37,7 +38,9 @@ void main() {
       expect(DeviceUtil.isCurrentDevice(device), true);
     });
 
-    test('returns "Router/Gateway" when gateway IP matches and device is not a DHCP/DNS service', () {
+    test(
+        'returns "Router/Gateway" when gateway IP matches and device is not a DHCP/DNS service',
+        () {
       final device = _device(
         internetAddress: '192.168.0.1',
       );
@@ -45,7 +48,8 @@ void main() {
       expect(DeviceUtil.getDeviceMake(device), 'Router/Gateway');
     });
 
-    test('does not label DHCP server as router when it matches the gateway IP', () {
+    test('does not label DHCP server as router when it matches the gateway IP',
+        () {
       final device = _device(
         internetAddress: '192.168.0.1',
         hostMake: 'isc-dhcp-server',
@@ -54,7 +58,8 @@ void main() {
       expect(DeviceUtil.getDeviceMake(device), 'isc-dhcp-server');
     });
 
-    test('does not label DNS service as router when it matches the gateway IP', () {
+    test('does not label DNS service as router when it matches the gateway IP',
+        () {
       final device = _device(
         internetAddress: '192.168.0.1',
         hostMake: 'dnsmasq',

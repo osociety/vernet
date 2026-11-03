@@ -251,9 +251,8 @@ void main() {
         ..ip = '192.168.0.2';
 
       bloc.add(const HostScanEvent.startNewScan());
-      final success =
-          await bloc.stream.firstWhere((state) => state is LoadSuccess)
-              as LoadSuccess;
+      final success = await bloc.stream
+          .firstWhere((state) => state is LoadSuccess) as LoadSuccess;
 
       expect(
         success.activeHosts.map((device) => device.internetAddress),
@@ -261,8 +260,7 @@ void main() {
       );
     });
 
-    test('progress after the page is closed does not abort the scan',
-        () async {
+    test('progress after the page is closed does not abort the scan', () async {
       await bloc.close();
       final scanner = FakeScannerService(
         devices: const [],

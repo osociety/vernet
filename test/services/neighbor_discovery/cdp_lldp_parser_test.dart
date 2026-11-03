@@ -31,10 +31,28 @@ void main() {
       platformValue: 'cisco',
     );
     final frame = <int>[
-      0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc,
-      0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
-      0x00, 0x40,
-      0xaa, 0xaa, 0x03, 0x00, 0x00, 0x0c, 0x20, 0x00,
+      0x01,
+      0x00,
+      0x0c,
+      0xcc,
+      0xcc,
+      0xcc,
+      0xaa,
+      0xbb,
+      0xcc,
+      0xdd,
+      0xee,
+      0xff,
+      0x00,
+      0x40,
+      0xaa,
+      0xaa,
+      0x03,
+      0x00,
+      0x00,
+      0x0c,
+      0x20,
+      0x00,
       ...cdp,
     ];
     expect(CdpParser.parse(frame)?.hostname, 'SW1');
@@ -60,18 +78,37 @@ void main() {
     expect(neighbor.speedDuplex, '1 Gbps full');
   });
 
-  test('parses CDP with capabilities, half duplex, and version fallback for platform', () {
+  test(
+      'parses CDP with capabilities, half duplex, and version fallback for platform',
+      () {
     List<int> tlv(int type, List<int> val) {
       final len = val.length + 4;
-      return [(type >> 8) & 0xff, type & 0xff, (len >> 8) & 0xff, len & 0xff, ...val];
+      return [
+        (type >> 8) & 0xff,
+        type & 0xff,
+        (len >> 8) & 0xff,
+        len & 0xff,
+        ...val
+      ];
     }
 
-    final tlvVersion = tlv(0x0005, 'Cisco IOS Software\nVersion 15.0'.codeUnits);
-    final tlvCaps = tlv(0x0004, [0x00, 0x00, 0x00, 0x19]); // Router (0x01), Switch (0x08), Host (0x10)
+    final tlvVersion =
+        tlv(0x0005, 'Cisco IOS Software\nVersion 15.0'.codeUnits);
+    final tlvCaps = tlv(0x0004,
+        [0x00, 0x00, 0x00, 0x19]); // Router (0x01), Switch (0x08), Host (0x10)
     final tlvDevice = tlv(0x0001, 'SW-CAP'.codeUnits);
     final tlvDuplex = tlv(0x000b, [0x00]); // half duplex
 
-    final payload = <int>[2, 180, 0, 0, ...tlvDevice, ...tlvVersion, ...tlvCaps, ...tlvDuplex];
+    final payload = <int>[
+      2,
+      180,
+      0,
+      0,
+      ...tlvDevice,
+      ...tlvVersion,
+      ...tlvCaps,
+      ...tlvDuplex
+    ];
     final neighbor = CdpParser.parse(payload);
     expect(neighbor, isNotNull);
     expect(neighbor!.hostname, 'SW-CAP');
@@ -138,20 +175,37 @@ void main() {
       final chassisTlv = [(1 << 1) | 0, 7, 4, 1, 2, 3, 4, 5, 6];
       final portTlv = [(2 << 1) | 0, 5, 5, ...'eth0'.codeUnits];
       final mauTlv = [
-        ((127 << 1) | 0), 9,
-        0x00, 0x12, 0x0f, 0x01, 0x00, 0x00, 0x00, 0x00, entry.key,
+        ((127 << 1) | 0),
+        9,
+        0x00,
+        0x12,
+        0x0f,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        entry.key,
       ];
       final capsTlv = [
         ((7 << 1) | 0), 4,
         0x00, 0x14, 0x00, 0x14, // Bridge (0x04) + Router (0x10)
       ];
       final nameTlv = [
-        ((5 << 1) | 0), 3,
+        ((5 << 1) | 0),
+        3,
         ...'MAU'.codeUnits,
       ];
       final endTlv = [0x00, 0x00];
 
-      final payload = <int>[...chassisTlv, ...portTlv, ...nameTlv, ...capsTlv, ...mauTlv, ...endTlv];
+      final payload = <int>[
+        ...chassisTlv,
+        ...portTlv,
+        ...nameTlv,
+        ...capsTlv,
+        ...mauTlv,
+        ...endTlv
+      ];
       final neighbor = LldpParser.parse(payload);
       expect(neighbor, isNotNull);
       expect(neighbor!.speedDuplex, entry.value);

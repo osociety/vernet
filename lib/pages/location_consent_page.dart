@@ -32,8 +32,8 @@ class _LocationConsentPageState extends State<LocationConsentPage> {
                 Text(
                   'Vernet',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                   textAlign: TextAlign.center,
                 ),
                 Image.asset(splashIcon, width: 160, height: 160),

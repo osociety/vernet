@@ -34,8 +34,7 @@ class NetworkTroubleshootDialog extends StatelessWidget {
     // For wide screens on those platforms we use a Material AlertDialog
     // wrapped in a Dialog (which has no default width cap) so the user gets
     // a comfortably wide layout.
-    final useWideDesktopDialog =
-        isDesktop &&
+    final useWideDesktopDialog = isDesktop &&
         (platform == TargetPlatform.macOS || platform == TargetPlatform.iOS);
 
     final contentWidget = _buildContent(context, colors, statusColor);
@@ -141,13 +140,11 @@ class NetworkTroubleshootDialog extends StatelessWidget {
                         children: [
                           Text(
                             entry.key,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                           ),
                           const SizedBox(width: 12),
                           Flexible(
@@ -187,11 +184,10 @@ class NetworkTroubleshootDialog extends StatelessWidget {
                   children: [
                     Text(
                       '${i + 1}. ',
-                      style:
-                          Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colors.primary,
-                              ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.primary,
+                          ),
                     ),
                     Expanded(
                       child: Text(

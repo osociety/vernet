@@ -96,7 +96,8 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     final existingHosts = _monitors.map((m) => m.host.toLowerCase()).toSet();
     final suggestions = <ServerMonitor>[];
 
-    if (!existingHosts.any((h) => h.contains('192.168') || h.contains('10.') || h.contains('router'))) {
+    if (!existingHosts.any((h) =>
+        h.contains('192.168') || h.contains('10.') || h.contains('router'))) {
       String gatewayIp = '192.168.1.1';
       try {
         final actualGateway = await NetworkInfo().getWifiGatewayIP();
@@ -224,9 +225,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
           icon: const Icon(Icons.add),
           label: const Text('Add server'),
         ),
-        body: _monitors.isEmpty
-            ? _buildEmptyState()
-            : _buildMonitorList(),
+        body: _monitors.isEmpty ? _buildEmptyState() : _buildMonitorList(),
       );
 
   Widget _buildEmptyState() {
@@ -297,9 +296,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
         final latest = _latest[monitor.id];
         final uptime = history.isEmpty
             ? null
-            : history.where((item) => item.isUp).length *
-                100 /
-                history.length;
+            : history.where((item) => item.isUp).length * 100 / history.length;
         final downtime = _downtime(history);
         final outages = _outages(history);
         return Card(
@@ -327,9 +324,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(monitor.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium),
+                            style: Theme.of(context).textTheme.titleMedium),
                         Text(
                             '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
                       ],
@@ -357,38 +352,39 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                     icon: const Icon(Icons.delete_outline),
                   ),
                 ]),
-                          if (latest != null)
-                            Text(
-                              '${latest.isUp ? 'Reachable' : 'Unreachable'} · ${latest.message} · ${_formatLatency(latest.latency)}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 44,
-                            width: double.infinity,
-                            child: _AvailabilityGraph(results: history),
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 18,
-                            runSpacing: 4,
-                            children: [
-                              Text('Checks: ${history.length}'),
-                              Text('Outages: $outages'),
-                              Text(uptime == null
-                                  ? 'Uptime: —'
-                                  : 'Uptime: ${uptime.toStringAsFixed(1)}%'),
-                              Text('Downtime: ${_formatDuration(downtime)}'),
-                              Text('Every ${monitor.intervalSeconds}s'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
+                if (latest != null)
+                  Text(
+                    '${latest.isUp ? 'Reachable' : 'Unreachable'} · ${latest.message} · ${_formatLatency(latest.latency)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 44,
+                  width: double.infinity,
+                  child: _AvailabilityGraph(results: history),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 18,
+                  runSpacing: 4,
+                  children: [
+                    Text('Checks: ${history.length}'),
+                    Text('Outages: $outages'),
+                    Text(uptime == null
+                        ? 'Uptime: —'
+                        : 'Uptime: ${uptime.toStringAsFixed(1)}%'),
+                    Text('Downtime: ${_formatDuration(downtime)}'),
+                    Text('Every ${monitor.intervalSeconds}s'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
+
   Duration _downtime(List<ServerCheckResult> history) {
     if (history.length < 2) return Duration.zero;
     var total = Duration.zero;

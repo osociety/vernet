@@ -54,7 +54,8 @@ class WakeOnLanService {
       );
     }
 
-    final ip = ipv4Address.trim().isEmpty ? defaultBroadcast : ipv4Address.trim();
+    final ip =
+        ipv4Address.trim().isEmpty ? defaultBroadcast : ipv4Address.trim();
     final ipValidation = IPAddress.validate(ip);
     if (!ipValidation.state) {
       throw const WakeOnLanException('Enter a valid IPv4 broadcast address');
@@ -66,7 +67,8 @@ class WakeOnLanService {
 
     final secureOn = password?.trim();
     if (secureOn != null && secureOn.isNotEmpty) {
-      final passwordValidation = SecureONPassword.validate(normalizeMac(secureOn));
+      final passwordValidation =
+          SecureONPassword.validate(normalizeMac(secureOn));
       if (!passwordValidation.state) {
         throw const WakeOnLanException(
           'SecureON password must look like a MAC address',
@@ -118,7 +120,8 @@ class WakeOnLanService {
       final decoded = jsonDecode(raw) as List<dynamic>;
       return decoded
           .whereType<Map>()
-          .map((item) => WakeOnLanTarget.fromJson(Map<String, dynamic>.from(item)))
+          .map((item) =>
+              WakeOnLanTarget.fromJson(Map<String, dynamic>.from(item)))
           .toList();
     } catch (_) {
       return [];

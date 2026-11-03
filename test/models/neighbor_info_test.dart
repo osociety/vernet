@@ -17,7 +17,8 @@ void main() {
   test('hostname falls back to Unknown device when empty', () {
     const c = NeighborInfo(protocol: NeighborProtocol.lldp);
     expect(c.hostname, 'Unknown device');
-    const d = NeighborInfo(protocol: NeighborProtocol.cdp, deviceId: '  ', sysName: '');
+    const d = NeighborInfo(
+        protocol: NeighborProtocol.cdp, deviceId: '  ', sysName: '');
     expect(d.hostname, 'Unknown device');
   });
 
@@ -30,7 +31,8 @@ void main() {
     expect(named.displayName, 'core-sw1');
   });
 
-  test('NeighborInfo copyWith updates specified fields and preserves others', () {
+  test('NeighborInfo copyWith updates specified fields and preserves others',
+      () {
     const original = NeighborInfo(
       protocol: NeighborProtocol.cdp,
       deviceId: 'dev1',
@@ -81,7 +83,8 @@ void main() {
     expect(preserved.capabilities, original.capabilities);
   });
 
-  test('NeighborDiscoveryResult constructor creates valid result with defaults', () {
+  test('NeighborDiscoveryResult constructor creates valid result with defaults',
+      () {
     const identity = SwitchIdentity(ip: '192.168.1.1');
     const result = NeighborDiscoveryResult(
       switchInfo: identity,

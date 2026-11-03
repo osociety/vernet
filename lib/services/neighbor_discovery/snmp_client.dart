@@ -15,7 +15,11 @@ class SnmpValue {
   bool get isNoSuchInstance => tag == 0x81;
 
   int? get asInt {
-    if (tag != 0x02 && tag != 0x41 && tag != 0x42 && tag != 0x43 && tag != 0x47) {
+    if (tag != 0x02 &&
+        tag != 0x41 &&
+        tag != 0x42 &&
+        tag != 0x43 &&
+        tag != 0x47) {
       return null;
     }
     return Ber.decodeInteger(bytes);
@@ -31,7 +35,11 @@ class SnmpValue {
     if (tag == 0x06) {
       return Ber.decodeOid(bytes);
     }
-    if (tag == 0x02 || tag == 0x41 || tag == 0x42 || tag == 0x43 || tag == 0x47) {
+    if (tag == 0x02 ||
+        tag == 0x41 ||
+        tag == 0x42 ||
+        tag == 0x43 ||
+        tag == 0x47) {
       return '${asInt ?? ''}';
     }
     final text = String.fromCharCodes(bytes);
@@ -90,14 +98,17 @@ class SnmpV2cClient implements SnmpClient {
     final bindings = await _request(
       host,
       community,
-      _encodePdu(tag: 0xa0, requestId: _nextId(), extraInts: [0, 0], oids: [oid]),
+      _encodePdu(
+          tag: 0xa0, requestId: _nextId(), extraInts: [0, 0], oids: [oid]),
       timeout,
     );
     if (bindings.isEmpty) {
       return null;
     }
     final value = bindings.first.value;
-    if (value.isNoSuchObject || value.isNoSuchInstance || value.isEndOfMibView) {
+    if (value.isNoSuchObject ||
+        value.isNoSuchInstance ||
+        value.isEndOfMibView) {
       return null;
     }
     return value;

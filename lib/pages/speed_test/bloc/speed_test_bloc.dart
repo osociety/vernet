@@ -150,8 +150,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     final uploadResult = await _ndt7Service.runUploadTest(
       server,
       onProgress: (progress) {
-        final speeds =
-            List<double>.from(state.uploadSpeeds)..add(progress.speed);
+        final speeds = List<double>.from(state.uploadSpeeds)
+          ..add(progress.speed);
         emit(state.copyWith(
           currentUploadSpeed: progress.speed,
           uploadSpeeds: speeds,

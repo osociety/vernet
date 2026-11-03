@@ -89,7 +89,8 @@ class Ber {
   static List<int> encodeNull() => [0x05, 0x00];
 
   static List<int> encodeOid(String oid) {
-    final parts = oid.split('.').where((p) => p.isNotEmpty).map(int.parse).toList();
+    final parts =
+        oid.split('.').where((p) => p.isNotEmpty).map(int.parse).toList();
     if (parts.length < 2) {
       throw ArgumentError('OID must have at least two components: $oid');
     }

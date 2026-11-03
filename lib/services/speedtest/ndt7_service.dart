@@ -93,8 +93,8 @@ class Ndt7Service {
       latencyMs: downloadResult.minRTT ?? uploadResult.minRTT ?? 0,
       server: server,
       minRTT: downloadResult.minRTT ?? uploadResult.minRTT,
-      retransmissions: downloadResult.retransmissions ??
-          uploadResult.retransmissions,
+      retransmissions:
+          downloadResult.retransmissions ?? uploadResult.retransmissions,
       timestamp: DateTime.now(),
     );
   }

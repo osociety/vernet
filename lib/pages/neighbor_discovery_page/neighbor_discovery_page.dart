@@ -193,9 +193,11 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
                     const SizedBox(height: 8),
                     ElevatedButton.icon(
                       key: WidgetKey.neighborDiscoverButton.key,
-                      onPressed: _loading || (!_cdp && !_lldp) ? null : _discover,
+                      onPressed:
+                          _loading || (!_cdp && !_lldp) ? null : _discover,
                       icon: const Icon(Icons.hub),
-                      label: Text(_loading ? 'Asking the switch…' : 'Find neighbors'),
+                      label: Text(
+                          _loading ? 'Asking the switch…' : 'Find neighbors'),
                     ),
                     const SizedBox(height: 4),
                     Text(

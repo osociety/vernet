@@ -60,7 +60,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: AdaptiveCircularProgressIndicator(strokeWidth: 2),
+                        child:
+                            AdaptiveCircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.refresh),
                 tooltip: 'Refresh score',
@@ -83,7 +84,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     );
   }
 
-  Widget _buildOverallScoreSection(BuildContext context, NetworkScore currentScore, bool isComputing) {
+  Widget _buildOverallScoreSection(
+      BuildContext context, NetworkScore currentScore, bool isComputing) {
     final colors = Theme.of(context).colorScheme;
     final scoreColor = _getScoreColor(currentScore.overallScore, colors);
 
@@ -136,7 +138,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     );
   }
 
-  Widget _buildDimensionsSection(BuildContext context, NetworkScore currentScore) {
+  Widget _buildDimensionsSection(
+      BuildContext context, NetworkScore currentScore) {
     final colors = Theme.of(context).colorScheme;
 
     return Column(
@@ -187,7 +190,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                 color: color.withAlpha(24),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(_getDimensionIcon(dimension.name), color: color, size: 20),
+              child: Icon(_getDimensionIcon(dimension.name),
+                  color: color, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -293,9 +297,10 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
 
   List<_ParsedFactor> _parseFactorsWithPoints(List<String> factors) {
     return factors.map((factor) {
-      final regex = RegExp(r'\(([^)]*?(-?\d+)\s*points?)\)', caseSensitive: false);
+      final regex =
+          RegExp(r'\(([^)]*?(-?\d+)\s*points?)\)', caseSensitive: false);
       final match = regex.firstMatch(factor);
-      
+
       if (match != null) {
         final points = int.parse(match.group(2)!);
         return _ParsedFactor(
@@ -303,11 +308,11 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
           points: points,
         );
       }
-      
+
       // Check for patterns like "-50 points" or "-12 points"
       final simpleRegex = RegExp(r'(-\d+)\s*points?', caseSensitive: false);
       final simpleMatch = simpleRegex.firstMatch(factor);
-      
+
       if (simpleMatch != null) {
         final points = int.parse(simpleMatch.group(1)!);
         return _ParsedFactor(
@@ -315,7 +320,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
           points: points,
         );
       }
-      
+
       return _ParsedFactor(text: factor, points: 0);
     }).toList();
   }
@@ -327,9 +332,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     bool isPositive,
   ) {
     final hasPoints = factor.points != 0;
-    final pointText = hasPoints
-        ? '${factor.points > 0 ? "+" : ""}${factor.points}'
-        : null;
+    final pointText =
+        hasPoints ? '${factor.points > 0 ? "+" : ""}${factor.points}' : null;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -386,7 +390,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     );
   }
 
-  Widget _buildImproveScoreSection(BuildContext context, NetworkScore currentScore) {
+  Widget _buildImproveScoreSection(
+      BuildContext context, NetworkScore currentScore) {
     final colors = Theme.of(context).colorScheme;
 
     return Column(
@@ -426,7 +431,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
             title: 'Monitor Servers',
             subtitle: _getReliabilityActionSubtitle(currentScore.reliability),
             color: colors.secondary,
-            onTap: () => _navigateAndRefresh(context, const ServerCheckerPage()),
+            onTap: () =>
+                _navigateAndRefresh(context, const ServerCheckerPage()),
           ),
           _QuickAddMonitorsSection(
             onAddMonitor: (monitor) => _quickAddMonitor(context, monitor),
@@ -487,7 +493,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     return 'Track reliability of important services';
   }
 
-  Future<void> _quickAddMonitor(BuildContext context, ServerMonitor monitor) async {
+  Future<void> _quickAddMonitor(
+      BuildContext context, ServerMonitor monitor) async {
     final service = ServerMonitorService();
     final newMonitor = ServerMonitor(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -629,7 +636,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
 
   Color _getScoreColor(int score, ColorScheme colors) {
     if (score >= 100) return Colors.green;
-    
+
     final level = ScoreLevel.fromScore(score);
     switch (level) {
       case ScoreLevel.good:

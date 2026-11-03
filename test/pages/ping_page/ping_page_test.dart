@@ -121,7 +121,8 @@ void main() {
       expect(find.text('Std dev: --'), findsOneWidget);
     });
 
-    testWidgets('initializes with target address when provided', (tester) async {
+    testWidgets('initializes with target address when provided',
+        (tester) async {
       await tester.pumpWidget(
         createPingPageTestWidget(const PingPage(target: '192.168.1.1')),
       );

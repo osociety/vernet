@@ -144,7 +144,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Quick Add'), findsOneWidget);
-    expect(find.text('Add these monitors to track network reliability:'), findsOneWidget);
+    expect(find.text('Add these monitors to track network reliability:'),
+        findsOneWidget);
 
     // Should show router monitor option
     expect(find.text('Local Router'), findsOneWidget);

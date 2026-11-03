@@ -113,7 +113,8 @@ void main() {
       expect(find.text('Open ports'), findsOneWidget);
     });
 
-    testWidgets('Full port scan button navigates to PortScanPage with target IP',
+    testWidgets(
+        'Full port scan button navigates to PortScanPage with target IP',
         (tester) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1.0;

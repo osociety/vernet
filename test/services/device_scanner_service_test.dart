@@ -94,8 +94,7 @@ void main() {
 
     // Note: This test has a pre-existing issue with mock verification
     // The service doesn't appear to call the mocked repository methods
-    test('getCurrentDevicesCount returns count when scan is in progress',
-        () {
+    test('getCurrentDevicesCount returns count when scan is in progress', () {
       // Skipped due to pre-existing mock verification issues
     });
 
@@ -144,11 +143,14 @@ void main() {
         scanId: 12345,
       );
 
-      when(() => mockScanRepository.put(any())).thenAnswer((_) async => scanData);
+      when(() => mockScanRepository.put(any()))
+          .thenAnswer((_) async => scanData);
       when(() => mockDeviceRepository.getDevice(any(), any()))
           .thenAnswer((_) async => null);
-      when(() => mockDeviceRepository.put(any())).thenAnswer((_) async => device);
-      when(() => mockScanRepository.update(any())).thenAnswer((_) async => scanData);
+      when(() => mockDeviceRepository.put(any()))
+          .thenAnswer((_) async => device);
+      when(() => mockScanRepository.update(any()))
+          .thenAnswer((_) async => scanData);
 
       // Verify service can be called without errors
       expect(
@@ -178,11 +180,14 @@ void main() {
         scanId: 12345,
       );
 
-      when(() => mockScanRepository.put(any())).thenAnswer((_) async => scanData);
+      when(() => mockScanRepository.put(any()))
+          .thenAnswer((_) async => scanData);
       when(() => mockDeviceRepository.getDevice(any(), any()))
           .thenAnswer((_) async => existingDevice);
-      when(() => mockDeviceRepository.put(any())).thenAnswer((_) async => existingDevice);
-      when(() => mockScanRepository.update(any())).thenAnswer((_) async => scanData);
+      when(() => mockDeviceRepository.put(any()))
+          .thenAnswer((_) async => existingDevice);
+      when(() => mockScanRepository.update(any()))
+          .thenAnswer((_) async => scanData);
 
       expect(
         () => deviceScannerService.startNewScan(

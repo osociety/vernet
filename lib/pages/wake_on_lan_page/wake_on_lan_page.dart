@@ -66,9 +66,8 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       if (!mounted || _ipController.text.isNotEmpty) {
         return;
       }
-      final broadcast = gateway == null
-          ? null
-          : WakeOnLanService.broadcastFromIpv4(gateway);
+      final broadcast =
+          gateway == null ? null : WakeOnLanService.broadcastFromIpv4(gateway);
       setState(() {
         _ipController.text = broadcast ?? WakeOnLanService.defaultBroadcast;
       });
@@ -287,7 +286,8 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
                           key: WidgetKey.wakeOnLanSendButton.key,
                           onPressed: _sending ? null : _send,
                           icon: const Icon(Icons.power_settings_new),
-                          label: Text(_sending ? 'Sending…' : 'Send wake packet'),
+                          label:
+                              Text(_sending ? 'Sending…' : 'Send wake packet'),
                         ),
                         OutlinedButton.icon(
                           key: WidgetKey.wakeOnLanSaveButton.key,
@@ -338,7 +338,8 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       child: AdaptiveListTile(
         leading: const Icon(Icons.computer),
         title: Text(target.label),
-        subtitle: Text('${target.macAddress}\n${target.ipv4Address}:${target.port}'),
+        subtitle:
+            Text('${target.macAddress}\n${target.ipv4Address}:${target.port}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

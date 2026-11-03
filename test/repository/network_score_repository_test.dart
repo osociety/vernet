@@ -14,11 +14,16 @@ void main() {
       final score = NetworkScore(
         overallScore: 85,
         computedAt: DateTime(2024, 1, 15, 10, 30),
-        security: const DimensionScore(name: 'Security', value: 90, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 80, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Moderate'),
-        speed: const DimensionScore(name: 'Speed', value: 70, description: 'Moderate'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 95, description: 'Low risk'),
+        security: const DimensionScore(
+            name: 'Security', value: 90, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 80, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Moderate'),
+        speed: const DimensionScore(
+            name: 'Speed', value: 70, description: 'Moderate'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 95, description: 'Low risk'),
         metadata: {'gateway': '192.168.1.1'},
       );
 
@@ -47,7 +52,8 @@ void main() {
         health: const DimensionScore(name: '', value: 0, description: ''),
         reliability: const DimensionScore(name: '', value: 0, description: ''),
         speed: const DimensionScore(name: '', value: 0, description: ''),
-        vulnerabilities: const DimensionScore(name: '', value: 0, description: ''),
+        vulnerabilities:
+            const DimensionScore(name: '', value: 0, description: ''),
       );
 
       await repository.saveScore(score);

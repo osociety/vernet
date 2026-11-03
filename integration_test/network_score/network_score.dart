@@ -127,7 +127,8 @@ void main() {
       // Should show the card with NETWORK SCORE label
       expect(find.text('NETWORK SCORE'), findsOneWidget);
       // Card shows either initial state or success state (if BLoC has cached score)
-      final hasInitialState = find.text('Tap to assess your network').evaluate().isNotEmpty;
+      final hasInitialState =
+          find.text('Tap to assess your network').evaluate().isNotEmpty;
       final hasSuccessState = find.text('/100').evaluate().isNotEmpty;
       expect(hasInitialState || hasSuccessState, isTrue,
           reason: 'Card should show either initial or success state');
@@ -156,15 +157,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find the tappable area - either "Tap to assess" or the card itself if showing score
-      final tapTarget = find.text('Tap to assess your network').evaluate().isNotEmpty
-          ? find.text('Tap to assess your network')
-          : find.text('NETWORK SCORE');
-      
+      final tapTarget =
+          find.text('Tap to assess your network').evaluate().isNotEmpty
+              ? find.text('Tap to assess your network')
+              : find.text('NETWORK SCORE');
+
       await tester.tap(tapTarget);
       await tester.pump();
 
       // Should show computing state or transition to success (if already computed)
-      final isComputing = find.text('Computing your network score...').evaluate().isNotEmpty;
+      final isComputing =
+          find.text('Computing your network score...').evaluate().isNotEmpty;
       final hasSuccessState = find.text('/100').evaluate().isNotEmpty;
       expect(isComputing || hasSuccessState, isTrue,
           reason: 'Card should show computing or success state after tap');
@@ -174,11 +177,16 @@ void main() {
       final testScore = NetworkScore(
         overallScore: 75,
         computedAt: DateTime(2024),
-        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        security: const DimensionScore(
+            name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -197,15 +205,21 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsWidgets);
     });
 
-    testWidgets('network score detail page shows dimension bars', (tester) async {
+    testWidgets('network score detail page shows dimension bars',
+        (tester) async {
       final testScore = NetworkScore(
         overallScore: 75,
         computedAt: DateTime(2024),
-        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        security: const DimensionScore(
+            name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -224,15 +238,21 @@ void main() {
       expect(find.byType(NetworkScoreDetailPage), findsOneWidget);
     });
 
-    testWidgets('network score card navigates to detail page on tap', (tester) async {
+    testWidgets('network score card navigates to detail page on tap',
+        (tester) async {
       final testScore = NetworkScore(
         overallScore: 75,
         computedAt: DateTime(2024),
-        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        security: const DimensionScore(
+            name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -255,7 +275,8 @@ void main() {
                             MaterialPageRoute(
                               builder: (context) => BlocProvider.value(
                                 value: getIt<NetworkScoreBloc>(),
-                                child: NetworkScoreDetailPage(initialScore: testScore),
+                                child: NetworkScoreDetailPage(
+                                    initialScore: testScore),
                               ),
                             ),
                           );
@@ -280,7 +301,8 @@ void main() {
       expect(find.text('Score Breakdown'), findsOneWidget);
     });
 
-    testWidgets('network score responsive layout on phone size', (tester) async {
+    testWidgets('network score responsive layout on phone size',
+        (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -289,11 +311,16 @@ void main() {
       final testScore = NetworkScore(
         overallScore: 75,
         computedAt: DateTime(2024),
-        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        security: const DimensionScore(
+            name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -310,7 +337,8 @@ void main() {
       expect(find.text('Score Breakdown'), findsOneWidget);
     });
 
-    testWidgets('network score responsive layout on desktop size', (tester) async {
+    testWidgets('network score responsive layout on desktop size',
+        (tester) async {
       tester.view.physicalSize = const Size(1280, 1000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -319,11 +347,16 @@ void main() {
       final testScore = NetworkScore(
         overallScore: 75,
         computedAt: DateTime(2024),
-        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        security: const DimensionScore(
+            name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(
@@ -344,11 +377,16 @@ void main() {
       final testScore = NetworkScore(
         overallScore: 75,
         computedAt: DateTime(2024),
-        security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-        health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-        reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-        speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-        vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+        security: const DimensionScore(
+            name: 'Security', value: 80, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 75, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
       );
 
       await tester.pumpWidget(

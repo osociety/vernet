@@ -35,7 +35,8 @@ void main() {
 
       expect(find.text('Device Connected to Router'), findsOneWidget);
       expect(find.text('Connected via Wi-Fi'), findsOneWidget);
-      expect(find.text('Your device has a valid local IP address.'), findsOneWidget);
+      expect(find.text('Your device has a valid local IP address.'),
+          findsOneWidget);
       expect(find.text('Device IP'), findsOneWidget);
       expect(find.text('192.168.1.5'), findsOneWidget);
       expect(find.text('Gateway IP'), findsOneWidget);

@@ -24,14 +24,16 @@ void main() {
   });
 
   testWidgets('renders SNMP form and CLI paste entry point', (tester) async {
-    await tester.pumpWidget(wrap(const NeighborDiscoveryPage(initialSwitchIp: '192.168.1.1')));
+    await tester.pumpWidget(
+        wrap(const NeighborDiscoveryPage(initialSwitchIp: '192.168.1.1')));
     await tester.pump();
 
     expect(find.text(StringValue.neighborDiscoveryPageTitle), findsOneWidget);
     expect(find.byKey(WidgetKey.neighborSwitchIpField.key), findsOneWidget);
     expect(find.byKey(WidgetKey.neighborDiscoverButton.key), findsOneWidget);
     expect(find.byKey(WidgetKey.neighborCliTile.key), findsOneWidget);
-    expect(find.text(StringValue.neighborDiscoveryEmptyPlaceholder), findsOneWidget);
+    expect(find.text(StringValue.neighborDiscoveryEmptyPlaceholder),
+        findsOneWidget);
   });
 
   testWidgets('parses pasted CDP CLI into a neighbor card', (tester) async {
@@ -42,7 +44,8 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(wrap(const NeighborDiscoveryPage(initialSwitchIp: '192.168.1.1')));
+    await tester.pumpWidget(
+        wrap(const NeighborDiscoveryPage(initialSwitchIp: '192.168.1.1')));
     await tester.pump();
 
     await tester.tap(find.byKey(WidgetKey.neighborCliTile.key));
@@ -68,7 +71,9 @@ Duplex: full
     expect(find.text('Switch port: GigabitEthernet1/0/24'), findsOneWidget);
   });
 
-  testWidgets('discovers neighbors via SNMP button and renders switch and neighbor cards', (tester) async {
+  testWidgets(
+      'discovers neighbors via SNMP button and renders switch and neighbor cards',
+      (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -78,7 +83,8 @@ Duplex: full
 
     final service = FakeDiscoveryService();
     await tester.pumpWidget(
-      wrap(NeighborDiscoveryPage(initialSwitchIp: '192.168.1.1', service: service)),
+      wrap(NeighborDiscoveryPage(
+          initialSwitchIp: '192.168.1.1', service: service)),
     );
     await tester.pump();
 

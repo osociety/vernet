@@ -75,7 +75,8 @@ void main() {
     });
 
     group('checkRouterToInternet', () {
-      test('returns disconnected immediately if device is not connected to router',
+      test(
+          'returns disconnected immediately if device is not connected to router',
           () async {
         final service = NetworkConnectivityService(
           pingProbe: (host) async => const Duration(milliseconds: 15),
@@ -94,7 +95,8 @@ void main() {
 
         expect(status.state, NetworkConnectionState.disconnected);
         expect(status.troubleshootingSteps, isNotEmpty);
-        expect(status.description, contains('disconnected from your local router'));
+        expect(status.description,
+            contains('disconnected from your local router'));
       });
 
       test('returns connected when ping probe succeeds', () async {
