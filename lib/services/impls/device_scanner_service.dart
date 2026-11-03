@@ -200,8 +200,8 @@ class DeviceScannerService extends ScannerService {
             (appSettings.firstSubnet == 1 && appSettings.lastSubnet == 254)
                 ? appSettings.calculateHostRange(gatewayIp, subnetMask)
                 : (
-                    first: appSettings.firstSubnet,
-                    last: appSettings.lastSubnet,
+                    first: appSettings.firstSubnet.clamp(1, 254),
+                    last: appSettings.lastSubnet.clamp(1, 254),
                   );
 
         final seenAddresses = <String>{};

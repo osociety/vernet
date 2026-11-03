@@ -150,10 +150,37 @@ class HostScanWidget extends StatelessWidget {
             itemCount: activeHostList.length,
             itemBuilder: (context, index) {
               final DeviceData host = activeHostList[index];
+              final isCurrentDevice = DeviceUtil.isCurrentDevice(host);
               return AdaptiveListTile(
                 //TODO: fix below errors
                 leading: Icon(DeviceUtil.getIconData(host)),
-                title: Text(DeviceUtil.getDeviceMake(host) ?? 'Unknown device'),
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Text(
+                        DeviceUtil.getDeviceMake(host) ?? 'Unknown device',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isCurrentDevice) ...[
+                      const SizedBox(width: 8),
+                      Chip(
+                        label: const Text(
+                          'This device',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
+                        padding: EdgeInsets.zero,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ],
+                ),
                 subtitle: Text(
                   '${host.internetAddress}, ${host.macAddress ?? ''}',
                 ),
@@ -191,7 +218,7 @@ class HostScanWidget extends StatelessWidget {
                         },
                       ),
                     IconButton(
-                      key: DeviceUtil.getDeviceMake(host) == 'This device'
+                      key: isCurrentDevice
                           ? WidgetKey.thisDeviceTileIconButton.key
                           : null,
                       tooltip: TooltipMessages.currentDevicePortScan,

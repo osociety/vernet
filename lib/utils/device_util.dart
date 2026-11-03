@@ -14,15 +14,20 @@ class DeviceUtil {
   }
 
   static String? getDeviceMake(DeviceData deviceData) {
-    if (deviceData.currentDeviceIp == deviceData.internetAddress) {
-      return 'This device';
-    } else if (deviceData.gatewayIp == deviceData.internetAddress &&
+    // Return the actual device name, not "This device" label.
+    // The UI can use isCurrentDevice() to add a visual indicator.
+    if (deviceData.gatewayIp == deviceData.internetAddress &&
         !_isLikelyNetworkService(deviceData.hostMake)) {
       return 'Router/Gateway';
     } else if (deviceData.mdnsDomainName != null) {
       return deviceData.mdnsDomainName;
     }
     return deviceData.hostMake;
+  }
+
+  /// Returns true if this device is the one running the app.
+  static bool isCurrentDevice(DeviceData deviceData) {
+    return deviceData.currentDeviceIp == deviceData.internetAddress;
   }
 
   static IconData getIconData(DeviceData deviceData) {
