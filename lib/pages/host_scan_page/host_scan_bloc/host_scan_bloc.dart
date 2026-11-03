@@ -192,6 +192,8 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
+    devicesSet.clear();
+    mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
     debugPrint(
       'Starting new scan with subnet: $subnet, ip: $ip, gatewayIp: $gatewayIp',

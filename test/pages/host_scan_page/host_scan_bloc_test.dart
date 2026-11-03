@@ -183,6 +183,49 @@ void main() {
       expect(bloc.devicesSet.single.hostMake, 'printer.local');
     });
 
+    test('devicesSet is cleared when rescan is triggered', () async {
+      await bloc.close();
+      const device1 = DeviceData(
+        id: 1,
+        internetAddress: '192.168.0.1',
+        currentDeviceIp: '',
+        gatewayIp: '',
+        scanId: 1,
+      );
+      const device2 = DeviceData(
+        id: 2,
+        internetAddress: '192.168.0.2',
+        currentDeviceIp: '',
+        gatewayIp: '',
+        scanId: 1,
+      );
+      var scanner = FakeScannerService(devices: const [device1]);
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      // First scan finds device1
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere((state) => state is LoadSuccess);
+      expect(bloc.devicesSet.length, 1);
+      expect(bloc.devicesSet.single.internetAddress, '192.168.0.1');
+
+      // Simulate a second scan that finds device2 instead
+      scanner = FakeScannerService(devices: const [device2]);
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere((state) => state is LoadSuccess);
+
+      // Old device should be gone, only new device should remain
+      expect(bloc.devicesSet.length, 1);
+      expect(bloc.devicesSet.single.internetAddress, '192.168.0.2');
+    });
+
     test('devices are emitted in numeric IP order regardless of arrival order',
         () async {
       await bloc.close();
