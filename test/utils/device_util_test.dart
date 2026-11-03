@@ -28,12 +28,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('DeviceUtil.getDeviceMake', () {
-    test('returns "This device" when current device IP matches', () {
+    test('returns actual hostMake for current device (UI adds chip separately)', () {
       final device = _device(
         internetAddress: '192.168.0.10',
+        hostMake: 'Some Device',
       );
 
-      expect(DeviceUtil.getDeviceMake(device), 'This device');
+      expect(DeviceUtil.getDeviceMake(device), 'Some Device');
+      expect(DeviceUtil.isCurrentDevice(device), true);
     });
 
     test('returns "Router/Gateway" when gateway IP matches and device is not a DHCP/DNS service', () {
