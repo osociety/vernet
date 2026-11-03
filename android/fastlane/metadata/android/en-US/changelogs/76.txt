@@ -1,5 +1,4 @@
-Fixed host scan lag with batched UI updates for smoother experience.
-Fixed device list not clearing when starting a new scan.
-Fixed subnet calculator clamp and "This device" chip placement.
-Fixed Android scan results appearing as found instead of waiting for all.
-Updated fl_chart and network_tools_flutter dependencies.
+Faster and smoother device scanning.
+Devices now clear properly when starting a new scan.
+Improved accuracy of network details and device identification.
+Bug fixes and performance improvements.
