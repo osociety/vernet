@@ -200,6 +200,26 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     );
     _setProgress(0);
 
+    // Batch UI updates to avoid lag from sorting/emitting on every device
+    Timer? emitTimer;
+    bool hasPendingUpdate = false;
+
+    void scheduleEmit() {
+      if (emitTimer?.isActive ?? false) {
+        hasPendingUpdate = true;
+        return;
+      }
+      if (!emit.isDone) {
+        emit(HostScanState.foundNewDevice(_sortedDevices()));
+      }
+      emitTimer = Timer(const Duration(milliseconds: 200), () {
+        if (hasPendingUpdate && !emit.isDone) {
+          emit(HostScanState.foundNewDevice(_sortedDevices()));
+          hasPendingUpdate = false;
+        }
+      });
+    }
+
     try {
       final deviceStream = getIt<DeviceScannerService>().startNewScan(
         subnet!,
@@ -209,11 +229,11 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       );
       await for (final DeviceData device in deviceStream) {
         _upsertDevice(device);
-        if (!emit.isDone) {
-          emit(HostScanState.foundNewDevice(_sortedDevices()));
-        }
+        scheduleEmit();
       }
+      emitTimer?.cancel();
     } catch (error) {
+      emitTimer?.cancel();
       // A failed or crashed scan must not leave the UI (or the stored scan)
       // waiting forever.
       final detail = error is HostScanException ? ' (${error.kind})' : '';

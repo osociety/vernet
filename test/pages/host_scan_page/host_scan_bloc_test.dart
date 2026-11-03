@@ -141,7 +141,6 @@ void main() {
         emitsInOrder([
           const HostScanState.loadInProgress(),
           isA<FoundNewDevice>(),
-          isA<FoundNewDevice>(),
           isA<LoadSuccess>(),
         ]),
       );
