@@ -183,6 +183,42 @@ void main() {
       expect(bloc.devicesSet.single.hostMake, 'printer.local');
     });
 
+    test('devices are emitted in numeric IP order regardless of arrival order',
+        () async {
+      await bloc.close();
+      DeviceData device(String ipAddress, int id) => DeviceData(
+            id: id,
+            internetAddress: ipAddress,
+            currentDeviceIp: '',
+            gatewayIp: '',
+            scanId: 1,
+          );
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () => Stream.fromIterable([
+          device('192.168.0.20', 3),
+          device('192.168.0.2', 1),
+          device('192.168.0.10', 2),
+        ]),
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+      final success =
+          await bloc.stream.firstWhere((state) => state is LoadSuccess)
+              as LoadSuccess;
+
+      expect(
+        success.activeHosts.map((device) => device.internetAddress),
+        ['192.168.0.2', '192.168.0.10', '192.168.0.20'],
+      );
+    });
+
     test('progress after the page is closed does not abort the scan',
         () async {
       await bloc.close();

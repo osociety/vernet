@@ -14,6 +14,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 part 'host_scan_bloc.freezed.dart';
@@ -75,6 +76,19 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     devicesSet
       ..clear()
       ..addAll(ordered);
+  }
+
+  /// The scan stream is unordered (hosts are emitted as they are found), so
+  /// every emitted set is sorted into numeric IP order for a stable list.
+  Set<DeviceData> _sortedDevices() {
+    final ordered = devicesSet.toList()
+      ..sort(
+        (a, b) => DeviceUtil.compareIpAddresses(
+          a.internetAddress,
+          b.internetAddress,
+        ),
+      );
+    return Set<DeviceData>.of(ordered);
   }
 
   /// The /24 prefix of every non-loopback IPv4 interface, used to tell a live
@@ -194,7 +208,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       await for (final DeviceData device in deviceStream) {
         _upsertDevice(device);
         if (!emit.isDone) {
-          emit(HostScanState.foundNewDevice(Set<DeviceData>.of(devicesSet)));
+          emit(HostScanState.foundNewDevice(_sortedDevices()));
         }
       }
     } catch (error) {
@@ -215,7 +229,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     );
 
     if (!emit.isDone) {
-      emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
+      emit(HostScanState.loadSuccess(_sortedDevices()));
     }
   }
 
@@ -233,7 +247,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
         for (final device in devices) {
           _upsertDevice(device);
         }
-        emit(HostScanState.foundNewDevice(Set<DeviceData>.of(devicesSet)));
+        emit(HostScanState.foundNewDevice(_sortedDevices()));
       }
     });
 
@@ -254,7 +268,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
           if (scan.onGoing == false) {
             _setProgress(100);
             if (!emit.isDone) {
-              emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
+              emit(HostScanState.loadSuccess(_sortedDevices()));
             }
             break;
           }
@@ -271,7 +285,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     // configurations may not register a ScanRepository or provide a scan id.
     if (!emit.isDone) {
       _setProgress(100);
-      emit(HostScanState.loadSuccess(Set<DeviceData>.of(devicesSet)));
+      emit(HostScanState.loadSuccess(_sortedDevices()));
     }
   }
 }

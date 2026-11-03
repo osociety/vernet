@@ -215,6 +215,12 @@ class DeviceScannerService extends ScannerService {
           firstHostId: effectiveRange.first,
           lastHostId: effectiveRange.last,
           progressCallback: onProgress,
+          // On Android the sweep is a system-ping-per-host process storm; the
+          // ascending-order gate delays each row until every lower host id has
+          // resolved. Unordered streams hosts as they are found. Trade-off: the
+          // package emits no per-host progress in this mode, so the UI falls
+          // back to its indeterminate state (already handled in host_scan_widget).
+          resultsInAddressAscendingOrder: false,
         )
             .listen(
           (ActiveHost activeHost) {

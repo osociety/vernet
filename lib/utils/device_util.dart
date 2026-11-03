@@ -37,4 +37,25 @@ class DeviceUtil {
     }
     return Icons.devices;
   }
+
+  /// Octet-wise IPv4/IPv6 order, so 192.168.1.10 sorts after 192.168.1.2.
+  /// Unparseable addresses fall back to string comparison.
+  static int compareIpAddresses(String leftAddress, String rightAddress) {
+    final left = InternetAddress.tryParse(leftAddress);
+    final right = InternetAddress.tryParse(rightAddress);
+    if (left == null || right == null) {
+      return leftAddress.compareTo(rightAddress);
+    }
+    if (left.type != right.type) {
+      return left.type == InternetAddressType.IPv4 ? -1 : 1;
+    }
+
+    final leftBytes = left.rawAddress;
+    final rightBytes = right.rawAddress;
+    for (var index = 0; index < leftBytes.length; index++) {
+      final comparison = leftBytes[index].compareTo(rightBytes[index]);
+      if (comparison != 0) return comparison;
+    }
+    return 0;
+  }
 }
