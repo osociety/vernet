@@ -212,7 +212,7 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       if (!emit.isDone) {
         emit(HostScanState.foundNewDevice(_sortedDevices()));
       }
-      emitTimer = Timer(const Duration(milliseconds: 200), () {
+      emitTimer = Timer(const Duration(milliseconds: 100), () {
         if (hasPendingUpdate && !emit.isDone) {
           emit(HostScanState.foundNewDevice(_sortedDevices()));
           hasPendingUpdate = false;
