@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/repository/repository.dart';
+import 'package:vernet/utils/device_util.dart';
 
 @Injectable()
 class DeviceRepository extends Repository<DeviceData> {
@@ -84,28 +83,9 @@ class DeviceRepository extends Repository<DeviceData> {
 List<DeviceData> _sortByIpAddress(List<DeviceData> devices) {
   return List<DeviceData>.of(devices)
     ..sort(
-      (a, b) => _compareIpAddresses(
+      (a, b) => DeviceUtil.compareIpAddresses(
         a.internetAddress,
         b.internetAddress,
       ),
     );
-}
-
-int _compareIpAddresses(String leftAddress, String rightAddress) {
-  final left = InternetAddress.tryParse(leftAddress);
-  final right = InternetAddress.tryParse(rightAddress);
-  if (left == null || right == null) {
-    return leftAddress.compareTo(rightAddress);
-  }
-  if (left.type != right.type) {
-    return left.type == InternetAddressType.IPv4 ? -1 : 1;
-  }
-
-  final leftBytes = left.rawAddress;
-  final rightBytes = right.rawAddress;
-  for (var index = 0; index < leftBytes.length; index++) {
-    final comparison = leftBytes[index].compareTo(rightBytes[index]);
-    if (comparison != 0) return comparison;
-  }
-  return 0;
 }

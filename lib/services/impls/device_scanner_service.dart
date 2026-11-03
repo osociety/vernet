@@ -200,8 +200,8 @@ class DeviceScannerService extends ScannerService {
             (appSettings.firstSubnet == 1 && appSettings.lastSubnet == 254)
                 ? appSettings.calculateHostRange(gatewayIp, subnetMask)
                 : (
-                    first: appSettings.firstSubnet,
-                    last: appSettings.lastSubnet,
+                    first: appSettings.firstSubnet.clamp(1, 254),
+                    last: appSettings.lastSubnet.clamp(1, 254),
                   );
 
         final seenAddresses = <String>{};
@@ -215,6 +215,12 @@ class DeviceScannerService extends ScannerService {
           firstHostId: effectiveRange.first,
           lastHostId: effectiveRange.last,
           progressCallback: onProgress,
+          // On Android the sweep is a system-ping-per-host process storm; the
+          // ascending-order gate delays each row until every lower host id has
+          // resolved. Unordered streams hosts as they are found. Trade-off: the
+          // package emits no per-host progress in this mode, so the UI falls
+          // back to its indeterminate state (already handled in host_scan_widget).
+          resultsInAddressAscendingOrder: false,
         )
             .listen(
           (ActiveHost activeHost) {

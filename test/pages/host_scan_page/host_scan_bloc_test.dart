@@ -141,7 +141,6 @@ void main() {
         emitsInOrder([
           const HostScanState.loadInProgress(),
           isA<FoundNewDevice>(),
-          isA<FoundNewDevice>(),
           isA<LoadSuccess>(),
         ]),
       );
@@ -181,6 +180,85 @@ void main() {
 
       expect(bloc.devicesSet.length, 1);
       expect(bloc.devicesSet.single.hostMake, 'printer.local');
+    });
+
+    test('devicesSet is cleared when rescan is triggered', () async {
+      await bloc.close();
+      const device1 = DeviceData(
+        id: 1,
+        internetAddress: '192.168.0.1',
+        currentDeviceIp: '',
+        gatewayIp: '',
+        scanId: 1,
+      );
+      const device2 = DeviceData(
+        id: 2,
+        internetAddress: '192.168.0.2',
+        currentDeviceIp: '',
+        gatewayIp: '',
+        scanId: 1,
+      );
+      var scanner = FakeScannerService(devices: const [device1]);
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      // First scan finds device1
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere((state) => state is LoadSuccess);
+      expect(bloc.devicesSet.length, 1);
+      expect(bloc.devicesSet.single.internetAddress, '192.168.0.1');
+
+      // Simulate a second scan that finds device2 instead
+      scanner = FakeScannerService(devices: const [device2]);
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+
+      bloc.add(const HostScanEvent.startNewScan());
+      await bloc.stream.firstWhere((state) => state is LoadSuccess);
+
+      // Old device should be gone, only new device should remain
+      expect(bloc.devicesSet.length, 1);
+      expect(bloc.devicesSet.single.internetAddress, '192.168.0.2');
+    });
+
+    test('devices are emitted in numeric IP order regardless of arrival order',
+        () async {
+      await bloc.close();
+      DeviceData device(String ipAddress, int id) => DeviceData(
+            id: id,
+            internetAddress: ipAddress,
+            currentDeviceIp: '',
+            gatewayIp: '',
+            scanId: 1,
+          );
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () => Stream.fromIterable([
+          device('192.168.0.20', 3),
+          device('192.168.0.2', 1),
+          device('192.168.0.10', 2),
+        ]),
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+      final success =
+          await bloc.stream.firstWhere((state) => state is LoadSuccess)
+              as LoadSuccess;
+
+      expect(
+        success.activeHosts.map((device) => device.internetAddress),
+        ['192.168.0.2', '192.168.0.10', '192.168.0.20'],
+      );
     });
 
     test('progress after the page is closed does not abort the scan',
@@ -329,6 +407,64 @@ void main() {
     });
 
     test('bloc closes without errors', () async {
+      await bloc.close();
+    });
+
+    test('close() disposes progress notifier safely', () async {
+      final bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      // Set progress before close
+      bloc.progress.value = 50;
+      expect(bloc.progress.value, 50);
+
+      // Close should dispose the notifier
+      await bloc.close();
+
+      // Verify close completed without errors
+      expect(bloc.isClosed, true);
+    });
+
+    test('batching emits devices at 100ms intervals during rapid updates',
+        () async {
+      // Create a scanner that emits many devices rapidly
+      final controller = StreamController<DeviceData>();
+      final scanner = FakeScannerService(
+        devices: const [],
+        streamFactory: () => controller.stream,
+      );
+      await di.getIt.unregister<DeviceScannerService>();
+      di.getIt.registerSingleton<DeviceScannerService>(scanner);
+
+      final bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.10';
+
+      bloc.add(const HostScanEvent.startNewScan());
+
+      // Emit 10 devices rapidly (within 100ms)
+      for (var i = 1; i <= 10; i++) {
+        controller.add(DeviceData(
+          id: i,
+          internetAddress: '192.168.0.$i',
+          macAddress: '',
+          hostMake: 'Device$i',
+          currentDeviceIp: '',
+          gatewayIp: '',
+          scanId: 1,
+        ));
+      }
+
+      // Wait for batching interval
+      await Future.delayed(const Duration(milliseconds: 150));
+
+      // All devices should be in the set
+      expect(bloc.devicesSet.length, 10);
+
+      await controller.close();
       await bloc.close();
     });
   });
