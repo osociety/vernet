@@ -28,7 +28,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('DeviceUtil.getDeviceMake', () {
-    test('returns actual hostMake for current device (UI adds chip separately)', () {
+    test('returns actual hostMake for current device (UI adds chip separately)',
+        () {
       final device = _device(
         internetAddress: '192.168.0.10',
       );
