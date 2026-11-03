@@ -68,7 +68,8 @@ void main() {
 
     test('decodeTlv error handling', () {
       expect(() => Ber.decodeTlv([], 0), throwsFormatException);
-      expect(() => Ber.decodeTlv([0x04, 0x05, 0x01, 0x02], 0), throwsFormatException);
+      expect(() => Ber.decodeTlv([0x04, 0x05, 0x01, 0x02], 0),
+          throwsFormatException);
     });
   });
 }

@@ -139,7 +139,8 @@ class NeighborDiscoveryService {
             timeout: timeout,
           );
         } catch (_) {
-          warnings.add('Some LLDP details (VLAN or management IP) were missing.');
+          warnings
+              .add('Some LLDP details (VLAN or management IP) were missing.');
         }
         neighbors.addAll(
           NeighborMibMapper.mapLldp(

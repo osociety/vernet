@@ -180,7 +180,9 @@ void main() {
       expect(result, 'This device');
     });
 
-    test('returns "Router/Gateway" when IP matches gateway and device is not a DHCP/DNS service', () async {
+    test(
+        'returns "Router/Gateway" when IP matches gateway and device is not a DHCP/DNS service',
+        () async {
       final result = await DeviceInTheNetwork.getDeviceMake(
         currentDeviceIp: '192.168.1.100',
         hostIp: '192.168.1.1',
@@ -192,7 +194,8 @@ void main() {
       expect(result, 'Router/Gateway');
     });
 
-    test('does not label DHCP server as router when IP matches gateway', () async {
+    test('does not label DHCP server as router when IP matches gateway',
+        () async {
       final result = await DeviceInTheNetwork.getDeviceMake(
         currentDeviceIp: '192.168.1.100',
         hostIp: '192.168.1.1',

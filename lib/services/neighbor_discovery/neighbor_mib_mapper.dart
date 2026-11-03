@@ -70,7 +70,8 @@ class NeighborMibMapper {
         deviceId: row.deviceId,
         sysName: row.sysName ?? row.deviceId,
         managementIp: _preferIp(row.mgmt, row.address),
-        localPort: local ?? (row.ifIndex == null ? null : 'ifIndex ${row.ifIndex}'),
+        localPort:
+            local ?? (row.ifIndex == null ? null : 'ifIndex ${row.ifIndex}'),
         remotePort: row.port,
         platform: row.platform,
         vlan: row.vlan,
@@ -142,9 +143,11 @@ class NeighborMibMapper {
     }
 
     return rows.values.map((row) {
-      final local = locPortDesc['${NeighborMibs.lldpLocPortDesc}.${row.localPortNum}']
+      final local = locPortDesc[
+                  '${NeighborMibs.lldpLocPortDesc}.${row.localPortNum}']
               ?.asString ??
-          locPortId['${NeighborMibs.lldpLocPortId}.${row.localPortNum}']?.asString ??
+          locPortId['${NeighborMibs.lldpLocPortId}.${row.localPortNum}']
+              ?.asString ??
           (row.localPortNum == null ? null : 'port ${row.localPortNum}');
       return NeighborInfo(
         protocol: NeighborProtocol.lldp,
@@ -152,7 +155,8 @@ class NeighborMibMapper {
         sysName: row.sysName ?? row.chassis,
         managementIp: row.mgmt,
         localPort: local,
-        remotePort: (row.portDesc?.isNotEmpty ?? false) ? row.portDesc : row.portId,
+        remotePort:
+            (row.portDesc?.isNotEmpty ?? false) ? row.portDesc : row.portId,
         platform: row.sysDesc?.split('\n').first.trim(),
         vlan: row.vlan,
         speedDuplex: _speed(ifSpeeds, row.localPortNum),

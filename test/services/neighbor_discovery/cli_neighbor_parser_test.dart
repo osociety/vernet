@@ -46,7 +46,8 @@ VLAN ID: 40
     expect(neighbors.first.managementIp, '10.20.30.40');
   });
 
-  test('parses show lldp neighbors detail with multiline management address', () {
+  test('parses show lldp neighbors detail with multiline management address',
+      () {
     const text = '''
 ------------------------------------------------
 Local Intf: Gi1/0/12
@@ -149,6 +150,7 @@ Media Attachment Unit type: 30
 
   test('returns empty list for empty or irrelevant text', () {
     expect(CliNeighborParser.parse(''), isEmpty);
-    expect(CliNeighborParser.parse('Random log text with no neighbors'), isEmpty);
+    expect(
+        CliNeighborParser.parse('Random log text with no neighbors'), isEmpty);
   });
 }

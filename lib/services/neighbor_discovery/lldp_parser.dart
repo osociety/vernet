@@ -207,10 +207,13 @@ class LldpParser {
       ..._tlv(ttl, [0x00, 0x78]),
       ..._tlv(systemName, sysNameValue.codeUnits),
       ..._tlv(systemDescription, platform.codeUnits),
-      ..._tlv(organizational, [0x00, 0x80, 0xc2, 0x01, (vlan >> 8) & 0xff, vlan & 0xff]),
-      ..._tlv(organizational, [0x00, 0x12, 0x0f, 0x01, 0x00, 0x00, 0x00, 0x00, 0x1e]),
+      ..._tlv(organizational,
+          [0x00, 0x80, 0xc2, 0x01, (vlan >> 8) & 0xff, vlan & 0xff]),
+      ..._tlv(organizational,
+          [0x00, 0x12, 0x0f, 0x01, 0x00, 0x00, 0x00, 0x00, 0x1e]),
       if (ip != null) ..._tlv(managementAddress, _mgmt(ip)),
-      0x00, 0x00,
+      0x00,
+      0x00,
     ];
     return Uint8List.fromList(tlvs);
   }

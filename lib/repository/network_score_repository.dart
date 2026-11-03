@@ -15,8 +15,7 @@ class NetworkScoreRepository {
     final encoded = prefs.getString(_scoreKey);
     if (encoded == null) return null;
     try {
-      return NetworkScore.fromJson(
-          jsonDecode(encoded) as Map<String, dynamic>);
+      return NetworkScore.fromJson(jsonDecode(encoded) as Map<String, dynamic>);
     } on Object {
       return null;
     }
@@ -54,8 +53,7 @@ class NetworkScoreRepository {
     final encoded = prefs.getString(_pingSnapshotKey);
     if (encoded == null) return null;
     try {
-      return PingSnapshot.fromJson(
-          jsonDecode(encoded) as Map<String, dynamic>);
+      return PingSnapshot.fromJson(jsonDecode(encoded) as Map<String, dynamic>);
     } on Object {
       return null;
     }

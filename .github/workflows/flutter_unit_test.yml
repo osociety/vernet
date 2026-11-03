@@ -24,6 +24,9 @@ jobs:
         with:
           java_version: ${{ matrix.os != 'macos' && '17' || '' }}
 
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
       - name: Run analyzer
         run: flutter analyze
 

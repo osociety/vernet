@@ -55,7 +55,8 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
     try {
       final score = await scoreService.computeScore(
         liveWifiInfo: event.wifiInfo ?? _lastWifiInfo,
-        liveConnectivityStatus: event.connectivityStatus ?? _lastConnectivityStatus,
+        liveConnectivityStatus:
+            event.connectivityStatus ?? _lastConnectivityStatus,
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
@@ -78,7 +79,8 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
     try {
       final score = await scoreService.computeScore(
         liveWifiInfo: event.wifiInfo ?? _lastWifiInfo,
-        liveConnectivityStatus: event.connectivityStatus ?? _lastConnectivityStatus,
+        liveConnectivityStatus:
+            event.connectivityStatus ?? _lastConnectivityStatus,
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
@@ -92,7 +94,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
   ) async {
     _lastWifiInfo = event.wifiInfo;
     _lastConnectivityStatus = event.connectivityStatus;
-    
+
     // Always recompute score with fresh data
     emit(const NetworkScoreState.computing());
     try {

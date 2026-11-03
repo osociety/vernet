@@ -6,11 +6,11 @@ class CliNeighborParser {
     final normalized = text.replaceAll('\r\n', '\n');
     final results = <NeighborInfo>[];
     if (normalized.contains(
-          RegExp(
-            r'Chassis\s*(?:id|Id|Type)|System Name|SysName|Local Intf',
-            caseSensitive: false,
-          ),
-        )) {
+      RegExp(
+        r'Chassis\s*(?:id|Id|Type)|System Name|SysName|Local Intf',
+        caseSensitive: false,
+      ),
+    )) {
       results.addAll(_parseLldp(normalized));
     }
     if (normalized.contains(RegExp('Device ID', caseSensitive: false))) {

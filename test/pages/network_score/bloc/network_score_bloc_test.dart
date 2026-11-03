@@ -11,16 +11,22 @@ import 'package:vernet/services/network_score_service.dart';
 
 class MockNetworkScoreService extends Mock implements NetworkScoreService {}
 
-class MockNetworkScoreRepository extends Mock implements NetworkScoreRepository {}
+class MockNetworkScoreRepository extends Mock
+    implements NetworkScoreRepository {}
 
 NetworkScore _createTestScore() => NetworkScore(
       overallScore: 75,
       computedAt: DateTime(2024),
-      security: const DimensionScore(name: 'Security', value: 80, description: 'Good'),
-      health: const DimensionScore(name: 'Health', value: 70, description: 'Good'),
-      reliability: const DimensionScore(name: 'Reliability', value: 75, description: 'Good'),
-      speed: const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
-      vulnerabilities: const DimensionScore(name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+      security: const DimensionScore(
+          name: 'Security', value: 80, description: 'Good'),
+      health:
+          const DimensionScore(name: 'Health', value: 70, description: 'Good'),
+      reliability: const DimensionScore(
+          name: 'Reliability', value: 75, description: 'Good'),
+      speed:
+          const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+      vulnerabilities: const DimensionScore(
+          name: 'Vulnerabilities', value: 65, description: 'Moderate'),
     );
 
 WifiInfo _createTestWifiInfo() => WifiInfo(
@@ -33,7 +39,8 @@ WifiInfo _createTestWifiInfo() => WifiInfo(
       WifiNetworkMetrics.disconnected(),
     );
 
-NetworkConnectionStatus _createTestConnectivity() => const NetworkConnectionStatus(
+NetworkConnectionStatus _createTestConnectivity() =>
+    const NetworkConnectionStatus(
       type: NetworkConnectionType.deviceToRouter,
       state: NetworkConnectionState.connected,
       title: 'Connected',
@@ -75,8 +82,10 @@ void main() {
         },
         act: (bloc) => bloc.add(const NetworkScoreEvent.loadCached()),
         expect: () => [
-          isA<NetworkScoreState>()
-              .having((s) => s.maybeWhen(success: (_) => true, orElse: () => false), 'is success', isTrue),
+          isA<NetworkScoreState>().having(
+              (s) => s.maybeWhen(success: (_) => true, orElse: () => false),
+              'is success',
+              isTrue),
         ],
       );
 

@@ -742,13 +742,11 @@ class _SpeedTestView extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           rating.label,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: rating.color,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: rating.color,
+                                  ),
                         ),
                       ],
                     ),
@@ -763,24 +761,24 @@ class _SpeedTestView extends StatelessWidget {
                       children: [
                         Text(
                           value.toStringAsFixed(1),
-                          style:
-                              Theme.of(context).textTheme.displayLarge?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: colors.onPrimaryContainer,
-                                    height: 1.0,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: colors.onPrimaryContainer,
+                                height: 1.0,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Mbps Download',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: colors.onPrimaryContainer
-                                    .withValues(alpha: 0.7),
-                                fontWeight: FontWeight.w500,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: colors.onPrimaryContainer
+                                        .withValues(alpha: 0.7),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                         ),
                       ],
                     ),
@@ -885,8 +883,8 @@ class _SpeedTestView extends StatelessWidget {
     );
   }
 
-  Widget _buildCapabilities(BuildContext context, ColorScheme colors,
-      double downloadSpeed,
+  Widget _buildCapabilities(
+      BuildContext context, ColorScheme colors, double downloadSpeed,
       {required bool isWide}) {
     final capabilities = _getCapabilities(downloadSpeed);
     if (capabilities.isEmpty) return const SizedBox.shrink();
@@ -972,12 +970,18 @@ class _SpeedTestView extends StatelessWidget {
 
   List<Capability> _getCapabilities(double downloadSpeed) {
     final caps = <Capability>[];
-    if (downloadSpeed >= 5) caps.add(const Capability(Icons.music_note, 'Music'));
-    if (downloadSpeed >= 10) caps.add(const Capability(Icons.videocam, 'Video calls'));
-    if (downloadSpeed >= 25) caps.add(const Capability(Icons.hd, 'HD streaming'));
-    if (downloadSpeed >= 50) caps.add(const Capability(Icons.sports_esports, 'Gaming'));
-    if (downloadSpeed >= 100) caps.add(const Capability(Icons.tv, '4K streaming'));
-    if (downloadSpeed >= 200) caps.add(const Capability(Icons.cloud_upload, 'Fast uploads'));
+    if (downloadSpeed >= 5)
+      caps.add(const Capability(Icons.music_note, 'Music'));
+    if (downloadSpeed >= 10)
+      caps.add(const Capability(Icons.videocam, 'Video calls'));
+    if (downloadSpeed >= 25)
+      caps.add(const Capability(Icons.hd, 'HD streaming'));
+    if (downloadSpeed >= 50)
+      caps.add(const Capability(Icons.sports_esports, 'Gaming'));
+    if (downloadSpeed >= 100)
+      caps.add(const Capability(Icons.tv, '4K streaming'));
+    if (downloadSpeed >= 200)
+      caps.add(const Capability(Icons.cloud_upload, 'Fast uploads'));
     return caps;
   }
 

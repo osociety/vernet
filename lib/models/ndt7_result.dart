@@ -20,7 +20,8 @@ class Ndt7Server {
       site: json['site'] as String? ?? '',
       urls: Ndt7ServerUrls.fromJson(urlsJson),
       location: json['location'] != null
-          ? Ndt7ServerLocation.fromJson(json['location'] as Map<String, dynamic>)
+          ? Ndt7ServerLocation.fromJson(
+              json['location'] as Map<String, dynamic>)
           : null,
       ttl: json['ttl'] as int?,
     );

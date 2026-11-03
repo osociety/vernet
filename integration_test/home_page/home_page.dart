@@ -51,7 +51,8 @@ class _FakeScannerService implements DeviceScannerService {
 /// the runner happens to be on, and restores the original afterwards. A real
 /// scan against an unreachable subnet keeps the indeterminate spinner on screen
 /// for minutes, which makes pumpAndSettle time out rather than fail loudly.
-Future<_FakeScannerService> _installFakeScanner(List<DeviceData> devices) async {
+Future<_FakeScannerService> _installFakeScanner(
+    List<DeviceData> devices) async {
   final originalScanner = getIt<DeviceScannerService>();
   final fakeScanner = _FakeScannerService(devices);
   await getIt.unregister<DeviceScannerService>();

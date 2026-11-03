@@ -61,10 +61,10 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
 
     _portScanSubscription = PortScannerService.instance
         .customDiscover(
-          widget.device.internetAddress,
-          timeout: Duration(milliseconds: appSettings.socketTimeout),
-          async: true,
-        )
+      widget.device.internetAddress,
+      timeout: Duration(milliseconds: appSettings.socketTimeout),
+      async: true,
+    )
         .listen(
       (host) {
         if (host.openPorts.isNotEmpty) {

@@ -61,7 +61,8 @@ class NetworkScoreService {
       overallScore = (overallScore - stalenessInfo.decay).clamp(0, 100);
       metadata['stalenessDecay'] = stalenessInfo.decay.toString();
       metadata['stalenessReason'] = stalenessInfo.reason;
-      metadata['lastComputed'] = cachedScore?.computedAt.toIso8601String() ?? 'never';
+      metadata['lastComputed'] =
+          cachedScore?.computedAt.toIso8601String() ?? 'never';
     }
 
     final score = NetworkScore(
@@ -85,7 +86,8 @@ class NetworkScoreService {
     }
 
     final now = DateTime.now();
-    final hoursSinceLastComputation = now.difference(cachedScore.computedAt).inHours;
+    final hoursSinceLastComputation =
+        now.difference(cachedScore.computedAt).inHours;
 
     // Decay: 5 points per hour after 2 hours, max 30 points
     if (hoursSinceLastComputation <= 2) {
@@ -93,7 +95,8 @@ class NetworkScoreService {
     }
 
     final decay = ((hoursSinceLastComputation - 2) * 5).clamp(0, 30);
-    final reason = 'Score is ${hoursSinceLastComputation}h old (-$decay points for staleness)';
+    final reason =
+        'Score is ${hoursSinceLastComputation}h old (-$decay points for staleness)';
     return _StalenessInfo(decay: decay, reason: reason);
   }
 
@@ -121,9 +124,12 @@ class NetworkScoreService {
 
       var unknownDeviceCount = 0;
       for (final device in devices) {
-        final hasMac = device.macAddress != null && device.macAddress!.isNotEmpty;
-        final hasName = (device.hostMake != null && device.hostMake!.isNotEmpty) ||
-            (device.mdnsDomainName != null && device.mdnsDomainName!.isNotEmpty);
+        final hasMac =
+            device.macAddress != null && device.macAddress!.isNotEmpty;
+        final hasName =
+            (device.hostMake != null && device.hostMake!.isNotEmpty) ||
+                (device.mdnsDomainName != null &&
+                    device.mdnsDomainName!.isNotEmpty);
         if (!hasMac && !hasName) {
           unknownDeviceCount++;
         }
@@ -132,8 +138,10 @@ class NetworkScoreService {
       if (unknownDeviceCount > 0) {
         final deduction = unknownDeviceCount * 5;
         score -= deduction;
-        factors.add('✗ $unknownDeviceCount unidentified device(s) on network (-$deduction points)');
-        factors.add('Tip: Identify unknown devices or run network scan to refresh device list');
+        factors.add(
+            '✗ $unknownDeviceCount unidentified device(s) on network (-$deduction points)');
+        factors.add(
+            'Tip: Identify unknown devices or run network scan to refresh device list');
       } else {
         factors.add('✓ All ${devices.length} device(s) identified');
       }
@@ -148,7 +156,9 @@ class NetworkScoreService {
         name: name,
         value: score,
         description: _securityDescription(score),
-        factors: factors.isEmpty ? ['✓ All devices identified - network appears secure'] : factors,
+        factors: factors.isEmpty
+            ? ['✓ All devices identified - network appears secure']
+            : factors,
       );
     } on Object {
       return const DimensionScore(
@@ -209,11 +219,14 @@ class NetworkScoreService {
       factors.add('✓ Strong Wi-Fi signal (${wifiInfo.metrics.statusMessage})');
     } else if (signalLevel >= 2) {
       score += 15;
-      factors.add('~ Moderate Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -10 points');
-      factors.add('Tip: Move closer to router or reduce obstacles for better signal');
+      factors.add(
+          '~ Moderate Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -10 points');
+      factors.add(
+          'Tip: Move closer to router or reduce obstacles for better signal');
     } else if (signalLevel >= 1) {
       score += 5;
-      factors.add('~ Weak Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -20 points');
+      factors.add(
+          '~ Weak Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -20 points');
       factors.add('Tip: Move closer to router or check for interference');
     } else {
       factors.add('✗ Very weak or no signal -25 points');
@@ -239,11 +252,14 @@ class NetworkScoreService {
         if (connectivityStatus.latency != null) {
           final latencyMs = connectivityStatus.latency!.inMilliseconds;
           if (latencyMs < 100) {
-            factors.add('✓ Low latency (${latencyMs}ms) - excellent for gaming/video calls');
+            factors.add(
+                '✓ Low latency (${latencyMs}ms) - excellent for gaming/video calls');
           } else if (latencyMs < 300) {
-            factors.add('~ Moderate latency (${latencyMs}ms) - acceptable for most uses');
+            factors.add(
+                '~ Moderate latency (${latencyMs}ms) - acceptable for most uses');
           } else {
-            factors.add('~ High latency (${latencyMs}ms) - may affect real-time applications');
+            factors.add(
+                '~ High latency (${latencyMs}ms) - may affect real-time applications');
           }
         }
       } else if (connectivityStatus.isChecking) {
@@ -251,7 +267,8 @@ class NetworkScoreService {
         factors.add('~ Checking internet connectivity...');
       } else {
         factors.add('✗ No internet connection -30 points');
-        factors.add('Tip: Check router and modem, verify internet service is active');
+        factors.add(
+            'Tip: Check router and modem, verify internet service is active');
       }
     } else {
       factors.add('? Internet status unknown');
@@ -294,14 +311,11 @@ class NetworkScoreService {
       }
 
       // Check for required monitor types
-      final hasRouterMonitor = monitors.any((m) => 
-        m.type == ServerCheckType.icmp && 
-        m.name.toLowerCase().contains('router')
-      );
-      final hasUpstreamMonitor = monitors.any((m) => 
-        m.type == ServerCheckType.https || 
-        m.type == ServerCheckType.http
-      );
+      final hasRouterMonitor = monitors.any((m) =>
+          m.type == ServerCheckType.icmp &&
+          m.name.toLowerCase().contains('router'));
+      final hasUpstreamMonitor = monitors.any((m) =>
+          m.type == ServerCheckType.https || m.type == ServerCheckType.http);
 
       if (!hasRouterMonitor) {
         factors.add('✗ Missing: ICMP monitor to local router');
@@ -341,14 +355,17 @@ class NetworkScoreService {
       // Cap score based on required monitor types
       if (!hasRouterMonitor && !hasUpstreamMonitor) {
         score = score > 50 ? 50 : score;
-        factors.add('✗ Score capped at 50: Add both router and internet monitors');
+        factors
+            .add('✗ Score capped at 50: Add both router and internet monitors');
       } else if (!hasRouterMonitor || !hasUpstreamMonitor) {
         score = score > 75 ? 75 : score;
-        factors.add('✗ Score capped at 75: Add missing monitor type for full score');
+        factors.add(
+            '✗ Score capped at 75: Add missing monitor type for full score');
       }
 
       score = score.clamp(0, 100);
-      factors.insert(0, '✓ ${avgUptime.toStringAsFixed(1)}% uptime across $monitorCount monitor(s)');
+      factors.insert(0,
+          '✓ ${avgUptime.toStringAsFixed(1)}% uptime across $monitorCount monitor(s)');
 
       return DimensionScore(
         name: name,
@@ -400,56 +417,69 @@ class NetworkScoreService {
       // Download speed scoring (max 30 points)
       if (downloadMbps >= 100) {
         score += 30;
-        factors.add('✓ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (excellent)');
+        factors.add(
+            '✓ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (excellent)');
       } else if (downloadMbps >= 50) {
         score += 25;
-        factors.add('✓ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (good)');
+        factors
+            .add('✓ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (good)');
       } else if (downloadMbps >= 25) {
         score += 18;
-        factors.add('~ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (moderate) -12 points');
+        factors.add(
+            '~ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (moderate) -12 points');
         factors.add('Tip: For HD streaming, aim for 25+ Mbps');
       } else if (downloadMbps >= 10) {
         score += 10;
-        factors.add('~ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (slow) -20 points');
+        factors.add(
+            '~ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (slow) -20 points');
         factors.add('Tip: Contact ISP about upgrading your plan');
       } else {
         score += 4;
-        factors.add('✗ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (very slow) -26 points');
-        factors.add('Tip: Check for background downloads, restart router, or contact ISP');
+        factors.add(
+            '✗ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (very slow) -26 points');
+        factors.add(
+            'Tip: Check for background downloads, restart router, or contact ISP');
       }
 
       // Upload speed scoring (max 15 points)
       if (uploadMbps >= 20) {
         score += 15;
-        factors.add('✓ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (excellent)');
+        factors
+            .add('✓ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (excellent)');
       } else if (uploadMbps >= 10) {
         score += 12;
         factors.add('✓ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (good)');
       } else if (uploadMbps >= 5) {
         score += 8;
-        factors.add('~ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (moderate) -7 points');
+        factors.add(
+            '~ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (moderate) -7 points');
         factors.add('Tip: For video calls, aim for 5+ Mbps upload');
       } else {
         score += 3;
-        factors.add('✗ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (slow) -12 points');
+        factors.add(
+            '✗ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (slow) -12 points');
         factors.add('Tip: Limit uploads during important calls or contact ISP');
       }
 
       // Latency scoring (max 15 points)
       if (latencyMs < 20) {
         score += 15;
-        factors.add('✓ Latency: ${latencyMs.toStringAsFixed(0)}ms (excellent for gaming)');
+        factors.add(
+            '✓ Latency: ${latencyMs.toStringAsFixed(0)}ms (excellent for gaming)');
       } else if (latencyMs < 50) {
         score += 12;
         factors.add('✓ Latency: ${latencyMs.toStringAsFixed(0)}ms (good)');
       } else if (latencyMs < 100) {
         score += 8;
-        factors.add('~ Latency: ${latencyMs.toStringAsFixed(0)}ms (moderate) -7 points');
+        factors.add(
+            '~ Latency: ${latencyMs.toStringAsFixed(0)}ms (moderate) -7 points');
         factors.add('Tip: High latency affects gaming and video calls');
       } else {
         score += 3;
-        factors.add('✗ Latency: ${latencyMs.toStringAsFixed(0)}ms (high) -12 points');
-        factors.add('Tip: Use wired connection, reduce network congestion, or contact ISP');
+        factors.add(
+            '✗ Latency: ${latencyMs.toStringAsFixed(0)}ms (high) -12 points');
+        factors.add(
+            'Tip: Use wired connection, reduce network congestion, or contact ISP');
       }
 
       // Ping data scoring (max 10 points)
@@ -461,14 +491,18 @@ class NetworkScoreService {
           factors.add('✓ No packet loss');
         } else if (pingSnapshot.packetLossPercent < 1) {
           score += 3;
-          factors.add('~ Minimal packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%)');
+          factors.add(
+              '~ Minimal packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%)');
         } else if (pingSnapshot.packetLossPercent < 5) {
           score += 1;
-          factors.add('~ Some packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%) -4 points');
+          factors.add(
+              '~ Some packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%) -4 points');
           factors.add('Tip: Check Wi-Fi signal strength and router placement');
         } else {
-          factors.add('✗ High packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%) -5 points');
-          factors.add('Tip: Network congestion or hardware issues - restart router');
+          factors.add(
+              '✗ High packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%) -5 points');
+          factors.add(
+              'Tip: Network congestion or hardware issues - restart router');
         }
 
         // Jitter (max 5 points)
@@ -476,17 +510,22 @@ class NetworkScoreService {
           final jitter = pingSnapshot.jitterMs!;
           if (jitter < 5) {
             score += 5;
-            factors.add('✓ Jitter: ${jitter.toStringAsFixed(1)}ms (stable connection)');
+            factors.add(
+                '✓ Jitter: ${jitter.toStringAsFixed(1)}ms (stable connection)');
           } else if (jitter < 15) {
             score += 3;
-            factors.add('✓ Jitter: ${jitter.toStringAsFixed(1)}ms (acceptable)');
+            factors
+                .add('✓ Jitter: ${jitter.toStringAsFixed(1)}ms (acceptable)');
           } else if (jitter < 30) {
             score += 1;
-            factors.add('~ Jitter: ${jitter.toStringAsFixed(1)}ms (variable) -4 points');
+            factors.add(
+                '~ Jitter: ${jitter.toStringAsFixed(1)}ms (variable) -4 points');
             factors.add('Tip: High jitter affects video/voice quality');
           } else {
-            factors.add('✗ Jitter: ${jitter.toStringAsFixed(1)}ms (unstable) -5 points');
-            factors.add('Tip: Use wired connection or reduce network congestion');
+            factors.add(
+                '✗ Jitter: ${jitter.toStringAsFixed(1)}ms (unstable) -5 points');
+            factors
+                .add('Tip: Use wired connection or reduce network congestion');
           }
         }
       } else if (snapshot.packetLossPercent != null) {
@@ -496,17 +535,21 @@ class NetworkScoreService {
           factors.add('✓ No packet loss (M-Lab)');
         } else if (snapshot.packetLossPercent! < 1) {
           score += 3;
-          factors.add('~ Minimal packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab)');
+          factors.add(
+              '~ Minimal packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab)');
         } else if (snapshot.packetLossPercent! < 5) {
           score += 1;
-          factors.add('~ Some packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -4 points');
+          factors.add(
+              '~ Some packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -4 points');
         } else {
-          factors.add('✗ High packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -5 points');
+          factors.add(
+              '✗ High packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -5 points');
         }
       } else {
         // No ping data available - show missing points
         factors.add('✗ No ping data available -10 points');
-        factors.add('Tip: Run a connectivity check to measure packet loss and jitter');
+        factors.add(
+            'Tip: Run a connectivity check to measure packet loss and jitter');
       }
 
       // Add test provider info

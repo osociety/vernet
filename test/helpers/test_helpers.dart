@@ -67,9 +67,8 @@ Widget wrapWithDarkThemeProvider({
   return ChangeNotifierProvider(
     create: (_) {
       final provider = DarkThemeProvider();
-      provider.themePref = initialDarkTheme
-          ? ThemePreference.dark
-          : ThemePreference.light;
+      provider.themePref =
+          initialDarkTheme ? ThemePreference.dark : ThemePreference.light;
       return provider;
     },
     child: child,

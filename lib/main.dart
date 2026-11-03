@@ -98,9 +98,9 @@ class _MyAppState extends State<MyApp> {
     if (!globals.testingActive) {
       NotificationService.grantPermissions();
     }
-    _notificationTapSubscription =
-        NotificationService.selectNotificationStream.stream
-            .listen(_openScanFromNotification);
+    _notificationTapSubscription = NotificationService
+        .selectNotificationStream.stream
+        .listen(_openScanFromNotification);
     getCurrentAppTheme();
   }
 

@@ -57,13 +57,16 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(testDevice));
 
       expect(find.text('Actions'), findsOneWidget);
-      expect(find.byKey(WidgetKey.deviceDetailPortScanButton.key), findsOneWidget);
-      expect(find.byKey(WidgetKey.deviceDetailQuickScanButton.key), findsOneWidget);
+      expect(
+          find.byKey(WidgetKey.deviceDetailPortScanButton.key), findsOneWidget);
+      expect(find.byKey(WidgetKey.deviceDetailQuickScanButton.key),
+          findsOneWidget);
       expect(find.byKey(WidgetKey.deviceDetailPingButton.key), findsOneWidget);
       expect(find.byKey(WidgetKey.deviceDetailWolButton.key), findsOneWidget);
     });
 
-    testWidgets('hides Wake on LAN button when MAC is not present', (tester) async {
+    testWidgets('hides Wake on LAN button when MAC is not present',
+        (tester) async {
       const deviceWithoutMac = DeviceData(
         id: 2,
         scanId: 1,
@@ -90,12 +93,14 @@ void main() {
 
       expect(find.text('Open ports'), findsOneWidget);
       expect(
-        find.text('Tap "Quick scan" to check for common open ports on this device.'),
+        find.text(
+            'Tap "Quick scan" to check for common open ports on this device.'),
         findsOneWidget,
       );
     });
 
-    testWidgets('ping button navigates to PingPage with target IP prefilled', (tester) async {
+    testWidgets('ping button navigates to PingPage with target IP prefilled',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
@@ -112,7 +117,9 @@ void main() {
       expect(find.text('192.168.1.42'), findsOneWidget);
     });
 
-    testWidgets('full port scan button navigates to PortScanPage with target IP', (tester) async {
+    testWidgets(
+        'full port scan button navigates to PortScanPage with target IP',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() {

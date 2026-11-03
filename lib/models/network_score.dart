@@ -83,8 +83,7 @@ class NetworkScore {
         health: DimensionScore.fromJson(json['health'] as Map<String, dynamic>),
         reliability: DimensionScore.fromJson(
             json['reliability'] as Map<String, dynamic>),
-        speed:
-            DimensionScore.fromJson(json['speed'] as Map<String, dynamic>),
+        speed: DimensionScore.fromJson(json['speed'] as Map<String, dynamic>),
         vulnerabilities: DimensionScore.fromJson(
             json['vulnerabilities'] as Map<String, dynamic>),
         metadata: (json['metadata'] as Map<String, dynamic>?)

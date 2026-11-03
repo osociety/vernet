@@ -60,8 +60,7 @@ List<int>? _versionParts(String version) {
   // number when comparing with a release tag such as `v1.3.9+50`.
   normalized = normalized.replaceAll('-store', '');
 
-  final match = RegExp(r'^(\d+(?:\.\d+)*)(?:\+(\d+))?$')
-      .firstMatch(normalized);
+  final match = RegExp(r'^(\d+(?:\.\d+)*)(?:\+(\d+))?$').firstMatch(normalized);
   if (match == null) return null;
 
   final parts = match.group(1)!.split('.').map(int.tryParse).toList();

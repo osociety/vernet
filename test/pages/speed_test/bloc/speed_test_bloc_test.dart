@@ -42,8 +42,8 @@ void main() {
       build: () => bloc,
       act: (bloc) => bloc.add(const SpeedTestEvent.toggleServerInfo()),
       expect: () => [
-        isA<SpeedTestState>()
-            .having((s) => s.isServerInfoExpanded, 'isServerInfoExpanded', isTrue),
+        isA<SpeedTestState>().having(
+            (s) => s.isServerInfoExpanded, 'isServerInfoExpanded', isTrue),
       ],
     );
 
@@ -106,12 +106,11 @@ void main() {
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
       expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.fetchError,
-              'fetchError',
-              contains('No test servers available'),
-            ),
+        isA<SpeedTestState>().having(
+          (s) => s.fetchError,
+          'fetchError',
+          contains('No test servers available'),
+        ),
       ],
     );
 
@@ -124,12 +123,11 @@ void main() {
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
       expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.fetchError,
-              'fetchError',
-              contains('No test servers available'),
-            ),
+        isA<SpeedTestState>().having(
+          (s) => s.fetchError,
+          'fetchError',
+          contains('No test servers available'),
+        ),
       ],
     );
 
@@ -142,12 +140,11 @@ void main() {
       ),
       act: (bloc) => bloc.add(const SpeedTestEvent.toggleServerInfo()),
       expect: () => [
-        isA<SpeedTestState>()
-            .having(
-              (s) => s.isServerInfoExpanded,
-              'isServerInfoExpanded',
-              isFalse,
-            ),
+        isA<SpeedTestState>().having(
+          (s) => s.isServerInfoExpanded,
+          'isServerInfoExpanded',
+          isFalse,
+        ),
       ],
     );
 
@@ -171,14 +168,17 @@ void main() {
         isA<SpeedTestState>()
             .having((s) => s.isLoading, 'isLoading', isTrue)
             .having((s) => s.speedTestStarted, 'speedTestStarted', isFalse)
-            .having((s) => s.downloadSpeedTestDone, 'downloadSpeedTestDone', isFalse)
-            .having((s) => s.uploadSpeedTestDone, 'uploadSpeedTestDone', isFalse)
+            .having((s) => s.downloadSpeedTestDone, 'downloadSpeedTestDone',
+                isFalse)
+            .having(
+                (s) => s.uploadSpeedTestDone, 'uploadSpeedTestDone', isFalse)
             .having((s) => s.currentDownloadSpeed, 'currentDownloadSpeed', 0.0)
             .having((s) => s.currentUploadSpeed, 'currentUploadSpeed', 0.0)
             .having((s) => s.downloadSpeeds, 'downloadSpeeds', isEmpty)
             .having((s) => s.uploadSpeeds, 'uploadSpeeds', isEmpty)
             .having((s) => s.fetchError, 'fetchError', isNull)
-            .having((s) => s.isServerInfoExpanded, 'isServerInfoExpanded', isFalse),
+            .having(
+                (s) => s.isServerInfoExpanded, 'isServerInfoExpanded', isFalse),
       ],
     );
   });
