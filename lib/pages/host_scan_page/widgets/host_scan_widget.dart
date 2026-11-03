@@ -156,10 +156,8 @@ class HostScanWidget extends StatelessWidget {
                 leading: Icon(DeviceUtil.getIconData(host)),
                 title: Row(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Flexible(
-                      fit: FlexFit.loose,
                       child: Text(
                         DeviceUtil.getDeviceMake(host) ?? 'Unknown device',
                         overflow: TextOverflow.ellipsis,

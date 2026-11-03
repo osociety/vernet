@@ -31,7 +31,6 @@ void main() {
     test('returns actual hostMake for current device (UI adds chip separately)', () {
       final device = _device(
         internetAddress: '192.168.0.10',
-        hostMake: 'Some Device',
       );
 
       expect(DeviceUtil.getDeviceMake(device), 'Some Device');
