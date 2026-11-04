@@ -43,6 +43,7 @@ runs:
 
     # x64 (any OS) and macOS (any arch) use the action
     - name: Setup Flutter
+      id: flutter-x64
       if: ${{ steps.arch.outputs.value == 'x64' || runner.os == 'macOS' }}
       uses: subosito/flutter-action@v2.23.0
       with:
@@ -50,14 +51,30 @@ runs:
         architecture: ${{ steps.arch.outputs.value }}
         cache: true
 
-    # arm64 on Linux and Windows: clone from git
-    - name: Clone Flutter (arm64)
+    # arm64 on Linux and Windows: clone from git with caching
+    - name: Cache Flutter SDK (arm64)
+      id: cache-flutter-arm64
       if: ${{ steps.arch.outputs.value == 'arm64' && runner.os != 'macOS' }}
+      uses: actions/cache@v4.2.2
+      with:
+        path: ${{ runner.temp }}/flutter
+        key: ${{ runner.os }}-flutter-${{ inputs.arm64_flutter_ref }}-${{ hashFiles('pubspec.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-flutter-${{ inputs.arm64_flutter_ref }}-
+          ${{ runner.os }}-flutter-
+
+    - name: Clone Flutter (arm64)
+      if: ${{ steps.arch.outputs.value == 'arm64' && runner.os != 'macOS' && steps.cache-flutter-arm64.outputs.cache-hit != 'true' }}
       shell: bash
       env:
         FLUTTER_REF: ${{ inputs.arm64_flutter_ref }}
       run: |
         git clone --depth 1 --branch "$FLUTTER_REF" https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+
+    - name: Add Flutter to PATH (arm64)
+      if: ${{ steps.arch.outputs.value == 'arm64' && runner.os != 'macOS' }}
+      shell: bash
+      run: |
         echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
 
     - name: Flutter doctor (arm64)
@@ -67,6 +84,16 @@ runs:
         flutter config --no-analytics
         flutter doctor -v
         flutter --version
+
+    - name: Cache .dart_tool
+      uses: actions/cache@v4.2.2
+      with:
+        path: |
+          .dart_tool
+          ~/.pub-cache
+        key: ${{ runner.os }}-dart-tool-${{ hashFiles('pubspec.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-dart-tool-
 
     - name: Download dependencies
       run: flutter pub get
