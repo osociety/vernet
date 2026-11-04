@@ -179,9 +179,7 @@ class HostScanWidget extends StatelessWidget {
                     ],
                   ],
                 ),
-                subtitle: Text(
-                  '${host.internetAddress}, ${host.macAddress ?? ''}',
-                ),
+                subtitle: _buildSubtitle(host, context),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -252,6 +250,70 @@ class HostScanWidget extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildSubtitle(DeviceData host, BuildContext context) {
+    final base =
+        '${host.internetAddress}${host.macAddress != null && host.macAddress!.isNotEmpty ? ', ${host.macAddress}' : ''}';
+    final outlineColor = Theme.of(context).colorScheme.outline;
+
+    if (host.openPorts == null || host.openPorts!.isEmpty) {
+      return Text(
+        base,
+        style: TextStyle(fontSize: 12, color: outlineColor),
+      );
+    }
+
+    final ports = host.openPorts!
+        .split(',')
+        .map((p) => int.tryParse(p.trim()))
+        .whereType<int>()
+        .toList()
+      ..sort();
+
+    final colorMap = {
+      'web': Colors.blue,
+      'network': Colors.green,
+      'file': Colors.orange,
+      'remote': Colors.red,
+      'database': Colors.purple,
+      'email': Colors.teal,
+      'print': Colors.pink,
+      'other': Colors.grey,
+    };
+
+    final spans = <InlineSpan>[
+      TextSpan(text: base, style: TextStyle(fontSize: 12, color: outlineColor)),
+      const TextSpan(text: ' · ', style: TextStyle(fontSize: 12)),
+    ];
+
+    for (var i = 0; i < ports.length; i++) {
+      final port = ports[i];
+      final description = DeviceUtil.getPortDescription(port);
+      final category = DeviceUtil.getPortCategory(port);
+      final color = colorMap[category] ?? Colors.grey;
+
+      spans.add(
+        TextSpan(
+          text: description != null ? '$port $description' : '$port',
+          style: TextStyle(
+            fontSize: 12,
+            color: color,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+      if (i < ports.length - 1) {
+        spans.add(
+          TextSpan(
+            text: ', ',
+            style: TextStyle(fontSize: 12, color: outlineColor),
+          ),
+        );
+      }
+    }
+
+    return RichText(text: TextSpan(children: spans));
   }
 }
 

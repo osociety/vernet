@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vernet/models/drift/device.dart';
 import 'package:vernet/models/drift/scan.dart';
@@ -14,7 +15,51 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        beforeOpen: (details) async {
+          if (details.wasCreated) return;
+
+          // Handle databases created before migration support was added.
+          // Check if device_type column exists, add it if missing.
+          try {
+            await customStatement('SELECT device_type FROM device LIMIT 0');
+          } catch (_) {
+            debugPrint('Adding missing device_type column');
+            await customStatement(
+                'ALTER TABLE device ADD COLUMN device_type TEXT');
+          }
+
+          // Check if open_ports column exists, add it if missing.
+          try {
+            await customStatement('SELECT open_ports FROM device LIMIT 0');
+          } catch (_) {
+            debugPrint('Adding missing open_ports column');
+            await customStatement(
+                'ALTER TABLE device ADD COLUMN open_ports TEXT');
+          }
+        },
+        onUpgrade: (m, from, to) async {
+          debugPrint('Database upgrade from version $from to $to');
+          // Use customStatement to check if columns exist before adding
+          if (from < 2) {
+            try {
+              await customStatement('SELECT device_type FROM device LIMIT 0');
+            } catch (_) {
+              await m.addColumn(device, device.deviceType);
+            }
+          }
+          if (from < 3) {
+            try {
+              await customStatement('SELECT open_ports FROM device LIMIT 0');
+            } catch (_) {
+              await m.addColumn(device, device.openPorts);
+            }
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

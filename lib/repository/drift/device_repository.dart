@@ -46,6 +46,39 @@ class DeviceRepository extends Repository<DeviceData> {
         .getSingleOrNull();
   }
 
+  /// Inserts a new device or updates an existing one with the same IP and scanId.
+  /// Returns the inserted/updated device.
+  Future<DeviceData> upsertByAddress(DeviceData device) async {
+    final database = await _database.open();
+    final existing = await getDevice(device.scanId, device.internetAddress);
+
+    if (existing != null) {
+      // Update existing device, preserving the original ID
+      final updated = DeviceData(
+        id: existing.id,
+        internetAddress: device.internetAddress,
+        macAddress: device.macAddress ?? existing.macAddress,
+        hostMake: device.hostMake ?? existing.hostMake,
+        mdnsDomainName: device.mdnsDomainName ?? existing.mdnsDomainName,
+        currentDeviceIp: device.currentDeviceIp,
+        gatewayIp: device.gatewayIp,
+        scanId: device.scanId,
+        deviceType: device.deviceType ?? existing.deviceType,
+        openPorts: device.openPorts ?? existing.openPorts,
+      );
+      await database!.update(database.device).replace(updated);
+      return updated;
+    } else {
+      // Insert new device
+      final id = await database!
+          .into(database.device)
+          .insert(device.toCompanion(true));
+      return await (database.select(database.device)
+            ..where((dd) => dd.id.equals(id)))
+          .getSingle();
+    }
+  }
+
   Future<Stream<List<DeviceData>>> watch(int scanId) async {
     final database = await _database.open();
     return (database!.select(database.device)
@@ -77,6 +110,15 @@ class DeviceRepository extends Repository<DeviceData> {
       countAll(filter: database.device.scanId.equals(scanId)),
     );
     return count ?? 0;
+  }
+
+  /// Deletes all devices for a given scanId. Used to clean up before starting
+  /// a new scan to ensure no duplicates from previous runs.
+  Future<void> deleteByScanId(int scanId) async {
+    final database = await _database.open();
+    await (database!.delete(database.device)
+          ..where((dd) => dd.scanId.equals(scanId)))
+        .go();
   }
 }
 
