@@ -1,0 +1,4 @@
+Faster and smoother device scanning.
+Devices now clear properly when starting a new scan.
+Improved accuracy of network details and device identification.
+Bug fixes and performance improvements.
