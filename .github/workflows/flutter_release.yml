@@ -159,11 +159,21 @@ jobs:
         with:
           java_version: '17'
 
+      - name: Cache Android SDK 37
+        id: cache-android-sdk
+        uses: actions/cache@v4.2.2
+        with:
+          path: ${{ env.ANDROID_HOME }}/platforms/android-37.0
+          key: ${{ runner.os }}-android-sdk-37
+
       - name: Install Android SDK 37
+        if: steps.cache-android-sdk.outputs.cache-hit != 'true'
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"
-          ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
+
+      - name: Link Android SDK platform
+        run: ln -sfn android-37.0 "$ANDROID_HOME/platforms/android-37"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -407,6 +417,14 @@ jobs:
       - name: Build Windows release
         run: flutter build windows --release
 
+      - name: Cache SQLite DLL (arm64)
+        if: ${{ matrix.architecture == 'arm64' }}
+        id: cache-sqlite-arm64
+        uses: actions/cache@v4.2.2
+        with:
+          path: ${{ runner.temp }}/sqlite-arm64-cache/sqlite3.dll
+          key: ${{ runner.os }}-sqlite-arm64-${{ env.SQLITE_BUILD_VERSION }}
+
       - name: Install architecture-matched SQLite DLL and create distributables
         shell: pwsh
         env:
@@ -435,14 +453,22 @@ jobs:
           } else {
             # Chocolatey's package does not include an ARM64 DLL. Use the
             # matching upstream SQLite archive on the Windows ARM64 runner.
-            $sqliteArchive = Join-Path $env:RUNNER_TEMP 'sqlite-arm64.zip'
-            $sqliteUrl = "https://www.sqlite.org/2026/sqlite-dll-win-arm64-$env:SQLITE_BUILD_VERSION.zip"
-            Invoke-WebRequest -Uri $sqliteUrl -OutFile $sqliteArchive
-            $sqliteExtract = Join-Path $env:RUNNER_TEMP 'sqlite-arm64'
-            Expand-Archive -Path $sqliteArchive -DestinationPath $sqliteExtract -Force
-            $sqliteDll = Get-ChildItem -Path $sqliteExtract -Filter sqlite3.dll -File -Recurse | Select-Object -First 1
-            if (-not $sqliteDll) { throw "sqlite3.dll was not found in $sqliteUrl" }
-            $sqliteDllPath = $sqliteDll.FullName
+            $sqliteCacheDir = Join-Path $env:RUNNER_TEMP 'sqlite-arm64-cache'
+            $sqliteCachedDll = Join-Path $sqliteCacheDir 'sqlite3.dll'
+            if (Test-Path $sqliteCachedDll) {
+              $sqliteDllPath = $sqliteCachedDll
+            } else {
+              $sqliteArchive = Join-Path $env:RUNNER_TEMP 'sqlite-arm64.zip'
+              $sqliteUrl = "https://www.sqlite.org/2026/sqlite-dll-win-arm64-$env:SQLITE_BUILD_VERSION.zip"
+              Invoke-WebRequest -Uri $sqliteUrl -OutFile $sqliteArchive
+              $sqliteExtract = Join-Path $env:RUNNER_TEMP 'sqlite-arm64'
+              Expand-Archive -Path $sqliteArchive -DestinationPath $sqliteExtract -Force
+              $sqliteDll = Get-ChildItem -Path $sqliteExtract -Filter sqlite3.dll -File -Recurse | Select-Object -First 1
+              if (-not $sqliteDll) { throw "sqlite3.dll was not found in $sqliteUrl" }
+              New-Item -ItemType Directory -Force -Path $sqliteCacheDir | Out-Null
+              Copy-Item $sqliteDll.FullName $sqliteCachedDll -Force
+              $sqliteDllPath = $sqliteCachedDll
+            }
           }
           if (-not (Test-Path $sqliteDllPath)) { throw "SQLite DLL was not found at $sqliteDllPath" }
           Copy-Item $sqliteDllPath "$buildDirectory/sqlite3.dll" -Force
