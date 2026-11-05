@@ -689,6 +689,7 @@ class _SpeedTestView extends StatelessWidget {
     final downloadSpeed = state.currentDownloadSpeed;
     final uploadSpeed = state.currentUploadSpeed;
     final latency = state.latencyMs;
+    final retransmission = state.retransmissionPercentage;
     final rating = _getSpeedRating(downloadSpeed);
 
     return TweenAnimationBuilder<double>(
@@ -823,6 +824,19 @@ class _SpeedTestView extends StatelessWidget {
                   latency,
                   'ms',
                   _getLatencyColor(latency ?? 999, colors),
+                  isWide: isWide,
+                ),
+              ),
+              SizedBox(width: isWide ? 16 : 12),
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  colors,
+                  Icons.swap_vert,
+                  'Retransmission',
+                  retransmission,
+                  '%',
+                  _getRetransmissionColor(retransmission ?? 100, colors),
                   isWide: isWide,
                 ),
               ),
@@ -965,6 +979,13 @@ class _SpeedTestView extends StatelessWidget {
     if (latencyMs < 20) return const Color(0xFF43EA6A);
     if (latencyMs < 50) return const Color(0xFF8BC34A);
     if (latencyMs < 100) return const Color(0xFFFFD700);
+    return const Color(0xFFF44336);
+  }
+
+  Color _getRetransmissionColor(
+      double retransmissionPercent, ColorScheme colors) {
+    if (retransmissionPercent < 1) return const Color(0xFF43EA6A);
+    if (retransmissionPercent < 5) return const Color(0xFFFFD700);
     return const Color(0xFFF44336);
   }
 
