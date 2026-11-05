@@ -167,17 +167,6 @@ class _SpeedTestView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Data policy consent checkbox (shown before test starts)
-                          if (!state.speedTestStarted &&
-                              !state.downloadSpeedTestDone &&
-                              !state.uploadSpeedTestDone &&
-                              !state.showSummary)
-                            _buildConsentCard(context, colors, isWide: isWide),
-                          if (!state.speedTestStarted &&
-                              !state.downloadSpeedTestDone &&
-                              !state.uploadSpeedTestDone &&
-                              !state.showSummary)
-                            SizedBox(height: spacing),
                           if ((state.downloadSpeeds.isNotEmpty ||
                                   state.uploadSpeeds.isNotEmpty) &&
                               !state.showSummary)
@@ -205,7 +194,22 @@ class _SpeedTestView extends StatelessWidget {
                       horizontal: horizontalPadding,
                       vertical: horizontalPadding / 2,
                     ),
-                    child: _buildActionButton(context, state, colors: colors),
+                    child: Column(
+                      children: [
+                        // Data policy consent checkbox (shown before test starts)
+                        if (!state.speedTestStarted &&
+                            !state.downloadSpeedTestDone &&
+                            !state.uploadSpeedTestDone &&
+                            !state.showSummary)
+                          _buildConsentCard(context, colors, isWide: isWide),
+                        if (!state.speedTestStarted &&
+                            !state.downloadSpeedTestDone &&
+                            !state.uploadSpeedTestDone &&
+                            !state.showSummary)
+                          const SizedBox(height: 12),
+                        _buildActionButton(context, state, colors: colors),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(
