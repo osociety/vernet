@@ -110,6 +110,12 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
+    // Reset any leftover state from previous tests
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
+
     final url = server.urls.downloadUrl!;
     final ws = await _connectWebSocket(url);
 
@@ -125,6 +131,12 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
+    // Reset any leftover state from previous tests
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
+
     final url = server.urls.uploadUrl!;
     final ws = await _connectWebSocket(url);
 
