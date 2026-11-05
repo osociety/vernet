@@ -20,7 +20,7 @@ class SpeedTestPage extends StatefulWidget {
 class _SpeedTestPageState extends State<SpeedTestPage> {
   late final SpeedTestBloc _bloc;
   bool _initialized = false;
-  bool _autoStarted = false;
+  bool _consentGiven = false;
   String? _lastShownError;
 
   @override
@@ -50,18 +50,6 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
       value: _bloc,
       child: BlocListener<SpeedTestBloc, SpeedTestState>(
         listener: (context, state) {
-          // Auto-start test once servers are loaded and test hasn't started yet
-          if (!_autoStarted &&
-              !state.isLoading &&
-              state.bestServers != null &&
-              state.bestServers!.isNotEmpty &&
-              !state.speedTestStarted &&
-              !state.downloadSpeedTestDone &&
-              !state.uploadSpeedTestDone) {
-            _autoStarted = true;
-            _bloc.add(const SpeedTestEvent.startTest());
-          }
-
           // Show error message only when it changes
           if (state.fetchError != null &&
               state.fetchError != _lastShownError &&
@@ -76,14 +64,27 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
             );
           }
         },
-        child: const _SpeedTestView(),
+        child: _SpeedTestView(
+          consentGiven: _consentGiven,
+          onConsentChanged: (value) {
+            setState(() {
+              _consentGiven = value;
+            });
+          },
+        ),
       ),
     );
   }
 }
 
 class _SpeedTestView extends StatelessWidget {
-  const _SpeedTestView();
+  const _SpeedTestView({
+    required this.consentGiven,
+    required this.onConsentChanged,
+  });
+
+  final bool consentGiven;
+  final ValueChanged<bool> onConsentChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +167,17 @@ class _SpeedTestView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // Data policy consent checkbox (shown before test starts)
+                          if (!state.speedTestStarted &&
+                              !state.downloadSpeedTestDone &&
+                              !state.uploadSpeedTestDone &&
+                              !state.showSummary)
+                            _buildConsentCard(context, colors, isWide: isWide),
+                          if (!state.speedTestStarted &&
+                              !state.downloadSpeedTestDone &&
+                              !state.uploadSpeedTestDone &&
+                              !state.showSummary)
+                            SizedBox(height: spacing),
                           if ((state.downloadSpeeds.isNotEmpty ||
                                   state.uploadSpeeds.isNotEmpty) &&
                               !state.showSummary)
@@ -752,7 +764,7 @@ class _SpeedTestView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // Animated download speed
                   TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0, end: downloadSpeed),
@@ -764,7 +776,7 @@ class _SpeedTestView extends StatelessWidget {
                           value.toStringAsFixed(1),
                           style: Theme.of(context)
                               .textTheme
-                              .displayLarge
+                              .displayMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: colors.onPrimaryContainer,
@@ -784,7 +796,7 @@ class _SpeedTestView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   // Gauge arc
                   CustomPaint(
                     size: Size(isWide ? 280 : 220, isWide ? 140 : 110),
@@ -800,47 +812,49 @@ class _SpeedTestView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           // Upload & Latency row
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  colors,
-                  Icons.arrow_upward,
-                  'Upload',
-                  uploadSpeed,
-                  'Mbps',
-                  const Color(0xFFFFD700),
-                  isWide: isWide,
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildMetricCard(
+                    context,
+                    colors,
+                    Icons.upload,
+                    'Upload',
+                    uploadSpeed,
+                    'Mbps',
+                    const Color(0xFFFFD700),
+                    isWide: isWide,
+                  ),
                 ),
-              ),
-              SizedBox(width: isWide ? 16 : 12),
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  colors,
-                  Icons.network_ping,
-                  'Latency',
-                  latency,
-                  'ms',
-                  _getLatencyColor(latency ?? 999, colors),
-                  isWide: isWide,
+                SizedBox(width: isWide ? 16 : 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    context,
+                    colors,
+                    Icons.timer,
+                    'Latency',
+                    latency,
+                    'ms',
+                    _getLatencyColor(latency ?? 999, colors),
+                    isWide: isWide,
+                  ),
                 ),
-              ),
-              SizedBox(width: isWide ? 16 : 12),
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  colors,
-                  Icons.swap_vert,
-                  'Retransmission',
-                  retransmission,
-                  '%',
-                  _getRetransmissionColor(retransmission ?? 100, colors),
-                  isWide: isWide,
+                SizedBox(width: isWide ? 16 : 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    context,
+                    colors,
+                    Icons.sync,
+                    'Retrans',
+                    retransmission,
+                    '%',
+                    _getRetransmissionColor(retransmission ?? 100, colors),
+                    isWide: isWide,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           // What you can do
@@ -870,6 +884,7 @@ class _SpeedTestView extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
@@ -1006,12 +1021,85 @@ class _SpeedTestView extends StatelessWidget {
     return caps;
   }
 
+  Widget _buildConsentCard(BuildContext context, ColorScheme colors,
+      {required bool isWide}) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 24.0 : 20.0,
+        vertical: isWide ? 24.0 : 20.0,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Checkbox(
+            value: consentGiven,
+            onChanged: (value) {
+              onConsentChanged(value ?? false);
+            },
+            activeColor: colors.primary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'I agree to the data policy',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.onSurface,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Includes retention and publication of IP addresses',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colors.onSurface.withValues(alpha: 0.6),
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionButton(BuildContext context, SpeedTestState state,
       {required ColorScheme colors}) {
     final hasServers =
         state.bestServers != null && state.bestServers!.isNotEmpty;
 
-    // Only show button after test completes (for "Test Again")
+    // Show "Start Test" button before test begins
+    if (!state.speedTestStarted &&
+        !state.downloadSpeedTestDone &&
+        !state.uploadSpeedTestDone &&
+        !state.showSummary) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: (hasServers && consentGiven)
+              ? () {
+                  context
+                      .read<SpeedTestBloc>()
+                      .add(const SpeedTestEvent.startTest());
+                }
+              : null,
+          icon: const Icon(Icons.play_arrow),
+          label: const Text('Start Test'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: colors.primary,
+            foregroundColor: colors.onPrimary,
+          ),
+        ),
+      );
+    }
+
+    // Only show "Test Again" button after test completes
     if (!state.showSummary) {
       return const SizedBox.shrink();
     }
