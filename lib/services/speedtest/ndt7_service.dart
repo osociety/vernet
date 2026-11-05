@@ -78,6 +78,12 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
+    // Reset any leftover state from previous tests
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
+
     final downloadResult = await runDownloadTest(
       server,
       onProgress: onProgress,
