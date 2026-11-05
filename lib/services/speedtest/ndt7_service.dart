@@ -360,7 +360,7 @@ class Ndt7Service {
             // falling back to TCPInfo calculation only if AppInfo not provided
             if (measurement.throughputMbps != null) {
               latestUploadMbps = measurement.throughputMbps;
-              debugPrint('Ndt7Service upload: $latestUploadMbps Mbps '
+              print('Ndt7Service upload: $latestUploadMbps Mbps '
                   '(from AppInfo NumBytes=${measurement.bytesSent} bytes)');
             } else {
               final elapsedUs = measurement.elapsedTimeUs ?? 0;
@@ -368,7 +368,7 @@ class Ndt7Service {
               if (bytesReceived != null && elapsedUs > 0) {
                 final elapsedSec = elapsedUs / 1e6;
                 latestUploadMbps = 8 * bytesReceived / elapsedSec / 1000000;
-                debugPrint('Ndt7Service upload: $latestUploadMbps Mbps '
+                print('Ndt7Service upload: $latestUploadMbps Mbps '
                     '(from TCPInfo: $bytesReceived bytes in ${elapsedUs}us)');
               }
             }
@@ -484,7 +484,7 @@ class Ndt7Service {
         bytesRetrans = tcpInfo['BytesRetrans'] as int?;
         bytesReceived = tcpInfo['BytesReceived'] as int?;
         elapsedTimeUs = tcpInfo['ElapsedTime'] as int?;
-        debugPrint('Ndt7Service TCPInfo: BytesSent=$bytesSent, BytesReceived=$bytesReceived, ElapsedTime=$elapsedTimeUs');
+        print('Ndt7Service TCPInfo: BytesSent=$bytesSent, BytesReceived=$bytesReceived, ElapsedTime=$elapsedTimeUs');
         minRTT = tcpInfo['MinRTT'] != null
             ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
             : null;
@@ -504,11 +504,11 @@ class Ndt7Service {
       if (appInfo != null) {
         final numBytes = appInfo['NumBytes'] as int?;
         final elapsedUs = appInfo['ElapsedTime'] as int?;
-        debugPrint('Ndt7Service AppInfo: NumBytes=$numBytes, ElapsedTime=$elapsedUs');
+        print('Ndt7Service AppInfo: NumBytes=$numBytes, ElapsedTime=$elapsedUs');
         if (numBytes != null && elapsedUs != null && elapsedUs > 0) {
           final elapsedSec = elapsedUs / 1e6;
           throughputMbps = (numBytes * 8) / elapsedSec / 1000000;
-          debugPrint('Ndt7Service calculated throughput: $throughputMbps Mbps');
+          print('Ndt7Service calculated throughput: $throughputMbps Mbps');
         }
       }
 
