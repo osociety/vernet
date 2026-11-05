@@ -229,6 +229,10 @@ class Ndt7Service {
     // Warm-up period: discard first 2 seconds of samples to avoid TCP ramp-up skew
     const warmupDuration = Duration(seconds: 2);
 
+    // Track previous TCPInfo values for delta calculation
+    int? prevBytesSent;
+    int? prevElapsedTimeUs;
+
     final completer = Completer<Ndt7Measurement>();
     _activeTimer = Timer(_downloadTestDuration, () {
       _activeTimer = null;
@@ -300,16 +304,33 @@ class Ndt7Service {
             } else if (measurement.bytesSent != null &&
                 measurement.elapsedTimeUs != null &&
                 measurement.elapsedTimeUs! > 0) {
-              // Fallback: calculate from TCPInfo.BytesSent when AppInfo not available
-              final elapsedSec = measurement.elapsedTimeUs! / 1e6;
-              final tcpThroughput =
-                  8 * measurement.bytesSent! / elapsedSec / 1000000;
-              print(
-                  'Ndt7Service download fallback: bytesSent=${measurement.bytesSent}, elapsedUs=${measurement.elapsedTimeUs}, calculated=$tcpThroughput Mbps');
-              final elapsed = DateTime.now().difference(startTime);
-              if (elapsed > warmupDuration) {
-                latestServerThroughput = tcpThroughput;
+              // Fallback: calculate from TCPInfo.BytesSent delta when AppInfo not available
+              // TCPInfo carries cumulative counters, so we calculate throughput from
+              // the delta between consecutive samples for accurate measurement
+              final currentBytesSent = measurement.bytesSent!;
+              final currentElapsedTimeUs = measurement.elapsedTimeUs!;
+
+              if (prevBytesSent != null && prevElapsedTimeUs != null) {
+                final deltaBytes = currentBytesSent - prevBytesSent!;
+                final deltaElapsedUs =
+                    currentElapsedTimeUs - prevElapsedTimeUs!;
+
+                if (deltaElapsedUs > 0 && deltaBytes >= 0) {
+                  final deltaElapsedSec = deltaElapsedUs / 1e6;
+                  final tcpThroughput =
+                      8 * deltaBytes / deltaElapsedSec / 1000000;
+                  print(
+                      'Ndt7Service download fallback (delta): deltaBytes=$deltaBytes, deltaElapsedUs=$deltaElapsedUs, calculated=$tcpThroughput Mbps');
+
+                  final elapsed = DateTime.now().difference(startTime);
+                  if (elapsed > warmupDuration) {
+                    latestServerThroughput = tcpThroughput;
+                  }
+                }
               }
+
+              prevBytesSent = currentBytesSent;
+              prevElapsedTimeUs = currentElapsedTimeUs;
             }
           }
         }
@@ -363,6 +384,10 @@ class Ndt7Service {
     // so client-side byte counting measures buffer fill, not the network.
     double? latestUploadMbps;
 
+    // Track previous TCPInfo values for delta calculation
+    int? prevBytesReceived;
+    int? prevElapsedTimeUs;
+
     final completer = Completer<Ndt7Measurement>();
     var sendLoopActive = true;
 
@@ -397,14 +422,27 @@ class Ndt7Service {
               print('Ndt7Service upload: $latestUploadMbps Mbps '
                   '(from AppInfo NumBytes=${measurement.bytesSent} bytes)');
             } else {
-              final elapsedUs = measurement.elapsedTimeUs ?? 0;
-              final bytesReceived = measurement.bytesReceived;
-              if (bytesReceived != null && elapsedUs > 0) {
-                final elapsedSec = elapsedUs / 1e6;
-                latestUploadMbps = 8 * bytesReceived / elapsedSec / 1000000;
-                print('Ndt7Service upload: $latestUploadMbps Mbps '
-                    '(from TCPInfo: $bytesReceived bytes in ${elapsedUs}us)');
+              final currentBytesReceived = measurement.bytesReceived;
+              final currentElapsedTimeUs = measurement.elapsedTimeUs ?? 0;
+
+              if (currentBytesReceived != null &&
+                  prevBytesReceived != null &&
+                  prevElapsedTimeUs != null &&
+                  currentElapsedTimeUs > prevElapsedTimeUs!) {
+                final deltaBytes = currentBytesReceived - prevBytesReceived!;
+                final deltaElapsedUs =
+                    currentElapsedTimeUs - prevElapsedTimeUs!;
+
+                if (deltaElapsedUs > 0 && deltaBytes >= 0) {
+                  final deltaElapsedSec = deltaElapsedUs / 1e6;
+                  latestUploadMbps = 8 * deltaBytes / deltaElapsedSec / 1000000;
+                  print(
+                      'Ndt7Service upload (delta): deltaBytes=$deltaBytes, deltaElapsedUs=$deltaElapsedUs, calculated=$latestUploadMbps Mbps');
+                }
               }
+
+              prevBytesReceived = currentBytesReceived;
+              prevElapsedTimeUs = currentElapsedTimeUs;
             }
           }
         }
