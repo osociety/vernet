@@ -338,13 +338,21 @@ class Ndt7Service {
             if (measurement.retransmissionPercentage != null) {
               retransmissionPercentage = measurement.retransmissionPercentage;
             }
-            final elapsedUs = measurement.elapsedTimeUs ?? 0;
-            final bytesReceived = measurement.bytesReceived;
-            if (bytesReceived != null && elapsedUs > 0) {
-              final elapsedSec = elapsedUs / 1e6;
-              latestUploadMbps = 8 * bytesReceived / elapsedSec / 1000000;
+            // Use AppInfo throughput (application-level goodput) if available,
+            // falling back to TCPInfo calculation only if AppInfo not provided
+            if (measurement.throughputMbps != null) {
+              latestUploadMbps = measurement.throughputMbps;
               debugPrint('Ndt7Service upload: $latestUploadMbps Mbps '
-                  '(server received $bytesReceived in ${elapsedUs}us)');
+                  '(from AppInfo)');
+            } else {
+              final elapsedUs = measurement.elapsedTimeUs ?? 0;
+              final bytesReceived = measurement.bytesReceived;
+              if (bytesReceived != null && elapsedUs > 0) {
+                final elapsedSec = elapsedUs / 1e6;
+                latestUploadMbps = 8 * bytesReceived / elapsedSec / 1000000;
+                debugPrint('Ndt7Service upload: $latestUploadMbps Mbps '
+                    '(from TCPInfo: $bytesReceived bytes in ${elapsedUs}us)');
+              }
             }
           }
         }
