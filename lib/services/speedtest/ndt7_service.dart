@@ -361,7 +361,7 @@ class Ndt7Service {
             if (measurement.throughputMbps != null) {
               latestUploadMbps = measurement.throughputMbps;
               debugPrint('Ndt7Service upload: $latestUploadMbps Mbps '
-                  '(from AppInfo)');
+                  '(from AppInfo NumBytes=${measurement.bytesSent} bytes)');
             } else {
               final elapsedUs = measurement.elapsedTimeUs ?? 0;
               final bytesReceived = measurement.bytesReceived;
@@ -484,6 +484,7 @@ class Ndt7Service {
         bytesRetrans = tcpInfo['BytesRetrans'] as int?;
         bytesReceived = tcpInfo['BytesReceived'] as int?;
         elapsedTimeUs = tcpInfo['ElapsedTime'] as int?;
+        debugPrint('Ndt7Service TCPInfo: BytesSent=$bytesSent, BytesReceived=$bytesReceived, ElapsedTime=$elapsedTimeUs');
         minRTT = tcpInfo['MinRTT'] != null
             ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
             : null;
@@ -503,9 +504,11 @@ class Ndt7Service {
       if (appInfo != null) {
         final numBytes = appInfo['NumBytes'] as int?;
         final elapsedUs = appInfo['ElapsedTime'] as int?;
+        debugPrint('Ndt7Service AppInfo: NumBytes=$numBytes, ElapsedTime=$elapsedUs');
         if (numBytes != null && elapsedUs != null && elapsedUs > 0) {
           final elapsedSec = elapsedUs / 1e6;
           throughputMbps = (numBytes * 8) / elapsedSec / 1000000;
+          debugPrint('Ndt7Service calculated throughput: $throughputMbps Mbps');
         }
       }
 
