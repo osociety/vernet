@@ -445,11 +445,11 @@ class _WifiDetailState extends State<HomePage> {
                     size: 14,
                     color: colors.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 4),
                   Text(
-                    'Powered by M-Lab',
+                    'M-Lab',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: colors.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
                         ),
                   ),
                 ],
