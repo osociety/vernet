@@ -167,15 +167,11 @@ class _SpeedTestView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if ((state.downloadSpeeds.isNotEmpty ||
-                                  state.uploadSpeeds.isNotEmpty) &&
-                              !state.showSummary)
+                          // Show graph (empty before test, with data during test)
+                          if (!state.showSummary)
                             _buildSpeedGraph(context, state,
                                 colors: colors, height: graphHeight),
-                          if ((state.downloadSpeeds.isNotEmpty ||
-                                  state.uploadSpeeds.isNotEmpty) &&
-                              !state.showSummary)
-                            SizedBox(height: spacing),
+                          if (!state.showSummary) SizedBox(height: spacing),
                           if (!state.showSummary)
                             _buildResults(context, state,
                                 colors: colors, isWide: isWide),
