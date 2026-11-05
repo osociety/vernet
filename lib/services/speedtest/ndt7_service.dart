@@ -59,10 +59,20 @@ class Ndt7Service {
         throw const Ndt7Exception('No M-Lab servers available');
       }
 
-      return results
+      final servers = results
           .map((r) => Ndt7Server.fromJson(r as Map<String, dynamic>))
           .where((s) => s.urls.downloadUrl != null && s.urls.uploadUrl != null)
           .toList();
+
+      // Log the first server's URLs for debugging
+      if (servers.isNotEmpty) {
+        print(
+            'Ndt7Service discoverServers: first server download URL: ${servers.first.urls.downloadUrl}');
+        print(
+            'Ndt7Service discoverServers: first server upload URL: ${servers.first.urls.uploadUrl}');
+      }
+
+      return servers;
     } on SocketException catch (e) {
       throw Ndt7Exception('Network error: ${e.message}', null, e);
     } on FormatException catch (e) {
@@ -117,6 +127,7 @@ class Ndt7Service {
     _activeWebSocket = null;
 
     final url = server.urls.downloadUrl!;
+    print('Ndt7Service runDownloadTest: connecting to URL: $url');
     final ws = await _connectWebSocket(url);
 
     try {
@@ -138,6 +149,7 @@ class Ndt7Service {
     _activeWebSocket = null;
 
     final url = server.urls.uploadUrl!;
+    print('Ndt7Service runUploadTest: connecting to URL: $url');
     final ws = await _connectWebSocket(url);
 
     try {
@@ -150,6 +162,8 @@ class Ndt7Service {
   Future<WebSocket> _connectWebSocket(String url) async {
     final completer = Completer<WebSocket>();
     Timer? timer;
+
+    print('Ndt7Service _connectWebSocket: attempting connection to: $url');
 
     try {
       timer = Timer(_connectionTimeout, () {
@@ -279,10 +293,13 @@ class Ndt7Service {
               if (elapsed > warmupDuration) {
                 latestServerThroughput = measurement.throughputMbps;
               }
-            } else if (measurement.bytesSent != null && measurement.elapsedTimeUs != null && measurement.elapsedTimeUs! > 0) {
+            } else if (measurement.bytesSent != null &&
+                measurement.elapsedTimeUs != null &&
+                measurement.elapsedTimeUs! > 0) {
               // Fallback: calculate from TCPInfo.BytesSent when AppInfo not available
               final elapsedSec = measurement.elapsedTimeUs! / 1e6;
-              final tcpThroughput = 8 * measurement.bytesSent! / elapsedSec / 1000000;
+              final tcpThroughput =
+                  8 * measurement.bytesSent! / elapsedSec / 1000000;
               final elapsed = DateTime.now().difference(startTime);
               if (elapsed > warmupDuration) {
                 latestServerThroughput = tcpThroughput;
@@ -307,8 +324,10 @@ class Ndt7Service {
           final elapsed = DateTime.now().difference(startTime);
           final clientThroughputMbps =
               _calculateThroughput(totalBytes, elapsed);
-          final finalThroughput = latestServerThroughput ?? clientThroughputMbps;
-          print('Ndt7Service download test complete. latestServerThroughput: $latestServerThroughput, clientThroughput: $clientThroughputMbps, final: $finalThroughput');
+          final finalThroughput =
+              latestServerThroughput ?? clientThroughputMbps;
+          print(
+              'Ndt7Service download test complete. latestServerThroughput: $latestServerThroughput, clientThroughput: $clientThroughputMbps, final: $finalThroughput');
           completer.complete(Ndt7Measurement(
             throughputMbps: finalThroughput,
             minRTT: minRTT,
@@ -397,7 +416,8 @@ class Ndt7Service {
       onDone: () {
         _activeTimer?.cancel();
         _activeTimer = null;
-        print('Ndt7Service upload test complete. Final latestUploadMbps: $latestUploadMbps');
+        print(
+            'Ndt7Service upload test complete. Final latestUploadMbps: $latestUploadMbps');
         if (!completer.isCompleted) {
           completer.complete(Ndt7Measurement(
             throughputMbps: latestUploadMbps ?? 0.0,
@@ -495,7 +515,8 @@ class Ndt7Service {
         bytesRetrans = tcpInfo['BytesRetrans'] as int?;
         bytesReceived = tcpInfo['BytesReceived'] as int?;
         elapsedTimeUs = tcpInfo['ElapsedTime'] as int?;
-        print('Ndt7Service TCPInfo: BytesSent=$bytesSent, BytesReceived=$bytesReceived, ElapsedTime=$elapsedTimeUs');
+        print(
+            'Ndt7Service TCPInfo: BytesSent=$bytesSent, BytesReceived=$bytesReceived, ElapsedTime=$elapsedTimeUs');
         minRTT = tcpInfo['MinRTT'] != null
             ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
             : null;
@@ -515,7 +536,8 @@ class Ndt7Service {
       if (appInfo != null) {
         final numBytes = appInfo['NumBytes'] as int?;
         final elapsedUs = appInfo['ElapsedTime'] as int?;
-        print('Ndt7Service AppInfo: NumBytes=$numBytes, ElapsedTime=$elapsedUs');
+        print(
+            'Ndt7Service AppInfo: NumBytes=$numBytes, ElapsedTime=$elapsedUs');
         if (numBytes != null && elapsedUs != null && elapsedUs > 0) {
           final elapsedSec = elapsedUs / 1e6;
           throughputMbps = (numBytes * 8) / elapsedSec / 1000000;

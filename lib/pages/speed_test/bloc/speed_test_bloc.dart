@@ -52,6 +52,10 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     }
 
     final server = state.bestServers!.first;
+    print('SpeedTestBloc _onStartTest: using server ${server.machine}');
+    print(
+        'SpeedTestBloc _onStartTest: download URL: ${server.urls.downloadUrl}');
+    print('SpeedTestBloc _onStartTest: upload URL: ${server.urls.uploadUrl}');
 
     emit(state.copyWith(
       speedTestStarted: true,

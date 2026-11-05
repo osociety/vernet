@@ -44,11 +44,17 @@ class Ndt7ServerUrls {
   });
 
   factory Ndt7ServerUrls.fromJson(Map<String, dynamic> json) {
+    final downloadUrl = json['wss:///ndt/v7/download'] as String? ??
+        json['ws:///ndt/v7/download'] as String?;
+    final uploadUrl = json['wss:///ndt/v7/upload'] as String? ??
+        json['ws:///ndt/v7/upload'] as String?;
+
+    print('Ndt7ServerUrls.fromJson: parsed downloadUrl: $downloadUrl');
+    print('Ndt7ServerUrls.fromJson: parsed uploadUrl: $uploadUrl');
+
     return Ndt7ServerUrls(
-      downloadUrl: json['wss:///ndt/v7/download'] as String? ??
-          json['ws:///ndt/v7/download'] as String?,
-      uploadUrl: json['wss:///ndt/v7/upload'] as String? ??
-          json['ws:///ndt/v7/upload'] as String?,
+      downloadUrl: downloadUrl,
+      uploadUrl: uploadUrl,
     );
   }
 
