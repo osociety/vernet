@@ -56,6 +56,10 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     print(
         'SpeedTestBloc _onStartTest: download URL: ${server.urls.downloadUrl}');
     print('SpeedTestBloc _onStartTest: upload URL: ${server.urls.uploadUrl}');
+    print(
+        'SpeedTestBloc _onStartTest: download URL runtime type: ${server.urls.downloadUrl.runtimeType}');
+    print(
+        'SpeedTestBloc _onStartTest: download URL length: ${server.urls.downloadUrl?.length}');
 
     emit(state.copyWith(
       speedTestStarted: true,
@@ -83,7 +87,9 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         showSummary: true,
         isServerInfoExpanded: true,
       ));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('SpeedTestBloc _onStartTest ERROR: $e');
+      print('SpeedTestBloc _onStartTest STACKTRACE: $stackTrace');
       emit(state.copyWith(
         fetchError: 'Speed test failed: $e',
         speedTestStarted: false,
