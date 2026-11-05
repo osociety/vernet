@@ -18,6 +18,7 @@ sealed class SpeedTestState with _$SpeedTestState {
     double? latencyMs,
     double? packetLossPercent,
     int? retransmissions,
+    double? retransmissionPercentage,
     String? serverLocation,
   }) = _SpeedTestStateData;
 }

@@ -97,6 +97,7 @@ class Ndt7TestResult {
     required this.server,
     this.minRTT,
     this.retransmissions,
+    this.retransmissionPercentage,
     this.timestamp,
   });
 
@@ -117,6 +118,8 @@ class Ndt7TestResult {
       ),
       minRTT: (json['minRTT'] as num?)?.toDouble(),
       retransmissions: json['retransmissions'] as int?,
+      retransmissionPercentage:
+          (json['retransmissionPercentage'] as num?)?.toDouble(),
       timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'] as String)
           : null,
@@ -129,6 +132,7 @@ class Ndt7TestResult {
   final Ndt7Server server;
   final double? minRTT;
   final int? retransmissions;
+  final double? retransmissionPercentage;
   final DateTime? timestamp;
 
   Map<String, dynamic> toJson() => {
@@ -147,6 +151,7 @@ class Ndt7TestResult {
         },
         'minRTT': minRTT,
         'retransmissions': retransmissions,
+        'retransmissionPercentage': retransmissionPercentage,
         'timestamp': timestamp?.toIso8601String(),
       };
 }

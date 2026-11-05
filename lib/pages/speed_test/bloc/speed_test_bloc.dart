@@ -162,6 +162,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     final latencyMs = downloadResult.minRTT ?? uploadResult.minRTT;
     final retransmissions =
         downloadResult.retransmissions ?? uploadResult.retransmissions;
+    final retransmissionPercentage = downloadResult.retransmissionPercentage ??
+        uploadResult.retransmissionPercentage;
 
     emit(state.copyWith(
       currentUploadSpeed: uploadResult.throughputMbps ?? 0,
@@ -169,6 +171,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       latencyMs: latencyMs,
       packetLossPercent: null,
       retransmissions: retransmissions,
+      retransmissionPercentage: retransmissionPercentage,
       serverLocation: server.location != null
           ? '${server.location!.city ?? ''}, ${server.location!.country ?? ''}'
           : server.site,
@@ -181,6 +184,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       server: server,
       minRTT: latencyMs,
       retransmissions: retransmissions,
+      retransmissionPercentage: retransmissionPercentage,
       timestamp: DateTime.now(),
     );
   }
