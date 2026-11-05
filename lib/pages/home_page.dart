@@ -425,12 +425,11 @@ class _WifiDetailState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 4,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _PanelIcon(icon: Icons.speed, color: colors.tertiary),
+                  const SizedBox(width: 8),
                   Text(
                     'SPEED TEST',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -438,13 +437,17 @@ class _WifiDetailState extends State<HomePage> {
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  if (testTimestamp != null)
+                  if (testTimestamp != null) ...[
+                    const SizedBox(width: 8),
                     TimestampChip(timestamp: testTimestamp),
+                  ],
+                  const Spacer(),
                   Icon(
                     Icons.info_outline,
                     size: 14,
                     color: colors.onSurfaceVariant,
                   ),
+                  const SizedBox(width: 4),
                   Text(
                     'M-Lab',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
