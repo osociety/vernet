@@ -233,12 +233,16 @@ class Ndt7Service {
     _activeTimer = Timer(_downloadTestDuration, () {
       _activeTimer = null;
       if (!completer.isCompleted) {
+        final medianClientThroughput =
+            _calculateMedianThroughput(throughputSamples);
+        final finalThroughput =
+            latestServerThroughput ?? medianClientThroughput ?? 0.0;
+        print(
+            'Ndt7Service download timer complete: latestServerThroughput=$latestServerThroughput, medianClientThroughput=$medianClientThroughput, final=$finalThroughput');
         completer.complete(Ndt7Measurement(
           // Use last server throughput sample (official NDT7 methodology),
           // falling back to client-side median if server samples unavailable
-          throughputMbps: latestServerThroughput ??
-              _calculateMedianThroughput(throughputSamples) ??
-              0.0,
+          throughputMbps: finalThroughput,
           minRTT: minRTT,
           retransmissions: retransmissions,
           retransmissionPercentage: retransmissionPercentage,
@@ -300,6 +304,8 @@ class Ndt7Service {
               final elapsedSec = measurement.elapsedTimeUs! / 1e6;
               final tcpThroughput =
                   8 * measurement.bytesSent! / elapsedSec / 1000000;
+              print(
+                  'Ndt7Service download fallback: bytesSent=${measurement.bytesSent}, elapsedUs=${measurement.elapsedTimeUs}, calculated=$tcpThroughput Mbps');
               final elapsed = DateTime.now().difference(startTime);
               if (elapsed > warmupDuration) {
                 latestServerThroughput = tcpThroughput;
