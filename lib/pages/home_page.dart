@@ -442,18 +442,9 @@ class _WifiDetailState extends State<HomePage> {
                     TimestampChip(timestamp: testTimestamp),
                   ],
                   const Spacer(),
-                  Icon(
-                    Icons.info_outline,
-                    size: 14,
+                  _StatusPill(
+                    label: 'M-Lab',
                     color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'M-Lab',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
                   ),
                 ],
               ),
