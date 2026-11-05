@@ -440,6 +440,18 @@ class _WifiDetailState extends State<HomePage> {
                   ),
                   if (testTimestamp != null)
                     TimestampChip(timestamp: testTimestamp),
+                  Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: colors.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Powered by M-Lab',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -518,25 +530,6 @@ class _WifiDetailState extends State<HomePage> {
                             fontWeight: FontWeight.w700,
                             color:
                                 _getLatencyColor(speedData.latencyMs, colors),
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // M-Lab attribution
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 14,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Powered by M-Lab',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colors.onSurfaceVariant,
                           ),
                     ),
                   ],
