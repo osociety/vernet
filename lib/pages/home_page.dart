@@ -440,6 +440,35 @@ class _WifiDetailState extends State<HomePage> {
                   ),
                   if (testTimestamp != null)
                     TimestampChip(timestamp: testTimestamp),
+                  const Spacer(),
+                  if (hasData)
+                    IconButton.outlined(
+                      tooltip: 'View last result',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SpeedTestPage(
+                              preloadedResult: Ndt7TestResult(
+                                downloadMbps: speedData.downloadMbps,
+                                uploadMbps: speedData.uploadMbps,
+                                latencyMs: speedData.latencyMs,
+                                retransmissions: speedData.retransmissions,
+                                retransmissionPercentage: null,
+                                server: Ndt7Server(
+                                  machine: '',
+                                  site: speedData.serverLocation ?? '',
+                                  urls: const Ndt7ServerUrls(),
+                                ),
+                                timestamp:
+                                    speedData.timestamp ?? DateTime.now(),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.history),
+                    ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -637,38 +666,6 @@ class _WifiDetailState extends State<HomePage> {
                   label: Text(hasData ? 'Run New Test' : 'Start Speed Test'),
                 ),
               ),
-              if (hasData) ...[
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SpeedTestPage(
-                            preloadedResult: Ndt7TestResult(
-                              downloadMbps: speedData.downloadMbps,
-                              uploadMbps: speedData.uploadMbps,
-                              latencyMs: speedData.latencyMs,
-                              retransmissions: speedData.retransmissions,
-                              retransmissionPercentage: null,
-                              server: Ndt7Server(
-                                machine: '',
-                                site: speedData.serverLocation ?? '',
-                                urls: const Ndt7ServerUrls(),
-                              ),
-                              timestamp: speedData.timestamp ?? DateTime.now(),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.history, size: 18),
-                    label: const Text('View Last Result'),
-                  ),
-                ),
-              ],
             ],
           ),
         );
