@@ -653,7 +653,7 @@ class _WifiDetailState extends State<HomePage> {
                 ),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.tonalIcon(
+                child: FilledButton.icon(
                   onPressed: () {
                     Navigator.push(
                       context,
