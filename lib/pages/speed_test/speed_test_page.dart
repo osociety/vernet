@@ -817,15 +817,18 @@ class _SpeedTestView extends StatelessWidget {
           const SizedBox(height: 16),
           // Upload card (separate row on mobile, combined on desktop)
           if (!isWide)
-            _buildMetricCard(
-              context,
-              colors,
-              Icons.upload,
-              'Upload',
-              uploadSpeed,
-              'Mbps',
-              const Color(0xFFFFD700),
-              isWide: isWide,
+            SizedBox(
+              width: double.infinity,
+              child: _buildMetricCard(
+                context,
+                colors,
+                Icons.upload,
+                'Upload',
+                uploadSpeed,
+                'Mbps',
+                const Color(0xFFFFD700),
+                isWide: isWide,
+              ),
             ),
           if (!isWide) const SizedBox(height: 12),
           // Latency & Retransmission row (or all three on desktop)
