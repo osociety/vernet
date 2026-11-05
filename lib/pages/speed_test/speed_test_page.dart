@@ -885,11 +885,13 @@ class _SpeedTestView extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colors.onSurface.withValues(alpha: 0.6),
                 ),
@@ -901,6 +903,7 @@ class _SpeedTestView extends StatelessWidget {
             curve: Curves.easeOutCubic,
             builder: (context, v, _) => Text(
               value != null ? '${v.toStringAsFixed(1)} $unit' : '--',
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: color,
