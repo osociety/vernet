@@ -11,6 +11,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/network_connection_status.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
@@ -636,6 +637,38 @@ class _WifiDetailState extends State<HomePage> {
                   label: Text(hasData ? 'Run New Test' : 'Start Speed Test'),
                 ),
               ),
+              if (hasData) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SpeedTestPage(
+                            preloadedResult: Ndt7TestResult(
+                              downloadMbps: speedData.downloadMbps,
+                              uploadMbps: speedData.uploadMbps,
+                              latencyMs: speedData.latencyMs,
+                              retransmissions: speedData.retransmissions,
+                              retransmissionPercentage: null,
+                              server: Ndt7Server(
+                                machine: '',
+                                site: speedData.serverLocation ?? '',
+                                urls: const Ndt7ServerUrls(),
+                              ),
+                              timestamp: speedData.timestamp ?? DateTime.now(),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.history, size: 18),
+                    label: const Text('View Last Result'),
+                  ),
+                ),
+              ],
             ],
           ),
         );

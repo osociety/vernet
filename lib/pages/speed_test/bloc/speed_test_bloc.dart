@@ -21,6 +21,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     on<_StartTest>(_onStartTest);
     on<_ToggleServerInfo>(_onToggleServerInfo);
     on<_Reset>(_onReset);
+    on<_LoadResult>(_onLoadResult);
   }
 
   final Ndt7Service _ndt7Service;
@@ -94,6 +95,24 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
   void _onReset(_Reset event, Emitter<SpeedTestState> emit) {
     emit(const SpeedTestState.data());
+  }
+
+  void _onLoadResult(_LoadResult event, Emitter<SpeedTestState> emit) {
+    final result = event.result;
+    emit(state.copyWith(
+      isLoading: false,
+      speedTestStarted: false,
+      downloadSpeedTestDone: true,
+      uploadSpeedTestDone: true,
+      showSummary: true,
+      currentDownloadSpeed: result.downloadMbps,
+      currentUploadSpeed: result.uploadMbps,
+      latencyMs: result.latencyMs,
+      retransmissions: result.retransmissions,
+      retransmissionPercentage: result.retransmissionPercentage,
+      serverLocation: result.server.site,
+      isServerInfoExpanded: true,
+    ));
   }
 
   Future<void> _loadServers(Emitter<SpeedTestState> emit) async {

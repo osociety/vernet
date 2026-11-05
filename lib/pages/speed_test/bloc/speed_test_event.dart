@@ -8,4 +8,6 @@ class SpeedTestEvent with _$SpeedTestEvent {
   const factory SpeedTestEvent.startTest() = _StartTest;
   const factory SpeedTestEvent.toggleServerInfo() = _ToggleServerInfo;
   const factory SpeedTestEvent.reset() = _Reset;
+  const factory SpeedTestEvent.loadResult({required Ndt7TestResult result}) =
+      _LoadResult;
 }

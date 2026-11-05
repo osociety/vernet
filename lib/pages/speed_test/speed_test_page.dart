@@ -9,9 +9,10 @@ import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
 
 class SpeedTestPage extends StatefulWidget {
-  const SpeedTestPage({super.key, this.preloadedServers});
+  const SpeedTestPage({super.key, this.preloadedServers, this.preloadedResult});
 
   final List<Ndt7Server>? preloadedServers;
+  final Ndt7TestResult? preloadedResult;
 
   @override
   State<SpeedTestPage> createState() => _SpeedTestPageState();
@@ -34,6 +35,9 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
     super.didChangeDependencies();
     if (!_initialized) {
       _bloc.add(SpeedTestEvent.init(preloadedServers: widget.preloadedServers));
+      if (widget.preloadedResult != null) {
+        _bloc.add(SpeedTestEvent.loadResult(result: widget.preloadedResult!));
+      }
       _initialized = true;
     }
   }
