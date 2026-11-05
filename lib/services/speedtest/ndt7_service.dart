@@ -307,9 +307,10 @@ class Ndt7Service {
           final elapsed = DateTime.now().difference(startTime);
           final clientThroughputMbps =
               _calculateThroughput(totalBytes, elapsed);
+          final finalThroughput = latestServerThroughput ?? clientThroughputMbps;
+          print('Ndt7Service download test complete. latestServerThroughput: $latestServerThroughput, clientThroughput: $clientThroughputMbps, final: $finalThroughput');
           completer.complete(Ndt7Measurement(
-            throughputMbps:
-                latestServerThroughput ?? clientThroughputMbps,
+            throughputMbps: finalThroughput,
             minRTT: minRTT,
             retransmissions: retransmissions,
             retransmissionPercentage: retransmissionPercentage,
@@ -396,6 +397,7 @@ class Ndt7Service {
       onDone: () {
         _activeTimer?.cancel();
         _activeTimer = null;
+        print('Ndt7Service upload test complete. Final latestUploadMbps: $latestUploadMbps');
         if (!completer.isCompleted) {
           completer.complete(Ndt7Measurement(
             throughputMbps: latestUploadMbps ?? 0.0,
