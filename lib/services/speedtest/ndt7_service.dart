@@ -279,6 +279,14 @@ class Ndt7Service {
               if (elapsed > warmupDuration) {
                 latestServerThroughput = measurement.throughputMbps;
               }
+            } else if (measurement.bytesSent != null && measurement.elapsedTimeUs != null && measurement.elapsedTimeUs! > 0) {
+              // Fallback: calculate from TCPInfo.BytesSent when AppInfo not available
+              final elapsedSec = measurement.elapsedTimeUs! / 1e6;
+              final tcpThroughput = 8 * measurement.bytesSent! / elapsedSec / 1000000;
+              final elapsed = DateTime.now().difference(startTime);
+              if (elapsed > warmupDuration) {
+                latestServerThroughput = tcpThroughput;
+              }
             }
           }
         }
