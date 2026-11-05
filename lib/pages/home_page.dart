@@ -440,34 +440,6 @@ class _WifiDetailState extends State<HomePage> {
                   ),
                   if (testTimestamp != null)
                     TimestampChip(timestamp: testTimestamp),
-                  if (hasData)
-                    IconButton.outlined(
-                      tooltip: 'View last result',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SpeedTestPage(
-                              preloadedResult: Ndt7TestResult(
-                                downloadMbps: speedData.downloadMbps,
-                                uploadMbps: speedData.uploadMbps,
-                                latencyMs: speedData.latencyMs,
-                                retransmissions: speedData.retransmissions,
-                                retransmissionPercentage: null,
-                                server: Ndt7Server(
-                                  machine: '',
-                                  site: speedData.serverLocation ?? '',
-                                  urls: const Ndt7ServerUrls(),
-                                ),
-                                timestamp:
-                                    speedData.timestamp ?? DateTime.now(),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.history),
-                    ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -650,20 +622,54 @@ class _WifiDetailState extends State<HomePage> {
                     const SizedBox(height: 16),
                   ],
                 ),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SpeedTestPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: Text(hasData ? 'Run New Test' : 'Start Speed Test'),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SpeedTestPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.play_arrow),
+                      label:
+                          Text(hasData ? 'Run New Test' : 'Start Speed Test'),
+                    ),
+                  ),
+                  if (hasData) ...[
+                    const SizedBox(width: 12),
+                    IconButton.outlined(
+                      tooltip: 'View last result',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SpeedTestPage(
+                              preloadedResult: Ndt7TestResult(
+                                downloadMbps: speedData.downloadMbps,
+                                uploadMbps: speedData.uploadMbps,
+                                latencyMs: speedData.latencyMs,
+                                retransmissions: speedData.retransmissions,
+                                retransmissionPercentage: null,
+                                server: Ndt7Server(
+                                  machine: '',
+                                  site: speedData.serverLocation ?? '',
+                                  urls: const Ndt7ServerUrls(),
+                                ),
+                                timestamp:
+                                    speedData.timestamp ?? DateTime.now(),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.history),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
