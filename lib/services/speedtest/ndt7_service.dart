@@ -468,6 +468,7 @@ class Ndt7Service {
   Ndt7Measurement? _parseNdt7Message(String message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
+      print('Ndt7Service parsing message: ${data.keys.toList()}');
 
       double? throughputMbps;
       double? minRTT;
