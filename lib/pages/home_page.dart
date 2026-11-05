@@ -444,7 +444,7 @@ class _WifiDetailState extends State<HomePage> {
                   const Spacer(),
                   _StatusPill(
                     label: 'M-Lab',
-                    color: colors.onSurfaceVariant,
+                    color: colors.primary,
                   ),
                 ],
               ),
