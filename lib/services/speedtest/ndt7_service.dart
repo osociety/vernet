@@ -192,7 +192,7 @@ class Ndt7Service {
     double? minRTT;
     int? retransmissions;
     double? retransmissionPercentage;
-    final serverThroughputSamples = <double>[];
+    double? latestServerThroughput;
     final throughputSamples = <double>[];
     // Warm-up period: discard first 2 seconds of samples to avoid TCP ramp-up skew
     const warmupDuration = Duration(seconds: 2);
@@ -202,7 +202,9 @@ class Ndt7Service {
       _activeTimer = null;
       if (!completer.isCompleted) {
         completer.complete(Ndt7Measurement(
-          throughputMbps: _calculateMedianThroughput(serverThroughputSamples) ??
+          // Use last server throughput sample (official NDT7 methodology),
+          // falling back to client-side median if server samples unavailable
+          throughputMbps: latestServerThroughput ??
               _calculateMedianThroughput(throughputSamples) ??
               0.0,
           minRTT: minRTT,
@@ -224,9 +226,7 @@ class Ndt7Service {
             throughputSamples.add(throughputMbps);
 
             // Use server measurement for progress if available, otherwise client-side
-            final progressSpeed = serverThroughputSamples.isNotEmpty
-                ? serverThroughputSamples.last
-                : throughputMbps;
+            final progressSpeed = latestServerThroughput ?? throughputMbps;
 
             onProgress?.call(Ndt7Progress(
               elapsed: elapsed.inMilliseconds / 1000.0,
@@ -259,7 +259,7 @@ class Ndt7Service {
               final elapsed = DateTime.now().difference(startTime);
               // Only collect server samples after warm-up
               if (elapsed > warmupDuration) {
-                serverThroughputSamples.add(measurement.throughputMbps!);
+                latestServerThroughput = measurement.throughputMbps;
               }
             }
           }
@@ -283,10 +283,10 @@ class Ndt7Service {
               _calculateThroughput(totalBytes, elapsed);
           completer.complete(Ndt7Measurement(
             throughputMbps:
-                _calculateMedianThroughput(serverThroughputSamples) ??
-                    clientThroughputMbps,
+                latestServerThroughput ?? clientThroughputMbps,
             minRTT: minRTT,
             retransmissions: retransmissions,
+            retransmissionPercentage: retransmissionPercentage,
           ));
         }
       },
@@ -471,10 +471,16 @@ class Ndt7Service {
         }
       }
 
-      // AppInfo carries ThroughputValue (Mbps) during the download phase.
+      // AppInfo carries NumBytes (bytes) and ElapsedTime (microseconds) during
+      // the download phase. Calculate throughput: (bytes * 8) / (us / 1e6) / 1e6 = Mbps
       final appInfo = data['AppInfo'] as Map<String, dynamic>?;
-      if (appInfo != null && appInfo['ThroughputValue'] != null) {
-        throughputMbps = (appInfo['ThroughputValue'] as num).toDouble();
+      if (appInfo != null) {
+        final numBytes = appInfo['NumBytes'] as int?;
+        final elapsedUs = appInfo['ElapsedTime'] as int?;
+        if (numBytes != null && elapsedUs != null && elapsedUs > 0) {
+          final elapsedSec = elapsedUs / 1e6;
+          throughputMbps = (numBytes * 8) / elapsedSec / 1000000;
+        }
       }
 
       if (throughputMbps == null &&
