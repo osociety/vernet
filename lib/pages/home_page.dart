@@ -440,7 +440,6 @@ class _WifiDetailState extends State<HomePage> {
                   ),
                   if (testTimestamp != null)
                     TimestampChip(timestamp: testTimestamp),
-                  const Spacer(),
                   if (hasData)
                     IconButton.outlined(
                       tooltip: 'View last result',
