@@ -51,16 +51,6 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       return;
     }
 
-    final server = state.bestServers!.first;
-    print('SpeedTestBloc _onStartTest: using server ${server.machine}');
-    print(
-        'SpeedTestBloc _onStartTest: download URL: ${server.urls.downloadUrl}');
-    print('SpeedTestBloc _onStartTest: upload URL: ${server.urls.uploadUrl}');
-    print(
-        'SpeedTestBloc _onStartTest: download URL runtime type: ${server.urls.downloadUrl.runtimeType}');
-    print(
-        'SpeedTestBloc _onStartTest: download URL length: ${server.urls.downloadUrl?.length}');
-
     emit(state.copyWith(
       speedTestStarted: true,
       downloadSpeedTestDone: false,
@@ -78,24 +68,69 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       isServerInfoExpanded: false,
     ));
 
-    try {
-      final result = await _runNdt7Test(server, emit);
-      await _saveSpeedSnapshot(emit, result);
+    final servers = state.bestServers!;
+    Object? lastError;
 
-      emit(state.copyWith(
-        speedTestStarted: false,
-        showSummary: true,
-        isServerInfoExpanded: true,
-      ));
-    } catch (e, stackTrace) {
-      print('SpeedTestBloc _onStartTest ERROR: $e');
-      print('SpeedTestBloc _onStartTest STACKTRACE: $stackTrace');
-      emit(state.copyWith(
-        fetchError: 'Speed test failed: $e',
-        speedTestStarted: false,
-        showSummary: false,
-      ));
+    for (var i = 0; i < servers.length; i++) {
+      final server = servers[i];
+      print('SpeedTestBloc: trying server ${server.machine} '
+          '(${i + 1}/${servers.length})');
+      try {
+        final result = await _runNdt7Test(server, emit);
+        await _saveSpeedSnapshot(emit, result);
+
+        emit(state.copyWith(
+          speedTestStarted: false,
+          showSummary: true,
+          isServerInfoExpanded: true,
+        ));
+        return;
+      } catch (e) {
+        lastError = e;
+        print('SpeedTestBloc: server ${server.machine} failed: $e');
+        if (i < servers.length - 1) {
+          emit(state.copyWith(
+            downloadSpeeds: [],
+            uploadSpeeds: [],
+            currentDownloadSpeed: 0,
+            currentUploadSpeed: 0,
+            downloadSpeedTestDone: false,
+            uploadSpeedTestDone: false,
+          ));
+        }
+      }
     }
+
+    final errorMessage = _buildUserFriendlyError(lastError);
+    emit(state.copyWith(
+      fetchError: errorMessage,
+      speedTestStarted: false,
+      showSummary: false,
+    ));
+  }
+
+  String _buildUserFriendlyError(Object? error) {
+    if (error == null) {
+      return 'Speed test failed. Please try again later.';
+    }
+
+    final errorStr = error.toString().toLowerCase();
+
+    // Connection/timeout errors suggest high demand or network issues
+    if (errorStr.contains('timed out') ||
+        errorStr.contains('connection failed') ||
+        errorStr.contains('websocket') ||
+        errorStr.contains('all servers')) {
+      return 'Sorry, it looks like the Internet speed test is experiencing high demand. Please try again later.';
+    }
+
+    // Network errors
+    if (errorStr.contains('network error') || errorStr.contains('socket')) {
+      return 'Network connection failed. Please check your internet connection and try again.';
+    }
+
+    // Generic fallback
+    return 'Speed test failed. Please try again later.';
   }
 
   void _onToggleServerInfo(

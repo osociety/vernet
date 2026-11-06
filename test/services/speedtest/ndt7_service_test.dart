@@ -337,5 +337,46 @@ void main() {
         expect(restored.retransmissions, result.retransmissions);
       });
     });
+
+    group('Ndt7ServerUrls sanitization', () {
+      test('strips port 0 from wss download URL', () {
+        final urls = Ndt7ServerUrls.fromJson({
+          'wss:///ndt/v7/download':
+              'wss://ndt-mlab2-del02.mlab-oti.measurement-lab.org:0/ndt/v7/download',
+          'wss:///ndt/v7/upload':
+              'wss://ndt-mlab2-del02.mlab-oti.measurement-lab.org:443/ndt/v7/upload',
+        });
+
+        expect(urls.downloadUrl,
+            'wss://ndt-mlab2-del02.mlab-oti.measurement-lab.org/ndt/v7/download');
+        expect(urls.uploadUrl, isNotNull);
+        expect(urls.uploadUrl, isNot(contains(':0')));
+      });
+
+      test('strips port 0 from wss upload URL', () {
+        final urls = Ndt7ServerUrls.fromJson({
+          'wss:///ndt/v7/download': 'wss://host.example/ndt/v7/download',
+          'wss:///ndt/v7/upload': 'wss://host.example:0/ndt/v7/upload',
+        });
+
+        expect(urls.uploadUrl, 'wss://host.example/ndt/v7/upload');
+      });
+
+      test('preserves valid non-zero port', () {
+        final urls = Ndt7ServerUrls.fromJson({
+          'wss:///ndt/v7/download': 'wss://host.example:8443/ndt/v7/download',
+          'wss:///ndt/v7/upload': 'wss://host.example:8443/ndt/v7/upload',
+        });
+
+        expect(urls.downloadUrl, contains(':8443'));
+        expect(urls.uploadUrl, contains(':8443'));
+      });
+
+      test('returns null when URL key is missing', () {
+        final urls = Ndt7ServerUrls.fromJson({});
+        expect(urls.downloadUrl, isNull);
+        expect(urls.uploadUrl, isNull);
+      });
+    });
   });
 }

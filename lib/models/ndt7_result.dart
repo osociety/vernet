@@ -44,18 +44,39 @@ class Ndt7ServerUrls {
   });
 
   factory Ndt7ServerUrls.fromJson(Map<String, dynamic> json) {
-    final downloadUrl = json['wss:///ndt/v7/download'] as String? ??
+    final rawDownload = json['wss:///ndt/v7/download'] as String? ??
         json['ws:///ndt/v7/download'] as String?;
-    final uploadUrl = json['wss:///ndt/v7/upload'] as String? ??
+    final rawUpload = json['wss:///ndt/v7/upload'] as String? ??
         json['ws:///ndt/v7/upload'] as String?;
 
-    print('Ndt7ServerUrls.fromJson: parsed downloadUrl: $downloadUrl');
-    print('Ndt7ServerUrls.fromJson: parsed uploadUrl: $uploadUrl');
+    final downloadUrl = _sanitizeUrl(rawDownload);
+    final uploadUrl = _sanitizeUrl(rawUpload);
 
     return Ndt7ServerUrls(
       downloadUrl: downloadUrl,
       uploadUrl: uploadUrl,
     );
+  }
+
+  /// Strips the bogus `:0` port the Locate API sometimes returns.
+  ///
+  /// M-Lab's Locate v2 API occasionally includes `:0` in server URLs
+  /// (e.g. `wss://host:0/ndt/v7/download`). WebSocket.connect rejects
+  /// port 0, so we rebuild the URL without it.
+  static String? _sanitizeUrl(String? url) {
+    if (url == null) return null;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    if (uri.port != 0) return url;
+    // Rebuild without the port so the scheme default is used.
+    return Uri(
+      scheme: uri.scheme,
+      userInfo: uri.userInfo,
+      host: uri.host,
+      path: uri.path,
+      query: uri.query,
+      fragment: uri.fragment.isEmpty ? null : uri.fragment,
+    ).toString();
   }
 
   final String? downloadUrl;

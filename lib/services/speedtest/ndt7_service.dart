@@ -181,8 +181,6 @@ class Ndt7Service {
     final completer = Completer<WebSocket>();
     Timer? timer;
 
-    print('Ndt7Service _connectWebSocket: attempting connection to: $url');
-
     try {
       timer = Timer(_settings.connectionTimeout, () {
         if (!completer.isCompleted) {
@@ -487,7 +485,6 @@ class Ndt7Service {
   Ndt7Measurement? _parseNdt7Message(String message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
-      print('Ndt7Service parsing message: ${data.keys.toList()}');
 
       double? throughputMbps;
       double? minRTT;
@@ -504,8 +501,6 @@ class Ndt7Service {
         bytesRetrans = tcpInfo['BytesRetrans'] as int?;
         bytesReceived = tcpInfo['BytesReceived'] as int?;
         elapsedTimeUs = tcpInfo['ElapsedTime'] as int?;
-        print(
-            'Ndt7Service TCPInfo: BytesSent=$bytesSent, BytesReceived=$bytesReceived, ElapsedTime=$elapsedTimeUs');
         minRTT = tcpInfo['MinRTT'] != null
             ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
             : null;
@@ -525,12 +520,9 @@ class Ndt7Service {
       if (appInfo != null) {
         final numBytes = appInfo['NumBytes'] as int?;
         final elapsedUs = appInfo['ElapsedTime'] as int?;
-        print(
-            'Ndt7Service AppInfo: NumBytes=$numBytes, ElapsedTime=$elapsedUs');
         if (numBytes != null && elapsedUs != null && elapsedUs > 0) {
           final elapsedSec = elapsedUs / 1e6;
           throughputMbps = (numBytes * 8) / elapsedSec / 1000000;
-          print('Ndt7Service calculated throughput: $throughputMbps Mbps');
         }
       }
 
