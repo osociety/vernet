@@ -142,6 +142,16 @@ void _restoreProductionSpeedTestBloc() {
   );
 }
 
+/// Drives the manual start flow: grant consent, start the test and wait for
+/// the completed state.
+Future<void> _runSpeedTest(WidgetTester tester) async {
+  await TestUtils.waitForWidget(tester, find.text('Start Test'));
+  await tester.tap(find.byType(Checkbox));
+  await tester.pump();
+  await tester.tap(find.text('Start Test'));
+  await TestUtils.waitForWidget(tester, find.text('Test Again'));
+}
+
 Widget _hostScaffold() {
   return MaterialApp(
     home: Scaffold(
@@ -186,11 +196,11 @@ void main() {
   });
 
   group('Speed Test Integration Tests', () {
-    // SpeedTestPage pulls the SpeedTestBloc singleton from getIt and
-    // auto-starts a test once servers are loaded. Each test installs a
-    // fresh bloc backed by a fake Ndt7Service, so runs are deterministic
-    // and never reach M-Lab. Tests that install a serving fake must wait
-    // for 'Test Again' before finishing so tearDown can close the bloc
+    // SpeedTestPage pulls the SpeedTestBloc singleton from getIt. Each test
+    // installs a fresh bloc backed by a fake Ndt7Service, so runs are
+    // deterministic and never reach M-Lab. A serving fake only starts after
+    // the test grants consent and taps Start Test; tests that run one must
+    // wait for 'Test Again' before finishing so tearDown can close the bloc
     // without a suspended startTest handler emitting after close.
 
     testWidgets('speed test page displays loading state initially',
@@ -212,14 +222,20 @@ void main() {
       await TestUtils.waitForWidget(tester, find.text('Test Server'));
       expect(find.text('Test City'), findsOneWidget);
 
-      await TestUtils.waitForWidget(tester, find.text('Test Again'));
+      // The test only runs after the user grants consent and starts it.
+      expect(find.text('Start Test'), findsOneWidget);
+      await _runSpeedTest(tester);
+      expect(find.text('Test Again'), findsOneWidget);
     });
 
     testWidgets('speed test page displays M-Lab attribution', (tester) async {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Again'));
+      await TestUtils.waitForWidget(
+        tester,
+        find.text('Powered by Measurement Lab (M-Lab)'),
+      );
 
       await tester.tap(find.text('Powered by Measurement Lab (M-Lab)'));
       await tester.pumpAndSettle();
@@ -240,7 +256,7 @@ void main() {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Again'));
+      await _runSpeedTest(tester);
 
       expect(find.text('Test Again'), findsOneWidget);
       expect(find.text('Powered by Measurement Lab (M-Lab)'), findsOneWidget);
@@ -256,7 +272,7 @@ void main() {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Again'));
+      await _runSpeedTest(tester);
 
       expect(find.text('Test Again'), findsOneWidget);
       expect(find.text('Latency'), findsOneWidget);
@@ -272,7 +288,7 @@ void main() {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
       await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
 
-      await TestUtils.waitForWidget(tester, find.text('Test Again'));
+      await _runSpeedTest(tester);
 
       tester.view.physicalSize = const Size(844, 390);
       await tester.pumpAndSettle();
