@@ -107,12 +107,14 @@ class Ndt7Progress {
     required this.speed,
     required this.bytesTransferred,
     required this.isDownload,
+    this.isWarmingUp = false,
   });
 
   final double elapsed;
   final double speed;
   final int bytesTransferred;
   final bool isDownload;
+  final bool isWarmingUp;
 }
 
 /// Measurement observed on the NDT7 WebSocket: a parsed server TCPInfo /

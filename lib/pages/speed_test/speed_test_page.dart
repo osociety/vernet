@@ -653,6 +653,7 @@ class _SpeedTestView extends StatelessWidget {
             state.uploadSpeedTestDone ? state.currentUploadSpeed : null,
             const Color(0xFFFFD700),
             isWide: isWide,
+            isWarmingUp: state.isWarmingUp && !state.uploadSpeedTestDone,
           ),
         ),
       ],
@@ -667,6 +668,7 @@ class _SpeedTestView extends StatelessWidget {
     double? value,
     Color color, {
     required bool isWide,
+    bool isWarmingUp = false,
   }) {
     return Card(
       child: Padding(
@@ -686,14 +688,24 @@ class _SpeedTestView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            Text(
-              value != null ? '${value.toStringAsFixed(1)} Mbps' : '--',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-              textAlign: TextAlign.center,
-            ),
+            if (isWarmingUp)
+              Text(
+                'Warming up...',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.onSurface.withValues(alpha: 0.5),
+                    ),
+                textAlign: TextAlign.center,
+              )
+            else
+              Text(
+                value != null ? '${value.toStringAsFixed(1)} Mbps' : '--',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                textAlign: TextAlign.center,
+              ),
           ],
         ),
       ),
@@ -828,6 +840,7 @@ class _SpeedTestView extends StatelessWidget {
                 'Mbps',
                 const Color(0xFFFFD700),
                 isWide: isWide,
+                isWarmingUp: state.isWarmingUp && !state.uploadSpeedTestDone,
               ),
             ),
           if (!isWide) const SizedBox(height: 12),
@@ -846,6 +859,8 @@ class _SpeedTestView extends StatelessWidget {
                       'Mbps',
                       const Color(0xFFFFD700),
                       isWide: isWide,
+                      isWarmingUp:
+                          state.isWarmingUp && !state.uploadSpeedTestDone,
                     ),
                   ),
                 if (isWide) SizedBox(width: isWide ? 16 : 12),
@@ -894,6 +909,7 @@ class _SpeedTestView extends StatelessWidget {
     String unit,
     Color color, {
     required bool isWide,
+    bool isWarmingUp = false,
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -918,19 +934,29 @@ class _SpeedTestView extends StatelessWidget {
                 ),
           ),
           const SizedBox(height: 4),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: value ?? 0),
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeOutCubic,
-            builder: (context, v, _) => Text(
-              value != null ? '${v.toStringAsFixed(1)} $unit' : '--',
+          if (isWarmingUp)
+            Text(
+              'Warming up...',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: color,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurface.withValues(alpha: 0.5),
                   ),
+            )
+          else
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: value ?? 0),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOutCubic,
+              builder: (context, v, _) => Text(
+                value != null ? '${v.toStringAsFixed(1)} $unit' : '--',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+              ),
             ),
-          ),
         ],
       ),
     );

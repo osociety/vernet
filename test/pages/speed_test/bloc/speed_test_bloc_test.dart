@@ -57,6 +57,11 @@ class MockNdt7Service implements Ndt7Service {
   }
 
   @override
+  void reset() {
+    // No-op in tests
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 

@@ -9,6 +9,7 @@ sealed class SpeedTestState with _$SpeedTestState {
     @Default(false) bool uploadSpeedTestDone,
     @Default(false) bool showSummary,
     @Default(false) bool isServerInfoExpanded,
+    @Default(false) bool isWarmingUp,
     @Default(0.0) double currentDownloadSpeed,
     @Default(0.0) double currentUploadSpeed,
     @Default(<double>[]) List<double> downloadSpeeds,

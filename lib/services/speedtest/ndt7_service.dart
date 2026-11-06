@@ -433,11 +433,11 @@ class Ndt7Service {
       _activeTimer = null;
       sendLoopActive = false;
       // Release the producer if it is waiting on a pause gate, then close
-      // the WebSocket to trigger onDone above. The NDT7 server may not
-      // close its side on its own, so the client must initiate.
+      // the controller to end the stream. This causes addStream to complete
+      // cleanly, triggering onDone below.
       pauseGate?.complete();
       pauseGate = null;
-      ws.close();
+      controller.close();
     });
 
     () async {
@@ -464,6 +464,7 @@ class Ndt7Service {
             speed: tracker.throughputMbps ?? 0.0,
             bytesTransferred: totalBytes,
             isDownload: false,
+            isWarmingUp: tracker.throughputMbps == null,
           ));
           lastProgressTime = now;
         }
@@ -479,6 +480,7 @@ class Ndt7Service {
       // Expected when the connection closes
     }
 
+    await ws.close();
     return await completer.future;
   }
 
@@ -557,11 +559,17 @@ class Ndt7Service {
     return bps / 1000000;
   }
 
-  void dispose() {
+  /// Cancels any active test timer and closes the active WebSocket connection.
+  /// Call this between tests to ensure clean state without disposing the HTTP client.
+  void reset() {
     _activeTimer?.cancel();
     _activeTimer = null;
     _activeWebSocket?.close();
     _activeWebSocket = null;
+  }
+
+  void dispose() {
+    reset();
     _httpClient.close();
   }
 }

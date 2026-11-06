@@ -51,6 +51,9 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       return;
     }
 
+    // Clean up any leftover state from previous test
+    _ndt7Service.reset();
+
     emit(state.copyWith(
       speedTestStarted: true,
       downloadSpeedTestDone: false,
@@ -66,6 +69,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       serverLocation: null,
       fetchError: null,
       isServerInfoExpanded: false,
+      isWarmingUp: false,
     ));
 
     final servers = state.bestServers!;
@@ -219,6 +223,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         emit(state.copyWith(
           currentUploadSpeed: progress.speed,
           uploadSpeeds: speeds,
+          isWarmingUp: progress.isWarmingUp,
         ));
       },
     );
@@ -232,6 +237,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     emit(state.copyWith(
       currentUploadSpeed: uploadResult.throughputMbps ?? 0,
       uploadSpeedTestDone: true,
+      isWarmingUp: false,
       latencyMs: latencyMs,
       packetLossPercent: null,
       retransmissions: retransmissions,

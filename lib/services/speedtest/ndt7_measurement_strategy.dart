@@ -140,6 +140,7 @@ class ServerDeltaTracker extends _ServerTrackerBase {
     required this.direction,
     required bool useClientFallback,
     bool preferAppInfo = false,
+    this.sampleWindowSize = 5,
   })  : _counterIsSent = direction == Ndt7Direction.download,
         _preferAppInfo = preferAppInfo,
         _accumulator =
@@ -150,8 +151,9 @@ class ServerDeltaTracker extends _ServerTrackerBase {
   final bool _counterIsSent;
   final bool _preferAppInfo;
   final DeltaWindowAccumulator _accumulator;
+  final int sampleWindowSize;
 
-  double? _serverThroughputMbps;
+  final List<double> _recentSamplesMbps = [];
 
   @override
   void onServerMeasurement(Ndt7Measurement measurement, Duration testElapsed) {
@@ -161,7 +163,10 @@ class ServerDeltaTracker extends _ServerTrackerBase {
     // AppInfo carries application-level goodput (payload only), which is the
     // most accurate signal when the server provides it.
     if (_preferAppInfo && measurement.throughputMbps != null) {
-      _serverThroughputMbps = measurement.throughputMbps;
+      _recentSamplesMbps.add(measurement.throughputMbps!);
+      if (_recentSamplesMbps.length > sampleWindowSize) {
+        _recentSamplesMbps.removeAt(0);
+      }
       return;
     }
 
@@ -172,7 +177,10 @@ class ServerDeltaTracker extends _ServerTrackerBase {
 
     final windowMbps = _accumulator.feed(bytes, elapsedUs);
     if (windowMbps != null) {
-      _serverThroughputMbps = windowMbps;
+      _recentSamplesMbps.add(windowMbps);
+      if (_recentSamplesMbps.length > sampleWindowSize) {
+        _recentSamplesMbps.removeAt(0);
+      }
       print('Ndt7Service ${direction.name} (server-delta): '
           'bytes=$bytes, elapsedUs=$elapsedUs, ${windowMbps.toStringAsFixed(1)} Mbps');
     }
@@ -190,9 +198,12 @@ class ServerDeltaTracker extends _ServerTrackerBase {
 
   @override
   double? get throughputMbps {
-    final server = _serverThroughputMbps;
-    if (server != null) return server;
-    return _clientFallbackMbps();
+    if (_recentSamplesMbps.isEmpty) return _clientFallbackMbps();
+    final sorted = List<double>.from(_recentSamplesMbps)..sort();
+    final mid = sorted.length ~/ 2;
+    final median =
+        sorted.length.isOdd ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    return median;
   }
 }
 
@@ -238,6 +249,67 @@ class ClientSamplesTracker implements Ndt7ThroughputTracker {
       }
     }
     _sortedSamplesMbps.insert(lo, sample);
+  }
+
+  @override
+  double? get throughputMbps {
+    final count = _sortedSamplesMbps.length;
+    if (count == 0) return null;
+    final mid = count ~/ 2;
+    if (count.isOdd) return _sortedSamplesMbps[mid];
+    return (_sortedSamplesMbps[mid - 1] + _sortedSamplesMbps[mid]) / 2;
+  }
+}
+
+/// Client-side delta tracker for mobile download: measures bytes received
+/// since last sample and reports instantaneous throughput median.
+///
+/// Unlike [ClientSamplesTracker] which uses cumulative averages (dragged down
+/// by slow ramp-up on mobile), this tracks deltas to capture the true wire
+/// rate after TCP congestion control stabilizes.
+class ClientDeltaTracker implements Ndt7ThroughputTracker {
+  ClientDeltaTracker({required Ndt7PlatformSettings settings})
+      : _warmupDuration = settings.warmupDuration;
+
+  final Duration _warmupDuration;
+  int _lastBytes = 0;
+  Duration _lastElapsed = Duration.zero;
+  final List<double> _sortedSamplesMbps = [];
+
+  @override
+  void onServerMeasurement(Ndt7Measurement measurement, Duration testElapsed) {
+    // Server messages carry minRTT / retransmission data only.
+  }
+
+  @override
+  void onClientBytes(int totalBytes, Duration testElapsed) {
+    if (testElapsed <= _warmupDuration) {
+      _lastBytes = totalBytes;
+      _lastElapsed = testElapsed;
+      return;
+    }
+
+    final deltaBytes = totalBytes - _lastBytes;
+    final deltaUs = testElapsed.inMicroseconds - _lastElapsed.inMicroseconds;
+
+    if (deltaUs <= 0 || deltaBytes < 0) return;
+
+    final mbps = 8 * deltaBytes / (deltaUs / 1e6) / 1e6;
+    _lastBytes = totalBytes;
+    _lastElapsed = testElapsed;
+
+    // Insert into sorted list for median calculation.
+    var lo = 0;
+    var hi = _sortedSamplesMbps.length;
+    while (lo < hi) {
+      final mid = (lo + hi) >> 1;
+      if (_sortedSamplesMbps[mid] < mbps) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    _sortedSamplesMbps.insert(lo, mbps);
   }
 
   @override

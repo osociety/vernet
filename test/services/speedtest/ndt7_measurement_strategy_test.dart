@@ -64,60 +64,36 @@ void main() {
     });
   });
 
-  group('ServerDeltaTracker download', () {
-    test('ignores server measurements before warm-up completes', () {
+  group('MobileNdt7Strategy download', () {
+    test('uses ClientDeltaTracker (client-side delta median)', () {
       final tracker = const MobileNdt7Strategy()
           .createDownloadTracker(Ndt7PlatformSettings.mobile);
-      tracker.onServerMeasurement(_tcpInfo(bytesSent: 100, elapsedUs: 1000),
-          const Duration(milliseconds: 500));
-      expect(tracker.throughputMbps, isNull);
+      expect(tracker, isA<ClientDeltaTracker>());
     });
 
-    test('computes throughput from consecutive TCPInfo deltas after warm-up',
-        () {
+    test('ignores server TCPInfo (client-side only)', () {
       final tracker = const MobileNdt7Strategy()
           .createDownloadTracker(Ndt7PlatformSettings.mobile);
-      // Warm-up is 2s; first sample after it anchors the accumulator.
       tracker.onServerMeasurement(
-        _tcpInfo(bytesSent: 1000000, elapsedUs: 3000000),
-        const Duration(seconds: 3),
+        _tcpInfo(bytesSent: 99999999, elapsedUs: 5000000),
+        const Duration(seconds: 5),
       );
-      expect(tracker.throughputMbps, isNull);
-      // 250000 bytes over 200000us = 10 Mbps.
-      tracker.onServerMeasurement(
-        _tcpInfo(bytesSent: 1250000, elapsedUs: 3200000),
-        const Duration(seconds: 3, milliseconds: 200),
-      );
-      expect(tracker.throughputMbps, closeTo(10.0, 1e-9));
-    });
-
-    test('falls back to post-warm-up client average when server is silent', () {
-      final tracker = const MobileNdt7Strategy()
-          .createDownloadTracker(Ndt7PlatformSettings.mobile);
-      tracker.onClientBytes(2000000, const Duration(seconds: 2));
       expect(tracker.throughputMbps, isNull,
-          reason: 'no bytes transferred after warm-up yet');
-      // 8000000 bytes over 2s after warm-up end = 32 Mbps.
-      tracker.onClientBytes(10000000, const Duration(seconds: 4));
-      expect(tracker.throughputMbps, closeTo(32.0, 1e-9));
+          reason: 'mobile download uses client-side bytes, not server TCPInfo');
     });
 
-    test('client fallback excludes pre-warm-up bytes', () {
+    test('reports median of post-warm-up delta samples', () {
       final tracker = const MobileNdt7Strategy()
           .createDownloadTracker(Ndt7PlatformSettings.mobile);
+      // Warm-up is 2s; samples before that anchor the baseline.
       tracker.onClientBytes(1000000, const Duration(seconds: 1));
       tracker.onClientBytes(2000000, const Duration(seconds: 2));
-      // Only 4000000 of the 5000000 total count: slow-start is excluded.
-      tracker.onClientBytes(7000000, const Duration(seconds: 4));
-      expect(tracker.throughputMbps, closeTo(8 * 5000000 / 2 / 1e6, 1e-9));
-    });
-
-    test('ignores AppInfo throughput (mobile download uses TCPInfo deltas)',
-        () {
-      final tracker = const MobileNdt7Strategy()
-          .createDownloadTracker(Ndt7PlatformSettings.mobile);
-      tracker.onServerMeasurement(_appInfo(999), const Duration(seconds: 3));
-      expect(tracker.throughputMbps, isNull);
+      // Post-warm-up deltas: 1MB over 1s = 8 Mbps, 5MB over 1s = 40 Mbps, 7MB over 1s = 56 Mbps.
+      tracker.onClientBytes(3000000, const Duration(seconds: 3));
+      tracker.onClientBytes(8000000, const Duration(seconds: 4));
+      tracker.onClientBytes(15000000, const Duration(seconds: 5));
+      // Median of [8, 40, 56] = 40 Mbps.
+      expect(tracker.throughputMbps, closeTo(40.0, 1e-9));
     });
   });
 

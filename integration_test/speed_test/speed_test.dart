@@ -101,6 +101,9 @@ class _FakeNdt7Service implements Ndt7Service {
   }
 
   @override
+  void reset() {}
+
+  @override
   Future<Ndt7TestResult> runTest(
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
