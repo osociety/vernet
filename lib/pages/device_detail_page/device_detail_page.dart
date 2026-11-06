@@ -112,6 +112,12 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           _buildNetworkInfoCard(device, theme, colorScheme),
           const SizedBox(height: 12),
 
+          // Open ports card
+          if (device.openPorts != null && device.openPorts!.isNotEmpty)
+            _buildOpenPortsCard(device, theme, colorScheme),
+          if (device.openPorts != null && device.openPorts!.isNotEmpty)
+            const SizedBox(height: 12),
+
           // Quick actions card
           _buildActionsCard(device, deviceMake, colorScheme),
           const SizedBox(height: 12),
@@ -226,6 +232,13 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                 label: 'Vendor / Hostname',
                 value: device.hostMake!,
               ),
+            if (device.deviceType != null && device.deviceType!.isNotEmpty)
+              _buildInfoRow(
+                context,
+                icon: Icons.category,
+                label: 'Device type',
+                value: device.deviceType!,
+              ),
             if (device.mdnsDomainName != null &&
                 device.mdnsDomainName!.isNotEmpty)
               _buildInfoRow(
@@ -248,6 +261,104 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildOpenPortsCard(
+    DeviceData device,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
+    final ports = device.openPorts!
+        .split(',')
+        .where((p) => p.isNotEmpty)
+        .map(int.tryParse)
+        .whereType<int>()
+        .toList()
+      ..sort();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'Open ports (${ports.length})',
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+            const Divider(height: 1),
+            ...ports.map((port) => _buildPortRow(context, port)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortRow(BuildContext context, int port) {
+    final description = _portDescription(port);
+    return AdaptiveListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      leading: const Icon(Icons.circle, size: 8),
+      title: Text('$port'),
+      subtitle: Text(description),
+    );
+  }
+
+  String _portDescription(int port) {
+    final shortName = DeviceUtil.getPortDescription(port);
+    switch (port) {
+      case 20:
+      case 21:
+        return 'FTP - File Transfer Protocol';
+      case 22:
+        return 'SSH - Secure Shell';
+      case 23:
+        return 'Telnet - Remote login';
+      case 25:
+        return 'SMTP - Email sending';
+      case 53:
+        return 'DNS - Domain Name System';
+      case 80:
+        return 'HTTP - Web server';
+      case 110:
+        return 'POP3 - Email retrieval';
+      case 143:
+        return 'IMAP - Email retrieval';
+      case 161:
+        return 'SNMP - Network management';
+      case 443:
+        return 'HTTPS - Secure web server';
+      case 445:
+        return 'SMB - Windows file sharing';
+      case 587:
+        return 'SMTP - Email submission';
+      case 631:
+        return 'IPP - Internet Printing Protocol';
+      case 993:
+        return 'IMAPS - Secure email retrieval';
+      case 995:
+        return 'POP3S - Secure email retrieval';
+      case 3306:
+        return 'MySQL - Database server';
+      case 3389:
+        return 'RDP - Remote Desktop Protocol';
+      case 5432:
+        return 'PostgreSQL - Database server';
+      case 5900:
+        return 'VNC - Virtual Network Computing';
+      case 8080:
+        return 'HTTP-Alt - Alternative web server';
+      case 8443:
+        return 'HTTPS-Alt - Alternative secure web';
+      case 9100:
+        return 'JetDirect - Network printer';
+      default:
+        return shortName ?? 'Unknown service';
+    }
   }
 
   Widget _buildInfoRow(

@@ -44,12 +44,39 @@ class Ndt7ServerUrls {
   });
 
   factory Ndt7ServerUrls.fromJson(Map<String, dynamic> json) {
+    final rawDownload = json['wss:///ndt/v7/download'] as String? ??
+        json['ws:///ndt/v7/download'] as String?;
+    final rawUpload = json['wss:///ndt/v7/upload'] as String? ??
+        json['ws:///ndt/v7/upload'] as String?;
+
+    final downloadUrl = _sanitizeUrl(rawDownload);
+    final uploadUrl = _sanitizeUrl(rawUpload);
+
     return Ndt7ServerUrls(
-      downloadUrl: json['wss:///ndt/v7/download'] as String? ??
-          json['ws:///ndt/v7/download'] as String?,
-      uploadUrl: json['wss:///ndt/v7/upload'] as String? ??
-          json['ws:///ndt/v7/upload'] as String?,
+      downloadUrl: downloadUrl,
+      uploadUrl: uploadUrl,
     );
+  }
+
+  /// Strips the bogus `:0` port the Locate API sometimes returns.
+  ///
+  /// M-Lab's Locate v2 API occasionally includes `:0` in server URLs
+  /// (e.g. `wss://host:0/ndt/v7/download`). WebSocket.connect rejects
+  /// port 0, so we rebuild the URL without it.
+  static String? _sanitizeUrl(String? url) {
+    if (url == null) return null;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    if (uri.port != 0) return url;
+    // Rebuild without the port so the scheme default is used.
+    return Uri(
+      scheme: uri.scheme,
+      userInfo: uri.userInfo,
+      host: uri.host,
+      path: uri.path,
+      query: uri.query,
+      fragment: uri.fragment.isEmpty ? null : uri.fragment,
+    ).toString();
   }
 
   final String? downloadUrl;
@@ -80,12 +107,39 @@ class Ndt7Progress {
     required this.speed,
     required this.bytesTransferred,
     required this.isDownload,
+    this.isWarmingUp = false,
   });
 
   final double elapsed;
   final double speed;
   final int bytesTransferred;
   final bool isDownload;
+  final bool isWarmingUp;
+}
+
+/// Measurement observed on the NDT7 WebSocket: a parsed server TCPInfo /
+/// AppInfo message with cumulative counters, or the final client-side result
+/// of one test direction.
+class Ndt7Measurement {
+  const Ndt7Measurement({
+    this.throughputMbps,
+    this.minRTT,
+    this.retransmissions,
+    this.bytesSent,
+    this.bytesRetrans,
+    this.bytesReceived,
+    this.elapsedTimeUs,
+    this.retransmissionPercentage,
+  });
+
+  final double? throughputMbps;
+  final double? minRTT;
+  final int? retransmissions;
+  final int? bytesSent;
+  final int? bytesRetrans;
+  final int? bytesReceived;
+  final int? elapsedTimeUs;
+  final double? retransmissionPercentage;
 }
 
 /// Final result from an NDT7 speed test.
@@ -97,6 +151,7 @@ class Ndt7TestResult {
     required this.server,
     this.minRTT,
     this.retransmissions,
+    this.retransmissionPercentage,
     this.timestamp,
   });
 
@@ -117,6 +172,8 @@ class Ndt7TestResult {
       ),
       minRTT: (json['minRTT'] as num?)?.toDouble(),
       retransmissions: json['retransmissions'] as int?,
+      retransmissionPercentage:
+          (json['retransmissionPercentage'] as num?)?.toDouble(),
       timestamp: json['timestamp'] != null
           ? DateTime.parse(json['timestamp'] as String)
           : null,
@@ -129,6 +186,7 @@ class Ndt7TestResult {
   final Ndt7Server server;
   final double? minRTT;
   final int? retransmissions;
+  final double? retransmissionPercentage;
   final DateTime? timestamp;
 
   Map<String, dynamic> toJson() => {
@@ -147,6 +205,7 @@ class Ndt7TestResult {
         },
         'minRTT': minRTT,
         'retransmissions': retransmissions,
+        'retransmissionPercentage': retransmissionPercentage,
         'timestamp': timestamp?.toIso8601String(),
       };
 }

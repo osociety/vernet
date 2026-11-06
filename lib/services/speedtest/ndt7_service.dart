@@ -7,32 +7,50 @@ import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:vernet/models/ndt7_result.dart';
 
+import 'package:vernet/services/speedtest/ndt7_desktop_strategy.dart';
+import 'package:vernet/services/speedtest/ndt7_measurement_strategy.dart';
+import 'package:vernet/services/speedtest/ndt7_mobile_strategy.dart';
+import 'package:vernet/services/speedtest/ndt7_platform_settings.dart';
+
 /// Service for M-Lab NDT7 speed test protocol.
 ///
 /// Uses the Locate v2 API for server discovery and implements the NDT7
 /// WebSocket protocol for accurate throughput, latency, and packet loss
-/// measurements.
+/// measurements. Connection handling and protocol parsing are shared across
+/// platforms; throughput measurement strategy and test settings are selected
+/// per platform (mobile vs desktop) at construction time.
 @injectable
 class Ndt7Service {
   Ndt7Service()
-      : _httpClient = http.Client(),
+      : _settings = Ndt7PlatformSettings.resolve(),
+        _strategy = _strategyFor(Ndt7PlatformSettings.resolve()),
+        _httpClient = http.Client(),
         _webSocketFactory = _defaultWebSocketFactory;
 
   Ndt7Service.withDependencies({
     required http.Client httpClient,
     required WebSocketFactory webSocketFactory,
-  })  : _httpClient = httpClient,
+    Ndt7PlatformSettings? platformSettings,
+    Ndt7Strategy? strategy,
+  })  : _settings = platformSettings ?? Ndt7PlatformSettings.resolve(),
+        _strategy = strategy ??
+            _strategyFor(platformSettings ?? Ndt7PlatformSettings.resolve()),
+        _httpClient = httpClient,
         _webSocketFactory = webSocketFactory;
+
+  static Ndt7Strategy _strategyFor(Ndt7PlatformSettings settings) =>
+      settings.isMobile
+          ? const MobileNdt7Strategy()
+          : const DesktopNdt7Strategy();
 
   final http.Client _httpClient;
   final WebSocketFactory _webSocketFactory;
+  final Ndt7PlatformSettings _settings;
+  final Ndt7Strategy _strategy;
 
   static const _locateApiUrl =
       'https://locate.measurementlab.net/v2/nearest/ndt/ndt7';
   static const _ndt7Subprotocol = 'net.measurementlab.ndt.v7';
-  static const _downloadTestDuration = Duration(seconds: 10);
-  static const _uploadTestDuration = Duration(seconds: 10);
-  static const _connectionTimeout = Duration(seconds: 15);
 
   Timer? _activeTimer;
   WebSocket? _activeWebSocket;
@@ -59,10 +77,20 @@ class Ndt7Service {
         throw const Ndt7Exception('No M-Lab servers available');
       }
 
-      return results
+      final servers = results
           .map((r) => Ndt7Server.fromJson(r as Map<String, dynamic>))
           .where((s) => s.urls.downloadUrl != null && s.urls.uploadUrl != null)
           .toList();
+
+      // Log the first server's URLs for debugging
+      if (servers.isNotEmpty) {
+        print(
+            'Ndt7Service discoverServers: first server download URL: ${servers.first.urls.downloadUrl}');
+        print(
+            'Ndt7Service discoverServers: first server upload URL: ${servers.first.urls.uploadUrl}');
+      }
+
+      return servers;
     } on SocketException catch (e) {
       throw Ndt7Exception('Network error: ${e.message}', null, e);
     } on FormatException catch (e) {
@@ -78,6 +106,12 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
+    // Reset any leftover state from previous tests
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
+
     final downloadResult = await runDownloadTest(
       server,
       onProgress: onProgress,
@@ -104,7 +138,14 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
+    // Reset any leftover state from previous tests
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
+
     final url = server.urls.downloadUrl!;
+    print('Ndt7Service runDownloadTest: connecting to URL: $url');
     final ws = await _connectWebSocket(url);
 
     try {
@@ -119,7 +160,14 @@ class Ndt7Service {
     Ndt7Server server, {
     void Function(Ndt7Progress)? onProgress,
   }) async {
+    // Reset any leftover state from previous tests
+    _activeTimer?.cancel();
+    _activeTimer = null;
+    _activeWebSocket?.close();
+    _activeWebSocket = null;
+
     final url = server.urls.uploadUrl!;
+    print('Ndt7Service runUploadTest: connecting to URL: $url');
     final ws = await _connectWebSocket(url);
 
     try {
@@ -134,11 +182,11 @@ class Ndt7Service {
     Timer? timer;
 
     try {
-      timer = Timer(_connectionTimeout, () {
+      timer = Timer(_settings.connectionTimeout, () {
         if (!completer.isCompleted) {
           completer.completeError(
             Ndt7Exception(
-              'WebSocket connection timed out after ${_connectionTimeout.inSeconds}s',
+              'WebSocket connection timed out after ${_settings.connectionTimeout.inSeconds}s',
             ),
           );
         }
@@ -191,16 +239,21 @@ class Ndt7Service {
     var totalBytes = 0;
     double? minRTT;
     int? retransmissions;
-    final throughputSamples = <double>[];
+    double? retransmissionPercentage;
+    final tracker = _strategy.createDownloadTracker(_settings);
 
     final completer = Completer<Ndt7Measurement>();
-    _activeTimer = Timer(_downloadTestDuration, () {
+    _activeTimer = Timer(_settings.downloadTestDuration, () {
       _activeTimer = null;
       if (!completer.isCompleted) {
-        completer.complete(_buildMeasurement(
-          throughputSamples,
-          minRTT,
-          retransmissions,
+        final finalThroughput = tracker.throughputMbps ?? 0.0;
+        print(
+            'Ndt7Service download timer complete: throughput=$finalThroughput Mbps (${_strategy.label})');
+        completer.complete(Ndt7Measurement(
+          throughputMbps: finalThroughput,
+          minRTT: minRTT,
+          retransmissions: retransmissions,
+          retransmissionPercentage: retransmissionPercentage,
         ));
       }
     });
@@ -210,16 +263,20 @@ class Ndt7Service {
         if (message is List<int>) {
           totalBytes += message.length;
           final elapsed = DateTime.now().difference(startTime);
-          final throughputMbps = _calculateThroughput(totalBytes, elapsed);
+          tracker.onClientBytes(totalBytes, elapsed);
 
-          onProgress?.call(Ndt7Progress(
-            elapsed: elapsed.inMilliseconds / 1000.0,
-            speed: throughputMbps,
-            bytesTransferred: totalBytes,
-            isDownload: true,
-          ));
+          // Skip warm-up period for progress reporting
+          if (elapsed > _settings.warmupDuration) {
+            final progressSpeed = tracker.throughputMbps ??
+                _calculateThroughput(totalBytes, elapsed);
 
-          throughputSamples.add(throughputMbps);
+            onProgress?.call(Ndt7Progress(
+              elapsed: elapsed.inMilliseconds / 1000.0,
+              speed: progressSpeed,
+              bytesTransferred: totalBytes,
+              isDownload: true,
+            ));
+          }
         } else if (message is String) {
           final measurement = _parseNdt7Message(message);
           if (measurement != null) {
@@ -237,6 +294,13 @@ class Ndt7Service {
                       ? measurement.retransmissions
                       : retransmissions);
             }
+            if (measurement.retransmissionPercentage != null) {
+              retransmissionPercentage = measurement.retransmissionPercentage;
+            }
+            tracker.onServerMeasurement(
+              measurement,
+              DateTime.now().difference(startTime),
+            );
           }
         }
       },
@@ -254,11 +318,17 @@ class Ndt7Service {
         _activeTimer = null;
         if (!completer.isCompleted) {
           final elapsed = DateTime.now().difference(startTime);
-          final throughputMbps = _calculateThroughput(totalBytes, elapsed);
+          final clientThroughputMbps =
+              _calculateThroughput(totalBytes, elapsed);
+          final finalThroughput =
+              tracker.throughputMbps ?? clientThroughputMbps;
+          print(
+              'Ndt7Service download test complete. trackerThroughput: ${tracker.throughputMbps}, clientThroughput: $clientThroughputMbps, final: $finalThroughput');
           completer.complete(Ndt7Measurement(
-            throughputMbps: throughputMbps,
+            throughputMbps: finalThroughput,
             minRTT: minRTT,
             retransmissions: retransmissions,
+            retransmissionPercentage: retransmissionPercentage,
           ));
         }
       },
@@ -276,7 +346,12 @@ class Ndt7Service {
     var totalBytes = 0;
     double? minRTT;
     int? retransmissions;
-    final throughputSamples = <double>[];
+    double? retransmissionPercentage;
+    // Upload throughput is measured at the receiver (the server) from
+    // TCPInfo deltas. Dart WebSocket writes never block, so client-side byte
+    // counting measures buffer fill, not the network — whether it may be
+    // used as a fallback is a per-platform strategy decision.
+    final tracker = _strategy.createUploadTracker(_settings);
 
     final completer = Completer<Ndt7Measurement>();
     var sendLoopActive = true;
@@ -302,6 +377,13 @@ class Ndt7Service {
                       ? measurement.retransmissions
                       : retransmissions);
             }
+            if (measurement.retransmissionPercentage != null) {
+              retransmissionPercentage = measurement.retransmissionPercentage;
+            }
+            tracker.onServerMeasurement(
+              measurement,
+              DateTime.now().difference(startTime),
+            );
           }
         }
       },
@@ -318,100 +400,150 @@ class Ndt7Service {
       onDone: () {
         _activeTimer?.cancel();
         _activeTimer = null;
+        final finalThroughput = tracker.throughputMbps ?? 0.0;
+        print(
+            'Ndt7Service upload test complete. trackerThroughput: ${tracker.throughputMbps}, final: $finalThroughput');
         if (!completer.isCompleted) {
-          completer.complete(_buildMeasurement(
-            throughputSamples,
-            minRTT,
-            retransmissions,
+          completer.complete(Ndt7Measurement(
+            throughputMbps: finalThroughput,
+            minRTT: minRTT,
+            retransmissions: retransmissions,
+            retransmissionPercentage: retransmissionPercentage,
           ));
         }
       },
     );
 
-    _activeTimer = Timer(_uploadTestDuration, () {
+    const chunkSize = 8192;
+    var lastProgressTime = startTime;
+
+    // addStream applies kernel-socket backpressure: the producer resumes the
+    // instant the socket drains, so throughput matches the link rate while
+    // memory stays bounded (a busy-wait here throttles to one chunk per wait).
+    Completer<void>? pauseGate;
+    final controller = StreamController<Uint8List>(
+      onPause: () => pauseGate ??= Completer<void>(),
+      onResume: () {
+        pauseGate?.complete();
+        pauseGate = null;
+      },
+    );
+
+    _activeTimer = Timer(_settings.uploadTestDuration, () {
       _activeTimer = null;
       sendLoopActive = false;
-      // Close the WebSocket to trigger onDone above. The NDT7 server
-      // may not close its side on its own, so the client must initiate.
-      ws.close();
+      // Release the producer if it is waiting on a pause gate, then close
+      // the controller to end the stream. This causes addStream to complete
+      // cleanly, triggering onDone below.
+      pauseGate?.complete();
+      pauseGate = null;
+      controller.close();
     });
 
-    const chunkSize = 8192;
-    var sampleIndex = 0;
-    var batchCount = 0;
-    while (sendLoopActive && ws.readyState == WebSocket.open) {
-      final data = Uint8List(chunkSize);
-      for (var i = 0; i < chunkSize; i++) {
-        data[i] = i & 0xFF;
-      }
-      ws.add(data);
-      totalBytes += chunkSize;
-      batchCount++;
+    () async {
+      while (sendLoopActive) {
+        final gate = pauseGate;
+        if (gate != null) {
+          await gate.future;
+          continue;
+        }
+        final data = Uint8List(chunkSize);
+        for (var i = 0; i < chunkSize; i++) {
+          data[i] = i & 0xFF;
+        }
+        controller.add(data);
+        totalBytes += chunkSize;
 
-      // Yield to the event loop every 16 sends (~128 KB) to let the
-      // WebSocket flush and TCP backpressure propagate.
-      if (batchCount >= 16) {
-        batchCount = 0;
+        final now = DateTime.now();
+        final testElapsed = now.difference(startTime);
+        tracker.onClientBytes(totalBytes, testElapsed);
+        final progressElapsed = now.difference(lastProgressTime);
+        if (progressElapsed >= const Duration(milliseconds: 250)) {
+          onProgress?.call(Ndt7Progress(
+            elapsed: testElapsed.inMilliseconds / 1000.0,
+            speed: tracker.throughputMbps ?? 0.0,
+            bytesTransferred: totalBytes,
+            isDownload: false,
+            isWarmingUp: tracker.throughputMbps == null,
+          ));
+          lastProgressTime = now;
+        }
+
         await Future<void>.delayed(Duration.zero);
       }
+      await controller.close();
+    }();
 
-      final elapsed = DateTime.now().difference(startTime);
-      final throughputMbps = _calculateThroughput(totalBytes, elapsed);
-
-      // Skip the first 3 samples to avoid initial spike noise.
-      if (sampleIndex >= 3) {
-        onProgress?.call(Ndt7Progress(
-          elapsed: elapsed.inMilliseconds / 1000.0,
-          speed: throughputMbps,
-          bytesTransferred: totalBytes,
-          isDownload: false,
-        ));
-        throughputSamples.add(throughputMbps);
-      }
-      sampleIndex++;
+    try {
+      await ws.addStream(controller.stream);
+    } catch (_) {
+      // Expected when the connection closes
     }
 
+    await ws.close();
     return await completer.future;
-  }
-
-  Ndt7Measurement _buildMeasurement(
-    List<double> throughputSamples,
-    double? minRTT,
-    int? retransmissions,
-  ) {
-    final avgThroughput = throughputSamples.isEmpty
-        ? 0.0
-        : throughputSamples.reduce((a, b) => a + b) / throughputSamples.length;
-    return Ndt7Measurement(
-      throughputMbps: avgThroughput,
-      minRTT: minRTT,
-      retransmissions: retransmissions,
-    );
   }
 
   Ndt7Measurement? _parseNdt7Message(String message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
 
-      // Try TCPInfo first (contains MinRTT, RTT, retransmissions)
+      double? throughputMbps;
+      double? minRTT;
+      int? retransmissions;
+      int? bytesSent;
+      int? bytesRetrans;
+      int? bytesReceived;
+      int? elapsedTimeUs;
+      double? retransmissionPercentage;
+
       final tcpInfo = data['TCPInfo'] as Map<String, dynamic>?;
       if (tcpInfo != null) {
-        return Ndt7Measurement(
-          minRTT: tcpInfo['MinRTT'] != null
-              ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
-              : null,
-          retransmissions: tcpInfo['Retransmissions'] as int?,
-        );
+        bytesSent = tcpInfo['BytesSent'] as int?;
+        bytesRetrans = tcpInfo['BytesRetrans'] as int?;
+        bytesReceived = tcpInfo['BytesReceived'] as int?;
+        elapsedTimeUs = tcpInfo['ElapsedTime'] as int?;
+        minRTT = tcpInfo['MinRTT'] != null
+            ? (tcpInfo['MinRTT'] as num).toDouble() / 1000.0
+            : null;
+        retransmissions = tcpInfo['Retransmissions'] as int?;
+
+        // Only meaningful on connections that carried actual data (the
+        // upload connection sends ~56 KB of control bytes from the server,
+        // which would yield a bogus retransmission ratio).
+        if (bytesSent != null && bytesRetrans != null && bytesSent > 1000000) {
+          retransmissionPercentage = (bytesRetrans / bytesSent) * 100.0;
+        }
       }
 
-      // Fall back to AppInfo (contains throughput)
+      // AppInfo carries NumBytes (bytes) and ElapsedTime (microseconds) during
+      // the download phase. Calculate throughput: (bytes * 8) / (us / 1e6) / 1e6 = Mbps
       final appInfo = data['AppInfo'] as Map<String, dynamic>?;
-      if (appInfo == null) return null;
+      if (appInfo != null) {
+        final numBytes = appInfo['NumBytes'] as int?;
+        final elapsedUs = appInfo['ElapsedTime'] as int?;
+        if (numBytes != null && elapsedUs != null && elapsedUs > 0) {
+          final elapsedSec = elapsedUs / 1e6;
+          throughputMbps = (numBytes * 8) / elapsedSec / 1000000;
+        }
+      }
+
+      if (throughputMbps == null &&
+          minRTT == null &&
+          retransmissions == null &&
+          bytesReceived == null) {
+        return null;
+      }
 
       return Ndt7Measurement(
-        throughputMbps: appInfo['ThroughputValue'] != null
-            ? (appInfo['ThroughputValue'] as num).toDouble()
-            : null,
+        throughputMbps: throughputMbps,
+        minRTT: minRTT,
+        retransmissions: retransmissions,
+        bytesSent: bytesSent,
+        bytesRetrans: bytesRetrans,
+        bytesReceived: bytesReceived,
+        elapsedTimeUs: elapsedTimeUs,
+        retransmissionPercentage: retransmissionPercentage,
       );
     } catch (e) {
       debugPrint('Ndt7Service: failed to parse message: $e');
@@ -427,11 +559,17 @@ class Ndt7Service {
     return bps / 1000000;
   }
 
-  void dispose() {
+  /// Cancels any active test timer and closes the active WebSocket connection.
+  /// Call this between tests to ensure clean state without disposing the HTTP client.
+  void reset() {
     _activeTimer?.cancel();
     _activeTimer = null;
     _activeWebSocket?.close();
     _activeWebSocket = null;
+  }
+
+  void dispose() {
+    reset();
     _httpClient.close();
   }
 }
@@ -446,18 +584,6 @@ Future<WebSocket> _defaultWebSocketFactory(
   List<String>? protocols,
 }) {
   return WebSocket.connect(url, protocols: protocols);
-}
-
-class Ndt7Measurement {
-  const Ndt7Measurement({
-    this.throughputMbps,
-    this.minRTT,
-    this.retransmissions,
-  });
-
-  final double? throughputMbps;
-  final double? minRTT;
-  final int? retransmissions;
 }
 
 class Ndt7Exception implements Exception {

@@ -9,9 +9,10 @@ import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
 
 class SpeedTestPage extends StatefulWidget {
-  const SpeedTestPage({super.key, this.preloadedServers});
+  const SpeedTestPage({super.key, this.preloadedServers, this.preloadedResult});
 
   final List<Ndt7Server>? preloadedServers;
+  final Ndt7TestResult? preloadedResult;
 
   @override
   State<SpeedTestPage> createState() => _SpeedTestPageState();
@@ -20,7 +21,7 @@ class SpeedTestPage extends StatefulWidget {
 class _SpeedTestPageState extends State<SpeedTestPage> {
   late final SpeedTestBloc _bloc;
   bool _initialized = false;
-  bool _autoStarted = false;
+  bool _consentGiven = false;
   String? _lastShownError;
 
   @override
@@ -34,6 +35,9 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
     super.didChangeDependencies();
     if (!_initialized) {
       _bloc.add(SpeedTestEvent.init(preloadedServers: widget.preloadedServers));
+      if (widget.preloadedResult != null) {
+        _bloc.add(SpeedTestEvent.loadResult(result: widget.preloadedResult!));
+      }
       _initialized = true;
     }
   }
@@ -50,18 +54,6 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
       value: _bloc,
       child: BlocListener<SpeedTestBloc, SpeedTestState>(
         listener: (context, state) {
-          // Auto-start test once servers are loaded and test hasn't started yet
-          if (!_autoStarted &&
-              !state.isLoading &&
-              state.bestServers != null &&
-              state.bestServers!.isNotEmpty &&
-              !state.speedTestStarted &&
-              !state.downloadSpeedTestDone &&
-              !state.uploadSpeedTestDone) {
-            _autoStarted = true;
-            _bloc.add(const SpeedTestEvent.startTest());
-          }
-
           // Show error message only when it changes
           if (state.fetchError != null &&
               state.fetchError != _lastShownError &&
@@ -76,14 +68,27 @@ class _SpeedTestPageState extends State<SpeedTestPage> {
             );
           }
         },
-        child: const _SpeedTestView(),
+        child: _SpeedTestView(
+          consentGiven: _consentGiven,
+          onConsentChanged: (value) {
+            setState(() {
+              _consentGiven = value;
+            });
+          },
+        ),
       ),
     );
   }
 }
 
 class _SpeedTestView extends StatelessWidget {
-  const _SpeedTestView();
+  const _SpeedTestView({
+    required this.consentGiven,
+    required this.onConsentChanged,
+  });
+
+  final bool consentGiven;
+  final ValueChanged<bool> onConsentChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -166,15 +171,11 @@ class _SpeedTestView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if ((state.downloadSpeeds.isNotEmpty ||
-                                  state.uploadSpeeds.isNotEmpty) &&
-                              !state.showSummary)
+                          // Show graph (empty before test, with data during test)
+                          if (!state.showSummary)
                             _buildSpeedGraph(context, state,
                                 colors: colors, height: graphHeight),
-                          if ((state.downloadSpeeds.isNotEmpty ||
-                                  state.uploadSpeeds.isNotEmpty) &&
-                              !state.showSummary)
-                            SizedBox(height: spacing),
+                          if (!state.showSummary) SizedBox(height: spacing),
                           if (!state.showSummary)
                             _buildResults(context, state,
                                 colors: colors, isWide: isWide),
@@ -193,7 +194,22 @@ class _SpeedTestView extends StatelessWidget {
                       horizontal: horizontalPadding,
                       vertical: horizontalPadding / 2,
                     ),
-                    child: _buildActionButton(context, state, colors: colors),
+                    child: Column(
+                      children: [
+                        // Data policy consent checkbox (shown before test starts)
+                        if (!state.speedTestStarted &&
+                            !state.downloadSpeedTestDone &&
+                            !state.uploadSpeedTestDone &&
+                            !state.showSummary)
+                          _buildConsentCard(context, colors, isWide: isWide),
+                        if (!state.speedTestStarted &&
+                            !state.downloadSpeedTestDone &&
+                            !state.uploadSpeedTestDone &&
+                            !state.showSummary)
+                          const SizedBox(height: 12),
+                        _buildActionButton(context, state, colors: colors),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(
@@ -637,6 +653,7 @@ class _SpeedTestView extends StatelessWidget {
             state.uploadSpeedTestDone ? state.currentUploadSpeed : null,
             const Color(0xFFFFD700),
             isWide: isWide,
+            isWarmingUp: state.isWarmingUp && !state.uploadSpeedTestDone,
           ),
         ),
       ],
@@ -651,6 +668,7 @@ class _SpeedTestView extends StatelessWidget {
     double? value,
     Color color, {
     required bool isWide,
+    bool isWarmingUp = false,
   }) {
     return Card(
       child: Padding(
@@ -670,14 +688,24 @@ class _SpeedTestView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            Text(
-              value != null ? '${value.toStringAsFixed(1)} Mbps' : '--',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-              textAlign: TextAlign.center,
-            ),
+            if (isWarmingUp)
+              Text(
+                'Warming up...',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colors.onSurface.withValues(alpha: 0.5),
+                    ),
+                textAlign: TextAlign.center,
+              )
+            else
+              Text(
+                value != null ? '${value.toStringAsFixed(1)} Mbps' : '--',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                textAlign: TextAlign.center,
+              ),
           ],
         ),
       ),
@@ -689,6 +717,7 @@ class _SpeedTestView extends StatelessWidget {
     final downloadSpeed = state.currentDownloadSpeed;
     final uploadSpeed = state.currentUploadSpeed;
     final latency = state.latencyMs;
+    final retransmission = state.retransmissionPercentage;
     final rating = _getSpeedRating(downloadSpeed);
 
     return TweenAnimationBuilder<double>(
@@ -751,7 +780,7 @@ class _SpeedTestView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // Animated download speed
                   TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0, end: downloadSpeed),
@@ -763,7 +792,7 @@ class _SpeedTestView extends StatelessWidget {
                           value.toStringAsFixed(1),
                           style: Theme.of(context)
                               .textTheme
-                              .displayLarge
+                              .displayMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: colors.onPrimaryContainer,
@@ -783,7 +812,7 @@ class _SpeedTestView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   // Gauge arc
                   CustomPaint(
                     size: Size(isWide ? 280 : 220, isWide ? 140 : 110),
@@ -798,35 +827,70 @@ class _SpeedTestView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // Upload & Latency row
-          Row(
-            children: [
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  colors,
-                  Icons.arrow_upward,
-                  'Upload',
-                  uploadSpeed,
-                  'Mbps',
-                  const Color(0xFFFFD700),
-                  isWide: isWide,
-                ),
+          // Upload card (separate row on mobile, combined on desktop)
+          if (!isWide)
+            SizedBox(
+              width: double.infinity,
+              child: _buildMetricCard(
+                context,
+                colors,
+                Icons.upload,
+                'Upload',
+                uploadSpeed,
+                'Mbps',
+                const Color(0xFFFFD700),
+                isWide: isWide,
+                isWarmingUp: state.isWarmingUp && !state.uploadSpeedTestDone,
               ),
-              SizedBox(width: isWide ? 16 : 12),
-              Expanded(
-                child: _buildMetricCard(
-                  context,
-                  colors,
-                  Icons.network_ping,
-                  'Latency',
-                  latency,
-                  'ms',
-                  _getLatencyColor(latency ?? 999, colors),
-                  isWide: isWide,
+            ),
+          if (!isWide) const SizedBox(height: 12),
+          // Latency & Retransmission row (or all three on desktop)
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                if (isWide)
+                  Expanded(
+                    child: _buildMetricCard(
+                      context,
+                      colors,
+                      Icons.upload,
+                      'Upload',
+                      uploadSpeed,
+                      'Mbps',
+                      const Color(0xFFFFD700),
+                      isWide: isWide,
+                      isWarmingUp:
+                          state.isWarmingUp && !state.uploadSpeedTestDone,
+                    ),
+                  ),
+                if (isWide) SizedBox(width: isWide ? 16 : 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    context,
+                    colors,
+                    Icons.timer,
+                    'Latency',
+                    latency,
+                    'ms',
+                    _getLatencyColor(latency ?? 999, colors),
+                    isWide: isWide,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(width: isWide ? 16 : 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    context,
+                    colors,
+                    Icons.sync,
+                    'Retrans',
+                    retransmission,
+                    '%',
+                    _getRetransmissionColor(retransmission ?? 100, colors),
+                    isWide: isWide,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           // What you can do
@@ -845,6 +909,7 @@ class _SpeedTestView extends StatelessWidget {
     String unit,
     Color color, {
     required bool isWide,
+    bool isWarmingUp = false,
   }) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -856,28 +921,42 @@ class _SpeedTestView extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             label,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colors.onSurface.withValues(alpha: 0.6),
                 ),
           ),
           const SizedBox(height: 4),
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: value ?? 0),
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeOutCubic,
-            builder: (context, v, _) => Text(
-              value != null ? '${v.toStringAsFixed(1)} $unit' : '--',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: color,
+          if (isWarmingUp)
+            Text(
+              'Warming up...',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurface.withValues(alpha: 0.5),
                   ),
+            )
+          else
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: value ?? 0),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOutCubic,
+              builder: (context, v, _) => Text(
+                value != null ? '${v.toStringAsFixed(1)} $unit' : '--',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -968,6 +1047,13 @@ class _SpeedTestView extends StatelessWidget {
     return const Color(0xFFF44336);
   }
 
+  Color _getRetransmissionColor(
+      double retransmissionPercent, ColorScheme colors) {
+    if (retransmissionPercent < 1) return const Color(0xFF43EA6A);
+    if (retransmissionPercent < 5) return const Color(0xFFFFD700);
+    return const Color(0xFFF44336);
+  }
+
   List<Capability> _getCapabilities(double downloadSpeed) {
     final caps = <Capability>[];
     if (downloadSpeed >= 5)
@@ -985,12 +1071,85 @@ class _SpeedTestView extends StatelessWidget {
     return caps;
   }
 
+  Widget _buildConsentCard(BuildContext context, ColorScheme colors,
+      {required bool isWide}) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 24.0 : 20.0,
+        vertical: isWide ? 24.0 : 20.0,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Checkbox(
+            value: consentGiven,
+            onChanged: (value) {
+              onConsentChanged(value ?? false);
+            },
+            activeColor: colors.primary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'I agree to the data policy',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.onSurface,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Includes retention and publication of IP addresses',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colors.onSurface.withValues(alpha: 0.6),
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionButton(BuildContext context, SpeedTestState state,
       {required ColorScheme colors}) {
     final hasServers =
         state.bestServers != null && state.bestServers!.isNotEmpty;
 
-    // Only show button after test completes (for "Test Again")
+    // Show "Start Test" button before test begins
+    if (!state.speedTestStarted &&
+        !state.downloadSpeedTestDone &&
+        !state.uploadSpeedTestDone &&
+        !state.showSummary) {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: (hasServers && consentGiven)
+              ? () {
+                  context
+                      .read<SpeedTestBloc>()
+                      .add(const SpeedTestEvent.startTest());
+                }
+              : null,
+          icon: const Icon(Icons.play_arrow),
+          label: const Text('Start Test'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: colors.primary,
+            foregroundColor: colors.onPrimary,
+          ),
+        ),
+      );
+    }
+
+    // Only show "Test Again" button after test completes
     if (!state.showSummary) {
       return const SizedBox.shrink();
     }
@@ -1000,6 +1159,8 @@ class _SpeedTestView extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: hasServers
             ? () {
+                print('SpeedTestPage: Test Again button pressed');
+                print('SpeedTestPage: hasServers=$hasServers');
                 context
                     .read<SpeedTestBloc>()
                     .add(const SpeedTestEvent.startTest());

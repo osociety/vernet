@@ -75,6 +75,8 @@ class DeviceScannerService extends ScannerService {
       String? macAddress,
       String? hostMake,
       String? mdnsDomainName,
+      String? deviceType,
+      String? openPorts,
     }) async {
       final updated = DeviceData(
         id: device.id,
@@ -85,6 +87,8 @@ class DeviceScannerService extends ScannerService {
         currentDeviceIp: device.currentDeviceIp,
         gatewayIp: device.gatewayIp,
         scanId: device.scanId,
+        deviceType: deviceType ?? device.deviceType,
+        openPorts: openPorts ?? device.openPorts,
       );
       await _deviceRepository.update(updated);
       deviceByAddress[updated.internetAddress] = updated;
@@ -105,7 +109,11 @@ class DeviceScannerService extends ScannerService {
         // Details resolve lazily in the scanner, so show the host as soon as
         // it is discovered instead of waiting for reverse DNS.
         final macAddress = await _macAddressOf(activeHost);
-        var device = await _deviceRepository.put(
+        final openPortsStr =
+            activeHost.openPorts.map((p) => p.port.toString()).join(',');
+        debugPrint(
+            'Host ${activeHost.address}: openPorts=${activeHost.openPorts.length}, ports=$openPortsStr, deviceType=${activeHost.deviceType}');
+        var device = await _deviceRepository.upsertByAddress(
           DeviceData(
             id: _newDeviceId(),
             internetAddress: activeHost.address,
@@ -113,6 +121,8 @@ class DeviceScannerService extends ScannerService {
             currentDeviceIp: ip,
             gatewayIp: gatewayIp,
             scanId: scanId,
+            deviceType: activeHost.deviceType,
+            openPorts: openPortsStr.isEmpty ? null : openPortsStr,
           ),
         );
         deviceByAddress[device.internetAddress] = device;
@@ -151,7 +161,9 @@ class DeviceScannerService extends ScannerService {
           return;
         }
 
-        final device = await _deviceRepository.put(
+        final openPortsStr =
+            activeHost.openPorts.map((p) => p.port.toString()).join(',');
+        final device = await _deviceRepository.upsertByAddress(
           DeviceData(
             id: _newDeviceId(),
             internetAddress: activeHost.address,
@@ -161,6 +173,8 @@ class DeviceScannerService extends ScannerService {
             currentDeviceIp: ip,
             gatewayIp: gatewayIp,
             scanId: scanId,
+            deviceType: activeHost.deviceType,
+            openPorts: openPortsStr.isEmpty ? null : openPortsStr,
           ),
         );
         deviceByAddress[device.internetAddress] = device;
@@ -185,6 +199,9 @@ class DeviceScannerService extends ScannerService {
         );
         final scanId = scan.id;
         await storeCurrentScanId(scanId);
+
+        // Clean up any existing devices for this scanId to prevent duplicates
+        await _deviceRepository.deleteByScanId(scanId);
 
         // mDNS discovery does not depend on the ICMP/ARP sweep; overlapping
         // them keeps the overall scan as short as the slower of the two.
@@ -248,6 +265,12 @@ class DeviceScannerService extends ScannerService {
         // before merging mDNS results so both paths never insert the same IP.
         await Future.wait(detailUpdates);
         if (cancelled) return;
+
+        // Run quick port scans in background to enrich devices with open ports
+        // and device type. This runs after discovery so the UI shows devices
+        // immediately, then updates them as port data arrives.
+        await _enrichDevicesWithPortScan(
+            deviceByAddress.values.toList(), scanId, controller);
 
         final mdnsUpdates = <Future<void>>[];
         final seenMdnsAddresses = <String>{};
@@ -341,5 +364,146 @@ class DeviceScannerService extends ScannerService {
       return await _deviceRepository.countByScanId(scan.id);
     }
     return 0;
+  }
+
+  /// Runs quick port scans on discovered devices in background to enrich them
+  /// with open ports and device type. Uses bounded concurrency to avoid
+  /// overwhelming the network.
+  Future<void> _enrichDevicesWithPortScan(
+    List<DeviceData> devices,
+    int scanId,
+    StreamController<DeviceData> controller,
+  ) async {
+    if (devices.isEmpty) return;
+
+    debugPrint(
+        'Starting background port scan enrichment for ${devices.length} devices');
+
+    // Process devices with bounded concurrency (8 at a time)
+    const maxConcurrency = 8;
+    var index = 0;
+
+    while (index < devices.length) {
+      final batch = devices.skip(index).take(maxConcurrency).toList();
+      final futures =
+          batch.map((device) => _scanDevicePorts(device, scanId, controller));
+      await Future.wait(futures);
+      index += maxConcurrency;
+    }
+
+    debugPrint('Background port scan enrichment completed');
+  }
+
+  /// Runs a quick port scan on a single device and updates it with open ports
+  /// and device type.
+  Future<void> _scanDevicePorts(
+    DeviceData device,
+    int scanId,
+    StreamController<DeviceData> controller,
+  ) async {
+    try {
+      final stream = PortScannerService.instance.customDiscover(
+        device.internetAddress,
+        timeout: Duration(milliseconds: appSettings.socketTimeout),
+        async: true,
+      );
+
+      // Collect all open ports from the stream
+      final ports = <int>[];
+      await for (final host in stream) {
+        ports.addAll(host.openPorts.map((p) => p.port));
+      }
+
+      if (ports.isEmpty) return;
+
+      final openPortsStr = ports.toSet().map((p) => p.toString()).join(',');
+      final deviceType = _inferDeviceTypeFromPorts(ports.toSet().toList());
+
+      final updated = DeviceData(
+        id: device.id,
+        internetAddress: device.internetAddress,
+        macAddress: device.macAddress,
+        hostMake: device.hostMake,
+        mdnsDomainName: device.mdnsDomainName,
+        currentDeviceIp: device.currentDeviceIp,
+        gatewayIp: device.gatewayIp,
+        scanId: device.scanId,
+        openPorts: openPortsStr,
+        deviceType: deviceType,
+      );
+
+      await _deviceRepository.update(updated);
+
+      // Emit the updated device to the stream so the UI can refresh
+      if (!controller.isClosed) {
+        controller.add(updated);
+      }
+
+      debugPrint(
+          'Enriched ${device.internetAddress}: ${ports.length} ports, type=$deviceType');
+    } catch (error) {
+      debugPrint('Failed to scan ports for ${device.internetAddress}: $error');
+    }
+  }
+
+  /// Infers device type from open port numbers.
+  String _inferDeviceTypeFromPorts(List<int> ports) {
+    final portSet = ports.toSet();
+
+    // Printer: IPP (631) or JetDirect (9100) - most specific
+    if (portSet.contains(631) || portSet.contains(9100)) return 'Printer';
+
+    // NAS: FTP (21) + SMB (445)
+    if (portSet.contains(21) && portSet.contains(445)) return 'NAS';
+
+    // Router/Gateway: DNS (53) is the key indicator, especially with other services
+    if (portSet.contains(53)) {
+      if (portSet.contains(161) ||
+          portSet.contains(80) ||
+          portSet.contains(443) ||
+          portSet.contains(8080) ||
+          portSet.contains(8443)) {
+        return 'Router';
+      }
+      // DNS alone often indicates a router/gateway
+      if (portSet.length == 1) return 'Router';
+    }
+
+    // Server: SSH + both HTTP and HTTPS
+    if (portSet.contains(22) && portSet.contains(80) && portSet.contains(443)) {
+      return 'Server';
+    }
+
+    // Linux Server: SSH + web services
+    if (portSet.contains(22) &&
+        (portSet.contains(80) ||
+            portSet.contains(443) ||
+            portSet.contains(8080))) {
+      return 'Linux Server';
+    }
+
+    // Windows PC: SMB or RDP
+    if (portSet.contains(445) || portSet.contains(3389)) return 'Windows PC';
+
+    // Linux/Unix Device: SSH only
+    if (portSet.contains(22) && portSet.length == 1) return 'Linux/Unix Device';
+
+    // Web Device: HTTP + HTTPS only
+    if (portSet.contains(80) && portSet.contains(443) && portSet.length == 2) {
+      return 'Web Device';
+    }
+
+    // IoT Device: limited ports with HTTP/HTTPS
+    if (portSet.length <= 2 &&
+        (portSet.contains(80) ||
+            portSet.contains(443) ||
+            portSet.contains(8080))) {
+      return 'IoT Device';
+    }
+
+    // Remote Display: VNC only
+    if (portSet.contains(5900) && portSet.length == 1) return 'Remote Display';
+
+    return 'Unknown Device';
   }
 }

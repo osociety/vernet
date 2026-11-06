@@ -11,6 +11,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/network_connection_status.dart';
+import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
@@ -424,12 +425,11 @@ class _WifiDetailState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 4,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _PanelIcon(icon: Icons.speed, color: colors.tertiary),
+                  const SizedBox(width: 8),
                   Text(
                     'SPEED TEST',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -437,8 +437,15 @@ class _WifiDetailState extends State<HomePage> {
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  if (testTimestamp != null)
+                  if (testTimestamp != null) ...[
+                    const SizedBox(width: 8),
                     TimestampChip(timestamp: testTimestamp),
+                  ],
+                  const Spacer(),
+                  _StatusPill(
+                    label: 'M-Lab',
+                    color: colors.primary,
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
@@ -517,25 +524,6 @@ class _WifiDetailState extends State<HomePage> {
                             fontWeight: FontWeight.w700,
                             color:
                                 _getLatencyColor(speedData.latencyMs, colors),
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // M-Lab attribution
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 14,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Powered by M-Lab',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colors.onSurfaceVariant,
                           ),
                     ),
                   ],
@@ -621,20 +609,54 @@ class _WifiDetailState extends State<HomePage> {
                     const SizedBox(height: 16),
                   ],
                 ),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SpeedTestPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: Text(hasData ? 'Run New Test' : 'Start Speed Test'),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SpeedTestPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.play_arrow),
+                      label:
+                          Text(hasData ? 'Run New Test' : 'Start Speed Test'),
+                    ),
+                  ),
+                  if (hasData) ...[
+                    const SizedBox(width: 12),
+                    IconButton.outlined(
+                      tooltip: 'View last result',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SpeedTestPage(
+                              preloadedResult: Ndt7TestResult(
+                                downloadMbps: speedData.downloadMbps,
+                                uploadMbps: speedData.uploadMbps,
+                                latencyMs: speedData.latencyMs,
+                                retransmissions: speedData.retransmissions,
+                                retransmissionPercentage: null,
+                                server: Ndt7Server(
+                                  machine: '',
+                                  site: speedData.serverLocation ?? '',
+                                  urls: const Ndt7ServerUrls(),
+                                ),
+                                timestamp:
+                                    speedData.timestamp ?? DateTime.now(),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.history),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

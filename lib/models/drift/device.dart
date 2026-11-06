@@ -9,4 +9,6 @@ class Device extends Table {
   TextColumn get macAddress => text().nullable()();
   TextColumn get hostMake => text().nullable()();
   TextColumn get mdnsDomainName => text().nullable()();
+  TextColumn get deviceType => text().nullable().named('device_type')();
+  TextColumn get openPorts => text().nullable().named('open_ports')();
 }

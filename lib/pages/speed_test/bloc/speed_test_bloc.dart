@@ -21,6 +21,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     on<_StartTest>(_onStartTest);
     on<_ToggleServerInfo>(_onToggleServerInfo);
     on<_Reset>(_onReset);
+    on<_LoadResult>(_onLoadResult);
   }
 
   final Ndt7Service _ndt7Service;
@@ -50,7 +51,8 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       return;
     }
 
-    final server = state.bestServers!.first;
+    // Clean up any leftover state from previous test
+    _ndt7Service.reset();
 
     emit(state.copyWith(
       speedTestStarted: true,
@@ -67,24 +69,72 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       serverLocation: null,
       fetchError: null,
       isServerInfoExpanded: false,
+      isWarmingUp: false,
     ));
 
-    try {
-      final result = await _runNdt7Test(server, emit);
-      await _saveSpeedSnapshot(emit, result);
+    final servers = state.bestServers!;
+    Object? lastError;
 
-      emit(state.copyWith(
-        speedTestStarted: false,
-        showSummary: true,
-        isServerInfoExpanded: true,
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        fetchError: 'Speed test failed: $e',
-        speedTestStarted: false,
-        showSummary: false,
-      ));
+    for (var i = 0; i < servers.length; i++) {
+      final server = servers[i];
+      print('SpeedTestBloc: trying server ${server.machine} '
+          '(${i + 1}/${servers.length})');
+      try {
+        final result = await _runNdt7Test(server, emit);
+        await _saveSpeedSnapshot(emit, result);
+
+        emit(state.copyWith(
+          speedTestStarted: false,
+          showSummary: true,
+          isServerInfoExpanded: true,
+        ));
+        return;
+      } catch (e) {
+        lastError = e;
+        print('SpeedTestBloc: server ${server.machine} failed: $e');
+        if (i < servers.length - 1) {
+          emit(state.copyWith(
+            downloadSpeeds: [],
+            uploadSpeeds: [],
+            currentDownloadSpeed: 0,
+            currentUploadSpeed: 0,
+            downloadSpeedTestDone: false,
+            uploadSpeedTestDone: false,
+          ));
+        }
+      }
     }
+
+    final errorMessage = _buildUserFriendlyError(lastError);
+    emit(state.copyWith(
+      fetchError: errorMessage,
+      speedTestStarted: false,
+      showSummary: false,
+    ));
+  }
+
+  String _buildUserFriendlyError(Object? error) {
+    if (error == null) {
+      return 'Speed test failed. Please try again later.';
+    }
+
+    final errorStr = error.toString().toLowerCase();
+
+    // Connection/timeout errors suggest high demand or network issues
+    if (errorStr.contains('timed out') ||
+        errorStr.contains('connection failed') ||
+        errorStr.contains('websocket') ||
+        errorStr.contains('all servers')) {
+      return 'Sorry, it looks like the Internet speed test is experiencing high demand. Please try again later.';
+    }
+
+    // Network errors
+    if (errorStr.contains('network error') || errorStr.contains('socket')) {
+      return 'Network connection failed. Please check your internet connection and try again.';
+    }
+
+    // Generic fallback
+    return 'Speed test failed. Please try again later.';
   }
 
   void _onToggleServerInfo(
@@ -94,6 +144,24 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
   void _onReset(_Reset event, Emitter<SpeedTestState> emit) {
     emit(const SpeedTestState.data());
+  }
+
+  void _onLoadResult(_LoadResult event, Emitter<SpeedTestState> emit) {
+    final result = event.result;
+    emit(state.copyWith(
+      isLoading: false,
+      speedTestStarted: false,
+      downloadSpeedTestDone: true,
+      uploadSpeedTestDone: true,
+      showSummary: true,
+      currentDownloadSpeed: result.downloadMbps,
+      currentUploadSpeed: result.uploadMbps,
+      latencyMs: result.latencyMs,
+      retransmissions: result.retransmissions,
+      retransmissionPercentage: result.retransmissionPercentage,
+      serverLocation: result.server.site,
+      isServerInfoExpanded: true,
+    ));
   }
 
   Future<void> _loadServers(Emitter<SpeedTestState> emit) async {
@@ -155,6 +223,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         emit(state.copyWith(
           currentUploadSpeed: progress.speed,
           uploadSpeeds: speeds,
+          isWarmingUp: progress.isWarmingUp,
         ));
       },
     );
@@ -162,13 +231,17 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
     final latencyMs = downloadResult.minRTT ?? uploadResult.minRTT;
     final retransmissions =
         downloadResult.retransmissions ?? uploadResult.retransmissions;
+    final retransmissionPercentage = downloadResult.retransmissionPercentage ??
+        uploadResult.retransmissionPercentage;
 
     emit(state.copyWith(
       currentUploadSpeed: uploadResult.throughputMbps ?? 0,
       uploadSpeedTestDone: true,
+      isWarmingUp: false,
       latencyMs: latencyMs,
       packetLossPercent: null,
       retransmissions: retransmissions,
+      retransmissionPercentage: retransmissionPercentage,
       serverLocation: server.location != null
           ? '${server.location!.city ?? ''}, ${server.location!.country ?? ''}'
           : server.site,
@@ -181,6 +254,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       server: server,
       minRTT: latencyMs,
       retransmissions: retransmissions,
+      retransmissionPercentage: retransmissionPercentage,
       timestamp: DateTime.now(),
     );
   }

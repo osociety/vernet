@@ -1,14 +1,78 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/models/ndt7_result.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
+import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/speedtest/ndt7_service.dart';
 
 class MockNdt7Service implements Ndt7Service {
+  MockNdt7Service({
+    this.discoverServersResult,
+    this.discoverServersError,
+    this.runDownloadTestResult,
+    this.runDownloadTestError,
+    this.runUploadTestResult,
+    this.runUploadTestError,
+  });
+
+  final Future<List<Ndt7Server>> Function()? discoverServersResult;
+  final Object? discoverServersError;
+  final Future<Ndt7Measurement> Function(Ndt7Server server)?
+      runDownloadTestResult;
+  final Object? runDownloadTestError;
+  final Future<Ndt7Measurement> Function(Ndt7Server server)?
+      runUploadTestResult;
+  final Object? runUploadTestError;
+
+  @override
+  Future<List<Ndt7Server>> discoverServers() async {
+    if (discoverServersError != null) throw discoverServersError!;
+    if (discoverServersResult != null) return await discoverServersResult!();
+    return [];
+  }
+
+  @override
+  Future<Ndt7Measurement> runDownloadTest(
+    Ndt7Server server, {
+    void Function(Ndt7Progress)? onProgress,
+  }) async {
+    if (runDownloadTestError != null) throw runDownloadTestError!;
+    if (runDownloadTestResult != null)
+      return await runDownloadTestResult!(server);
+    return const Ndt7Measurement(throughputMbps: 100.0);
+  }
+
+  @override
+  Future<Ndt7Measurement> runUploadTest(
+    Ndt7Server server, {
+    void Function(Ndt7Progress)? onProgress,
+  }) async {
+    if (runUploadTestError != null) throw runUploadTestError!;
+    if (runUploadTestResult != null) return await runUploadTestResult!(server);
+    return const Ndt7Measurement(throughputMbps: 50.0);
+  }
+
+  @override
+  void reset() {
+    // No-op in tests
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
+
+class MockNetworkScoreRepository extends Mock
+    implements NetworkScoreRepository {}
+
+class MockNetworkScoreBloc extends Mock implements NetworkScoreBloc {}
+
+class FakeNetworkScoreEvent extends Fake implements NetworkScoreEvent {}
+
+class FakeSpeedSnapshot extends Fake implements SpeedSnapshot {}
 
 void main() {
   group('SpeedTestBloc', () {
@@ -180,6 +244,96 @@ void main() {
             .having(
                 (s) => s.isServerInfoExpanded, 'isServerInfoExpanded', isFalse),
       ],
+    );
+  });
+
+  group('SpeedTestBloc server retry', () {
+    const server1 = Ndt7Server(
+      machine: 'mlab1.test',
+      site: 'site1',
+      urls: Ndt7ServerUrls(
+        downloadUrl: 'wss://mlab1.test/ndt/v7/download',
+        uploadUrl: 'wss://mlab1.test/ndt/v7/upload',
+      ),
+    );
+    const server2 = Ndt7Server(
+      machine: 'mlab2.test',
+      site: 'site2',
+      urls: Ndt7ServerUrls(
+        downloadUrl: 'wss://mlab2.test/ndt/v7/download',
+        uploadUrl: 'wss://mlab2.test/ndt/v7/upload',
+      ),
+    );
+
+    late MockNetworkScoreRepository mockRepo;
+    late MockNetworkScoreBloc mockScoreBloc;
+
+    setUp(() {
+      mockRepo = MockNetworkScoreRepository();
+      mockScoreBloc = MockNetworkScoreBloc();
+      registerFallbackValue(FakeNetworkScoreEvent());
+      registerFallbackValue(FakeSpeedSnapshot());
+      when(() => mockScoreBloc.add(any())).thenReturn(null);
+      when(() => mockRepo.saveSpeedSnapshot(any())).thenAnswer((_) async {});
+      GetIt.instance
+        ..registerSingleton<NetworkScoreRepository>(mockRepo)
+        ..registerSingleton<NetworkScoreBloc>(mockScoreBloc);
+    });
+
+    tearDown(() async {
+      await GetIt.instance.reset();
+    });
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'falls back to next server when first server download fails',
+      build: () {
+        var downloadCallCount = 0;
+        return SpeedTestBloc(
+          ndt7Service: MockNdt7Service(
+            runDownloadTestResult: (server) async {
+              downloadCallCount++;
+              if (downloadCallCount == 1) {
+                throw Ndt7Exception('WebSocket connection failed');
+              }
+              return const Ndt7Measurement(throughputMbps: 100.0);
+            },
+          ),
+        );
+      },
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        bestServers: [server1, server2],
+      ),
+      act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
+      wait: const Duration(milliseconds: 200),
+      verify: (bloc) {
+        // Should have tried 2 servers (first failed, second succeeded)
+        expect(bloc.state.showSummary, isTrue);
+        expect(bloc.state.fetchError, isNull);
+        expect(bloc.state.currentDownloadSpeed, 100.0);
+      },
+    );
+
+    blocTest<SpeedTestBloc, SpeedTestState>(
+      'emits error when all servers fail',
+      build: () {
+        return SpeedTestBloc(
+          ndt7Service: MockNdt7Service(
+            runDownloadTestError: Ndt7Exception('All servers down'),
+          ),
+        );
+      },
+      seed: () => const SpeedTestState.data(
+        isLoading: false,
+        bestServers: [server1, server2],
+      ),
+      act: (bloc) => bloc.add(const SpeedTestEvent.startTest()),
+      wait: const Duration(milliseconds: 200),
+      verify: (bloc) {
+        expect(bloc.state.speedTestStarted, isFalse);
+        expect(bloc.state.fetchError, contains('high demand'));
+        expect(bloc.state.fetchError, contains('try again later'));
+      },
     );
   });
 }
