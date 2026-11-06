@@ -9,13 +9,8 @@ environment:
   sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
-  # Automatically resizes text to fit perfectly within its bounds.
-  auto_size_text: ^3.0.0
   # Helps implement the BLoC pattern.
   bloc: ^9.2.1
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^2.0.0
   dart_ping: ^10.0.1
   # Remove git url and use pub version once fix is available in source. 
   drift: ^2.35.3
@@ -29,14 +24,8 @@ dependencies:
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^22.3.2
-  # A versatile mapping package for Flutter
-  flutter_map: ^8.3.2
-  # A Dart implementation of Leaflet.makercluster for Flutter apps
-  flutter_map_marker_cluster_plus: ^1.4.2
   # Native splash screen plugin
   flutter_native_splash: ^2.4.8
-  # A simple yet fully customizable rating bar for flutter
-  flutter_rating_bar: ^4.0.1
   # A flutter plugin for getting the local timezone of the OS.
   flutter_timezone: ^5.1.1
   # Annotations for freezed
@@ -52,31 +41,21 @@ dependencies:
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
   json_annotation: ^4.12.0
-  latlong2: ^0.9.1
   network_info_plus: ^8.2.2
   # Helps you discover open ports, devices on subnet and more.
   network_tools_flutter: ^3.0.9
   # Querying information about the application package, such as CFBundleVersion
   package_info_plus: ^10.2.2
-  path: ^1.9.1
   path_provider: ^2.1.6
-  # Allows you to display progress widgets based on percentage.
-  percent_indicator: ^4.2.5
   # Popup that ask for the requested permission
   permission_handler: ^13.0.2
   # A wrapper around InheritedWidget to make them easier to use and more reusable.
   provider: ^6.1.5
-  # RxDart extends the capabilities of Dart Streams and StreamControllers.
-  rxdart: ^0.26.0
   # Reading and writing simple key-value pairs
   shared_preferences: ^2.5.6
   sidebarx: ^0.17.2
   # Multiplatform safe UI Canvas Asset
   signal_strength_indicator: ^0.5.0
-  # A little widget that given an Observable gives you an updated SpeedOMeter.
-  speedometer: ^1.2.2
-  sqlite3: ^3.8.0
-  syncfusion_flutter_gauges: ^35.1.40+1
   # Time zone database and time zone aware DateTime.
   timezone: ^0.11.2
   # Plugin for launching a URL
