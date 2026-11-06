@@ -149,61 +149,101 @@ void main() {
     });
   });
 
-  group('ServerDeltaTracker upload (desktop)', () {
-    test('falls back to client bytes like the download tracker', () {
+  group('ServerCumulativeTracker upload (desktop)', () {
+    test('falls back to client bytes when the server is silent', () {
       final tracker = const DesktopNdt7Strategy()
           .createUploadTracker(Ndt7PlatformSettings.desktop);
+      // Pre-warm-up bytes are excluded from the fallback anchor.
       tracker.onClientBytes(500000, const Duration(seconds: 1));
-      tracker.onClientBytes(6500000, const Duration(seconds: 3));
-      expect(tracker.throughputMbps, closeTo(8 * 6000000 / 2 / 1e6, 1e-9));
+      expect(tracker.throughputMbps, isNull);
+      // Crossing the 2s warm-up anchors the fallback here.
+      tracker.onClientBytes(1000000, const Duration(seconds: 2));
+      // 5500000 bytes over 2s after warm-up end = 22 Mbps.
+      tracker.onClientBytes(6500000, const Duration(seconds: 4));
+      expect(tracker.throughputMbps, closeTo(8 * 5500000 / 2 / 1e6, 1e-9));
+    });
+
+    test('uses the latest cumulative BytesReceived sample', () {
+      final tracker = const DesktopNdt7Strategy()
+          .createUploadTracker(Ndt7PlatformSettings.desktop);
+      // 1000000 bytes over 2s = 4 Mbps cumulative.
+      tracker.onServerMeasurement(
+        _tcpInfo(bytesReceived: 1000000, elapsedUs: 2000000),
+        const Duration(seconds: 2),
+      );
+      expect(tracker.throughputMbps, closeTo(4.0, 1e-9));
+      // 3000000 bytes over 4s = 6 Mbps cumulative; last sample wins even
+      // though the instantaneous rate between samples is different.
+      tracker.onServerMeasurement(
+        _tcpInfo(bytesReceived: 3000000, elapsedUs: 4000000),
+        const Duration(seconds: 4),
+      );
+      expect(tracker.throughputMbps, closeTo(6.0, 1e-9));
+    });
+
+    test('ignores BytesSent for upload', () {
+      final tracker = const DesktopNdt7Strategy()
+          .createUploadTracker(Ndt7PlatformSettings.desktop);
+      tracker.onServerMeasurement(
+        _tcpInfo(
+            bytesSent: 99999999, bytesReceived: 1000000, elapsedUs: 2000000),
+        const Duration(seconds: 2),
+      );
+      expect(tracker.throughputMbps, closeTo(4.0, 1e-9));
+    });
+
+    test('prefers AppInfo goodput when the server provides it', () {
+      final tracker = const DesktopNdt7Strategy()
+          .createUploadTracker(Ndt7PlatformSettings.desktop);
+      tracker.onServerMeasurement(
+        _appInfo(150),
+        const Duration(seconds: 2),
+      );
+      expect(tracker.throughputMbps, closeTo(150.0, 1e-9));
     });
   });
 
-  group('AppInfo preference', () {
-    test('desktop tracker prefers AppInfo goodput over TCPInfo deltas', () {
+  group('ClientSamplesTracker download (desktop)', () {
+    test('returns null until client samples arrive', () {
       final tracker = const DesktopNdt7Strategy()
           .createDownloadTracker(Ndt7PlatformSettings.desktop);
       tracker.onServerMeasurement(
-        _appInfo(180),
-        const Duration(seconds: 2),
+        _tcpInfo(bytesSent: 99999999, elapsedUs: 5000000),
+        const Duration(seconds: 5),
       );
-      expect(tracker.throughputMbps, closeTo(180.0, 1e-9));
+      expect(tracker.throughputMbps, isNull,
+          reason: 'server TCPInfo must not influence desktop download');
     });
 
-    test('desktop tracker still uses TCPInfo deltas when AppInfo is absent',
-        () {
+    test('ignores samples inside the warm-up window', () {
       final tracker = const DesktopNdt7Strategy()
           .createDownloadTracker(Ndt7PlatformSettings.desktop);
-      tracker.onServerMeasurement(
-        _tcpInfo(bytesSent: 1000000, elapsedUs: 2000000),
-        const Duration(seconds: 2),
-      );
-      // 250000 bytes over 100000us (desktop min window) = 20 Mbps.
-      tracker.onServerMeasurement(
-        _tcpInfo(bytesSent: 1250000, elapsedUs: 2100000),
-        const Duration(seconds: 2, milliseconds: 100),
-      );
-      expect(tracker.throughputMbps, closeTo(20.0, 1e-9));
+      tracker.onClientBytes(1000000, const Duration(seconds: 1));
+      expect(tracker.throughputMbps, isNull);
     });
 
-    test('AppInfo without a throughput value does not block TCPInfo deltas',
-        () {
+    test('reports the median of collected samples (odd count)', () {
       final tracker = const DesktopNdt7Strategy()
           .createDownloadTracker(Ndt7PlatformSettings.desktop);
-      tracker.onServerMeasurement(
-        _tcpInfo(bytesSent: 1000000, elapsedUs: 2000000),
-        const Duration(seconds: 2),
-      );
-      tracker.onServerMeasurement(
-        _tcpInfo(bytesSent: 1250000, elapsedUs: 2100000),
-        const Duration(seconds: 2, milliseconds: 100),
-      );
-      // AppInfo with a null throughput must not evict the TCPInfo estimate.
-      tracker.onServerMeasurement(
-        const Ndt7Measurement(bytesSent: 1),
-        const Duration(seconds: 2, milliseconds: 200),
-      );
-      expect(tracker.throughputMbps, closeTo(20.0, 1e-9));
+      // Cumulative rates: 8 Mbps at 1.0s... warm-up is 2s, so samples start
+      // after that.
+      tracker.onClientBytes(3000000, const Duration(seconds: 3));
+      tracker.onClientBytes(8000000, const Duration(seconds: 4));
+      tracker.onClientBytes(15000000, const Duration(seconds: 5));
+      // Samples: 8, 16, 24 Mbps -> median 16.
+      expect(tracker.throughputMbps, closeTo(16.0, 1e-9));
+    });
+
+    test('reports the median of collected samples (even count)', () {
+      final tracker = const DesktopNdt7Strategy()
+          .createDownloadTracker(Ndt7PlatformSettings.desktop);
+      tracker.onClientBytes(3000000, const Duration(seconds: 3));
+      tracker.onClientBytes(8000000, const Duration(seconds: 4));
+      // Samples: 8, 16 Mbps -> median 12.
+      expect(tracker.throughputMbps, closeTo(12.0, 1e-9));
+      tracker.onClientBytes(12000000, const Duration(seconds: 6));
+      // Samples: 8, 16, 16 Mbps -> median 16.
+      expect(tracker.throughputMbps, closeTo(16.0, 1e-9));
     });
   });
 
@@ -222,7 +262,7 @@ void main() {
       expect(Ndt7PlatformSettings.mobile.warmupDuration,
           const Duration(seconds: 2));
       expect(Ndt7PlatformSettings.desktop.warmupDuration,
-          const Duration(seconds: 1));
+          const Duration(seconds: 2));
       expect(Ndt7PlatformSettings.mobile.minSampleWindowUs, 100000);
       expect(Ndt7PlatformSettings.desktop.minSampleWindowUs, 25000);
     });

@@ -34,11 +34,12 @@ class Ndt7PlatformSettings {
     connectionTimeout: Duration(seconds: 15),
   );
 
-  /// macOS / Windows / Linux profile: short warm-up for fast links, tighter
-  /// sample window for more responsive readings.
+  /// macOS / Windows / Linux profile. The 2s warm-up matches the original
+  /// desktop implementation, the only configuration observed to match the
+  /// M-Lab web client (223 vs 223) on a fast link.
   static const Ndt7PlatformSettings desktop = Ndt7PlatformSettings(
     isMobile: false,
-    warmupDuration: Duration(seconds: 1),
+    warmupDuration: Duration(seconds: 2),
     downloadTestDuration: Duration(seconds: 10),
     uploadTestDuration: Duration(seconds: 10),
     minSampleWindowUs: 25000,

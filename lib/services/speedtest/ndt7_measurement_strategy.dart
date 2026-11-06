@@ -73,36 +73,85 @@ abstract class Ndt7Strategy {
   );
 }
 
-/// Shared tracker that derives throughput from server TCPInfo deltas after
-/// the platform warm-up window, optionally preferring AppInfo goodput and
-/// optionally falling back to client-side post-warm-up byte accounting when
-/// the server reports nothing usable.
-class ServerDeltaTracker implements Ndt7ThroughputTracker {
-  ServerDeltaTracker({
+/// Shared plumbing for server-side trackers: records client byte accounting
+/// and exposes a post-warm-up client average as a fallback estimate.
+abstract class _ServerTrackerBase implements Ndt7ThroughputTracker {
+  _ServerTrackerBase({
     required Ndt7PlatformSettings settings,
-    required this.direction,
     required bool useClientFallback,
-    bool preferAppInfo = false,
   })  : _settings = settings,
-        _counterIsSent = direction == Ndt7Direction.download,
-        _useClientFallback = useClientFallback,
-        _preferAppInfo = preferAppInfo,
-        _accumulator =
-            DeltaWindowAccumulator(minWindowUs: settings.minSampleWindowUs);
+        _useClientFallback = useClientFallback;
 
-  final Ndt7Direction direction;
   final Ndt7PlatformSettings _settings;
-  final bool _counterIsSent;
   final bool _useClientFallback;
-  final bool _preferAppInfo;
-  final DeltaWindowAccumulator _accumulator;
-
-  double? _serverThroughputMbps;
   bool _warmupDone = false;
   int _lastClientTotalBytes = 0;
   Duration _lastClientElapsed = Duration.zero;
   int? _clientBytesAtWarmupEnd;
   Duration? _elapsedAtWarmupEnd;
+
+  @override
+  void onClientBytes(int totalBytes, Duration testElapsed) {
+    _lastClientTotalBytes = totalBytes;
+    _lastClientElapsed = testElapsed;
+    _markWarmupDone(testElapsed);
+  }
+
+  /// Average transfer rate over the post-warm-up period, so TCP slow-start
+  /// does not drag the fallback estimate down.
+  double? _clientFallbackMbps() {
+    if (!_useClientFallback ||
+        !_warmupDone ||
+        _clientBytesAtWarmupEnd == null ||
+        _elapsedAtWarmupEnd == null) {
+      return null;
+    }
+    final deltaBytes = _lastClientTotalBytes - _clientBytesAtWarmupEnd!;
+    final deltaUs =
+        _lastClientElapsed.inMicroseconds - _elapsedAtWarmupEnd!.inMicroseconds;
+    if (deltaUs <= 0 || deltaBytes < 0) return null;
+    return 8 * deltaBytes / (deltaUs / 1e6) / 1e6;
+  }
+
+  void _markWarmupDone(Duration testElapsed) {
+    if (_warmupDone || testElapsed < _settings.warmupDuration) return;
+    _warmupDone = true;
+    // Anchor the client fallback at the warm-up end so ramp-up bytes are
+    // excluded from the fallback estimate.
+    _clientBytesAtWarmupEnd = _lastClientTotalBytes;
+    _elapsedAtWarmupEnd = testElapsed;
+  }
+}
+
+/// Shared tracker that derives throughput from server TCPInfo deltas after
+/// the platform warm-up window, optionally preferring AppInfo goodput and
+/// optionally falling back to client-side post-warm-up byte accounting when
+/// the server reports nothing usable.
+///
+/// This is the mobile methodology: on Android every client-visible measure
+/// (client-side median, server cumulative) undershot the reference tools,
+/// while windowed deltas tracked the wire rate (27 Mbps vs Fing's 26.4 on a
+/// hotspot). Upload additionally must never fall back to client bytes:
+/// mobile stacks buffer aggressively, so bytes-pushed-to-socket measures
+/// buffer fill, not the wire (239.8 Mbps reported vs 26.4 actual).
+class ServerDeltaTracker extends _ServerTrackerBase {
+  ServerDeltaTracker({
+    required Ndt7PlatformSettings settings,
+    required this.direction,
+    required bool useClientFallback,
+    bool preferAppInfo = false,
+  })  : _counterIsSent = direction == Ndt7Direction.download,
+        _preferAppInfo = preferAppInfo,
+        _accumulator =
+            DeltaWindowAccumulator(minWindowUs: settings.minSampleWindowUs),
+        super(settings: settings, useClientFallback: useClientFallback);
+
+  final Ndt7Direction direction;
+  final bool _counterIsSent;
+  final bool _preferAppInfo;
+  final DeltaWindowAccumulator _accumulator;
+
+  double? _serverThroughputMbps;
 
   @override
   void onServerMeasurement(Ndt7Measurement measurement, Duration testElapsed) {
@@ -130,10 +179,13 @@ class ServerDeltaTracker implements Ndt7ThroughputTracker {
   }
 
   @override
-  void onClientBytes(int totalBytes, Duration testElapsed) {
-    _lastClientTotalBytes = totalBytes;
-    _lastClientElapsed = testElapsed;
-    _markWarmupDone(testElapsed);
+  void _markWarmupDone(Duration testElapsed) {
+    final wasDone = _warmupDone;
+    super._markWarmupDone(testElapsed);
+    if (wasDone || !_warmupDone) return;
+    // Anchor the delta window at the warm-up end so ramp-up samples are
+    // excluded from the instantaneous estimate.
+    _accumulator.reset();
   }
 
   @override
@@ -142,30 +194,107 @@ class ServerDeltaTracker implements Ndt7ThroughputTracker {
     if (server != null) return server;
     return _clientFallbackMbps();
   }
+}
 
-  /// Average transfer rate over the post-warm-up period, so TCP slow-start
-  /// does not drag the fallback estimate down.
-  double? _clientFallbackMbps() {
-    if (!_useClientFallback ||
-        !_warmupDone ||
-        _clientBytesAtWarmupEnd == null ||
-        _elapsedAtWarmupEnd == null) {
-      return null;
-    }
-    final deltaBytes = _lastClientTotalBytes - _clientBytesAtWarmupEnd!;
-    final deltaUs =
-        _lastClientElapsed.inMicroseconds - _elapsedAtWarmupEnd!.inMicroseconds;
-    if (deltaUs <= 0 || deltaBytes < 0) return null;
-    return 8 * deltaBytes / (deltaUs / 1e6) / 1e6;
+/// Client-side receiver tracker for desktop download: collects post-warm-up
+/// cumulative transfer-rate samples from bytes the client received and
+/// reports their median.
+///
+/// This is the measurement the macOS app shipped with originally, and the
+/// only download methodology observed to match the M-Lab web client on a
+/// desktop connection (223 Mbps vs M-Lab's 223). Server TCPInfo.BytesSent is
+/// deliberately ignored for throughput here: on fast desktop links it runs
+/// far above the delivered rate (292-462 Mbps observed vs ~223 real) because
+/// the sender's counter includes in-flight data.
+class ClientSamplesTracker implements Ndt7ThroughputTracker {
+  ClientSamplesTracker({required Ndt7PlatformSettings settings})
+      : _warmupDuration = settings.warmupDuration;
+
+  final Duration _warmupDuration;
+
+  /// Samples kept sorted so the median is an O(1) read at progress cadence.
+  final List<double> _sortedSamplesMbps = [];
+
+  @override
+  void onServerMeasurement(Ndt7Measurement measurement, Duration testElapsed) {
+    // Server messages still carry minRTT / retransmission data, which the
+    // service aggregates; throughput comes exclusively from client bytes.
   }
 
-  void _markWarmupDone(Duration testElapsed) {
-    if (_warmupDone || testElapsed < _settings.warmupDuration) return;
-    _warmupDone = true;
-    // Anchor the delta window and the client fallback at the warm-up end so
-    // ramp-up bytes are excluded from both.
-    _accumulator.reset();
-    _clientBytesAtWarmupEnd = _lastClientTotalBytes;
-    _elapsedAtWarmupEnd = testElapsed;
+  @override
+  void onClientBytes(int totalBytes, Duration testElapsed) {
+    if (testElapsed <= _warmupDuration) return;
+    final seconds = testElapsed.inMicroseconds / 1e6;
+    if (seconds <= 0) return;
+    final sample = 8 * totalBytes / seconds / 1e6;
+    var lo = 0;
+    var hi = _sortedSamplesMbps.length;
+    while (lo < hi) {
+      final mid = (lo + hi) >> 1;
+      if (_sortedSamplesMbps[mid] < sample) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    _sortedSamplesMbps.insert(lo, sample);
+  }
+
+  @override
+  double? get throughputMbps {
+    final count = _sortedSamplesMbps.length;
+    if (count == 0) return null;
+    final mid = count ~/ 2;
+    if (count.isOdd) return _sortedSamplesMbps[mid];
+    return (_sortedSamplesMbps[mid - 1] + _sortedSamplesMbps[mid]) / 2;
+  }
+}
+
+/// Receiver-side cumulative tracker for desktop upload: uses the latest
+/// server sample as 8 * BytesReceived / ElapsedTime, preferring AppInfo
+/// goodput when the server provides it, with a post-warm-up client average
+/// as a last-resort fallback.
+///
+/// This is the macOS app's original upload path and the closest observed
+/// reading to the plan rate (177 Mbps vs ~150 expected). Delta windowing
+/// overshoots further on desktop because it discards the ramp-up bytes a
+/// cumulative average absorbs.
+class ServerCumulativeTracker extends _ServerTrackerBase {
+  ServerCumulativeTracker({
+    required Ndt7PlatformSettings settings,
+    required this.direction,
+    required bool useClientFallback,
+    bool preferAppInfo = true,
+  })  : _counterIsSent = direction == Ndt7Direction.download,
+        _preferAppInfo = preferAppInfo,
+        super(settings: settings, useClientFallback: useClientFallback);
+
+  final Ndt7Direction direction;
+  final bool _counterIsSent;
+  final bool _preferAppInfo;
+
+  double? _latestServerMbps;
+
+  @override
+  void onServerMeasurement(Ndt7Measurement measurement, Duration testElapsed) {
+    _markWarmupDone(testElapsed);
+
+    if (_preferAppInfo && measurement.throughputMbps != null) {
+      _latestServerMbps = measurement.throughputMbps;
+      return;
+    }
+
+    final bytes =
+        _counterIsSent ? measurement.bytesSent : measurement.bytesReceived;
+    final elapsedUs = measurement.elapsedTimeUs;
+    if (bytes == null || elapsedUs == null || elapsedUs <= 0) return;
+    _latestServerMbps = 8 * bytes / (elapsedUs / 1e6) / 1e6;
+  }
+
+  @override
+  double? get throughputMbps {
+    final server = _latestServerMbps;
+    if (server != null) return server;
+    return _clientFallbackMbps();
   }
 }
