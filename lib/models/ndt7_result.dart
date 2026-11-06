@@ -94,6 +94,31 @@ class Ndt7Progress {
   final bool isDownload;
 }
 
+/// Measurement observed on the NDT7 WebSocket: a parsed server TCPInfo /
+/// AppInfo message with cumulative counters, or the final client-side result
+/// of one test direction.
+class Ndt7Measurement {
+  const Ndt7Measurement({
+    this.throughputMbps,
+    this.minRTT,
+    this.retransmissions,
+    this.bytesSent,
+    this.bytesRetrans,
+    this.bytesReceived,
+    this.elapsedTimeUs,
+    this.retransmissionPercentage,
+  });
+
+  final double? throughputMbps;
+  final double? minRTT;
+  final int? retransmissions;
+  final int? bytesSent;
+  final int? bytesRetrans;
+  final int? bytesReceived;
+  final int? elapsedTimeUs;
+  final double? retransmissionPercentage;
+}
+
 /// Final result from an NDT7 speed test.
 class Ndt7TestResult {
   const Ndt7TestResult({
