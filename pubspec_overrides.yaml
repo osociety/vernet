@@ -1,5 +1,0 @@
-dependency_overrides:
-  network_tools:
-    path: ../network_tools
-  network_tools_flutter:
-    path: ../network_tools_flutter

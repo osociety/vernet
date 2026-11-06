@@ -441,9 +441,9 @@ void main() {
       );
       expect(find.byIcon(Icons.schedule), findsWidgets);
 
-      // The M-Lab credit stays right-aligned in its own attribution row.
+      // The M-Lab credit stays right-aligned in the title row.
       expect(
-        tester.getTopRight(find.text('Powered by M-Lab')).dx,
+        tester.getTopRight(find.text('M-Lab')).dx,
         greaterThan(tester.getTopRight(timeText).dx),
       );
 
@@ -479,7 +479,7 @@ void main() {
       await pumpHomePage(tester, size: const Size(900, 800));
 
       expect(find.text('Last result'), findsNothing);
-      expect(find.text('Powered by M-Lab'), findsOneWidget);
+      expect(find.text('M-Lab'), findsOneWidget);
     });
 
     testWidgets('blurs only the placeholder numbers when no result exists',

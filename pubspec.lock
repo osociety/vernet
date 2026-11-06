@@ -420,13 +420,14 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_isolate:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_isolate
-      sha256: "36a84e1a22371d8092ea2121145b330c24fb272acb951fb30c60ba44926b8fb3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
+      path: "."
+      ref: "95983262e86d34a24b699a878ee5b965ae0743db"
+      resolved-ref: "95983262e86d34a24b699a878ee5b965ae0743db"
+      url: "https://github.com/git-elliot/flutter_isolate.git"
+    source: git
+    version: "2.1.0-pre"
   flutter_local_notifications:
     dependency: "direct main"
     description:
@@ -874,17 +875,19 @@ packages:
   network_tools:
     dependency: "direct dev"
     description:
-      path: "../network_tools"
-      relative: true
-    source: path
-    version: "6.0.14"
+      name: network_tools
+      sha256: f0079b7ed4cd29c81b0d9e3f7e01c541796d5cbc33e3ca24033ad4f30038f34b
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.15"
   network_tools_flutter:
     dependency: "direct main"
     description:
-      path: "../network_tools_flutter"
-      relative: true
-    source: path
-    version: "3.0.8"
+      name: network_tools_flutter
+      sha256: "232a70b8d210bdc828af4d296d6e5f6f44f36865a38b8889413cd512fdc792cf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.9"
   nm:
     dependency: transitive
     description:
