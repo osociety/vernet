@@ -1,0 +1,55 @@
+name: iOS Integration Tests
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ios-integration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-integration-test:
+    name: iOS integration tests
+    runs-on: macos-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
+
+      - name: Boot iOS simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          udid="$(xcrun simctl list devices available --json | jq -r '
+            [ .devices
+              | to_entries[]
+              | select(.key | test("SimRuntime\\.iOS-"))
+              | .value[]
+              | select(.name | startswith("iPhone"))
+            ][0].udid // empty')"
+
+          if [[ -z "$udid" ]]; then
+            echo "::error::No available iPhone simulator found on this runner."
+            xcrun simctl list devices available
+            exit 1
+          fi
+
+          echo "Booting iOS simulator $udid"
+          xcrun simctl boot "$udid" 2>/dev/null || true
+          xcrun simctl bootstatus "$udid" -b
+          echo "SIMULATOR_UDID=$udid" >> "$GITHUB_ENV"
+
+      - name: Grant location permission
+        shell: bash
+        run: |
+          xcrun simctl privacy "$SIMULATOR_UDID" \
+            grant location org.osociety.vernet.store || true
+
+      - name: Run integration tests
+        run: flutter test integration_test/app_test.dart -d "$SIMULATOR_UDID"
