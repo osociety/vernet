@@ -2,29 +2,63 @@ name: iOS Integration Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      legs:
+        description: Simulator legs to run
+        type: choice
+        options:
+          - ios-18
+          - latest
+          - both
+        default: ios-18
   workflow_call:
+  schedule:
+    # Weekly check for breakage on the newest simulator runtime. Xcode 26's
+    # runtime is currently unreliable on hosted runners, so it must not gate
+    # pull requests.
+    - cron: '0 6 * * 1'
 
 concurrency:
   group: ios-integration-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  select-legs:
+    name: Select simulator legs
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.value }}
+    steps:
+      - name: Build matrix
+        id: matrix
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          LEGS: ${{ inputs.legs }}
+        run: |
+          case "$EVENT:$LEGS" in
+            schedule:*)
+              echo 'value={"include":[{"label":"latest","ios_version":"latest"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+            workflow_dispatch:latest)
+              echo 'value={"include":[{"label":"latest","ios_version":"latest"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+            workflow_dispatch:both)
+              echo 'value={"include":[{"label":"iOS 18.0","ios_version":"18.0"},{"label":"latest","ios_version":"latest"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo 'value={"include":[{"label":"iOS 18.0","ios_version":"18.0"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
   ios-integration-test:
     name: iOS integration tests (${{ matrix.label }})
+    needs: select-legs
     runs-on: macos-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          # The runner's bundled runtime always tracks the newest iOS.
-          - label: latest
-            ios_version: latest
-          # iOS 17.x runtimes require an Apple ID login, which CI cannot do.
-          # 18.0 is the oldest runtime Apple serves anonymously, so it is the
-          # oldest version the pipeline can exercise.
-          - label: iOS 18.0
-            ios_version: "18.0"
+      matrix: ${{ fromJSON(needs.select-legs.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -32,6 +66,19 @@ jobs:
 
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
+
+      - name: Use CocoaPods instead of Swift Package Manager
+        run: flutter config --no-enable-swift-package-manager
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile', 'pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
 
       - name: Install iOS ${{ matrix.ios_version }} runtime
         if: matrix.ios_version != 'latest'
@@ -52,35 +99,46 @@ jobs:
           set -euo pipefail
 
           if [[ "${{ matrix.ios_version }}" == "latest" ]]; then
-            udid="$(xcrun simctl list devices available --json | jq -r '
-              [ .devices
-                | to_entries[]
-                | select(.key | test("SimRuntime\\.iOS-"))
-                | .value[]
+            # Runtimes can be listed more than once per version (device-family
+            # variants), so take the newest one that actually has an iPhone.
+            runtime=""
+            udid=""
+            while IFS= read -r candidate; do
+              candidate_udid="$(xcrun simctl list devices available --json | jq -r --arg runtime "$candidate" '
+                [ (.devices[$runtime] // [])[]
+                  | select(.name | startswith("iPhone"))
+                ][0].udid // empty')"
+              if [[ -n "$candidate_udid" ]]; then
+                runtime="$candidate"
+                udid="$candidate_udid"
+                break
+              fi
+            done < <(xcrun simctl list runtimes --json | jq -r '
+              [ .runtimes[]
+                | select(.platform == "iOS" and .isAvailable == true)
+                | { id: .identifier, v: (.version | split(".") | map(tonumber)) }
+              ] | sort_by(.v) | reverse | .[].id')
+          else
+            runtime="com.apple.CoreSimulator.SimRuntime.iOS-$(echo "${{ matrix.ios_version }}" | tr . -)"
+            udid="$(xcrun simctl list devices available --json | jq -r --arg runtime "$runtime" '
+              [ (.devices[$runtime] // [])[]
                 | select(.name | startswith("iPhone"))
               ][0].udid // empty')"
-          else
-            udid="$(xcrun simctl list devices available | awk -v header="-- iOS ${{ matrix.ios_version }} --" '
-              $0 == header { inside = 1; next }
-              /^-- / { inside = 0 }
-              inside && /iPhone/ { print; exit }
-            ' | grep -oE '[0-9A-F-]{36}' || true)"
 
             if [[ -z "$udid" ]]; then
-              runtime_id="com.apple.CoreSimulator.SimRuntime.iOS-$(echo "${{ matrix.ios_version }}" | tr . -)"
-              echo "No iPhone device for iOS ${{ matrix.ios_version }}; creating one."
+              echo "No iPhone device for $runtime; creating one."
               udid="$(xcrun simctl create "iPhone 16 (${{ matrix.ios_version }})" \
-                com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$runtime_id")"
+                com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$runtime")"
             fi
           fi
 
           if [[ -z "$udid" ]]; then
-            echo "::error::No available iPhone simulator found on this runner."
+            echo "::error::No iPhone simulator available on this runner."
             xcrun simctl list devices available
             exit 1
           fi
 
-          echo "Booting iOS simulator $udid"
+          echo "Booting $runtime ($udid)"
           xcrun simctl boot "$udid" 2>/dev/null || true
           xcrun simctl bootstatus "$udid" -b
           echo "SIMULATOR_UDID=$udid" >> "$GITHUB_ENV"
@@ -92,4 +150,4 @@ jobs:
             grant location org.osociety.vernet.store || true
 
       - name: Run integration tests
-        run: flutter test integration_test/app_test.dart -d "$SIMULATOR_UDID"
+        run: flutter test --no-pub integration_test/app_test.dart -d "$SIMULATOR_UDID"
