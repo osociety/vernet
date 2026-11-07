@@ -10,9 +10,21 @@ concurrency:
 
 jobs:
   ios-integration-test:
-    name: iOS integration tests
+    name: iOS integration tests (${{ matrix.label }})
     runs-on: macos-latest
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The runner's bundled runtime always tracks the newest iOS.
+          - label: latest
+            ios_version: latest
+          # iOS 17.x runtimes require an Apple ID login, which CI cannot do.
+          # 18.0 is the oldest runtime Apple serves anonymously, so it is the
+          # oldest version the pipeline can exercise.
+          - label: iOS 18.0
+            ios_version: "18.0"
 
     steps:
       - name: Checkout
@@ -21,18 +33,46 @@ jobs:
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
+      - name: Install iOS ${{ matrix.ios_version }} runtime
+        if: matrix.ios_version != 'latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if xcrun simctl list runtimes | grep -q "iOS ${{ matrix.ios_version }} "; then
+            echo "iOS ${{ matrix.ios_version }} runtime is already installed."
+            exit 0
+          fi
+
+          xcodebuild -downloadPlatform iOS -buildVersion "${{ matrix.ios_version }}"
+
       - name: Boot iOS simulator
         shell: bash
         run: |
           set -euo pipefail
 
-          udid="$(xcrun simctl list devices available --json | jq -r '
-            [ .devices
-              | to_entries[]
-              | select(.key | test("SimRuntime\\.iOS-"))
-              | .value[]
-              | select(.name | startswith("iPhone"))
-            ][0].udid // empty')"
+          if [[ "${{ matrix.ios_version }}" == "latest" ]]; then
+            udid="$(xcrun simctl list devices available --json | jq -r '
+              [ .devices
+                | to_entries[]
+                | select(.key | test("SimRuntime\\.iOS-"))
+                | .value[]
+                | select(.name | startswith("iPhone"))
+              ][0].udid // empty')"
+          else
+            udid="$(xcrun simctl list devices available | awk -v header="-- iOS ${{ matrix.ios_version }} --" '
+              $0 == header { inside = 1; next }
+              /^-- / { inside = 0 }
+              inside && /iPhone/ { print; exit }
+            ' | grep -oE '[0-9A-F-]{36}' || true)"
+
+            if [[ -z "$udid" ]]; then
+              runtime_id="com.apple.CoreSimulator.SimRuntime.iOS-$(echo "${{ matrix.ios_version }}" | tr . -)"
+              echo "No iPhone device for iOS ${{ matrix.ios_version }}; creating one."
+              udid="$(xcrun simctl create "iPhone 16 (${{ matrix.ios_version }})" \
+                com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$runtime_id")"
+            fi
+          fi
 
           if [[ -z "$udid" ]]; then
             echo "::error::No available iPhone simulator found on this runner."
