@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   workflow_call:
 
+permissions:
+  contents: read
+
 concurrency:
   group: android-integration-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
