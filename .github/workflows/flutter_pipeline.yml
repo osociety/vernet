@@ -38,8 +38,7 @@ jobs:
 
   ios-integration-tests:
     name: iOS integration tests
-    # Temporary: also run on PRs while the iOS suite is being validated.
-    # Restore `if: github.event_name == 'push'` once it is green.
+    if: github.event_name == 'push'
     needs: unit-tests
     uses: ./.github/workflows/ios-integration-test.yml
     secrets: inherit
@@ -139,7 +138,6 @@ jobs:
       - detect-deployments
       - integration-tests
       - android-integration-tests
-      - ios-integration-tests
     runs-on: ubuntu-latest
     environment: release
     steps:
@@ -160,7 +158,6 @@ jobs:
       - detect-deployments
       - integration-tests
       - android-integration-tests
-      - ios-integration-tests
     uses: ./.github/workflows/flutter_release.yml
     with:
       tag_name: ${{ needs.detect-deployments.outputs.tag_name }}
