@@ -36,6 +36,13 @@ jobs:
     uses: ./.github/workflows/android-integration-test.yml
     secrets: inherit
 
+  ios-integration-tests:
+    name: iOS integration tests
+    if: github.event_name == 'push'
+    needs: unit-tests
+    uses: ./.github/workflows/ios-integration-test.yml
+    secrets: inherit
+
   detect-deployments:
     name: Detect release and Hosting changes
     if: github.event_name == 'push'

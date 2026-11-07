@@ -513,6 +513,9 @@ void main() {
       final scanButton = find.byKey(WidgetKey.scanForDevicesButton.key);
       await TestUtils.waitForWidget(tester, scanButton);
       await tester.ensureVisible(scanButton);
+      // ensureVisible jumps the scroll offset without laying out again, so the
+      // button's cached rect is stale until the next frame.
+      await tester.pump();
       await tester.tap(scanButton);
       await TestUtils.waitForWidget(tester, find.byType(HostScanPage));
 
@@ -527,6 +530,7 @@ void main() {
 
       final historyButton = find.byKey(WidgetKey.scanHistoryIconButton.key);
       await tester.ensureVisible(historyButton);
+      await tester.pump();
       await tester.tap(historyButton);
       await tester.pumpAndSettle();
 
