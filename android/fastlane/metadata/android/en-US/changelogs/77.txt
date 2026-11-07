@@ -1,0 +1,5 @@
+Devices now show their type and open ports.
+More accurate speed test results with retransmission and warming up indicators.
+Speed tests start when you choose, after agreeing to the data policy.
+See your last speed test right on the home page.
+Bug fixes and performance improvements.
