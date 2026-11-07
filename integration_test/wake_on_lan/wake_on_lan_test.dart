@@ -340,8 +340,13 @@ void main() {
         find,
       );
 
-      // Tap send but don't settle – check the button label mid-flight
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSendButton.key));
+      // Tap send but don't settle – check the button label mid-flight.
+      // The keyboard is up after entering text, so the button may sit
+      // below the shrunken viewport and need scrolling into view first.
+      final sendButton = find.byKey(WidgetKey.wakeOnLanSendButton.key);
+      await tester.ensureVisible(sendButton);
+      await tester.pump();
+      await tester.tap(sendButton);
       await tester.pump(); // single frame
       await tester.pump(const Duration(milliseconds: 50));
 

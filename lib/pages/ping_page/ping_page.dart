@@ -143,51 +143,56 @@ class _PingPageState extends BasePage<PingPage> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return Column(
-      children: [
-        AdaptiveListTile(title: _getPingSummary()),
-        if (_pingPackets.isEmpty)
-          const Center(
-            child: Text('Connection results will appear here'),
-          )
-        else
-          Expanded(
-            child: ListView.builder(
-              itemCount: _pingPackets.length,
-              itemBuilder: (context, index) {
-                final PingEvent packet = _pingPackets[index];
-                String? leading;
-                String title = '';
-                final String trailing;
+    // Scrolls as a whole: with the on-screen keyboard open the results area
+    // shrinks below the height of the summary tile, which a plain Column
+    // cannot fit.
+    return ListView.builder(
+      itemCount: _pingPackets.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Column(
+            children: [
+              AdaptiveListTile(title: _getPingSummary()),
+              if (_pingPackets.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(
+                    child: Text('Connection results will appear here'),
+                  ),
+                ),
+            ],
+          );
+        }
 
-                if (packet is PingResponse) {
-                  leading = packet.seq != null ? '${packet.seq}' : null;
-                  title = packet.ip ?? '';
-                  trailing = _getTime(packet.time);
-                } else if (packet is PingError) {
-                  leading = packet.seq != null ? '${packet.seq}' : null;
-                  title = packet.message ?? packet.error.name;
-                  trailing = '--';
-                } else {
-                  trailing = '--';
-                }
-                return Column(
-                  children: [
-                    AdaptiveListTile(
-                      dense: true,
-                      contentPadding:
-                          const EdgeInsets.only(left: 10.0, right: 10.0),
-                      leading: leading != null ? Text(leading) : null,
-                      title: Text(title),
-                      trailing: Text(trailing),
-                    ),
-                    const Divider(height: 4),
-                  ],
-                );
-              },
+        final PingEvent packet = _pingPackets[index - 1];
+        String? leading;
+        String title = '';
+        final String trailing;
+
+        if (packet is PingResponse) {
+          leading = packet.seq != null ? '${packet.seq}' : null;
+          title = packet.ip ?? '';
+          trailing = _getTime(packet.time);
+        } else if (packet is PingError) {
+          leading = packet.seq != null ? '${packet.seq}' : null;
+          title = packet.message ?? packet.error.name;
+          trailing = '--';
+        } else {
+          trailing = '--';
+        }
+        return Column(
+          children: [
+            AdaptiveListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.only(left: 10.0, right: 10.0),
+              leading: leading != null ? Text(leading) : null,
+              title: Text(title),
+              trailing: Text(trailing),
             ),
-          ),
-      ],
+            const Divider(height: 4),
+          ],
+        );
+      },
     );
   }
 

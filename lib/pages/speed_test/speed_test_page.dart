@@ -160,6 +160,104 @@ class _SpeedTestView extends StatelessWidget {
               final graphHeight = isWide ? 300.0 : 200.0;
               final spacing = isWide ? 24.0 : 16.0;
 
+              final content = Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Show graph (empty before test, with data during test)
+                  if (!state.showSummary)
+                    _buildSpeedGraph(context, state,
+                        colors: colors, height: graphHeight),
+                  if (!state.showSummary) SizedBox(height: spacing),
+                  if (!state.showSummary)
+                    _buildResults(context, state,
+                        colors: colors, isWide: isWide),
+                  if (state.showSummary)
+                    _buildSummary(context, state,
+                        colors: colors, isWide: isWide),
+                  SizedBox(height: spacing),
+                  _buildServerInfo(context, state,
+                      colors: colors, isWide: isWide),
+                ],
+              );
+
+              final bottomSections = <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: horizontalPadding / 2,
+                  ),
+                  child: Column(
+                    children: [
+                      // Data policy consent checkbox (shown before test starts)
+                      if (!state.speedTestStarted &&
+                          !state.downloadSpeedTestDone &&
+                          !state.uploadSpeedTestDone &&
+                          !state.showSummary)
+                        _buildConsentCard(context, colors, isWide: isWide),
+                      if (!state.speedTestStarted &&
+                          !state.downloadSpeedTestDone &&
+                          !state.uploadSpeedTestDone &&
+                          !state.showSummary)
+                        const SizedBox(height: 12),
+                      _buildActionButton(context, state, colors: colors),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: horizontalPadding,
+                    right: horizontalPadding,
+                    bottom: horizontalPadding,
+                  ),
+                  child: Column(
+                    children: [
+                      InkWell(
+                        onTap: () => _showMlabAttributionDialog(context),
+                        child: Text(
+                          'Powered by Measurement Lab (M-Lab)',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                color: colors.onSurface.withValues(alpha: 0.6),
+                                decoration: TextDecoration.underline,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tap for terms & privacy info',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: colors.onSurface.withValues(alpha: 0.4),
+                              fontSize: 10,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ];
+
+              // Short viewports (landscape phones) have no room for both a
+              // pinned action area and a usable content viewport, so the whole
+              // page scrolls instead of overflowing.
+              if (constraints.maxHeight < 400) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: verticalPadding,
+                        ),
+                        child: content,
+                      ),
+                      ...bottomSections,
+                    ],
+                  ),
+                );
+              }
+
               return Column(
                 children: [
                   Expanded(
@@ -168,85 +266,10 @@ class _SpeedTestView extends StatelessWidget {
                         horizontal: horizontalPadding,
                         vertical: verticalPadding,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Show graph (empty before test, with data during test)
-                          if (!state.showSummary)
-                            _buildSpeedGraph(context, state,
-                                colors: colors, height: graphHeight),
-                          if (!state.showSummary) SizedBox(height: spacing),
-                          if (!state.showSummary)
-                            _buildResults(context, state,
-                                colors: colors, isWide: isWide),
-                          if (state.showSummary)
-                            _buildSummary(context, state,
-                                colors: colors, isWide: isWide),
-                          SizedBox(height: spacing),
-                          _buildServerInfo(context, state,
-                              colors: colors, isWide: isWide),
-                        ],
-                      ),
+                      child: content,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: horizontalPadding,
-                      vertical: horizontalPadding / 2,
-                    ),
-                    child: Column(
-                      children: [
-                        // Data policy consent checkbox (shown before test starts)
-                        if (!state.speedTestStarted &&
-                            !state.downloadSpeedTestDone &&
-                            !state.uploadSpeedTestDone &&
-                            !state.showSummary)
-                          _buildConsentCard(context, colors, isWide: isWide),
-                        if (!state.speedTestStarted &&
-                            !state.downloadSpeedTestDone &&
-                            !state.uploadSpeedTestDone &&
-                            !state.showSummary)
-                          const SizedBox(height: 12),
-                        _buildActionButton(context, state, colors: colors),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: horizontalPadding,
-                      right: horizontalPadding,
-                      bottom: horizontalPadding,
-                    ),
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () => _showMlabAttributionDialog(context),
-                          child: Text(
-                            'Powered by Measurement Lab (M-Lab)',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(
-                                  color:
-                                      colors.onSurface.withValues(alpha: 0.6),
-                                  decoration: TextDecoration.underline,
-                                ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Tap for terms & privacy info',
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                color: colors.onSurface.withValues(alpha: 0.4),
-                                fontSize: 10,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ...bottomSections,
                 ],
               );
             },
