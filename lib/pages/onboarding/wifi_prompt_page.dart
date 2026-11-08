@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/helper/onboarding_service.dart';
@@ -19,57 +20,53 @@ class WifiPromptSheet extends StatelessWidget {
   }
 
   Future<void> _openWifiSettings(BuildContext context) async {
-    // Open system WiFi settings using platform-specific URL schemes
-    final Uri uri;
-    if (Platform.isAndroid) {
-      // Android: Open WiFi settings using intent action
-      uri =
-          Uri.parse('intent:#Intent;action=android.settings.WIFI_SETTINGS;end');
-    } else if (Platform.isIOS) {
-      // iOS: Open WiFi settings (requires App-Prefs URL scheme)
-      uri = Uri.parse('App-Prefs:root=WIFI');
-    } else if (Platform.isMacOS) {
-      // macOS: Open Network preferences
-      uri = Uri.parse('x-apple.systempreferences:com.apple.preference.network');
-    } else if (Platform.isWindows) {
-      // Windows: Open WiFi network settings
-      uri = Uri.parse('ms-settings:network-wifi');
-    } else if (Platform.isLinux) {
-      // Linux: Try GNOME network settings (most common)
-      // Falls back to showing a message if it doesn't work
-      uri = Uri.parse('gnome-control-center wifi');
-    } else {
-      // Unknown platform
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please open WiFi settings manually'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-      return;
-    }
-
     try {
-      final launched = await launchUrl(
-        uri,
-        mode: Platform.isLinux
-            ? LaunchMode.platformDefault
-            : LaunchMode.externalApplication,
-      );
-
-      if (!launched && context.mounted) {
-        // If URL launch fails, show a message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please open WiFi settings manually'),
-            duration: Duration(seconds: 2),
-          ),
+      if (Platform.isAndroid) {
+        // Android: Use android_intent_plus to open WiFi settings
+        const intent = AndroidIntent(
+          action: 'android.settings.WIFI_SETTINGS',
         );
+        await intent.launch();
+      } else if (Platform.isIOS) {
+        // iOS: Show message (App Store restrictions prevent direct settings access)
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please go to Settings > Wi-Fi to connect'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      } else if (Platform.isMacOS) {
+        // macOS: Open Network preferences
+        await launchUrl(
+          Uri.parse('x-apple.systempreferences:com.apple.preference.network'),
+          mode: LaunchMode.externalApplication,
+        );
+      } else if (Platform.isWindows) {
+        // Windows: Open WiFi network settings
+        await launchUrl(
+          Uri.parse('ms-settings:network-wifi'),
+          mode: LaunchMode.externalApplication,
+        );
+      } else if (Platform.isLinux) {
+        // Linux: Try GNOME network settings
+        await launchUrl(
+          Uri.parse('gnome-control-center wifi'),
+        );
+      } else {
+        // Unknown platform
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please open WiFi settings manually'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     } catch (e) {
-      // If URL launch fails, show a message
+      // If opening settings fails, show a message
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
