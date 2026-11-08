@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -72,7 +70,9 @@ void main() {
 
         await TestUtils.waitForAnyWidget(tester, startupScanStatus);
       },
-      skip: !(Platform.isAndroid || Platform.isIOS || Platform.isMacOS),
+      // The "Run on app startup" switch was removed from settings.
+      // TODO: Re-enable when the feature is restored or remove this test.
+      skip: true,
     );
   });
 }

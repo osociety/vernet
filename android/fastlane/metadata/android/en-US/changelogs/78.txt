@@ -1,0 +1,5 @@
+New first-time onboarding flow with What's New, app walkthrough, WiFi prompt, and location consent.
+Port scanner now supports IPv6 addresses.
+Improved WiFi settings to open system preferences on all platforms.
+Better Android 17+ permission handling for local network access.
+Bug fixes and performance improvements.
