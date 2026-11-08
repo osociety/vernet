@@ -7,6 +7,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
@@ -192,6 +193,9 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
     StartNewScan event,
     Emitter<HostScanState> emit,
   ) async {
+    if (Platform.isAndroid) {
+      await Permission.accessLocalNetwork.request();
+    }
     devicesSet.clear();
     mDnsDevices.clear();
     emit(const HostScanState.loadInProgress());
