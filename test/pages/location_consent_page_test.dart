@@ -30,7 +30,9 @@ class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final isDesktop = Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+  final isDesktop = Platform.isLinux || Platform.isMacOS;
+  final isMobileOrWindows =
+      Platform.isAndroid || Platform.isIOS || Platform.isWindows;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -113,7 +115,8 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
 
     expect(find.text('Vernet'), findsOneWidget);
-    expect(find.byIcon(isDesktop ? Icons.check_circle : Icons.location_on),
+    expect(
+        find.byIcon(isMobileOrWindows ? Icons.location_on : Icons.check_circle),
         findsOneWidget);
   });
 
@@ -127,7 +130,8 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 600));
 
-    final buttonLabel = isDesktop ? 'Get Started' : 'Allow location access';
+    final buttonLabel =
+        isMobileOrWindows ? 'Allow location access' : 'Get Started';
     await tester.tap(find.text(buttonLabel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
