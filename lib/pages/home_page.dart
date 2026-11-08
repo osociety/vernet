@@ -10,8 +10,8 @@ import 'package:signal_strength_indicator/signal_strength_indicator.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/ndt7_result.dart';
+import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
@@ -442,7 +442,6 @@ class _WifiDetailState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _PanelIcon(icon: Icons.speed, color: colors.tertiary),
                   const SizedBox(width: 8),
@@ -656,7 +655,6 @@ class _WifiDetailState extends State<HomePage> {
                                 uploadMbps: speedData.uploadMbps,
                                 latencyMs: speedData.latencyMs,
                                 retransmissions: speedData.retransmissions,
-                                retransmissionPercentage: null,
                                 server: Ndt7Server(
                                   machine: '',
                                   site: speedData.serverLocation ?? '',

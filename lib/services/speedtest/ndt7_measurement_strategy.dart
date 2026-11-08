@@ -136,16 +136,15 @@ abstract class _ServerTrackerBase implements Ndt7ThroughputTracker {
 /// buffer fill, not the wire (239.8 Mbps reported vs 26.4 actual).
 class ServerDeltaTracker extends _ServerTrackerBase {
   ServerDeltaTracker({
-    required Ndt7PlatformSettings settings,
+    required super.settings,
     required this.direction,
-    required bool useClientFallback,
+    required super.useClientFallback,
     bool preferAppInfo = false,
     this.sampleWindowSize = 5,
   })  : _counterIsSent = direction == Ndt7Direction.download,
         _preferAppInfo = preferAppInfo,
         _accumulator =
-            DeltaWindowAccumulator(minWindowUs: settings.minSampleWindowUs),
-        super(settings: settings, useClientFallback: useClientFallback);
+            DeltaWindowAccumulator(minWindowUs: settings.minSampleWindowUs);
 
   final Ndt7Direction direction;
   final bool _counterIsSent;
@@ -331,13 +330,12 @@ class ClientDeltaTracker implements Ndt7ThroughputTracker {
 /// cumulative average absorbs.
 class ServerCumulativeTracker extends _ServerTrackerBase {
   ServerCumulativeTracker({
-    required Ndt7PlatformSettings settings,
+    required super.settings,
     required this.direction,
-    required bool useClientFallback,
+    required super.useClientFallback,
     bool preferAppInfo = true,
   })  : _counterIsSent = direction == Ndt7Direction.download,
-        _preferAppInfo = preferAppInfo,
-        super(settings: settings, useClientFallback: useClientFallback);
+        _preferAppInfo = preferAppInfo;
 
   final Ndt7Direction direction;
   final bool _counterIsSent;
