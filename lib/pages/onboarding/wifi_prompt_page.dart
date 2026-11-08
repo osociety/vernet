@@ -22,8 +22,9 @@ class WifiPromptSheet extends StatelessWidget {
     // Open system WiFi settings using platform-specific URL schemes
     final Uri uri;
     if (Platform.isAndroid) {
-      // Android: Open WiFi settings panel
-      uri = Uri.parse('intent://settings/wifi#Intent;scheme=android-app;end');
+      // Android: Open WiFi settings using intent action
+      uri =
+          Uri.parse('intent:#Intent;action=android.settings.WIFI_SETTINGS;end');
     } else if (Platform.isIOS) {
       // iOS: Open WiFi settings (requires App-Prefs URL scheme)
       uri = Uri.parse('App-Prefs:root=WIFI');
