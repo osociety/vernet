@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -142,8 +141,8 @@ class WifiPromptSheet extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   key: WidgetKey.wifiPromptContinueButton.key,
-                  onPressed: () async {
-                    await OnboardingService.instance.setWifiPromptDismissed();
+                  onPressed: () {
+                    // Don't persist dismissal - prompt should show again if no WiFi
                     if (context.mounted) Navigator.of(context).pop();
                   },
                   child: const Text('Continue anyway'),

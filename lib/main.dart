@@ -211,7 +211,6 @@ class _HomePageState extends State<TabBarPage> {
 
   Future<void> _maybeShowWifiPrompt() async {
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) return;
-    if (await OnboardingService.instance.isWifiPromptDismissed()) return;
     try {
       final wifiIp = await NetworkInfo().getWifiIP();
       final hasWifi = wifiIp != null &&

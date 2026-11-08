@@ -32,19 +32,6 @@ void main() {
       expect(done, isTrue);
     });
 
-    test('wifi prompt defaults to not dismissed', () async {
-      final dismissed =
-          await OnboardingService.instance.isWifiPromptDismissed();
-      expect(dismissed, isFalse);
-    });
-
-    test('wifi prompt can be dismissed', () async {
-      await OnboardingService.instance.setWifiPromptDismissed();
-      final dismissed =
-          await OnboardingService.instance.isWifiPromptDismissed();
-      expect(dismissed, isTrue);
-    });
-
     test('seen whats new versions defaults to empty list', () async {
       final versions =
           await OnboardingService.instance.getSeenWhatsNewVersions();

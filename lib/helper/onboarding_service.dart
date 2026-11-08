@@ -8,7 +8,6 @@ class OnboardingService {
 
   static const String _walkthroughKey = 'onboarding_walkthrough_done';
   static const String _consentKey = 'ContinueWithoutPermission';
-  static const String _wifiPromptKey = 'onboarding_wifi_prompt_dismissed';
   static const String _seenWhatsNewVersionsKey =
       'onboarding_seen_whats_new_versions';
 
@@ -30,16 +29,6 @@ class OnboardingService {
   Future<void> setConsentDone() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_consentKey, true);
-  }
-
-  Future<bool> isWifiPromptDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_wifiPromptKey) ?? false;
-  }
-
-  Future<void> setWifiPromptDismissed() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_wifiPromptKey, true);
   }
 
   Future<List<String>> getSeenWhatsNewVersions() async {

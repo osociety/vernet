@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/pages/onboarding/wifi_prompt_page.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -72,7 +71,8 @@ void main() {
       expect(find.text('Continue anyway'), findsOneWidget);
     });
 
-    testWidgets('continue anyway dismisses and sets flag', (tester) async {
+    testWidgets('continue anyway dismisses without persisting flag',
+        (tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.tap(find.text('Show Prompt'));
       await tester.pumpAndSettle();
@@ -81,10 +81,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Not connected to Wi-Fi'), findsNothing);
-
-      final dismissed =
-          await OnboardingService.instance.isWifiPromptDismissed();
-      expect(dismissed, isTrue);
     });
   });
 }
