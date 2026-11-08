@@ -27,15 +27,48 @@ class WifiPromptSheet extends StatelessWidget {
     } else if (Platform.isIOS) {
       // iOS: Open WiFi settings (requires App-Prefs URL scheme)
       uri = Uri.parse('App-Prefs:root=WIFI');
-    } else {
-      // Desktop platforms: Open system preferences/settings
+    } else if (Platform.isMacOS) {
+      // macOS: Open Network preferences
       uri = Uri.parse('x-apple.systempreferences:com.apple.preference.network');
+    } else if (Platform.isWindows) {
+      // Windows: Open WiFi network settings
+      uri = Uri.parse('ms-settings:network-wifi');
+    } else if (Platform.isLinux) {
+      // Linux: Try GNOME network settings (most common)
+      // Falls back to showing a message if it doesn't work
+      uri = Uri.parse('gnome-control-center wifi');
+    } else {
+      // Unknown platform
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please open WiFi settings manually'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
     }
 
     try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final launched = await launchUrl(
+        uri,
+        mode: Platform.isLinux
+            ? LaunchMode.platformDefault
+            : LaunchMode.externalApplication,
+      );
+
+      if (!launched && context.mounted) {
+        // If URL launch fails, show a message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please open WiFi settings manually'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
-      // If URL launch fails, fall back to generic settings
+      // If URL launch fails, show a message
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
