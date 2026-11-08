@@ -98,7 +98,7 @@ void main() {
       }
 
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
 
       // Use a longer timeout to allow platform channels to respond
       // In CI environments, this might timeout quickly if WiFi info isn't available

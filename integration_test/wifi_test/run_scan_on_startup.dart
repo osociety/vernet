@@ -47,7 +47,7 @@ void main() {
     testWidgets(
       'if settings for startup is on, then it should run',
       (tester) async {
-        await tester.pumpWidget(const MyApp(true));
+        await tester.pumpWidget(const MyApp(null));
         await tester.pumpAndSettle();
 
         await TestUtils.tapSettingsButton(tester, find);

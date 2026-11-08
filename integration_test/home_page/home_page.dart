@@ -145,7 +145,7 @@ void main() {
   group('HomePage Integration Tests', () {
     testWidgets('HomePage navigation to HostScanPage works', (tester) async {
       await _installFakeScanner(const []);
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       // Tap the scan button
@@ -174,7 +174,7 @@ void main() {
         ),
       ]);
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       // The button sits below the fold on a 411x683 phone viewport and the
@@ -200,7 +200,7 @@ void main() {
     });
 
     testWidgets('HomePage pull to refresh works', (tester) async {
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       // Verify RefreshIndicator is present
@@ -220,7 +220,7 @@ void main() {
 
     testWidgets('sidebar selection replaces the dashboard content',
         (tester) async {
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem('Check a website', tester, find);
@@ -234,7 +234,7 @@ void main() {
 
     testWidgets('Settings remains available from the sidebar footer',
         (tester) async {
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       await TestUtils.tapSettingsButton(tester, find);
@@ -246,7 +246,7 @@ void main() {
     testWidgets(
         'HomePage displays connection path connectors and opens troubleshoot dialog',
         (tester) async {
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       // Verify connection path section is shown

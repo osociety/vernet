@@ -80,7 +80,18 @@ enum WidgetKey implements Comparable<WidgetKey> {
   routerToInternetConnector('routerToInternetConnector'),
   networkScoreCard('networkScoreCard'),
   networkScoreGauge('networkScoreGauge'),
-  networkScoreRefreshButton('networkScoreRefreshButton');
+  networkScoreRefreshButton('networkScoreRefreshButton'),
+  walkthroughSkipButton('walkthroughSkipButton'),
+  walkthroughNextButton('walkthroughNextButton'),
+  walkthroughGetStartedButton('walkthroughGetStartedButton'),
+  walkthroughPageIndicator('walkthroughPageIndicator'),
+  locationConsentAllowButton('locationConsentAllowButton'),
+  locationConsentSkipButton('locationConsentSkipButton'),
+  locationConsentSettingsButton('locationConsentSettingsButton'),
+  wifiPromptOpenSettingsButton('wifiPromptOpenSettingsButton'),
+  wifiPromptContinueButton('wifiPromptContinueButton'),
+  whatsNewGotItButton('whatsNewGotItButton'),
+  whatsNewSettingsTile('whatsNewSettingsTile');
 
   const WidgetKey(this.value);
   final String value;

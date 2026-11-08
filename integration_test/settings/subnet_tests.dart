@@ -41,7 +41,7 @@ void main() {
     testWidgets('set custom subnet test', (tester) async {
       await appSettings.load();
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
 
@@ -74,7 +74,7 @@ void main() {
     testWidgets('First subnet test', (tester) async {
       await appSettings.load();
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
 
@@ -107,7 +107,7 @@ void main() {
     testWidgets('Last subnet test', (tester) async {
       await appSettings.load();
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
 
@@ -140,7 +140,7 @@ void main() {
     testWidgets('Socket timeout test', (tester) async {
       await appSettings.load();
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
 
@@ -173,7 +173,7 @@ void main() {
     testWidgets('Ping count test', (tester) async {
       await appSettings.load();
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
 

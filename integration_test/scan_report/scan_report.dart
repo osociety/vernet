@@ -40,7 +40,7 @@ void _useWindow(WidgetTester tester, Size size) {
 }
 
 Future<void> _pumpApp(WidgetTester tester) async {
-  await tester.pumpWidget(const MyApp(true));
+  await tester.pumpWidget(const MyApp(null));
   await tester.pumpAndSettle();
 }
 

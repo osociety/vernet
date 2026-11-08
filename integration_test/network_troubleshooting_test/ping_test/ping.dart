@@ -40,7 +40,7 @@ void main() {
     testWidgets('tap on the ping button, verify ping ended', (tester) async {
       await appSettings.load();
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pump(const Duration(milliseconds: 500));
 
       await TestUtils.tapNavigationItem('Check a website', tester, find);
