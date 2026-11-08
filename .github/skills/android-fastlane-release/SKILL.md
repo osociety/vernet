@@ -17,6 +17,15 @@ Use this for Android release builds, Fastlane lanes, Google Play beta/internal t
 5. Make the smallest fix, then validate with a local build or the narrowest non-publishing lane available. If upload is needed, state the target track and obtain explicit user authorization before executing it.
 6. Summarize the root cause, files changed, exact validation run, and whether the artifact was built or actually uploaded.
 
+## Release Preparation
+
+When preparing a release:
+- Bump version in `pubspec.yaml` (format: `major.minor.patch+version_code`)
+- Create changelog at `android/fastlane/metadata/android/en-US/changelogs/<version_code>.txt`
+- Changelog format: concise, user-friendly lines (one feature/fix per line, no markdown, no version header)
+- Do not create a root `CHANGELOG.md` file; fastlane structure is the source of truth
+- iOS and Android read versions from pubspec automatically
+
 ## Safety
 
 - Check for pre-existing edits before touching release files and leave them intact.
