@@ -397,7 +397,7 @@ class _WifiDetailState extends State<HomePage> {
               Expanded(
                 child: FilledButton.icon(
                   key: WidgetKey.scanForDevicesButton.key,
-                  onPressed: _openHostScan,
+                  onPressed: connected ? _openHostScan : null,
                   icon: scanRunning
                       ? const SizedBox(
                           width: 18,
