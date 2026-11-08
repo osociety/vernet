@@ -44,7 +44,7 @@ void main() {
       // Ensure it starts as system
       expect(await darkThemePreference.getTheme(), ThemePreference.system);
 
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       // Change to Dark

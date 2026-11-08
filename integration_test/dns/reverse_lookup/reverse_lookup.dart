@@ -40,7 +40,7 @@ void main() {
     testWidgets('tap on the reverse DNS lookup button, verify lookup ended',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true, testing: true));
+      await tester.pumpWidget(const MyApp(null, testing: true));
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
@@ -76,7 +76,7 @@ void main() {
     testWidgets('tap on the reverse DNS lookup button, verify error returned',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true, testing: true));
+      await tester.pumpWidget(const MyApp(null, testing: true));
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
@@ -109,7 +109,7 @@ void main() {
         'tap on the reverse DNS lookup button, verify reverse address not found returned',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true, testing: true));
+      await tester.pumpWidget(const MyApp(null, testing: true));
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(

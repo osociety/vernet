@@ -40,7 +40,7 @@ void main() {
     testWidgets('tap on the DNS lookup button, verify lookup ended',
         (tester) async {
       // Load app widget.
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(

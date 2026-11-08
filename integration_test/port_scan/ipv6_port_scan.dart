@@ -72,7 +72,7 @@ void main() {
           return;
         }
 
-        await tester.pumpWidget(const MyApp(true));
+        await tester.pumpWidget(const MyApp(null));
         await tester.pumpAndSettle(const Duration(seconds: 10));
 
         // Navigate directly to the port scan page via the sidebar.

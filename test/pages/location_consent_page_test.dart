@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +29,10 @@ class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  final isDesktop = Platform.isLinux || Platform.isMacOS;
+  final isMobileOrWindows =
+      Platform.isAndroid || Platform.isIOS || Platform.isWindows;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -76,6 +82,9 @@ void main() {
         .setMockMethodCallHandler(
             const MethodChannel('flutter.baseflow.com/permissions/methods'),
             (MethodCall methodCall) async {
+      if (methodCall.method == 'checkPermissionStatus') {
+        return 1; // PermissionStatus.granted
+      }
       if (methodCall.method == 'requestPermissions') {
         return {3: 1}; // 3 is location, 1 is granted (PermissionStatus.granted)
       }
@@ -99,34 +108,58 @@ void main() {
     );
   }
 
-  testWidgets('LocationConsentPage renders correctly',
+  testWidgets('LocationConsentPage renders app name and icon',
       (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(createWidgetUnderTest());
 
     expect(find.text('Vernet'), findsOneWidget);
-    expect(find.text('Allow location access'), findsOneWidget);
-    expect(find.text('Continue without it'), findsOneWidget);
+    expect(
+        find.byIcon(isMobileOrWindows ? Icons.location_on : Icons.check_circle),
+        findsOneWidget);
   });
 
-  testWidgets('Choosing "Continue without permission" navigates to TabBarPage',
+  testWidgets('primary button navigates to TabBarPage',
       (WidgetTester tester) async {
-    await tester.pumpWidget(createWidgetUnderTest());
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.tap(find.text('Continue without it'));
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump(const Duration(milliseconds: 600));
+
+    final buttonLabel =
+        isMobileOrWindows ? 'Allow location access' : 'Get Started';
+    await tester.tap(find.text(buttonLabel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.byType(TabBarPage), findsOneWidget);
   });
 
-  testWidgets('Choosing "Grant Location Permission" navigates to TabBarPage',
+  testWidgets('skip button is shown on mobile platforms',
       (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump(const Duration(milliseconds: 600));
 
-    await tester.tap(find.text('Allow location access'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-
-    expect(find.byType(TabBarPage), findsOneWidget);
+    if (isDesktop) {
+      expect(find.text('Continue without it'), findsNothing);
+    } else {
+      expect(find.text('Continue without it'), findsOneWidget);
+      await tester.tap(find.text('Continue without it'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(TabBarPage), findsOneWidget);
+    }
   });
 }

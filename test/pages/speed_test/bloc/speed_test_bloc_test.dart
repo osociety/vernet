@@ -41,8 +41,9 @@ class MockNdt7Service implements Ndt7Service {
     void Function(Ndt7Progress)? onProgress,
   }) async {
     if (runDownloadTestError != null) throw runDownloadTestError!;
-    if (runDownloadTestResult != null)
+    if (runDownloadTestResult != null) {
       return await runDownloadTestResult!(server);
+    }
     return const Ndt7Measurement(throughputMbps: 100.0);
   }
 
@@ -69,8 +70,6 @@ class MockNetworkScoreRepository extends Mock
     implements NetworkScoreRepository {}
 
 class MockNetworkScoreBloc extends Mock implements NetworkScoreBloc {}
-
-class FakeNetworkScoreEvent extends Fake implements NetworkScoreEvent {}
 
 class FakeSpeedSnapshot extends Fake implements SpeedSnapshot {}
 
@@ -271,7 +270,7 @@ void main() {
     setUp(() {
       mockRepo = MockNetworkScoreRepository();
       mockScoreBloc = MockNetworkScoreBloc();
-      registerFallbackValue(FakeNetworkScoreEvent());
+      registerFallbackValue(const NetworkScoreEvent.loadCached());
       registerFallbackValue(FakeSpeedSnapshot());
       when(() => mockScoreBloc.add(any())).thenReturn(null);
       when(() => mockRepo.saveSpeedSnapshot(any())).thenAnswer((_) async {});
@@ -293,7 +292,7 @@ void main() {
             runDownloadTestResult: (server) async {
               downloadCallCount++;
               if (downloadCallCount == 1) {
-                throw Ndt7Exception('WebSocket connection failed');
+                throw const Ndt7Exception('WebSocket connection failed');
               }
               return const Ndt7Measurement(throughputMbps: 100.0);
             },
@@ -319,7 +318,7 @@ void main() {
       build: () {
         return SpeedTestBloc(
           ndt7Service: MockNdt7Service(
-            runDownloadTestError: Ndt7Exception('All servers down'),
+            runDownloadTestError: const Ndt7Exception('All servers down'),
           ),
         );
       },

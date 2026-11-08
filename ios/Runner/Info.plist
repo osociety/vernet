@@ -26,6 +26,7 @@
 		<array>
 			<string>https</string>
 			<string>http</string>
+			<string>App-Prefs</string>
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>

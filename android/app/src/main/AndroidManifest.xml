@@ -13,11 +13,15 @@
             <category android:name="android.intent.category.BROWSABLE" />
             <data android:scheme="https" />
         </intent>
+        <intent>
+            <action android:name="android.settings.WIFI_SETTINGS" />
+        </intent>
         <package android:name="org.fdroid.fdroid" /> 
     </queries>
    <application
         android:label="Vernet"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
    
         <activity
             android:name=".MainActivity"

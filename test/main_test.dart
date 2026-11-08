@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/home_page.dart';
@@ -77,7 +78,7 @@ void main() {
   group('MyApp', () {
     testWidgets('renders the redesigned entry point when allowed',
         (tester) async {
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await pumpVisibleFrame(tester);
 
       expect(find.byType(TabBarPage), findsOneWidget);
@@ -86,14 +87,14 @@ void main() {
 
     testWidgets('renders LocationConsentPage when access is not allowed',
         (tester) async {
-      await tester.pumpWidget(const MyApp(false));
+      await tester.pumpWidget(const MyApp(OnboardingStage.consent));
       await pumpVisibleFrame(tester);
 
       expect(find.byType(LocationConsentPage), findsOneWidget);
     });
 
     testWidgets('navigator key is configured', (tester) async {
-      await tester.pumpWidget(const MyApp(true));
+      await tester.pumpWidget(const MyApp(null));
       await pumpVisibleFrame(tester);
 
       expect(MyApp.navigatorKey.currentState, isNotNull);

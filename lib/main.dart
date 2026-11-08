@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,7 @@ import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
-import 'package:vernet/helper/consent_loader.dart';
+import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
@@ -21,6 +22,8 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+import 'package:vernet/pages/onboarding/walkthrough_page.dart';
+import 'package:vernet/pages/onboarding/wifi_prompt_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/settings_page.dart';
@@ -44,8 +47,6 @@ Future<void> main() async {
 
   try {
     final appDocDirectory = await getApplicationDocumentsDirectory();
-    // ARP data is built once and refreshed per scan, so there is no need to
-    // wipe it on every launch. Vendor names are not displayed by the app.
     await configureNetworkToolsFlutter(
       appDocDirectory.path,
       buildVendorTable: false,
@@ -54,18 +55,16 @@ Future<void> main() async {
     debugPrint('Network tools init failed: $e\n$st');
   }
 
-  final bool allowed = await ConsentLoader.isConsentPageShown();
+  final stage = await OnboardingService.instance.resolveStage();
   await appSettings.load();
 
   await NotificationService.initNotification();
 
-  runApp(MyApp(allowed));
+  runApp(MyApp(stage));
   FlutterNativeSplash.remove();
   unawaited(_warmUpDatabase());
 }
 
-/// Opens the local database while the first screen is shown, so the first scan
-/// does not pay the open cost inside its page transition.
 Future<void> _warmUpDatabase() async {
   try {
     await getIt<DatabaseService<AppDatabase>>().open();
@@ -75,12 +74,11 @@ Future<void> _warmUpDatabase() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp(this.allowed, {super.key, this.testing = false});
+  const MyApp(this.onboardingStage, {super.key, this.testing = false});
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
-  // static const Color mainColor = Colors.deepPurple;
 
-  final bool allowed;
+  final OnboardingStage? onboardingStage;
   final bool testing;
 
   @override
@@ -164,8 +162,18 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget get homePage =>
-      widget.allowed ? const TabBarPage() : const LocationConsentPage();
+  Widget get homePage {
+    final stage = widget.onboardingStage;
+    if (stage != null) {
+      switch (stage) {
+        case OnboardingStage.walkthrough:
+          return const WalkthroughPage();
+        case OnboardingStage.consent:
+          return const LocationConsentPage();
+      }
+    }
+    return const TabBarPage();
+  }
 }
 
 class TabBarPage extends StatefulWidget {
@@ -185,12 +193,37 @@ class _HomePageState extends State<TabBarPage> {
     super.initState();
     _sidebarController = SidebarXController(selectedIndex: 0, extended: true);
     checkForUpdates(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showOnboardingPrompts();
+    });
   }
 
   @override
   void dispose() {
     _sidebarController.dispose();
     super.dispose();
+  }
+
+  Future<void> _showOnboardingPrompts() async {
+    if (!mounted) return;
+    await _maybeShowWifiPrompt();
+  }
+
+  Future<void> _maybeShowWifiPrompt() async {
+    if (globals.testingActive) return;
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) return;
+    try {
+      final wifiIp = await NetworkInfo().getWifiIP();
+      final hasWifi = wifiIp != null &&
+          wifiIp.isNotEmpty &&
+          wifiIp != 'x.x.x.x' &&
+          wifiIp != '0.0.0.0';
+      if (!hasWifi && mounted) {
+        await WifiPromptSheet.show(context);
+      }
+    } catch (_) {
+      // WiFi detection failure is non-fatal; skip the prompt.
+    }
   }
 
   void _selectPage(int index) {

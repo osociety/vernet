@@ -945,7 +945,6 @@ class _SpeedTestView extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 24),
           const SizedBox(height: 8),
@@ -1079,18 +1078,24 @@ class _SpeedTestView extends StatelessWidget {
 
   List<Capability> _getCapabilities(double downloadSpeed) {
     final caps = <Capability>[];
-    if (downloadSpeed >= 5)
+    if (downloadSpeed >= 5) {
       caps.add(const Capability(Icons.music_note, 'Music'));
-    if (downloadSpeed >= 10)
+    }
+    if (downloadSpeed >= 10) {
       caps.add(const Capability(Icons.videocam, 'Video calls'));
-    if (downloadSpeed >= 25)
+    }
+    if (downloadSpeed >= 25) {
       caps.add(const Capability(Icons.hd, 'HD streaming'));
-    if (downloadSpeed >= 50)
+    }
+    if (downloadSpeed >= 50) {
       caps.add(const Capability(Icons.sports_esports, 'Gaming'));
-    if (downloadSpeed >= 100)
+    }
+    if (downloadSpeed >= 100) {
       caps.add(const Capability(Icons.tv, '4K streaming'));
-    if (downloadSpeed >= 200)
+    }
+    if (downloadSpeed >= 200) {
       caps.add(const Capability(Icons.cloud_upload, 'Fast uploads'));
+    }
     return caps;
   }
 

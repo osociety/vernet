@@ -10,14 +10,15 @@ import 'package:signal_strength_indicator/signal_strength_indicator.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
-import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/ndt7_result.dart';
+import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
+import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
@@ -170,6 +171,20 @@ class _WifiDetailState extends State<HomePage> {
     _networkScoreBloc = getIt<NetworkScoreBloc>()
       ..add(const NetworkScoreEvent.loadCached());
     _startNetworkPipeline();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWhatsNewIfNeeded();
+    });
+  }
+
+  Future<void> _showWhatsNewIfNeeded() async {
+    if (!mounted) return;
+    // Skip in test environment
+    if (WidgetsBinding.instance.runtimeType.toString().contains('Test')) return;
+    try {
+      await WhatsNewDialog.showIfNewVersion(context);
+    } catch (_) {
+      // PackageInfo may not be available in tests; silently skip
+    }
   }
 
   Future<NetworkConnectionStatus> _loadInternetStatusAfterWifi(
@@ -382,7 +397,7 @@ class _WifiDetailState extends State<HomePage> {
               Expanded(
                 child: FilledButton.icon(
                   key: WidgetKey.scanForDevicesButton.key,
-                  onPressed: _openHostScan,
+                  onPressed: connected ? _openHostScan : null,
                   icon: scanRunning
                       ? const SizedBox(
                           width: 18,
@@ -427,7 +442,6 @@ class _WifiDetailState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   _PanelIcon(icon: Icons.speed, color: colors.tertiary),
                   const SizedBox(width: 8),
@@ -641,7 +655,6 @@ class _WifiDetailState extends State<HomePage> {
                                 uploadMbps: speedData.uploadMbps,
                                 latencyMs: speedData.latencyMs,
                                 retransmissions: speedData.retransmissions,
-                                retransmissionPercentage: null,
                                 server: Ndt7Server(
                                   machine: '',
                                   site: speedData.serverLocation ?? '',

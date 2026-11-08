@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/location_consent_page.dart';
@@ -48,7 +49,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<DarkThemeProvider>(
           create: (_) => DarkThemeProvider(),
-          child: const MyApp(true),
+          child: const MyApp(null),
         ),
       );
       await tester.pump();
@@ -62,7 +63,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<DarkThemeProvider>(
           create: (_) => DarkThemeProvider(),
-          child: const MyApp(false),
+          child: const MyApp(OnboardingStage.consent),
         ),
       );
       await tester.pump();
@@ -76,7 +77,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<DarkThemeProvider>(
           create: (_) => DarkThemeProvider(),
-          child: const MyApp(true),
+          child: const MyApp(null),
         ),
       );
       await tester.pump();
@@ -87,7 +88,7 @@ void main() {
     });
 
     testWidgets('MyApp is StatefulWidget', (tester) async {
-      expect(const MyApp(true), isA<StatefulWidget>());
+      expect(const MyApp(null), isA<StatefulWidget>());
     });
 
     testWidgets('MyApp navigatorKey is static and accessible', (tester) async {
