@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/values/keys.dart';
@@ -17,8 +19,32 @@ class WifiPromptSheet extends StatelessWidget {
   }
 
   Future<void> _openWifiSettings(BuildContext context) async {
-    // Open system settings app where user can enable/connect to WiFi
-    await openAppSettings();
+    // Open system WiFi settings using platform-specific URL schemes
+    final Uri uri;
+    if (Platform.isAndroid) {
+      // Android: Open WiFi settings panel
+      uri = Uri.parse('intent://settings/wifi#Intent;scheme=android-app;end');
+    } else if (Platform.isIOS) {
+      // iOS: Open WiFi settings (requires App-Prefs URL scheme)
+      uri = Uri.parse('App-Prefs:root=WIFI');
+    } else {
+      // Desktop platforms: Open system preferences/settings
+      uri = Uri.parse('x-apple.systempreferences:com.apple.preference.network');
+    }
+
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      // If URL launch fails, fall back to generic settings
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please open WiFi settings manually'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   @override
