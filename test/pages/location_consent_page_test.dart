@@ -82,6 +82,9 @@ void main() {
         .setMockMethodCallHandler(
             const MethodChannel('flutter.baseflow.com/permissions/methods'),
             (MethodCall methodCall) async {
+      if (methodCall.method == 'checkPermissionStatus') {
+        return 1; // PermissionStatus.granted
+      }
       if (methodCall.method == 'requestPermissions') {
         return {3: 1}; // 3 is location, 1 is granted (PermissionStatus.granted)
       }
