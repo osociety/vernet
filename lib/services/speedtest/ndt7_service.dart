@@ -82,14 +82,6 @@ class Ndt7Service {
           .where((s) => s.urls.downloadUrl != null && s.urls.uploadUrl != null)
           .toList();
 
-      // Log the first server's URLs for debugging
-      if (servers.isNotEmpty) {
-        print(
-            'Ndt7Service discoverServers: first server download URL: ${servers.first.urls.downloadUrl}');
-        print(
-            'Ndt7Service discoverServers: first server upload URL: ${servers.first.urls.uploadUrl}');
-      }
-
       return servers;
     } on SocketException catch (e) {
       throw Ndt7Exception('Network error: ${e.message}', null, e);
@@ -145,7 +137,6 @@ class Ndt7Service {
     _activeWebSocket = null;
 
     final url = server.urls.downloadUrl!;
-    print('Ndt7Service runDownloadTest: connecting to URL: $url');
     final ws = await _connectWebSocket(url);
 
     try {
@@ -167,7 +158,6 @@ class Ndt7Service {
     _activeWebSocket = null;
 
     final url = server.urls.uploadUrl!;
-    print('Ndt7Service runUploadTest: connecting to URL: $url');
     final ws = await _connectWebSocket(url);
 
     try {
@@ -247,8 +237,6 @@ class Ndt7Service {
       _activeTimer = null;
       if (!completer.isCompleted) {
         final finalThroughput = tracker.throughputMbps ?? 0.0;
-        print(
-            'Ndt7Service download timer complete: throughput=$finalThroughput Mbps (${_strategy.label})');
         completer.complete(Ndt7Measurement(
           throughputMbps: finalThroughput,
           minRTT: minRTT,
@@ -322,8 +310,6 @@ class Ndt7Service {
               _calculateThroughput(totalBytes, elapsed);
           final finalThroughput =
               tracker.throughputMbps ?? clientThroughputMbps;
-          print(
-              'Ndt7Service download test complete. trackerThroughput: ${tracker.throughputMbps}, clientThroughput: $clientThroughputMbps, final: $finalThroughput');
           completer.complete(Ndt7Measurement(
             throughputMbps: finalThroughput,
             minRTT: minRTT,
@@ -401,8 +387,6 @@ class Ndt7Service {
         _activeTimer?.cancel();
         _activeTimer = null;
         final finalThroughput = tracker.throughputMbps ?? 0.0;
-        print(
-            'Ndt7Service upload test complete. trackerThroughput: ${tracker.throughputMbps}, final: $finalThroughput');
         if (!completer.isCompleted) {
           completer.complete(Ndt7Measurement(
             throughputMbps: finalThroughput,

@@ -181,8 +181,6 @@ class ServerDeltaTracker extends _ServerTrackerBase {
       if (_recentSamplesMbps.length > sampleWindowSize) {
         _recentSamplesMbps.removeAt(0);
       }
-      print('Ndt7Service ${direction.name} (server-delta): '
-          'bytes=$bytes, elapsedUs=$elapsedUs, ${windowMbps.toStringAsFixed(1)} Mbps');
     }
   }
 

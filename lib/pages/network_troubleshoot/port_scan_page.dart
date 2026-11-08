@@ -17,6 +17,11 @@ class PortScanPage extends StatefulWidget {
   final String target;
   final bool runDefaultScan;
 
+  /// Strips square brackets and surrounding whitespace from a target address
+  /// so IPv6 literals like `[2001:db8::1]` are passed correctly to the scanner.
+  static String normalizeTarget(String input) =>
+      input.trim().replaceAll('[', '').replaceAll(']', '');
+
   @override
   _PortScanPageState createState() => _PortScanPageState();
 }
@@ -76,15 +81,18 @@ class _PortScanPageState extends State<PortScanPage>
 
   StreamSubscription<ActiveHost>? _streamSubscription;
   bool _completed = true;
+
   void _startScanning() {
     setState(() {
       _completed = false;
       _openPorts.clear();
     });
+    final target =
+        PortScanPage.normalizeTarget(_targetIPEditingController.text);
     if (_type == ScanType.single) {
       PortScannerService.instance
           .isOpen(
-        _targetIPEditingController.text,
+        target,
         int.parse(_singlePortEditingController.text),
       )
           .then((value) {
@@ -94,7 +102,7 @@ class _PortScanPageState extends State<PortScanPage>
     } else if (_type == ScanType.top) {
       _streamSubscription = PortScannerService.instance
           .customDiscover(
-            _targetIPEditingController.text,
+            target,
             timeout: Duration(milliseconds: appSettings.socketTimeout),
             async: true,
           )
@@ -102,7 +110,7 @@ class _PortScanPageState extends State<PortScanPage>
     } else {
       _streamSubscription = PortScannerService.instance
           .scanPortsForSingleDevice(
-            _targetIPEditingController.text,
+            target,
             startPort: int.parse(_startPortEditingController.text),
             endPort: int.parse(_endPortEditingController.text),
             timeout: Duration(milliseconds: appSettings.socketTimeout),

@@ -17,6 +17,7 @@ import 'dns/reverse_lookup/reverse_lookup.dart' as reverse_lookup;
 import 'home_page/home_page.dart' as home_page_test;
 import 'network_score/network_score.dart' as network_score_test;
 import 'network_troubleshooting_test/ping_test/ping.dart' as ping_test;
+import 'port_scan/ipv6_port_scan.dart' as ipv6_port_scan_test;
 import 'scan_report/scan_report.dart' as scan_report_test;
 import 'server_checker/server_checker_test.dart' as server_checker_test;
 import 'settings/settings.dart' as settings_test;
@@ -55,6 +56,7 @@ void main() {
 
   wifi_test_runner.main();
   ping_test.main();
+  ipv6_port_scan_test.main();
   lookup_test.main();
   reverse_lookup.main();
   settings_test.main();
