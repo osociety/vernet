@@ -9,7 +9,8 @@ class OnboardingService {
   static const String _walkthroughKey = 'onboarding_walkthrough_done';
   static const String _consentKey = 'ContinueWithoutPermission';
   static const String _wifiPromptKey = 'onboarding_wifi_prompt_dismissed';
-  static const String _lastSeenVersionKey = 'onboarding_last_seen_version';
+  static const String _seenWhatsNewVersionsKey =
+      'onboarding_seen_whats_new_versions';
 
   Future<bool> isWalkthroughDone() async {
     final prefs = await SharedPreferences.getInstance();
@@ -41,20 +42,23 @@ class OnboardingService {
     await prefs.setBool(_wifiPromptKey, true);
   }
 
-  Future<String?> getLastSeenVersion() async {
+  Future<List<String>> getSeenWhatsNewVersions() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_lastSeenVersionKey);
+    return prefs.getStringList(_seenWhatsNewVersionsKey) ?? [];
   }
 
-  Future<void> setLastSeenVersion(String version) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_lastSeenVersionKey, version);
+  Future<void> markWhatsNewSeen(String version) async {
+    final versions = await getSeenWhatsNewVersions();
+    if (!versions.contains(version)) {
+      versions.add(version);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_seenWhatsNewVersionsKey, versions);
+    }
   }
 
-  Future<bool> hasNewVersion(String currentVersion) async {
-    final lastSeen = await getLastSeenVersion();
-    if (lastSeen == null) return false;
-    return lastSeen != currentVersion;
+  Future<bool> hasSeenWhatsNew(String version) async {
+    final versions = await getSeenWhatsNewVersions();
+    return versions.contains(version);
   }
 
   Future<OnboardingStage?> resolveStage() async {

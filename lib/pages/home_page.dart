@@ -18,6 +18,7 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
+import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
@@ -170,6 +171,20 @@ class _WifiDetailState extends State<HomePage> {
     _networkScoreBloc = getIt<NetworkScoreBloc>()
       ..add(const NetworkScoreEvent.loadCached());
     _startNetworkPipeline();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWhatsNewIfNeeded();
+    });
+  }
+
+  Future<void> _showWhatsNewIfNeeded() async {
+    if (!mounted) return;
+    // Skip in test environment
+    if (WidgetsBinding.instance.runtimeType.toString().contains('Test')) return;
+    try {
+      await WhatsNewDialog.showIfNewVersion(context);
+    } catch (_) {
+      // PackageInfo may not be available in tests; silently skip
+    }
   }
 
   Future<NetworkConnectionStatus> _loadInternetStatusAfterWifi(

@@ -45,32 +45,39 @@ void main() {
       expect(dismissed, isTrue);
     });
 
-    test('last seen version defaults to null', () async {
-      final version = await OnboardingService.instance.getLastSeenVersion();
-      expect(version, isNull);
+    test('seen whats new versions defaults to empty list', () async {
+      final versions =
+          await OnboardingService.instance.getSeenWhatsNewVersions();
+      expect(versions, isEmpty);
     });
 
-    test('last seen version can be set and retrieved', () async {
-      await OnboardingService.instance.setLastSeenVersion('1.4.20');
-      final version = await OnboardingService.instance.getLastSeenVersion();
-      expect(version, '1.4.20');
+    test('whats new version can be marked as seen', () async {
+      await OnboardingService.instance.markWhatsNewSeen('1.4.20');
+      final hasSeen =
+          await OnboardingService.instance.hasSeenWhatsNew('1.4.20');
+      expect(hasSeen, isTrue);
     });
 
-    test('hasNewVersion returns false when no version stored', () async {
-      final hasNew = await OnboardingService.instance.hasNewVersion('1.4.20');
-      expect(hasNew, isFalse);
+    test('hasSeenWhatsNew returns false for unseen version', () async {
+      final hasSeen =
+          await OnboardingService.instance.hasSeenWhatsNew('1.4.20');
+      expect(hasSeen, isFalse);
     });
 
-    test('hasNewVersion returns false for same version', () async {
-      await OnboardingService.instance.setLastSeenVersion('1.4.20');
-      final hasNew = await OnboardingService.instance.hasNewVersion('1.4.20');
-      expect(hasNew, isFalse);
+    test('multiple versions can be tracked', () async {
+      await OnboardingService.instance.markWhatsNewSeen('1.4.19');
+      await OnboardingService.instance.markWhatsNewSeen('1.4.20');
+      final versions =
+          await OnboardingService.instance.getSeenWhatsNewVersions();
+      expect(versions, containsAll(['1.4.19', '1.4.20']));
     });
 
-    test('hasNewVersion returns true for different version', () async {
-      await OnboardingService.instance.setLastSeenVersion('1.4.19');
-      final hasNew = await OnboardingService.instance.hasNewVersion('1.4.20');
-      expect(hasNew, isTrue);
+    test('marking same version twice does not duplicate', () async {
+      await OnboardingService.instance.markWhatsNewSeen('1.4.20');
+      await OnboardingService.instance.markWhatsNewSeen('1.4.20');
+      final versions =
+          await OnboardingService.instance.getSeenWhatsNewVersions();
+      expect(versions.where((v) => v == '1.4.20').length, 1);
     });
 
     test('resolveStage returns walkthrough when not done', () async {

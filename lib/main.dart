@@ -23,7 +23,6 @@ import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/onboarding/walkthrough_page.dart';
-import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/pages/onboarding/wifi_prompt_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/server_checker_page.dart';
@@ -208,8 +207,6 @@ class _HomePageState extends State<TabBarPage> {
   Future<void> _showOnboardingPrompts() async {
     if (!mounted) return;
     await _maybeShowWifiPrompt();
-    if (!mounted) return;
-    await WhatsNewDialog.showIfNewVersion(context);
   }
 
   Future<void> _maybeShowWifiPrompt() async {

@@ -13,13 +13,10 @@ class WhatsNewDialog extends StatefulWidget {
   static Future<void> showIfNewVersion(BuildContext context) async {
     final info = await PackageInfo.fromPlatform();
     final service = OnboardingService.instance;
-    final lastSeen = await service.getLastSeenVersion();
+    final hasSeen = await service.hasSeenWhatsNew(info.version);
 
-    if (lastSeen == null) {
-      await service.setLastSeenVersion(info.version);
-      return;
-    }
-    if (lastSeen == info.version) return;
+    // Already seen What's New for this version
+    if (hasSeen) return;
 
     final entry = kChangelogEntries
         .cast<ChangelogEntry?>()
@@ -30,7 +27,8 @@ class WhatsNewDialog extends StatefulWidget {
       context: context,
       builder: (_) => WhatsNewDialog(entry: entry),
     );
-    await service.setLastSeenVersion(info.version);
+    // Mark as seen after user closes the dialog
+    await service.markWhatsNewSeen(info.version);
   }
 
   static Future<void> showCurrent(BuildContext context) async {
