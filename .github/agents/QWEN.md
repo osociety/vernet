@@ -76,10 +76,10 @@ vernet/
 ├── macos/                        # macOS platform code
 ├── linux/                        # Linux platform code
 ├── windows/                      # Windows platform code
-├── installers/                   # Distribution packages
+├── scripts/installers/           # Distribution packages
 ├── fastlane/                     # CI/CD configuration
 ├── scripts/                      # Automation scripts
-└── donation/                     # Donation-related assets
+└── docs/donation/                # Donation-related assets
 ```
 
 ---
@@ -166,7 +166,7 @@ flutter test integration_test/app_test.dart -d macos
 ### Generate Coverage Report
 ```bash
 # Run the coverage script
-bash generate_coverage.sh
+bash scripts/generate_coverage.sh
 ```
 
 This script:
@@ -305,7 +305,7 @@ lib/
 | Run codegen | `dart run build_runner build --delete-conflicting-outputs` |
 | Run app | `flutter run` |
 | Run tests | `flutter test` |
-| Generate coverage | `bash generate_coverage.sh` |
+| Generate coverage | `bash scripts/generate_coverage.sh` |
 | Build APK | `flutter build apk` |
 | Clean build | `flutter clean` |
 

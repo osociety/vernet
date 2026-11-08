@@ -25,7 +25,7 @@ env:
   LINUX_BUILD_PATH: ${{ vars.LINUX_BUILD_PATH }}
   MACOS_BUILD_PATH: ${{ vars.MACOS_BUILD_PATH }}
   WINDOWS_BUILD_PATH: ${{ vars.WINDOWS_BUILD_PATH }}
-  MACOS_DMG_PATH: installers/dmg_creator
+  MACOS_DMG_PATH: scripts/installers/dmg_creator
   SQLITE_VERSION: 3.54.1
   SQLITE_BUILD_VERSION: 3540100
 
