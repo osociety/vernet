@@ -53,4 +53,4 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-window -no-boot-anim -camera-back none
           disable-animations: true
-          script: chmod +x ./android_integration && ./android_integration
+          script: chmod +x ./scripts/android_integration && ./scripts/android_integration

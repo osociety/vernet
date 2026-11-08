@@ -122,6 +122,10 @@ You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.b
 1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)
 2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/osociety/vernet/pulls)
 
+## Community
+
+Join the conversation in [GitHub Discussions](https://github.com/osociety/vernet/discussions) — ask questions, share ideas, or showcase what you've built with Vernet.
+
 ## Support and Donate
 
 1. Support this project by becoming stargazer of this project.

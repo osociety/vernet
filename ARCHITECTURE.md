@@ -43,7 +43,7 @@ each network tool │ │ │ ├── widgets/ │ │ Reusable UI components 
 Data models used across the app │ │ │ ├── utils/ │ │ Helper functions
 and utilities │ │ │ ├── providers/ │ │ Application state management │ │
 │ └── routing/ │ Navigation configuration │ ├── test/ ├──
-integration_test/ ├── installers/ └── pubspec.yaml
+integration_test/ ├── scripts/ └── pubspec.yaml
 
 ------------------------------------------------------------------------
 
@@ -250,7 +250,7 @@ flutter build apk flutter build macos flutter build linux flutter build windows
 
 Packaging scripts are located in:
 
-installers/
+scripts/installers/
 
 ------------------------------------------------------------------------
 
