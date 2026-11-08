@@ -75,6 +75,7 @@ class _WifiDetailState extends State<HomePage> {
     }
     if (Platform.isAndroid) {
       await Permission.location.request();
+      await Permission.accessLocalNetwork.request();
     }
 
     final wifiIP = await NetworkInfo().getWifiIP();
