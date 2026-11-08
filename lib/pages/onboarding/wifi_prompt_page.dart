@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/values/keys.dart';
@@ -17,16 +16,9 @@ class WifiPromptSheet extends StatelessWidget {
     );
   }
 
-  Future<void> _openWifiSettings() async {
-    // Platform WiFi settings intent is best-effort; the URL launch is
-    // handled by the OS. On Android the settings app opens WiFi directly.
-    // On iOS only the Settings app root can be opened.
-    if (Platform.isAndroid) {
-      // Android opens WiFi settings panel via intent — not available
-      // without android_intent_plus, so we fall through to the generic
-      // settings app.
-    }
-    await OnboardingService.instance.setWifiPromptDismissed();
+  Future<void> _openWifiSettings(BuildContext context) async {
+    // Open system settings app where user can enable/connect to WiFi
+    await openAppSettings();
   }
 
   @override
@@ -78,10 +70,11 @@ class WifiPromptSheet extends StatelessWidget {
                 child: FilledButton(
                   key: WidgetKey.wifiPromptOpenSettingsButton.key,
                   onPressed: () async {
-                    await _openWifiSettings();
+                    await _openWifiSettings(context);
+                    // Don't set dismissed flag - prompt should show again
+                    // if user returns without WiFi connected
                     if (context.mounted) {
                       Navigator.of(context).pop();
-                      _openPlatformWifiSettings(context);
                     }
                   },
                   child: const Text('Open Wi-Fi Settings'),
@@ -104,10 +97,5 @@ class WifiPromptSheet extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _openPlatformWifiSettings(BuildContext context) {
-    // Best-effort: open the system settings app.
-    // We don't add a dependency on android_intent_plus for this single use.
   }
 }
