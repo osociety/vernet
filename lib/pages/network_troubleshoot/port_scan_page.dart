@@ -81,10 +81,14 @@ class _PortScanPageState extends State<PortScanPage>
       _completed = false;
       _openPorts.clear();
     });
+    final target = _targetIPEditingController.text
+        .trim()
+        .replaceAll('[', '')
+        .replaceAll(']', '');
     if (_type == ScanType.single) {
       PortScannerService.instance
           .isOpen(
-        _targetIPEditingController.text,
+        target,
         int.parse(_singlePortEditingController.text),
       )
           .then((value) {
@@ -94,7 +98,7 @@ class _PortScanPageState extends State<PortScanPage>
     } else if (_type == ScanType.top) {
       _streamSubscription = PortScannerService.instance
           .customDiscover(
-            _targetIPEditingController.text,
+            target,
             timeout: Duration(milliseconds: appSettings.socketTimeout),
             async: true,
           )
@@ -102,7 +106,7 @@ class _PortScanPageState extends State<PortScanPage>
     } else {
       _streamSubscription = PortScannerService.instance
           .scanPortsForSingleDevice(
-            _targetIPEditingController.text,
+            target,
             startPort: int.parse(_startPortEditingController.text),
             endPort: int.parse(_endPortEditingController.text),
             timeout: Duration(milliseconds: appSettings.socketTimeout),
