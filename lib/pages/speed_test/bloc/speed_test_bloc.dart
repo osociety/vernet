@@ -77,8 +77,6 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
 
     for (var i = 0; i < servers.length; i++) {
       final server = servers[i];
-      print('SpeedTestBloc: trying server ${server.machine} '
-          '(${i + 1}/${servers.length})');
       try {
         final result = await _runNdt7Test(server, emit);
         await _saveSpeedSnapshot(emit, result);
@@ -91,7 +89,6 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         return;
       } catch (e) {
         lastError = e;
-        print('SpeedTestBloc: server ${server.machine} failed: $e');
         if (i < servers.length - 1) {
           emit(state.copyWith(
             downloadSpeeds: [],

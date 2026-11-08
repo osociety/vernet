@@ -1182,8 +1182,6 @@ class _SpeedTestView extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: hasServers
             ? () {
-                print('SpeedTestPage: Test Again button pressed');
-                print('SpeedTestPage: hasServers=$hasServers');
                 context
                     .read<SpeedTestBloc>()
                     .add(const SpeedTestEvent.startTest());
