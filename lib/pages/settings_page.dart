@@ -32,6 +32,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Card(
             child: ListTile(
+              key: WidgetKey.changeThemeTile.key,
               title: const Text('Theme'),
               subtitle: Text(themeChange.themePref.name),
               onTap: () async {
@@ -48,6 +49,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListTile(
               title: const Text('In-App Internet'),
               trailing: Switch(
+                key: WidgetKey.inAppInternetSwitch.key,
                 value: appSettings.inAppInternet,
                 onChanged: (bool? value) async {
                   appSettings.setInAppInternet(value ?? false);
@@ -59,6 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              key: WidgetKey.firstSubnetTile.key,
               title: const Text(StringValue.firstSubnet),
               subtitle: const Text(StringValue.firstSubnetDesc),
               trailing: Text(
@@ -80,6 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              key: WidgetKey.lastSubnetTile.key,
               title: const Text(StringValue.lastSubnet),
               subtitle: const Text(StringValue.lastSubnetDesc),
               trailing: Text(
@@ -101,6 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              key: WidgetKey.socketTimeoutTile.key,
               title: const Text(StringValue.socketTimeout),
               subtitle: const Text(StringValue.socketTimeoutdesc),
               trailing: Text(
@@ -122,6 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              key: WidgetKey.pingCountTile.key,
               title: const Text(StringValue.pingCount),
               subtitle: const Text(StringValue.pingCountDesc),
               trailing: Text(
@@ -143,6 +149,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              key: WidgetKey.customSubnetTile.key,
               title: const Text(StringValue.customSubnet),
               subtitle: const Text(StringValue.customSubnetDesc),
               trailing: Text(
@@ -175,6 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.checkForUpdatesButton.key,
               title: const Text('Check for a newer version'),
               trailing: IconButton(
                 icon: const Icon(Icons.refresh),

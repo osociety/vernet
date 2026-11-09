@@ -28,6 +28,7 @@ import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/ui/timestamp_chip.dart';
+import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -397,7 +398,9 @@ class _WifiDetailState extends State<HomePage> {
               Expanded(
                 child: FilledButton.icon(
                   key: WidgetKey.scanForDevicesButton.key,
-                  onPressed: connected ? _openHostScan : null,
+                  onPressed: (connected || globals.testingActive)
+                      ? _openHostScan
+                      : null,
                   icon: scanRunning
                       ? const SizedBox(
                           width: 18,
