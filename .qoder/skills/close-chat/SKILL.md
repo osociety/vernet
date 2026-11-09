@@ -15,5 +15,8 @@ Its step 2 targets Copilot's `/memories/`, `/memories/repo/` and
 `/memories/session/`, which do not exist on disk here. Qoder agents must
 substitute their own auto-memory directories: user-scoped memory for
 durable preferences, project-scoped memory for verified repository facts,
-and tasks rather than session memory for in-progress work. Skip anything
+and tasks rather than session memory for in-progress work. Write repository
+facts into the project scope of the repository that was actually changed,
+which is not always this session's workspace — fork sync and store work
+happens in `vernet-store` while the chat is opened in `vernet`. Skip anything
 already recorded in `AGENTS.md` or a `SKILL.md`.

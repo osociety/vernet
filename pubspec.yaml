@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   # Helps launch Android intents for opening system settings
-  android_intent_plus: ^5.2.1
+  android_intent_plus: ^6.1.0
   # Helps implement the BLoC pattern.
   bloc: ^9.2.1
   dart_ping: ^10.0.1
@@ -25,7 +25,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^22.3.2
+  flutter_local_notifications: ^23.0.0
   # Native splash screen plugin
   flutter_native_splash: ^2.4.8
   # A flutter plugin for getting the local timezone of the OS.
