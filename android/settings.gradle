@@ -23,6 +23,14 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
+// AGP 9 resolves the default ProGuard files eagerly from the project layout,
+// so the build directory must be set before any project is evaluated.
+gradle.beforeProject { project ->
+    project.layout.buildDirectory = project == project.rootProject
+        ? file("../build")
+        : file("../build/${project.name}")
+}
+
 dependencyResolutionManagement{
     repositories{
         maven { url "https://jitpack.io" }
