@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "org.fsociety" "\0"
-            VALUE "FileDescription", "vernet" "\0"
+            VALUE "FileDescription", "Vernet" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "vernet" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 org.fsociety. All rights reserved." "\0"
             VALUE "OriginalFilename", "vernet.exe" "\0"
-            VALUE "ProductName", "vernet" "\0"
+            VALUE "ProductName", "Vernet" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
