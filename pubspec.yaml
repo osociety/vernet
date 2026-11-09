@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   # Helps launch Android intents for opening system settings
-  android_intent_plus: ^5.2.1
+  android_intent_plus: ^6.1.0
   # Helps implement the BLoC pattern.
   bloc: ^9.2.1
   dart_ping: ^10.0.1
