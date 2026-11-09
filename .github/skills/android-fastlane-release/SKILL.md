@@ -25,6 +25,8 @@ When preparing a release:
 - Changelog format: concise, user-friendly lines (one feature/fix per line, no markdown, no version header)
 - Do not create a root `CHANGELOG.md` file; fastlane structure is the source of truth
 - iOS and Android read versions from pubspec automatically
+- The release workflow builds from the release tag, not from `main`. Land build fixes on `main` before the version-bump commit that creates the tag, or the tag will not contain them.
+- Keep the `:app` Gradle build directory at `<repo>/build/app`, assigned in `android/settings.gradle` via `gradle.beforeProject`. Moving it breaks the Flutter CLI's APK lookup, and assigning it later (in `android/build.gradle`) breaks AGP 9's default-ProGuard path resolution.
 
 ## Safety
 
