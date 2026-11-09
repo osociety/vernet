@@ -55,6 +55,7 @@ class StringValue {
   static const String scanReportStillRunning = 'Still running';
   static const String scanReportDuration = 'Duration';
   static const String scanReportDeviceColumn = 'Device';
+  static const String scanReportVendorColumn = 'Vendor';
   static const String scanReportIpColumn = 'IP address';
   static const String scanReportMacColumn = 'MAC address';
   static const String scanReportDeviceLabel = 'Device';

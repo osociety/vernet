@@ -15,7 +15,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -40,6 +40,15 @@ class AppDatabase extends _$AppDatabase {
             await customStatement(
                 'ALTER TABLE device ADD COLUMN open_ports TEXT');
           }
+
+          // Check if vendor_name column exists, add it if missing.
+          try {
+            await customStatement('SELECT vendor_name FROM device LIMIT 0');
+          } catch (_) {
+            debugPrint('Adding missing vendor_name column');
+            await customStatement(
+                'ALTER TABLE device ADD COLUMN vendor_name TEXT');
+          }
         },
         onUpgrade: (m, from, to) async {
           debugPrint('Database upgrade from version $from to $to');
@@ -56,6 +65,13 @@ class AppDatabase extends _$AppDatabase {
               await customStatement('SELECT open_ports FROM device LIMIT 0');
             } catch (_) {
               await m.addColumn(device, device.openPorts);
+            }
+          }
+          if (from < 4) {
+            try {
+              await customStatement('SELECT vendor_name FROM device LIMIT 0');
+            } catch (_) {
+              await m.addColumn(device, device.vendorName);
             }
           }
         },

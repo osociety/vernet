@@ -58,6 +58,7 @@ class DeviceRepository extends Repository<DeviceData> {
         id: existing.id,
         internetAddress: device.internetAddress,
         macAddress: device.macAddress ?? existing.macAddress,
+        vendorName: device.vendorName ?? existing.vendorName,
         hostMake: device.hostMake ?? existing.hostMake,
         mdnsDomainName: device.mdnsDomainName ?? existing.mdnsDomainName,
         currentDeviceIp: device.currentDeviceIp,
