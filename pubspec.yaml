@@ -88,7 +88,10 @@ dev_dependencies:
   lint: ^2.14.0
   mocktail: ^1.0.5
   msix: ^3.18.0
-  network_tools: ^6.0.15
+  # Pinned: 6.0.18 carries the longest-prefix MAC vendor table that
+  # ActiveHost.vendor resolves against. Not 6.0.17, whose published archive
+  # ships an empty vendor stub (osociety/network_tools#305).
+  network_tools: 6.0.18
 
   plugin_platform_interface: any
   url_launcher_platform_interface: any
