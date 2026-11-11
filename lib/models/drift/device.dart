@@ -7,6 +7,7 @@ class Device extends Table {
   TextColumn get currentDeviceIp => text().named('currentDeviceIp')();
   TextColumn get gatewayIp => text().named('gatewayIp')();
   TextColumn get macAddress => text().nullable()();
+  TextColumn get vendorName => text().nullable().named('vendor_name')();
   TextColumn get hostMake => text().nullable()();
   TextColumn get mdnsDomainName => text().nullable()();
   TextColumn get deviceType => text().nullable().named('device_type')();

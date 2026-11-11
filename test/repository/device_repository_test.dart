@@ -253,5 +253,71 @@ void main() {
       );
       expect((await deviceRepo.getListForScan(secondScan.id)).single.id, 12);
     });
+
+    test('upsertByAddress persists the resolved vendor', () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+
+      await deviceRepo.upsertByAddress(
+        DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          internetAddress: '192.168.0.2',
+          macAddress: '00:03:93:AA:BB:CC',
+          vendorName: 'Apple, Inc.',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: scan.id,
+        ),
+      );
+
+      final fetched = await deviceRepo.getDevice(scan.id, '192.168.0.2');
+      expect(fetched?.vendorName, 'Apple, Inc.');
+    });
+
+    test('upsertByAddress keeps the vendor when a later pass fills in a name',
+        () async {
+      final scan = await scanRepo.put(
+        ScanData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          gatewayIp: '192.168.0.0',
+          startTime: DateTime.now(),
+          onGoing: true,
+        ),
+      );
+
+      await deviceRepo.upsertByAddress(
+        DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch,
+          internetAddress: '192.168.0.2',
+          macAddress: '00:03:93:AA:BB:CC',
+          vendorName: 'Apple, Inc.',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: scan.id,
+        ),
+      );
+
+      await deviceRepo.upsertByAddress(
+        DeviceData(
+          id: DateTime.now().millisecondsSinceEpoch + 1,
+          internetAddress: '192.168.0.2',
+          hostMake: 'Living Room TV',
+          currentDeviceIp: '192.168.0.10',
+          gatewayIp: '192.168.0.1',
+          scanId: scan.id,
+        ),
+      );
+
+      final fetched = await deviceRepo.getDevice(scan.id, '192.168.0.2');
+      expect(fetched?.vendorName, 'Apple, Inc.');
+      expect(fetched?.macAddress, '00:03:93:AA:BB:CC');
+      expect(fetched?.hostMake, 'Living Room TV');
+    });
   });
 }

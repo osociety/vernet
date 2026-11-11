@@ -45,12 +45,33 @@ void main() {
       expect(find.text('IP address'), findsOneWidget);
       expect(find.text('MAC address'), findsOneWidget);
       expect(find.text('AA:BB:CC:DD:EE:FF'), findsOneWidget);
-      expect(find.text('Vendor / Hostname'), findsOneWidget);
+      expect(find.text('Hostname'), findsOneWidget);
       expect(find.text('Apple Inc.'), findsOneWidget);
+      expect(find.text('Vendor'), findsNothing);
       expect(find.text('mDNS name'), findsOneWidget);
       expect(find.text('my-macbook.local'), findsWidgets);
       expect(find.text('Gateway'), findsOneWidget);
       expect(find.text('192.168.1.1'), findsOneWidget);
+    });
+
+    testWidgets('renders the MAC vendor resolved during discovery',
+        (tester) async {
+      const deviceWithVendor = DeviceData(
+        id: 1,
+        scanId: 1,
+        internetAddress: '192.168.1.42',
+        currentDeviceIp: '192.168.1.10',
+        gatewayIp: '192.168.1.1',
+        macAddress: '00:03:93:DD:EE:FF',
+        vendorName: 'Apple, Inc.',
+        hostMake: 'my-macbook.local',
+      );
+
+      await tester.pumpWidget(createWidgetUnderTest(deviceWithVendor));
+
+      expect(find.text('Vendor'), findsOneWidget);
+      expect(find.text('Apple, Inc.'), findsOneWidget);
+      expect(find.text('Hostname'), findsOneWidget);
     });
 
     testWidgets('renders action buttons', (tester) async {

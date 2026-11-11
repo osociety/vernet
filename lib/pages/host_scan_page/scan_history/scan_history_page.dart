@@ -1171,6 +1171,13 @@ class _DeviceTableHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
+              StringValue.scanReportVendorColumn.toUpperCase(),
+              style: style,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
               StringValue.scanReportIpColumn.toUpperCase(),
               style: style,
             ),
@@ -1201,6 +1208,9 @@ class _DesktopDeviceRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final macAddress = device.macAddress;
     final hasMac = macAddress != null && macAddress.isNotEmpty;
+    final rawVendor = device.vendorName;
+    final vendorName =
+        rawVendor == null || rawVendor.isEmpty ? null : rawVendor;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -1226,6 +1236,16 @@ class _DesktopDeviceRow extends StatelessWidget {
             ),
             Expanded(
               flex: 3,
+              child: Text(
+                vendorName ?? '—',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: vendorName == null ? colors.onSurfaceVariant : null,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              flex: 2,
               child: Text(
                 device.internetAddress,
                 style: textTheme.bodyMedium,
@@ -1262,9 +1282,10 @@ class _MobileDeviceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final macAddress = device.macAddress;
-    final subtitle = macAddress == null || macAddress.isEmpty
-        ? device.internetAddress
-        : '${device.internetAddress} • $macAddress';
+    final vendorName = device.vendorName;
+    final subtitle = '${device.internetAddress}'
+        '${macAddress != null && macAddress.isNotEmpty ? ' • $macAddress' : ''}'
+        '${vendorName != null && vendorName.isNotEmpty ? ' • $vendorName' : ''}';
     return AdaptiveListTile(
       leading: _DeviceAvatar(device: device),
       title: Text(

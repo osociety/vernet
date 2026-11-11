@@ -796,10 +796,10 @@ packages:
     dependency: "direct dev"
     description:
       name: network_tools
-      sha256: fbaa502761512db9a755f0b3620f4c627078c74c8d5635879eae1add1ed1f6e0
+      sha256: e89b0177cedec0597539e9f0f1994dfd33ded82cd031b7f2d93c86a3bd645f0f
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.16"
+    version: "6.0.18"
   network_tools_flutter:
     dependency: "direct main"
     description:

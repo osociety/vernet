@@ -47,10 +47,7 @@ Future<void> main() async {
 
   try {
     final appDocDirectory = await getApplicationDocumentsDirectory();
-    await configureNetworkToolsFlutter(
-      appDocDirectory.path,
-      buildVendorTable: false,
-    );
+    await configureNetworkToolsFlutter(appDocDirectory.path);
   } catch (e, st) {
     debugPrint('Network tools init failed: $e\n$st');
   }

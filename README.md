@@ -15,7 +15,7 @@ Vernet - Know your network
 ## Features
 
 1. See your Wi-Fi name, BSSID, local address, gateway, and subnet.
-2. Find devices connected to your local network, including automatic scans when the app opens.
+2. Find devices connected to your local network, including automatic scans when the app opens, with the vendor behind each MAC address.
 3. Check whether a website or device responds with ping, even without internet access.
 4. Scan popular ports, a custom range, or a single port for reachable services.
 5. Look up website addresses and find device names with forward and reverse DNS.

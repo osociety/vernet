@@ -49,6 +49,7 @@ void main() {
         currentDeviceIp: '192.168.0.100',
         gatewayIp: '192.168.0.1',
         macAddress: '00:11:22:33:44:55',
+        vendorName: 'CIMSYS Inc',
         hostMake: 'Device One',
         scanId: 1,
       ),
@@ -130,7 +131,8 @@ void main() {
     expect(find.text('Device One'), findsOneWidget);
     expect(find.text('Device Two'), findsOneWidget);
     expect(find.text('192.168.0.5'), findsOneWidget);
-    expect(find.text('192.168.0.12 • 00:11:22:33:44:55'), findsOneWidget);
+    expect(find.text('192.168.0.12 • 00:11:22:33:44:55 • CIMSYS Inc'),
+        findsOneWidget);
   });
 
   testWidgets('shows scan activity and a table on desktop', (tester) async {
@@ -183,8 +185,10 @@ void main() {
     expect(resultsLeft, greaterThan(summaryLeft));
 
     expect(find.text('DEVICE'), findsOneWidget);
+    expect(find.text('VENDOR'), findsOneWidget);
     expect(find.text('IP ADDRESS'), findsOneWidget);
     expect(find.text('MAC ADDRESS'), findsOneWidget);
+    expect(find.text('CIMSYS Inc'), findsOneWidget);
     expect(find.text('192.168.0.12'), findsOneWidget);
     expect(find.text('00:11:22:33:44:55'), findsOneWidget);
   });
@@ -203,7 +207,7 @@ void main() {
     expect(find.text('Discovered devices'), findsOneWidget);
     expect(find.text('Device One'), findsOneWidget);
     expect(
-      find.text('192.168.0.12 • 00:11:22:33:44:55'),
+      find.text('192.168.0.12 • 00:11:22:33:44:55 • CIMSYS Inc'),
       findsOneWidget,
     );
   });

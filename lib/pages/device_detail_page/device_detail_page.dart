@@ -225,11 +225,18 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                   'MAC address',
                 ),
               ),
-            if (device.hostMake != null && device.hostMake!.isNotEmpty)
+            if (device.vendorName != null && device.vendorName!.isNotEmpty)
               _buildInfoRow(
                 context,
                 icon: Icons.business,
-                label: 'Vendor / Hostname',
+                label: 'Vendor',
+                value: device.vendorName!,
+              ),
+            if (device.hostMake != null && device.hostMake!.isNotEmpty)
+              _buildInfoRow(
+                context,
+                icon: Icons.label,
+                label: 'Hostname',
                 value: device.hostMake!,
               ),
             if (device.deviceType != null && device.deviceType!.isNotEmpty)

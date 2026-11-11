@@ -73,6 +73,7 @@ class DeviceScannerService extends ScannerService {
     Future<DeviceData> updateDevice(
       DeviceData device, {
       String? macAddress,
+      String? vendorName,
       String? hostMake,
       String? mdnsDomainName,
       String? deviceType,
@@ -82,6 +83,7 @@ class DeviceScannerService extends ScannerService {
         id: device.id,
         internetAddress: device.internetAddress,
         macAddress: macAddress ?? device.macAddress,
+        vendorName: vendorName ?? device.vendorName,
         hostMake: hostMake ?? device.hostMake,
         mdnsDomainName: mdnsDomainName ?? device.mdnsDomainName,
         currentDeviceIp: device.currentDeviceIp,
@@ -109,6 +111,7 @@ class DeviceScannerService extends ScannerService {
         // Details resolve lazily in the scanner, so show the host as soon as
         // it is discovered instead of waiting for reverse DNS.
         final macAddress = await _macAddressOf(activeHost);
+        final vendorName = await _vendorNameOf(activeHost);
         final openPortsStr =
             activeHost.openPorts.map((p) => p.port.toString()).join(',');
         debugPrint(
@@ -118,6 +121,7 @@ class DeviceScannerService extends ScannerService {
             id: _newDeviceId(),
             internetAddress: activeHost.address,
             macAddress: macAddress,
+            vendorName: vendorName,
             currentDeviceIp: ip,
             gatewayIp: gatewayIp,
             scanId: scanId,
@@ -168,6 +172,7 @@ class DeviceScannerService extends ScannerService {
             id: _newDeviceId(),
             internetAddress: activeHost.address,
             macAddress: await _macAddressOf(activeHost),
+            vendorName: await _vendorNameOf(activeHost),
             hostMake: await _deviceNameOf(activeHost),
             mdnsDomainName: mdnsInfo.mdnsDomainName,
             currentDeviceIp: ip,
@@ -336,6 +341,15 @@ class DeviceScannerService extends ScannerService {
     }
   }
 
+  Future<String?> _vendorNameOf(ActiveHost activeHost) async {
+    try {
+      return (await activeHost.vendor)?.vendorName;
+    } catch (error) {
+      debugPrint('Failed to resolve vendor for ${activeHost.address}: $error');
+      return null;
+    }
+  }
+
   Future<String?> _deviceNameOf(ActiveHost activeHost) async {
     try {
       final mdnsDomainName = (await activeHost.mdnsInfo)?.mdnsDomainName;
@@ -423,6 +437,7 @@ class DeviceScannerService extends ScannerService {
         id: device.id,
         internetAddress: device.internetAddress,
         macAddress: device.macAddress,
+        vendorName: device.vendorName,
         hostMake: device.hostMake,
         mdnsDomainName: device.mdnsDomainName,
         currentDeviceIp: device.currentDeviceIp,

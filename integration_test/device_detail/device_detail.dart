@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -32,6 +34,7 @@ void main() {
     currentDeviceIp: '192.168.1.10',
     gatewayIp: '192.168.1.1',
     macAddress: '00:11:22:33:44:55',
+    vendorName: 'CIMSYS Inc',
     hostMake: 'Ubuntu Workstation',
     mdnsDomainName: 'workstation.local',
   );
@@ -89,7 +92,9 @@ void main() {
       expect(find.text('IP address'), findsOneWidget);
       expect(find.text('MAC address'), findsOneWidget);
       expect(find.text('00:11:22:33:44:55'), findsOneWidget);
-      expect(find.text('Vendor / Hostname'), findsOneWidget);
+      expect(find.text('Vendor'), findsOneWidget);
+      expect(find.text('CIMSYS Inc'), findsOneWidget);
+      expect(find.text('Hostname'), findsOneWidget);
       expect(find.text('Ubuntu Workstation'), findsOneWidget);
       expect(find.text('mDNS name'), findsOneWidget);
       expect(find.text('workstation.local'), findsWidgets);
@@ -235,6 +240,26 @@ void main() {
             find.byType(CircularProgressIndicator).evaluate().isNotEmpty,
         isTrue,
       );
+    });
+  });
+
+  group('MAC vendor lookup', () {
+    test('resolves the vendor owning a discovered MAC prefix', () async {
+      final host = ActiveHost(
+        internetAddress: InternetAddress('192.168.1.10'),
+        macAddress: '00:03:93:AB:CD:EF',
+      );
+
+      expect((await host.vendor)?.vendorName, 'Apple, Inc.');
+    });
+
+    test('leaves the vendor unset for an unregistered prefix', () async {
+      final host = ActiveHost(
+        internetAddress: InternetAddress('192.168.1.11'),
+        macAddress: 'FF:FF:FF:FF:FF:FF',
+      );
+
+      expect(await host.vendor, isNull);
     });
   });
 }

@@ -88,6 +88,7 @@ Future<DeviceData> _insertDevice({
   required String internetAddress,
   String? macAddress,
   String? hostMake,
+  String? vendorName,
 }) {
   return _deviceRepository.put(
     DeviceData(
@@ -98,6 +99,7 @@ Future<DeviceData> _insertDevice({
       gatewayIp: gatewayIp,
       macAddress: macAddress,
       hostMake: hostMake,
+      vendorName: vendorName,
     ),
   );
 }
@@ -352,6 +354,7 @@ void main() {
         internetAddress: '192.168.0.5',
         macAddress: '00:11:22:33:44:55',
         hostMake: 'Device One',
+        vendorName: 'Vendor One',
       );
       await _insertDevice(
         id: 4102,
@@ -377,14 +380,17 @@ void main() {
       expect(find.text('1m 20s'), findsOneWidget);
 
       expect(find.text('DEVICE'), findsOneWidget);
+      expect(find.text('VENDOR'), findsOneWidget);
       expect(find.text('IP ADDRESS'), findsOneWidget);
       expect(find.text('MAC ADDRESS'), findsOneWidget);
       expect(find.text('Device One'), findsOneWidget);
       expect(find.text('Device Two'), findsOneWidget);
+      expect(find.text('Vendor One'), findsOneWidget);
       expect(find.text('192.168.0.5'), findsOneWidget);
       expect(find.text('192.168.0.12'), findsOneWidget);
       expect(find.text('00:11:22:33:44:55'), findsOneWidget);
-      expect(find.text('—'), findsOneWidget);
+      // Device Two has no vendor and no MAC, so both cells fall back to the dash.
+      expect(find.text('—'), findsNWidgets(2));
 
       final firstDeviceY = tester.getTopLeft(find.text('192.168.0.5')).dy;
       final secondDeviceY = tester.getTopLeft(find.text('192.168.0.12')).dy;

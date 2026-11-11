@@ -253,8 +253,10 @@ class HostScanWidget extends StatelessWidget {
   }
 
   Widget _buildSubtitle(DeviceData host, BuildContext context) {
-    final base =
-        '${host.internetAddress}${host.macAddress != null && host.macAddress!.isNotEmpty ? ', ${host.macAddress}' : ''}';
+    final vendorName = host.vendorName;
+    final base = '${host.internetAddress}'
+        '${host.macAddress != null && host.macAddress!.isNotEmpty ? ', ${host.macAddress}' : ''}'
+        '${vendorName != null && vendorName.isNotEmpty ? ' · $vendorName' : ''}';
     final outlineColor = Theme.of(context).colorScheme.outline;
 
     if (host.openPorts == null || host.openPorts!.isEmpty) {
