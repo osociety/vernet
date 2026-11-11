@@ -352,13 +352,6 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
 
-      - name: Cache CocoaPods
-        uses: actions/cache@v4.2.2
-        with:
-          path: macos/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('macos/Podfile.lock') }}
-          restore-keys: ${{ runner.os }}-pods-
-
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
