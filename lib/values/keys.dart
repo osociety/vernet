@@ -91,7 +91,12 @@ enum WidgetKey implements Comparable<WidgetKey> {
   wifiPromptOpenSettingsButton('wifiPromptOpenSettingsButton'),
   wifiPromptContinueButton('wifiPromptContinueButton'),
   whatsNewGotItButton('whatsNewGotItButton'),
-  whatsNewSettingsTile('whatsNewSettingsTile');
+  whatsNewSettingsTile('whatsNewSettingsTile'),
+  donateLiberapayTile('donateLiberapayTile'),
+  donateKofiTile('donateKofiTile'),
+  donateRepositoryTile('donateRepositoryTile'),
+  donatePlayStoreTile('donatePlayStoreTile'),
+  donateSettingsTile('donateSettingsTile');
 
   const WidgetKey(this.value);
   final String value;

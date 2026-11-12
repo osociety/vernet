@@ -18,6 +18,7 @@ import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
+import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
@@ -330,6 +331,11 @@ class _HomePageState extends State<TabBarPage> {
           label: 'Wake on LAN',
           onTap: () => _selectPage(6),
         ),
+        SidebarXItem(
+          icon: Icons.volunteer_activism,
+          label: 'Support Vernet',
+          onTap: () => _selectPage(10),
+        ),
       ];
 
   Widget _buildSidebar(
@@ -548,6 +554,7 @@ class _HomePageState extends State<TabBarPage> {
         7 => 'Find website addresses',
         8 => 'Find a device name',
         9 => 'Subnet calculator',
+        10 => 'Support Vernet',
         _ => 'Settings',
       };
 
@@ -562,6 +569,7 @@ class _HomePageState extends State<TabBarPage> {
         7 => const DNSPage(),
         8 => const ReverseDNSPage(),
         9 => const SubnetCalculatorPage(),
+        10 => const DonatePage(),
         _ => const SettingsPage(),
       };
 }
