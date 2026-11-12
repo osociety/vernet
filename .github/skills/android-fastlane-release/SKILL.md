@@ -27,6 +27,8 @@ When preparing a release:
 - iOS and Android read versions from pubspec automatically
 - The release workflow builds from the release tag, not from `main`. Land build fixes on `main` before the version-bump commit that creates the tag, or the tag will not contain them.
 - Keep the `:app` Gradle build directory at `<repo>/build/app`, assigned in `android/settings.gradle` via `gradle.beforeProject`. Moving it breaks the Flutter CLI's APK lookup, and assigning it later (in `android/build.gradle`) breaks AGP 9's default-ProGuard path resolution.
+- `android/settings.gradle` is the only place the AGP and Kotlin plugin versions are pinned, and the release build enforces Flutter's toolchain floors (`DependencyVersionChecker.kt`): as of Flutter 3.47/3.50 that means AGP ≥ 9.1.1 and KGP ≥ 2.4.10 with Gradle 9.3.1, staying on Java 17 — AGP 9.3.x's `lintVitalAnalyzeRelease` needs Java 21. Meet the floors rather than adding `--android-skip-build-dependency-validation`.
+- A passing Android **integration** job is not evidence the release build works: `flutter test` runs Gradle with `-PskipDependencyChecks=true`, so only `flutter build apk` validates those versions. Prove any toolchain change with `flutter build apk --split-per-abi --flavor dev`, then confirm the artifact with `apksigner verify --print-certs`.
 
 ## Safety
 
