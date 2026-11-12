@@ -4,6 +4,14 @@ import 'package:vernet/models/changelog_entry.dart';
 /// every version bump in pubspec.yaml, otherwise the dialog opens empty.
 const List<ChangelogEntry> kChangelogEntries = [
   ChangelogEntry(
+    version: '1.6.0',
+    changes: [
+      'Discovered devices now show their manufacturer, from the MAC address',
+      'Vendor names are saved with each scan, so history keeps them too',
+      'Desktop builds use the Vernet App name on Windows, macOS and Linux',
+    ],
+  ),
+  ChangelogEntry(
     version: '1.5.0',
     changes: [
       'New first-time onboarding flow with app walkthrough and Wi-Fi prompt',
