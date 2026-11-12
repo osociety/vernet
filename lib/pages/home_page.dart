@@ -14,6 +14,7 @@ import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
+import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
@@ -979,6 +980,18 @@ class _WifiDetailState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
+                                      ),
+                                      IconButton(
+                                        key: WidgetKey.donateHomeButton.key,
+                                        onPressed: () =>
+                                            Navigator.of(context).push(
+                                          MaterialPageRoute<void>(
+                                            builder: (_) => const DonatePage(),
+                                          ),
+                                        ),
+                                        icon: const Icon(
+                                            Icons.volunteer_activism),
+                                        tooltip: 'Support Vernet',
                                       ),
                                       IconButton(
                                         onPressed: _refreshDashboard,
