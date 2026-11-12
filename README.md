@@ -9,6 +9,8 @@ Vernet - Know your network
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases)](https://github.com/osociety/vernet/releases/latest)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total)
 [![Flutter main pipeline](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml/badge.svg?branch=main)](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml)
+[![Google Play](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fid%3Dorg.fsociety.vernet.store%26hl%3Den%26gl%3DUS%26l%3D%24version&label=google%20play)](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
+[![snapcraft](https://img.shields.io/snapcraft/v/vernet/latest/stable)](https://snapcraft.io/vernet)
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
 [![codecov](https://codecov.io/gh/osociety/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/osociety/vernet)
 
