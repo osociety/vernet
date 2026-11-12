@@ -70,8 +70,10 @@ jobs:
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
-      - name: Run unit tests
-        run: flutter test
+      # No unit stage here on purpose: this leg exists to reach a simulator, and
+      # flutter test --coverage already runs those same tests on macos, ubuntu
+      # and windows in the same pipeline. Re-running them cost 5 minutes of
+      # macOS runner time for no extra signal.
 
       - name: Use CocoaPods instead of Swift Package Manager
         run: flutter config --no-enable-swift-package-manager
