@@ -101,4 +101,42 @@ void main() {
       ),
     ).called(1);
   });
+
+  test('scan notification names the scan it reports', () async {
+    await NotificationService.showNotificationWithActions(
+      scanId: 1763,
+      deviceCount: 2,
+    );
+
+    verify(
+      () => plugin.show(
+        id: any(named: 'id'),
+        title: any(named: 'title'),
+        body: any(named: 'body'),
+        notificationDetails: any(named: 'notificationDetails'),
+        payload: 'hostscan/1763',
+      ),
+    ).called(1);
+  });
+
+  test('payloads resolve to the scan they name', () {
+    expect(
+      NotificationService.scanIdFromPayload(
+        NotificationService.scanReportPayload(1763),
+      ),
+      1763,
+    );
+    expect(NotificationService.scanIdFromPayload('hostscan'), isNull);
+    expect(NotificationService.scanIdFromPayload('hostscan/abc'), isNull);
+    expect(NotificationService.scanIdFromPayload('server_checker'), isNull);
+    expect(NotificationService.scanIdFromPayload(null), isNull);
+  });
+
+  test('only scan payloads open a scan report', () {
+    expect(NotificationService.isScanPayload('hostscan'), isTrue);
+    expect(NotificationService.isScanPayload('hostscan/1763'), isTrue);
+    expect(NotificationService.isScanPayload('server_checker'), isFalse);
+    expect(NotificationService.isScanPayload(null), isFalse);
+    expect(NotificationService.isScanPayload(''), isFalse);
+  });
 }

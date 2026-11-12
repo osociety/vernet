@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
@@ -182,6 +183,25 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: AdaptiveListTile(
+              key: WidgetKey.donateSettingsTile.key,
+              title: const Text('Support Vernet'),
+              subtitle: const Text('Donations, stars and ratings'),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => const DonatePage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          Card(
+            child: AdaptiveListTile(
               key: WidgetKey.checkForUpdatesButton.key,
               title: const Text('Check for a newer version'),
               trailing: IconButton(
@@ -214,7 +234,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading: const Icon(Icons.favorite),
                       title: const Text('Donate'),
                       onTap: () {
-                        launchURLWithWarning(context, _donateUrl);
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (context) => const DonatePage(),
+                          ),
+                        );
                       },
                     ),
                     ListTile(
@@ -242,5 +267,4 @@ class _SettingsPageState extends State<SettingsPage> {
 
   static const String _srcUrl = 'https://github.com/git-elliot/vernet';
   final String _issueUrl = '$_srcUrl/issues';
-  final String _donateUrl = '$_srcUrl#support-and-donate';
 }

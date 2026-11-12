@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sidebarx/sidebarx.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
@@ -93,6 +95,23 @@ void main() {
 
     testWidgets('MyApp navigatorKey is static and accessible', (tester) async {
       expect(MyApp.navigatorKey, isA<GlobalKey<NavigatorState>>());
+    });
+
+    testWidgets('sidebar opens the support page', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: const MyApp(null),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      final items = tester.widget<SidebarX>(find.byType(SidebarX)).items;
+      items.firstWhere((item) => item.label == 'Support Vernet').onTap!();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DonatePage), findsOneWidget);
     });
   });
 }

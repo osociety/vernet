@@ -13,6 +13,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
+import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
@@ -395,11 +396,26 @@ void main() {
       expect(find.text(StringValue.previousScansTitle), findsOneWidget);
     });
 
+    testWidgets('opens the support page from the desktop header icon',
+        (tester) async {
+      await pumpHomePage(tester, size: const Size(900, 800));
+
+      expect(find.byKey(WidgetKey.donateHomeButton.key), findsOneWidget);
+
+      await tester.tap(find.byKey(WidgetKey.donateHomeButton.key));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(DonatePage), findsOneWidget);
+      expect(find.text('Support Vernet'), findsOneWidget);
+    });
+
     testWidgets('hides inline header on mobile layout', (tester) async {
       await pumpHomePage(tester, size: const Size(390, 844));
 
       expect(find.text('NETWORK OVERVIEW'), findsNothing);
       expect(find.text('Your network'), findsNothing);
+      expect(find.byKey(WidgetKey.donateHomeButton.key), findsNothing);
     });
   });
 

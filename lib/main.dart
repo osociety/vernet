@@ -18,8 +18,10 @@ import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
+import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
+import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
@@ -31,6 +33,7 @@ import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/pages/subnet_calculator_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -94,6 +97,11 @@ class _MyAppState extends State<MyApp> {
   DarkThemeProvider themeChangeProvider = DarkThemeProvider();
   StreamSubscription<String?>? _notificationTapSubscription;
 
+  /// A notification that opens a report stays opened until the user leaves it,
+  /// so the launch payload and the stream response for one tap cannot stack two
+  /// copies of the same page.
+  bool _openingScanReport = false;
+
   @override
   void initState() {
     super.initState();
@@ -104,6 +112,15 @@ class _MyAppState extends State<MyApp> {
     _notificationTapSubscription = NotificationService
         .selectNotificationStream.stream
         .listen(_openScanFromNotification);
+    // Tapping while the app was stopped delivers the payload during
+    // `initNotification`, before anything listens to the stream.
+    final launchPayload = NotificationService.selectedNotificationPayload;
+    if (launchPayload != null) {
+      NotificationService.selectedNotificationPayload = null;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _openScanFromNotification(launchPayload),
+      );
+    }
     getCurrentAppTheme();
   }
 
@@ -113,14 +130,45 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  void _openScanFromNotification(String? payload) {
-    if (payload != NotificationService.hostScanPayload) {
+  Future<void> _openScanFromNotification(String? payload) async {
+    if (!NotificationService.isScanPayload(payload)) {
       return;
     }
-    MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      '/hostscan',
-      ModalRoute.withName('/'),
-    );
+    final navigator = MyApp.navigatorKey.currentState;
+    if (navigator == null || _openingScanReport) {
+      return;
+    }
+    _openingScanReport = true;
+    ScanData? scan;
+    try {
+      final repository = getIt<ScanRepository>();
+      final scanId = NotificationService.scanIdFromPayload(payload);
+      if (scanId != null) scan = await repository.get(scanId);
+      if (scan == null) {
+        // Notifications written before the payload carried an id, and scans
+        // pruned from the history, both fall back to the newest report.
+        final recent = await repository.getRecentScans(limit: 1);
+        scan = recent.isEmpty ? null : recent.first;
+      }
+    } catch (error) {
+      debugPrint('Could not load the scan report: $error');
+    }
+
+    try {
+      // The scan page is not an option here: it starts a fresh search, while a
+      // tapped notification promises the results that were already found.
+      final report = scan;
+      await Navigator.push<void>(
+        navigator.context,
+        MaterialPageRoute<void>(
+          builder: (context) => report == null
+              ? const ScanHistoryPage()
+              : ScanDetailPage(scan: report),
+        ),
+      );
+    } finally {
+      _openingScanReport = false;
+    }
   }
 
   Future<void> getCurrentAppTheme() async {
@@ -144,13 +192,6 @@ class _MyAppState extends State<MyApp> {
                 case '/':
                   return MaterialPageRoute(
                     builder: (context) => homePage,
-                  );
-
-                case '/hostscan':
-                  return MaterialPageRoute(
-                    builder: (context) {
-                      return HostScanPage();
-                    },
                   );
 
                 default:
@@ -289,6 +330,11 @@ class _HomePageState extends State<TabBarPage> {
           icon: Icons.power_settings_new,
           label: 'Wake on LAN',
           onTap: () => _selectPage(6),
+        ),
+        SidebarXItem(
+          icon: Icons.volunteer_activism,
+          label: 'Support Vernet',
+          onTap: () => _selectPage(10),
         ),
       ];
 
@@ -508,6 +554,7 @@ class _HomePageState extends State<TabBarPage> {
         7 => 'Find website addresses',
         8 => 'Find a device name',
         9 => 'Subnet calculator',
+        10 => 'Support Vernet',
         _ => 'Settings',
       };
 
@@ -522,6 +569,7 @@ class _HomePageState extends State<TabBarPage> {
         7 => const DNSPage(),
         8 => const ReverseDNSPage(),
         9 => const SubnetCalculatorPage(),
+        10 => const DonatePage(),
         _ => const SettingsPage(),
       };
 }
