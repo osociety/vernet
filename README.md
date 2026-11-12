@@ -1,5 +1,5 @@
 <h1>
-  <img src="firebase/public/favicon.png" height="60" align="middle">
+  <img src="firebase/public/favicon.png" height="60" align="absmiddle">
   Vernet
 </h1>
 
