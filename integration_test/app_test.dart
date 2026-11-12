@@ -23,6 +23,7 @@ import 'server_checker/server_checker_test.dart' as server_checker_test;
 import 'settings/settings.dart' as settings_test;
 import 'settings/test_utils.dart';
 import 'speed_test/speed_test.dart' as speed_test_test;
+import 'subnet_calculator.dart' as subnet_calculator_test;
 import 'test_port.dart';
 import 'wake_on_lan/wake_on_lan_test.dart' as wake_on_lan_test;
 import 'wifi_test/wifi_test_runner.dart' as wifi_test_runner;
@@ -67,6 +68,7 @@ void main() {
   scan_report_test.main();
   speed_test_test.main();
   network_score_test.main();
+  subnet_calculator_test.main();
 
   tearDownAll(() {
     server.close();

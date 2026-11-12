@@ -405,6 +405,12 @@ void main() {
       // Change to landscape
       tester.view.physicalSize = const Size(844, 390);
       tester.view.devicePixelRatio = 1.0;
+      // The orchestrator runs every suite in one app, so a size left here is
+      // inherited by the suites after this one: their real keyboard inset then
+      // exceeds this surface, the scrollable is laid out with a zero-height
+      // viewport, and finders stop seeing any of its children.
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpAndSettle();
 
       // Page should still be present after orientation change
