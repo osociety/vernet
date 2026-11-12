@@ -1,16 +1,27 @@
 <h1>
-  <img src="firebase/public/favicon-64.png" height="60" style="vertical-align: middle;">
+  <img src="firebase/public/favicon.png" height="60" align="absmiddle">
   Vernet
 </h1>
 
 Vernet - Know your network
 
-[![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
-[![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases)](https://github.com/osociety/vernet/releases/latest)
-![GitHub repo size](https://img.shields.io/github/repo-size/osociety/vernet)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total)
-![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
-[![codecov](https://codecov.io/gh/osociety/vernet/graph/badge.svg?token=B25JBP4RCI)](https://codecov.io/gh/osociety/vernet)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total?label=Downloads)
+[![Flutter main pipeline](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml/badge.svg?branch=main)](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml)
+![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety?label=Receives)
+[![Codecov](https://img.shields.io/codecov/c/github/osociety/vernet?token=B25JBP4RCI&label=Codecov)](https://codecov.io/gh/osociety/vernet)
+
+**Releases:**
+
+[![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet?label=F-Droid)](https://f-droid.org/packages/org.fsociety.vernet)
+[![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases&label=Release)](https://github.com/osociety/vernet/releases/latest)
+[![Google Play](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fid%3Dorg.fsociety.vernet.store%26hl%3Den%26gl%3DUS%26l%3D%24version&label=Google%20Play)](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
+[![Snapcraft](https://img.shields.io/snapcraft/v/vernet/latest/stable?label=Snapcraft)](https://snapcraft.io/vernet)
+
+## Download
+
+| Android | iOS | macOS | Linux | Windows |
+|-----------|-----|-------|-------|---------|
+|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href="https://snapcraft.io/vernet"><img alt="Get it from the Snap Store" src="https://snapcraft.io/en/dark/install.svg" width="100" height="40"></a>|<a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="125"/></a>|
 
 ## Features
 
@@ -20,7 +31,7 @@ Vernet - Know your network
 4. Scan popular ports, a custom range, or a single port for reachable services.
 5. Look up website addresses and find device names with forward and reverse DNS.
 6. Test your download and upload speed.
-7. View your public IP and internet provider information.
+7. Score your network's health and see the factors and tips behind the rating.
 8. Control internet access, location permission, scan ranges, ping count, and timeouts.
 
 Vernet helps you spot possible connection and security concerns. It does not
@@ -34,14 +45,6 @@ review, such as devices and services that are reachable on your network.
 |<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "200">|
 |Ping|DNS|Speed test|Settings|
 |<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "225">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "200">|
-
-## Download
-
-| Android | iOS | macOS | Linux | Windows |
-|-----------|-----|-------|-------|---------|
-|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href="https://snapcraft.io/vernet"><img alt="Get it from the Snap Store" src="https://snapcraft.io/en/dark/install.svg" width="100" height="40"></a>|<a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="125"/></a>|
-
-Web is not currently supported.
 
 ## Beta testing
 
