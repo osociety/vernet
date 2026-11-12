@@ -2,3 +2,4 @@ Release builds no longer write debug logs from your device.
 The What's New screen now shows notes for the version you are running.
 Update checks offer stable releases only, never pre-releases.
 The Android notification icon is visible in the status bar again.
+Scan results now appear even when the completion alert fails.

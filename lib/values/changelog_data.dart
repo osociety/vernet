@@ -10,6 +10,7 @@ const List<ChangelogEntry> kChangelogEntries = [
       "What's New now shows notes for the version you are running",
       'Update checks offer stable releases only, never pre-releases',
       'Android notification icon is visible in the status bar',
+      'Scan results now appear even when the completion alert fails',
     ],
   ),
   ChangelogEntry(
