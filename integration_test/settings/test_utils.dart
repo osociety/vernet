@@ -79,6 +79,20 @@ class TestUtils {
     );
   }
 
+  /// Drops focus and hides the soft keyboard so the lower part of the screen
+  /// becomes tappable again.
+  ///
+  /// The keyboard is a separate Android window, so it swallows taps that land
+  /// on it. Normally `Scaffold.resizeToAvoidBottomInset` moves widgets out of
+  /// its way, but the integration test view reports zero `MediaQuery.viewInsets`
+  /// even while the keyboard is up, so the layout never shrinks and anything
+  /// below the keyboard line stays un-tappable.
+  static Future<void> hideKeyboard(WidgetTester tester) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+    await tester.pumpAndSettle();
+  }
+
   static Future<void> waitForWidget(
     WidgetTester tester,
     Finder finder, {
@@ -150,6 +164,14 @@ class TestUtils {
     CommonFinders find,
   ) async {
     final textField = find.byKey(widgetKey.key);
+    // On a live device text only reaches the field the platform keyboard is
+    // attached to, so focus it with a real tap first. That tap needs the
+    // keyboard out of the way, which the fake test view never accounts for.
+    await hideKeyboard(tester);
+    await tester.ensureVisible(textField);
+    await tester.pumpAndSettle();
+    await tester.tap(textField);
+    await tester.pumpAndSettle();
     await tester.enterText(textField, text);
     await tester.pumpAndSettle();
   }
