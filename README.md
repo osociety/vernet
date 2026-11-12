@@ -36,9 +36,9 @@ review, such as devices and services that are reachable on your network.
 
 |Vernet|Home|Connected Devices|Security Findings|
 |-|-|-|-|
-|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "200">|
+|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "140">|
 |Ping|DNS|Speed test|Settings|
-|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "225">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "200">|
+|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "158">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "140">|
 
 ## Download
 
