@@ -65,10 +65,14 @@ void main() {
         find.byKey(WidgetKey.dnsResultTile.key),
       );
 
+      await TestUtils.hideKeyboard(tester);
+
       final pingWidget = find.byKey(WidgetKey.dnsResultTile.key).first;
       await tester.tap(pingWidget);
 
-      await tester.pumpAndSettle();
+      // A short fixed pump keeps the assertion inside the toast's display
+      // window instead of waiting the animation out.
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Website address copied'), findsOneWidget);
     });

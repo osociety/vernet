@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:vernet/pages/subnet_calculator_page.dart';
 
+import 'settings/test_utils.dart';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -47,7 +49,14 @@ Future<void> _openCalculator(WidgetTester tester) async {
 }
 
 Future<void> _calculate(WidgetTester tester, String input) async {
-  await tester.enterText(find.byType(TextField), input);
+  final field = find.byType(TextField);
+  // A live device delivers text only to the field the platform keyboard is
+  // attached to, and inside the orchestrator the previous suite still owns
+  // that attachment, so the field has to be focused with a real tap first.
+  await TestUtils.hideKeyboard(tester);
+  await tester.tap(field);
+  await tester.pumpAndSettle();
+  await tester.enterText(field, input);
   await tester.pump();
   await tester.ensureVisible(find.text('Calculate'));
   await tester.tap(find.text('Calculate'));

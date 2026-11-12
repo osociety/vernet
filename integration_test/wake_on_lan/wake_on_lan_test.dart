@@ -244,6 +244,9 @@ void main() {
         find,
       );
 
+      // The send button sits under the keyboard the port field just raised.
+      await TestUtils.hideKeyboard(tester);
+
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSendButton.key));
       await tester.pumpAndSettle();
 
@@ -526,6 +529,7 @@ void main() {
         tester,
         find,
       );
+      await TestUtils.hideKeyboard(tester);
       await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
@@ -538,6 +542,7 @@ void main() {
         tester,
         find,
       );
+      await TestUtils.hideKeyboard(tester);
       await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
