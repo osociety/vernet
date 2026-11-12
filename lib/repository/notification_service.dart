@@ -72,8 +72,10 @@ class NotificationService {
       // initialRoute = SecondPage.routeName;
     }
 
+    // Must be a drawable resource name, and Android paints the status-bar icon
+    // from its alpha channel only, hence the silhouette rather than app_icon.
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+        AndroidInitializationSettings('ic_notification');
 
     final List<DarwinNotificationCategory> darwinNotificationCategories =
         <DarwinNotificationCategory>[
