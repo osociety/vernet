@@ -41,8 +41,30 @@ class NotificationService {
   /// A notification action which triggers a App navigation event
   static const String navigationActionId = 'id_3';
 
-  /// Payload used for notifications that should open the device scan page.
+  /// Payload naming the scan list, used before the id was carried and for a
+  /// scan whose row could not be read.
   static const String hostScanPayload = 'hostscan';
+
+  /// Prefix of a payload naming the scan whose report to open.
+  static const String scanReportPayloadPrefix = '$hostScanPayload/';
+
+  /// Payload of the report for the scan [scanId].
+  static String scanReportPayload(int scanId) =>
+      '$scanReportPayloadPrefix$scanId';
+
+  /// True for the payloads that should open a scan report. Notifications are
+  /// delivered after an upgrade too, so the payload without an id still works.
+  static bool isScanPayload(String? payload) =>
+      payload == hostScanPayload ||
+      (payload != null && payload.startsWith(scanReportPayloadPrefix));
+
+  /// The scan named by [payload], or null meaning the most recent scan.
+  static int? scanIdFromPayload(String? payload) {
+    if (payload == null || !payload.startsWith(scanReportPayloadPrefix)) {
+      return null;
+    }
+    return int.tryParse(payload.substring(scanReportPayloadPrefix.length));
+  }
 
   /// Channel carrying the scan-complete notifications.
   static const String scanChannelId = 'device_scans';
@@ -168,7 +190,10 @@ class NotificationService {
     }
   }
 
-  static Future<void> showNotificationWithActions({int? deviceCount}) async {
+  static Future<void> showNotificationWithActions({
+    int? scanId,
+    int? deviceCount,
+  }) async {
     if (globals.testingActive) {
       // Because notification is not working in test mode in github actions
       return;
@@ -226,7 +251,7 @@ class NotificationService {
           : 'Scan complete - found ${_deviceCountLabel(deviceCount)} '
               'on your network',
       notificationDetails: notificationDetails,
-      payload: hostScanPayload,
+      payload: scanId == null ? hostScanPayload : scanReportPayload(scanId),
     );
   }
 

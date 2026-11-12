@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart' as di;
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
@@ -175,6 +176,7 @@ void main() {
       globals.testingActive = false;
       NotificationService.debugIgnorePlatformCheck = true;
       NotificationService.flutterLocalNotificationsPlugin = plugin;
+      SharedPreferences.setMockInitialValues({'CurrentScanIDKey': 1763});
       await bloc.close();
       bloc = HostScanBloc()
         ..gatewayIp = '192.168.0.1'
@@ -195,6 +197,17 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(notificationAttempts, 1);
       expect(bloc.state, isA<LoadSuccess>());
+      // The notification carries the finished scan so a tap can open its
+      // report instead of starting another search.
+      verify(
+        () => plugin.show(
+          id: any(named: 'id'),
+          title: any(named: 'title'),
+          body: any(named: 'body'),
+          notificationDetails: any(named: 'notificationDetails'),
+          payload: 'hostscan/1763',
+        ),
+      ).called(1);
     });
 
     test('resolved details replace the device without duplicating it',

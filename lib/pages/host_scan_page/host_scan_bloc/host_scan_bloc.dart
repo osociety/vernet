@@ -256,8 +256,18 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(HostScanState.loadSuccess(_sortedDevices()));
     }
 
+    // The scanner stores the row it created before emitting, so this is the id
+    // of the scan that just finished, which is what the notification opens.
+    int? finishedScanId;
+    try {
+      finishedScanId = await getCurrentScanId();
+    } catch (error) {
+      debugPrint('Could not read the scan id for the notification: $error');
+    }
+
     try {
       await NotificationService.showNotificationWithActions(
+        scanId: finishedScanId,
         deviceCount: devicesSet.length,
       );
     } catch (error) {
