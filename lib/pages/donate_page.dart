@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
@@ -14,6 +16,16 @@ class DonatePage extends StatelessWidget {
   static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
 
+  /// The Android build carries ads, so it cannot claim an ad-free app.
+  @visibleForTesting
+  static String introFor({required bool hasAds}) => hasAds
+      ? 'Vernet is free and open source under Apache-2.0, with no paid '
+          'features. Donations pay for the devices, testing and development '
+          'time behind every release.'
+      : 'Vernet is free and open source under Apache-2.0, with no ads and no '
+          'paid features. Donations pay for the devices, testing and '
+          'development time behind every release.';
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -26,9 +38,7 @@ class DonatePage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                'Vernet is free and open source under Apache-2.0, with no ads '
-                'and no paid features. Donations pay for the devices, testing '
-                'and development time behind every release.',
+                introFor(hasAds: Platform.isAndroid),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),

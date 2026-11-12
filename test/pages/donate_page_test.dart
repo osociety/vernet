@@ -49,6 +49,12 @@ void main() {
       expect(DonatePage.playStoreUrl, contains('org.fsociety.vernet.store'));
     });
 
+    test('the Android wording makes no ad-free claim', () {
+      expect(DonatePage.introFor(hasAds: true), isNot(contains('no ads')));
+      expect(DonatePage.introFor(hasAds: true), contains('no paid features'));
+      expect(DonatePage.introFor(hasAds: false), contains('no ads'));
+    });
+
     testWidgets('lays out at phone width without overflow', (tester) async {
       tester.view.physicalSize = const Size(390 * 3, 844 * 3);
       tester.view.devicePixelRatio = 3.0;
