@@ -67,6 +67,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Start simulator setup
+        shell: bash
+        env:
+          IOS_VERSION: ${{ matrix.ios_version }}
+        run: |
+          nohup bash scripts/ci/prepare_ios_simulator.sh "$IOS_VERSION" \
+            > /tmp/sim-setup.log 2>&1 < /dev/null &
+          echo $! > /tmp/sim-setup.pid
+          echo "Simulator bring-up started as pid $(cat /tmp/sim-setup.pid)."
+
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
 
@@ -88,67 +98,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: Install iOS ${{ matrix.ios_version }} runtime
-        if: matrix.ios_version != 'latest'
+      - name: Wait for simulator
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
 
-          if xcrun simctl list runtimes | grep -q "iOS ${{ matrix.ios_version }} "; then
-            echo "iOS ${{ matrix.ios_version }} runtime is already installed."
-            exit 0
-          fi
-
-          xcodebuild -downloadPlatform iOS -buildVersion "${{ matrix.ios_version }}"
-
-      - name: Boot iOS simulator
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [[ "${{ matrix.ios_version }}" == "latest" ]]; then
-            # Runtimes can be listed more than once per version (device-family
-            # variants), so take the newest one that actually has an iPhone.
-            runtime=""
-            udid=""
-            while IFS= read -r candidate; do
-              candidate_udid="$(xcrun simctl list devices available --json | jq -r --arg runtime "$candidate" '
-                [ (.devices[$runtime] // [])[]
-                  | select(.name | startswith("iPhone"))
-                ][0].udid // empty')"
-              if [[ -n "$candidate_udid" ]]; then
-                runtime="$candidate"
-                udid="$candidate_udid"
-                break
-              fi
-            done < <(xcrun simctl list runtimes --json | jq -r '
-              [ .runtimes[]
-                | select(.platform == "iOS" and .isAvailable == true)
-                | { id: .identifier, v: (.version | split(".") | map(tonumber)) }
-              ] | sort_by(.v) | reverse | .[].id')
-          else
-            runtime="com.apple.CoreSimulator.SimRuntime.iOS-$(echo "${{ matrix.ios_version }}" | tr . -)"
-            udid="$(xcrun simctl list devices available --json | jq -r --arg runtime "$runtime" '
-              [ (.devices[$runtime] // [])[]
-                | select(.name | startswith("iPhone"))
-              ][0].udid // empty')"
-
-            if [[ -z "$udid" ]]; then
-              echo "No iPhone device for $runtime; creating one."
-              udid="$(xcrun simctl create "iPhone 16 (${{ matrix.ios_version }})" \
-                com.apple.CoreSimulator.SimDeviceType.iPhone-16 "$runtime")"
+          pid="$(cat /tmp/sim-setup.pid)"
+          deadline=$((SECONDS + 1800))
+          while kill -0 "$pid" 2>/dev/null; do
+            if (( SECONDS > deadline )); then
+              echo "::error::Simulator setup did not finish within 30 minutes."
+              tail -n 60 /tmp/sim-setup.log
+              kill "$pid" 2>/dev/null || true
+              exit 1
             fi
-          fi
+            sleep 10
+          done
 
-          if [[ -z "$udid" ]]; then
-            echo "::error::No iPhone simulator available on this runner."
-            xcrun simctl list devices available
+          if [[ ! -s /tmp/sim-udid ]]; then
+            echo "::error::Simulator setup failed (pid $pid)."
+            cat /tmp/sim-setup.log
             exit 1
           fi
 
-          echo "Booting $runtime ($udid)"
-          xcrun simctl boot "$udid" 2>/dev/null || true
-          xcrun simctl bootstatus "$udid" -b
+          udid="$(cat /tmp/sim-udid)"
+          echo "Using booted simulator $udid"
           echo "SIMULATOR_UDID=$udid" >> "$GITHUB_ENV"
 
       - name: Grant location permission
