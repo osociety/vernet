@@ -188,9 +188,7 @@ as a notification, and beta builds are announced there first.
 
 3. Buy me a coffee.
 
-    | Librepay | 
-    |----------|
-    |[![Librepay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/OpenSociety/donate)
+    [![Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/OpenSociety/donate)
 
 4. Support me on Ko-Fi
 
