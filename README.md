@@ -7,7 +7,6 @@ Vernet - Know your network
 
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet)](https://f-droid.org/packages/org.fsociety.vernet)
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases)](https://github.com/osociety/vernet/releases/latest)
-![GitHub repo size](https://img.shields.io/github/repo-size/osociety/vernet)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total)
 [![Flutter main pipeline](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml/badge.svg?branch=main)](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml)
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety)
