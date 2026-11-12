@@ -124,8 +124,33 @@ jobs:
             echo "body=See release notes." >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check for an existing release discussion
+        id: discussion_check
+        if: vars.REPOSITORY_ID != '' && vars.DISCUSSION_CATEGORY_ID != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCUSSION_CATEGORY_ID: ${{ vars.DISCUSSION_CATEGORY_ID }}
+          DISCUSSION_TITLE: "Vernet ${{ env.RELEASE_TAG }}"
+        run: |
+          set -uo pipefail
+          titles="$(
+            gh api graphql \
+              -f query='query($owner:String!,$name:String!,$category:ID!){repository(owner:$owner,name:$name){discussions(first:50,categoryId:$category){nodes{title}}}}' \
+              -f owner="${GITHUB_REPOSITORY_OWNER}" \
+              -f name="${GITHUB_REPOSITORY#*/}" \
+              -f category="${DISCUSSION_CATEGORY_ID}" \
+              --jq '.data.repository.discussions.nodes[].title' 2>/dev/null || true
+          )"
+          if printf '%s\n' "$titles" | grep -qFx "$DISCUSSION_TITLE"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create release discussion
-        if: github.event_name == 'release'
+        if: >-
+          vars.REPOSITORY_ID != '' && vars.DISCUSSION_CATEGORY_ID != '' &&
+          steps.discussion_check.outputs.exists != 'true'
         uses: abirismyname/create-discussion@v2.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
