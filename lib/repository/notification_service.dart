@@ -44,6 +44,14 @@ class NotificationService {
   /// Payload used for notifications that should open the device scan page.
   static const String hostScanPayload = 'hostscan';
 
+  /// Channel carrying the scan-complete notifications.
+  static const String scanChannelId = 'device_scans';
+  static const String scanChannelName = 'Device scans';
+
+  /// The placeholder channel id shipped before this rename. Android keeps a
+  /// channel until it is deleted, so it would linger in the app's settings.
+  static const String legacyScanChannelId = 'your channel id';
+
   static String? selectedNotificationPayload;
 
   /// Streams are created so that app can respond to notification-related events
@@ -73,7 +81,8 @@ class NotificationService {
     }
 
     // Must be a drawable resource name, and Android paints the status-bar icon
-    // from its alpha channel only, hence the silhouette rather than app_icon.
+    // from its alpha channel only, so ic_notification is a white silhouette of
+    // the Vernet mark cut from assets/app_icon.png, not the full-colour icon.
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('ic_notification');
 
@@ -129,6 +138,20 @@ class NotificationService {
         }
       },
     );
+
+    // The rename above orphans the placeholder channel, and Android keeps
+    // channels until they are deleted, so drop it on startup. This runs before
+    // runApp, so a failed cleanup must not hold the app hostage.
+    if (Platform.isAndroid) {
+      try {
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.deleteNotificationChannel(channelId: legacyScanChannelId);
+      } catch (error) {
+        debugPrint('Could not remove the legacy channel: $error');
+      }
+    }
   }
 
   static Future<void> configureLocalTimeZone() async {
@@ -155,8 +178,8 @@ class NotificationService {
     }
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      'your channel id',
-      'your channel name',
+      scanChannelId,
+      scanChannelName,
       channelDescription: 'Notifications about device searches',
       importance: Importance.max,
       priority: Priority.high,
