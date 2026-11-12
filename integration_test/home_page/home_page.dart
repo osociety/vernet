@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:network_info_plus_platform_interface/network_info_plus_platform_interface.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,6 +63,31 @@ class _RefusingNotificationPlugin implements FlutterLocalNotificationsPlugin {
     }
     return super.noSuchMethod(invocation);
   }
+}
+
+/// Answers the Wi-Fi queries the dashboard needs before it enables its scan
+/// button.
+///
+/// The `dev.fluttercommunity.plus/network_info` mock installed by `setUp` only
+/// reaches Android, iOS and macOS: on Linux and Windows network_info_plus
+/// registers a pure-Dart implementation that never touches the channel, so a
+/// runner without Wi-Fi leaves the button disabled and a tap on it does
+/// nothing. Setting the platform instance gives every leg the same state.
+class _StubNetworkInfoPlatform extends NetworkInfoPlatform {
+  @override
+  Future<String?> getWifiIP() async => '192.168.1.10';
+
+  @override
+  Future<String?> getWifiBSSID() async => '00:11:22:33:44:55';
+
+  @override
+  Future<String?> getWifiName() async => 'Mock WiFi';
+
+  @override
+  Future<String?> getWifiGatewayIP() async => '192.168.1.1';
+
+  @override
+  Future<String?> getWifiSubmask() async => '255.255.255.0';
 }
 
 /// Swaps the real scanner for a fake so a test does not depend on the network
@@ -243,15 +269,24 @@ void main() {
       final originalPlugin =
           NotificationService.flutterLocalNotificationsPlugin;
       final originalTestingFlag = globals.testingActive;
+      final originalIgnorePlatformCheck =
+          NotificationService.debugIgnorePlatformCheck;
+      final originalNetworkInfo = NetworkInfoPlatform.instance;
       final plugin = _RefusingNotificationPlugin();
       NotificationService.flutterLocalNotificationsPlugin = plugin;
-      // Testing mode returns before the plugin is reached, so the alert path
-      // only runs with the flag cleared. Nothing here depends on the other
-      // testing-mode branches: the scanner is faked and the channel mocks are
-      // installed by setUp.
+      NetworkInfoPlatform.instance = _StubNetworkInfoPlatform();
+      // Testing mode returns before the plugin is reached, and Windows skips
+      // the alert by design outside this test, so both flags have to be
+      // cleared for the refusal to be exercised. Nothing here depends on the
+      // other testing-mode branches: the scanner is faked and the channel
+      // mocks are installed by setUp.
       globals.testingActive = false;
+      NotificationService.debugIgnorePlatformCheck = true;
       addTearDown(() {
         globals.testingActive = originalTestingFlag;
+        NotificationService.debugIgnorePlatformCheck =
+            originalIgnorePlatformCheck;
+        NetworkInfoPlatform.instance = originalNetworkInfo;
         NotificationService.flutterLocalNotificationsPlugin = originalPlugin;
       });
 
