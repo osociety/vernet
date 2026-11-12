@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -36,6 +37,13 @@ import 'package:vernet/values/globals.dart' as globals;
 
 AppSettings appSettings = AppSettings.instance;
 Future<void> main() async {
+  // debugPrint writes to the system log in release builds too, so shipping
+  // installs would leak scan internals to user devices. Reassigning the global
+  // also silences debugPrint inside the vendored network_tools packages.
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {};
+  }
+
   configureDependencies(Env.prod);
 
   final binding = WidgetsFlutterBinding.ensureInitialized();
