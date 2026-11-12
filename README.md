@@ -8,14 +8,10 @@ Vernet - Know your network
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/osociety/vernet/total?label=Downloads)
 [![Flutter main pipeline](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml/badge.svg?branch=main)](https://github.com/osociety/vernet/actions/workflows/flutter_pipeline.yml)
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety?label=Receives)
-[![Codecov](https://img.shields.io/codecov/c/github/osociety/vernet?token=B25JBP4RCI&label=Codecov)](https://codecov.io/gh/osociety/vernet)
-
-**Releases:**
-
-[![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet?label=F-Droid)](https://f-droid.org/packages/org.fsociety.vernet)
-[![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases&label=Release)](https://github.com/osociety/vernet/releases/latest)
-[![Google Play](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fid%3Dorg.fsociety.vernet.store%26hl%3Den%26gl%3DUS%26l%3D%24version&label=Google%20Play)](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
-[![Snapcraft](https://img.shields.io/snapcraft/v/vernet/latest/stable?label=Snapcraft)](https://snapcraft.io/vernet)
+[![Codecov](https://img.shields.io/codecov/c/github/osociety/vernet?token=B25JBP4RCI&label=Codecov)](https://codecov.io/gh/osociety/vernet)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet?label=F-Droid&style=flat-square)](https://f-droid.org/packages/org.fsociety.vernet)
+[![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases&label=Release&style=flat-square)](https://github.com/osociety/vernet/releases/latest)
+[![Google Play](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fid%3Dorg.fsociety.vernet.store%26hl%3Den%26gl%3DUS%26l%3D%24version&label=Google%20Play&style=flat-square)](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
+[![Snapcraft](https://img.shields.io/snapcraft/v/vernet/latest/stable?label=Snapcraft&style=flat-square)](https://snapcraft.io/vernet)
 
 ## Download
 
