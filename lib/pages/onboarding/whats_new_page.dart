@@ -18,9 +18,11 @@ class WhatsNewDialog extends StatefulWidget {
     // Already seen What's New for this version
     if (hasSeen) return;
 
-    final entry = kChangelogEntries
-        .cast<ChangelogEntry?>()
-        .firstWhere((e) => e!.version == info.version, orElse: () => null);
+    final entry = changelogEntryForVersion(info.version);
+
+    // Nothing to announce: leave the version unmarked so the dialog can still
+    // appear once notes are added, instead of showing an empty one forever.
+    if (entry == null) return;
 
     if (!context.mounted) return;
     await showAdaptiveDialog(
@@ -33,9 +35,7 @@ class WhatsNewDialog extends StatefulWidget {
 
   static Future<void> showCurrent(BuildContext context) async {
     final info = await PackageInfo.fromPlatform();
-    final entry = kChangelogEntries
-        .cast<ChangelogEntry?>()
-        .firstWhere((e) => e!.version == info.version, orElse: () => null);
+    final entry = changelogEntryForVersion(info.version);
 
     if (!context.mounted) return;
     await showAdaptiveDialog(

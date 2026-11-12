@@ -45,21 +45,44 @@ void main() {
   });
 
   group('update checker helper', () {
-    test('returns true when remote tag is newer', () async {
-      final payload = jsonEncode([
-        {'name': 'v2.0.0'}
-      ]);
-      final client = MockClient((_) async => http.Response(payload, 200));
+    String release(
+      String tagName, {
+      bool prerelease = false,
+      bool draft = false,
+    }) =>
+        jsonEncode({
+          'tag_name': tagName,
+          'prerelease': prerelease,
+          'draft': draft,
+        });
 
-      final result = await checkUpdatesForTest('1.0.0', client: client);
+    test('returns true when remote release is newer', () async {
+      final client =
+          MockClient((_) async => http.Response(release('v2.0.0+10'), 200));
+
+      final result = await checkUpdatesForTest('1.0.0+1', client: client);
       expect(result, isTrue);
     });
 
+    test('ignores a newer pre-release', () async {
+      final client = MockClient((_) async =>
+          http.Response(release('v2.0.0+10', prerelease: true), 200));
+
+      final result = await checkUpdatesForTest('1.0.0+1', client: client);
+      expect(result, isFalse);
+    });
+
+    test('ignores a newer draft release', () async {
+      final client = MockClient(
+          (_) async => http.Response(release('v2.0.0+10', draft: true), 200));
+
+      final result = await checkUpdatesForTest('1.0.0+1', client: client);
+      expect(result, isFalse);
+    });
+
     test('strips leading v and -store suffix correctly', () async {
-      final payload = jsonEncode([
-        {'name': 'v1.2.3'}
-      ]);
-      final client = MockClient((_) async => http.Response(payload, 200));
+      final client =
+          MockClient((_) async => http.Response(release('v1.2.3'), 200));
 
       final result = await checkUpdatesForTest('1.2.3-store', client: client);
       expect(result, isFalse);
@@ -71,50 +94,52 @@ void main() {
       expect(result, isFalse);
     });
 
-    test('returns false when no tags in response', () async {
-      final payload = jsonEncode([]);
+    test('returns false when the payload is a tags listing', () async {
+      final payload = jsonEncode([
+        {'name': 'v2.0.0'}
+      ]);
       final client = MockClient((_) async => http.Response(payload, 200));
+
+      final result = await checkUpdatesForTest('1.0.0', client: client);
+      expect(result, isFalse);
+    });
+
+    test('returns false when the payload has no tag name', () async {
+      final client = MockClient(
+          (_) async => http.Response(jsonEncode({'name': 'release'}), 200));
 
       final result = await checkUpdatesForTest('1.0.0', client: client);
       expect(result, isFalse);
     });
 
     test('handles version comparison correctly for same versions', () async {
-      final payload = jsonEncode([
-        {'name': 'v1.0.0'}
-      ]);
-      final client = MockClient((_) async => http.Response(payload, 200));
+      final client =
+          MockClient((_) async => http.Response(release('v1.0.0+1'), 200));
 
-      final result = await checkUpdatesForTest('1.0.0', client: client);
+      final result = await checkUpdatesForTest('1.0.0+1', client: client);
       expect(result, isFalse);
     });
 
     test('handles version comparison correctly for older remote version',
         () async {
-      final payload = jsonEncode([
-        {'name': 'v0.9.0'}
-      ]);
-      final client = MockClient((_) async => http.Response(payload, 200));
+      final client =
+          MockClient((_) async => http.Response(release('v0.9.0+1'), 200));
 
-      final result = await checkUpdatesForTest('1.0.0', client: client);
+      final result = await checkUpdatesForTest('1.0.0+1', client: client);
       expect(result, isFalse);
     });
 
     test('handles complex version strings with -store suffix', () async {
-      final payload = jsonEncode([
-        {'name': 'v2.0.0'}
-      ]);
-      final client = MockClient((_) async => http.Response(payload, 200));
+      final client =
+          MockClient((_) async => http.Response(release('v2.0.0'), 200));
 
       final result = await checkUpdatesForTest('1.9.9-store', client: client);
       expect(result, isTrue);
     });
 
     test('handles malformed version strings gracefully', () async {
-      final payload = jsonEncode([
-        {'name': 'invalid_version'}
-      ]);
-      final client = MockClient((_) async => http.Response(payload, 200));
+      final client = MockClient(
+          (_) async => http.Response(release('invalid_version'), 200));
 
       final result = await checkUpdatesForTest('1.0.0', client: client);
       // Should handle gracefully and return false

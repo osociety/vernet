@@ -30,13 +30,16 @@ Future<bool> checkUpdates(
       }
 
       final dynamic payload = jsonDecode(response.body);
-      // Accept the old tags-array shape as well, so existing clients and
-      // callers that provide a tags URL continue to work.
-      final dynamic tagName = payload is List
-          ? (payload.isEmpty ? null : payload.first['name'])
-          : payload is Map<String, dynamic>
-              ? payload['tag_name']
-              : null;
+      // Only the single-release object shape is accepted. The old tags-array
+      // branch had no way to tell a beta tag from a stable one, and `/tags`
+      // listings would still expose pre-releases to stable installs.
+      if (payload is! Map<String, dynamic>) return false;
+      // `/releases/latest` already excludes drafts and pre-releases; this keeps
+      // an injected `/releases` listing URL from offering a beta to users.
+      if (payload['prerelease'] == true || payload['draft'] == true) {
+        return false;
+      }
+      final dynamic tagName = payload['tag_name'];
       if (tagName is! String) return false;
 
       final remoteVersion = _versionParts(tagName);
