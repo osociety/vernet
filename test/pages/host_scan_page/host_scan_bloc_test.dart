@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -7,10 +8,14 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart' as di;
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
+import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 class MockNetworkInfo extends Mock implements NetworkInfo {}
+
+class MockNotificationPlugin extends Mock
+    implements FlutterLocalNotificationsPlugin {}
 
 /// A simple fake implementation of [DeviceScannerService] that emits
 /// a predetermined list of devices and allows callers to supply an
@@ -121,6 +126,10 @@ void main() {
     });
 
     tearDown(() async {
+      globals.testingActive = true;
+      NotificationService.debugIgnorePlatformCheck = false;
+      NotificationService.flutterLocalNotificationsPlugin =
+          FlutterLocalNotificationsPlugin();
       await bloc.close();
     });
 
@@ -144,6 +153,48 @@ void main() {
           isA<LoadSuccess>(),
         ]),
       );
+    });
+
+    test('a rejected notification still completes the scan', () async {
+      // The notification used to run before the success emit, so a platform
+      // that refused the show left the screen parked on its scanning state.
+      var notificationAttempts = 0;
+      final plugin = MockNotificationPlugin();
+      when(
+        () => plugin.show(
+          id: any(named: 'id'),
+          title: any(named: 'title'),
+          body: any(named: 'body'),
+          notificationDetails: any(named: 'notificationDetails'),
+          payload: any(named: 'payload'),
+        ),
+      ).thenAnswer((_) {
+        notificationAttempts++;
+        throw Exception('notification channel unavailable');
+      });
+      globals.testingActive = false;
+      NotificationService.debugIgnorePlatformCheck = true;
+      NotificationService.flutterLocalNotificationsPlugin = plugin;
+      await bloc.close();
+      bloc = HostScanBloc()
+        ..gatewayIp = '192.168.0.1'
+        ..subnet = '192.168.0'
+        ..ip = '192.168.0.2';
+
+      bloc.add(const HostScanEvent.startNewScan());
+      await expectLater(
+        bloc.stream,
+        emitsInOrder([
+          const HostScanState.loadInProgress(),
+          isA<FoundNewDevice>(),
+          isA<LoadSuccess>(),
+        ]),
+      );
+
+      // The failure is swallowed, so give the scan a turn to reach the plugin.
+      await Future<void>.delayed(Duration.zero);
+      expect(notificationAttempts, 1);
+      expect(bloc.state, isA<LoadSuccess>());
     });
 
     test('resolved details replace the device without duplicating it',
