@@ -139,12 +139,17 @@ class NotificationService {
     );
 
     // The rename above orphans the placeholder channel, and Android keeps
-    // channels until they are deleted, so drop it on startup.
+    // channels until they are deleted, so drop it on startup. This runs before
+    // runApp, so a failed cleanup must not hold the app hostage.
     if (Platform.isAndroid) {
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.deleteNotificationChannel(channelId: legacyScanChannelId);
+      try {
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.deleteNotificationChannel(channelId: legacyScanChannelId);
+      } catch (error) {
+        debugPrint('Could not remove the legacy channel: $error');
+      }
     }
   }
 
