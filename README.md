@@ -17,6 +17,12 @@ Vernet - Know your network
 [![Google Play](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fid%3Dorg.fsociety.vernet.store%26hl%3Den%26gl%3DUS%26l%3D%24version&label=Google%20Play)](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
 [![Snapcraft](https://img.shields.io/snapcraft/v/vernet/latest/stable?label=Snapcraft)](https://snapcraft.io/vernet)
 
+## Download
+
+| Android | iOS | macOS | Linux | Windows |
+|-----------|-----|-------|-------|---------|
+|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href="https://snapcraft.io/vernet"><img alt="Get it from the Snap Store" src="https://snapcraft.io/en/dark/install.svg" width="100" height="40"></a>|<a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="125"/></a>|
+
 ## Features
 
 1. See your Wi-Fi name, BSSID, local address, gateway, and subnet.
@@ -36,15 +42,9 @@ review, such as devices and services that are reachable on your network.
 
 |Vernet|Home|Connected Devices|Security Findings|
 |-|-|-|-|
-|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "140">|
+|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width = "200">|
 |Ping|DNS|Speed test|Settings|
-|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "140">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "158">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "140">|
-
-## Download
-
-| Android | iOS | macOS | Linux | Windows |
-|-----------|-----|-------|-------|---------|
-|<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href="https://snapcraft.io/vernet"><img alt="Get it from the Snap Store" src="https://snapcraft.io/en/dark/install.svg" width="100" height="40"></a>|<a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="125"/></a>|
+|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "225">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "200">|
 
 ## Beta testing
 
