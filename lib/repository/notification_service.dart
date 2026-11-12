@@ -81,7 +81,8 @@ class NotificationService {
     }
 
     // Must be a drawable resource name, and Android paints the status-bar icon
-    // from its alpha channel only, hence the silhouette rather than app_icon.
+    // from its alpha channel only, so ic_notification is a white silhouette of
+    // the Vernet mark cut from assets/app_icon.png, not the full-colour icon.
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('ic_notification');
 
