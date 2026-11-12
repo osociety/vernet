@@ -1,0 +1,4 @@
+Discovered devices now show their manufacturer, looked up from the MAC address.
+Vendor names are saved with each scan, so scan history keeps them too.
+Desktop builds now use the Vernet App name on Windows, macOS and Linux.
+Bug fixes and performance improvements.
