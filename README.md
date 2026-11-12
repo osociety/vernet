@@ -10,8 +10,6 @@ Vernet - Know your network
 ![Liberapay receiving](https://img.shields.io/liberapay/receives/opensociety?label=Receives)
 [![Codecov](https://img.shields.io/codecov/c/github/osociety/vernet?token=B25JBP4RCI&label=Codecov)](https://codecov.io/gh/osociety/vernet)
 
-**Releases:**
-
 [![F-Droid](https://img.shields.io/f-droid/v/org.fsociety.vernet?label=F-Droid)](https://f-droid.org/packages/org.fsociety.vernet)
 [![GitHub release (including pre-releases)](https://img.shields.io/github/v/release/osociety/vernet?include_prereleases&label=Release)](https://github.com/osociety/vernet/releases/latest)
 [![Google Play](https://img.shields.io/endpoint?url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fid%3Dorg.fsociety.vernet.store%26hl%3Den%26gl%3DUS%26l%3D%24version&label=Google%20Play)](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
