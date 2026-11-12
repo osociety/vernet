@@ -785,7 +785,7 @@ packages:
     source: hosted
     version: "8.2.2"
   network_info_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: network_info_plus_platform_interface
       sha256: "210b58064bc08e04b3a2b608f1f999cf768871fbd531961dc33a91720869d182"
