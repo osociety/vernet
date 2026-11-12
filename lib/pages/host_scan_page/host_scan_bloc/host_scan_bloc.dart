@@ -250,12 +250,18 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       'Testing mode enabled ${globals.testingActive}',
     );
 
-    await NotificationService.showNotificationWithActions(
-      deviceCount: devicesSet.length,
-    );
-
+    // Emit before the notification: a platform that refuses the show must not
+    // leave the screen stuck at 100% in its scanning state.
     if (!emit.isDone) {
       emit(HostScanState.loadSuccess(_sortedDevices()));
+    }
+
+    try {
+      await NotificationService.showNotificationWithActions(
+        deviceCount: devicesSet.length,
+      );
+    } catch (error) {
+      debugPrint('Scan-complete notification failed: $error');
     }
   }
 

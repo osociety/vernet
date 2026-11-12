@@ -120,6 +120,16 @@ void main() {
       await _waitForScanToFinish();
       await tester.pump(const Duration(milliseconds: 500));
 
+      // The results are stored whether or not the screen moved on, so the
+      // database alone cannot prove completion: in the beta report the bar sat
+      // on "Scanning 100%" for a scan whose devices were already written.
+      expect(
+        find.byKey(WidgetKey.rescanIconButton.key),
+        findsOneWidget,
+        reason: 'the page must leave its scanning state when the scan ends',
+      );
+      expect(find.textContaining('so far'), findsNothing);
+
       if (find.byType(AdaptiveListTile).evaluate().length < 2) {
         debugPrint(
             'Not enough devices found in CI. Skipping the rest of the test.');

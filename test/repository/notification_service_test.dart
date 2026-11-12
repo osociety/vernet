@@ -69,6 +69,25 @@ void main() {
     ).called(1);
   });
 
+  test('scan notification publishes to a named channel', () async {
+    await NotificationService.showNotificationWithActions(deviceCount: 2);
+
+    final details = verify(
+      () => plugin.show(
+        id: any(named: 'id'),
+        title: any(named: 'title'),
+        body: any(named: 'body'),
+        notificationDetails: captureAny(named: 'notificationDetails'),
+        payload: any(named: 'payload'),
+      ),
+    ).captured.single as NotificationDetails;
+
+    expect(details.android?.channelId, 'device_scans');
+    expect(details.android?.channelName, 'Device scans');
+    expect(details.android?.channelId,
+        isNot(NotificationService.legacyScanChannelId));
+  });
+
   test('scan notification keeps generic body without a count', () async {
     await NotificationService.showNotificationWithActions();
 
