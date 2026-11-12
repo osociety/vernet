@@ -43,6 +43,46 @@ review, such as devices and services that are reachable on your network.
 
 Web is not currently supported.
 
+## Beta testing
+
+Vernet is maintained by one person and tested on a handful of devices, so
+pre-release builds reach real networks mostly through volunteers. If you are
+willing to run a build that might break, you are exactly who this project
+needs.
+
+### Android
+
+Pick either route:
+
+| Route | What you get |
+|---|---|
+| [Google Play beta](https://play.google.com/apps/testing/org.fsociety.vernet.store) | Tap the link, press **Join the beta**, and update Vernet as usual. This switches your existing Play install to the beta channel, so you get new builds before anyone else. |
+| [GitHub pre-release APKs](https://github.com/osociety/vernet/releases) | Download the `*-app-arm64-v8a-dev-release.apk` for a modern phone, `armeabi-v7a` for older 32-bit devices, or `x86_64` for emulators. These are the `dev` build, so they install alongside the Play version instead of replacing it. |
+
+### Windows
+
+Windows has the fewest testers of any platform, and the most room for things to
+go quietly wrong — Wi-Fi adapter drivers, firewall prompts, and SmartScreen all
+behave differently from one machine to the next.
+
+1. Grab `Vernet-<version>-windows-x64.zip` (or `-windows-arm64.zip`, or the
+   `.msixbundle`) from [releases](https://github.com/osociety/vernet/releases).
+2. Extract it and run `vernet.exe`. If SmartScreen interrupts it, choose
+   **More info**, then **Run anyway**.
+3. Try a device scan, a ping, a port scan, and a speed test, and note anything
+   that hangs, errors, or looks wrong compared to the phone app.
+4. Tell us what happened in [Discussions](https://github.com/osociety/vernet/discussions/categories/q-a)
+   or file an [issue](https://github.com/osociety/vernet/issues).
+
+Linux and macOS testers use the same pre-release page, and Snap users can get
+updates early with `sudo snap install vernet --beta`.
+
+Beta testing has already turned up real bugs: release builds printing debug
+logs, an empty What's New screen, an invisible Android notification icon, and
+update checks offering pre-releases to stable installs. Reports like "the scan
+finds nothing on my laptop" or "speed test is way off on my machine" are the
+ones that get fixed.
+
 ## How to install
 
 Vernet is available for Linux, Windows and macOS. Linux and Windows builds come in both **x64** and **arm64**.
@@ -89,7 +129,7 @@ sudo snap connect vernet:network-manager-observe
 
 #### Option 1: Microsoft Store (recommended)
 
-Install Vernet from the [Microsoft Store](https://apps.microsoft.com/detail/<your-product-id>). The Store installs the right build for your device (x64 or arm64) and keeps it updated.
+Install Vernet from the [Microsoft Store](https://apps.microsoft.com/detail/9N1170N3PHMM). The Store installs the right build for your device (x64 or arm64) and keeps it updated.
 
 #### Option 2: Download from GitHub
 
@@ -121,10 +161,25 @@ You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.b
 
 1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)
 2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/osociety/vernet/pulls)
+3. Don't write code? Run a [beta build](#beta-testing) and report what breaks — that is the most useful contribution of all, and it needs one device you already own.
 
 ## Community
 
-Join the conversation in [GitHub Discussions](https://github.com/osociety/vernet/discussions) — ask questions, share ideas, or showcase what you've built with Vernet.
+[GitHub Discussions](https://github.com/osociety/vernet/discussions) is where
+Vernet gets discussed, and it is fine to just say hi. Nothing is gated, no
+template is required, and questions get answered — pick the shelf that fits:
+
+| Category | What goes there |
+|---|---|
+| [Announcements](https://github.com/osociety/vernet/discussions/categories/announcements) | Each new release, with what changed |
+| [Q&A](https://github.com/osociety/vernet/discussions/categories/q-a) | "Why doesn't the scan find my printer?" and other help |
+| [General](https://github.com/osociety/vernet/discussions/categories/general) | Anything about Vernet, networking, or your setup |
+| [Ideas](https://github.com/osociety/vernet/discussions/categories/ideas) | Features you want built |
+| [Show and tell](https://github.com/osociety/vernet/discussions/categories/show-and-tell) | Interesting things you found on your network |
+| [Polls](https://github.com/osociety/vernet/discussions/categories/polls) | Vote on what to work on next |
+
+Watching the repository (**Watch → Discussions**) means a new release shows up
+as a notification, and beta builds are announced there first.
 
 ## Support and Donate
 
