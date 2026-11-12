@@ -25,7 +25,7 @@ Vernet - Know your network
 4. Scan popular ports, a custom range, or a single port for reachable services.
 5. Look up website addresses and find device names with forward and reverse DNS.
 6. Test your download and upload speed.
-7. View your public IP and internet provider information.
+7. Score your network's health and see the factors and tips behind the rating.
 8. Control internet access, location permission, scan ranges, ping count, and timeouts.
 
 Vernet helps you spot possible connection and security concerns. It does not
