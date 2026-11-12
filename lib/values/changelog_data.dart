@@ -4,6 +4,16 @@ import 'package:vernet/models/changelog_entry.dart';
 /// every version bump in pubspec.yaml, otherwise the dialog opens empty.
 const List<ChangelogEntry> kChangelogEntries = [
   ChangelogEntry(
+    version: '1.6.1',
+    changes: [
+      'Release builds no longer write debug logs on your device',
+      "What's New now shows notes for the version you are running",
+      'Update checks offer stable releases only, never pre-releases',
+      'Android notification icon is visible in the status bar',
+      'Scan results now appear even when the completion alert fails',
+    ],
+  ),
+  ChangelogEntry(
     version: '1.6.0',
     changes: [
       'Discovered devices now show their manufacturer, from the MAC address',
