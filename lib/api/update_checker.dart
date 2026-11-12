@@ -7,8 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
-
 import 'package:vernet/main.dart';
+import 'package:vernet/ui/update_channel_dialog.dart';
+
+const String _githubReleasesUrl =
+    'https://github.com/osociety/vernet/releases/latest';
+const String _playStoreUrl =
+    'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
+const String _msStoreUrl = 'https://apps.microsoft.com/detail/9N1170N3PHMM';
+const String _snapUrl = 'https://snapcraft.io/vernet';
 
 @visibleForTesting
 Future<bool> checkUpdates(
@@ -135,28 +142,66 @@ Future<void> checkForUpdates(
   }
 }
 
+/// Store releases trail the GitHub one, so the user is asked which to open.
 Future<void> navigateToStore(BuildContext context) async {
-  String url = 'https://github.com/osociety/vernet/releases/latest';
-
-  if (Platform.isAndroid) {
-    final isFdroidInstalled = await LaunchApp.isAppInstalled(
-      androidPackageName: 'org.fdroid.fdroid',
-      iosUrlScheme: 'fdroid://',
-    );
-
-    if ((await PackageInfo.fromPlatform()).version.contains('store')) {
-      //Goto playstore
-      url =
-          'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
-    } else if (isFdroidInstalled == true) {
-      await LaunchApp.openApp(
-        androidPackageName: 'org.fdroid.fdroid',
-        iosUrlScheme: 'fdroid://',
-        appStoreLink: 'itms-apps://itunes.apple.com/',
-        openStore: false,
-      );
-      return;
-    }
+  final store = await _storeRelease();
+  final channel =
+      await UpdateChannelDialog.show(context, storeLabel: store?.label);
+  switch (channel) {
+    case UpdateChannel.store:
+      await store?.open(context);
+    case UpdateChannel.github:
+      await launchURLWithWarning(context, _githubReleasesUrl);
+    case null:
+      break;
   }
-  launchURLWithWarning(context, url);
+}
+
+/// A store this platform publishes to, or null when it has none.
+class _StoreRelease {
+  const _StoreRelease(this.label, this.open);
+
+  final String label;
+  final Future<void> Function(BuildContext context) open;
+}
+
+Future<_StoreRelease?> _storeRelease() async {
+  if (Platform.isWindows) {
+    return _StoreRelease(
+      'Microsoft Store',
+      (context) => launchURLWithWarning(context, _msStoreUrl),
+    );
+  }
+  if (Platform.isLinux) {
+    return _StoreRelease(
+      'Snap Store',
+      (context) => launchURLWithWarning(context, _snapUrl),
+    );
+  }
+  if (!Platform.isAndroid) {
+    return null;
+  }
+  if ((await PackageInfo.fromPlatform()).version.contains('store')) {
+    return _StoreRelease(
+      'Play Store',
+      (context) => launchURLWithWarning(context, _playStoreUrl),
+    );
+  }
+  final fdroidInstalled = await LaunchApp.isAppInstalled(
+    androidPackageName: 'org.fdroid.fdroid',
+    iosUrlScheme: 'fdroid://',
+  );
+  // F-Droid tracks the repo itself, so the app is opened rather than a link.
+  return fdroidInstalled == true
+      ? const _StoreRelease('F-Droid', _openFdroidApp)
+      : null;
+}
+
+Future<void> _openFdroidApp(BuildContext context) async {
+  await LaunchApp.openApp(
+    androidPackageName: 'org.fdroid.fdroid',
+    iosUrlScheme: 'fdroid://',
+    appStoreLink: 'itms-apps://itunes.apple.com/',
+    openStore: false,
+  );
 }
