@@ -245,7 +245,7 @@ are deliberately not duplicated here.
 
 ## Project skills
 
-`.github/skills/` holds eight Copilot-format skills. `.qoder/skills/`
+`.github/skills/` holds ten Copilot-format skills. `.qoder/skills/`
 holds two deep Qoder references plus a thin pointer to each Copilot skill,
 so Qoder agents can invoke them without the procedure being copied twice.
 
@@ -253,8 +253,9 @@ Start from `project-task` when the right specialist is unclear. The
 specialists are `github-issue-implementation`, `flutter-feature-iteration`,
 `flutter-test-repair`, `github-actions-repository-workflows`,
 `android-fastlane-release`, `firebase-hosting-config` and `close-chat`.
-The Qoder-only references are `vernet-testing` and
-`vernet-feature-scaffold`.
+Issue and board work goes to `github-issue-creator` and
+`github-project-manager`. The Qoder-only references are `vernet-testing`
+and `vernet-feature-scaffold`.
 
 Edit `.github/skills/` for procedure changes and keep the `.qoder/skills/`
 pointers thin, otherwise the two ecosystems drift apart.
