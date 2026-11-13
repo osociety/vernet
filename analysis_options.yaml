@@ -7,6 +7,11 @@ analyzer:
     missing_required_param: error
     missing_return: error
     must_be_immutable: error
+    # Flutter 3.50 deprecated the material.dart and cupertino.dart umbrella
+    # imports, so every widget file reports this: 104 + 9 infos, and those 113
+    # were the complete issue list. Warnings and errors stay fatal in CI and in
+    # the pre-commit hook, so a real regression still fails the build.
+    deprecated_member_use: ignore
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
