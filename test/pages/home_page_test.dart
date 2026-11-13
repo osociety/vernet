@@ -155,6 +155,29 @@ void main() {
       expect(find.text('CUSTOM'), findsNothing);
     });
 
+    testWidgets('names a missing signal reading as missing', (tester) async {
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          '192.168.1.10',
+          '00:11:22:33:44:55',
+          'Mock WiFi',
+          false,
+          '192.168.1.1',
+          true,
+          WifiNetworkMetrics.noReading(),
+        ),
+      );
+
+      // A confined snap with no iw, no nmcli and no WEXT entry has a live
+      // link and no signal number. Saying "disconnected" there told Linux
+      // users their network was down.
+      expect(find.text('Signal unavailable'), findsOneWidget);
+      expect(find.text('Disconnected / Unknown State'), findsNothing);
+      expect(find.text('CONNECTED'), findsOneWidget);
+    });
+
     testWidgets('badges the gateway when a custom subnet is in use',
         (tester) async {
       await pumpHomePage(

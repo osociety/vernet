@@ -111,7 +111,8 @@ Not sure which architecture you have? On Linux, run `uname -m`: `x86_64` means x
 sudo snap install vernet --beta
 ```
 
-Then connect the network permissions once, so the app can discover devices:
+Then connect the network permissions once, so the app can discover devices and
+read your Wi-Fi signal:
 
 ```bash
 sudo snap connect vernet:network-observe

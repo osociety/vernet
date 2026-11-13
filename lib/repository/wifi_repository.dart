@@ -22,7 +22,7 @@ class WifiRepository {
           final int? nativeLevel =
               await mobile.WifiSignalStrength.getSignalLevel();
 
-          if (dbm == null) return WifiNetworkMetrics.disconnected();
+          if (dbm == null) return WifiNetworkMetrics.noReading();
 
           return WifiNetworkMetrics(
             rawRssi: dbm,
@@ -41,9 +41,11 @@ class WifiRepository {
       // 2. Windows Desktop Layer
       if (Platform.isWindows) {
         final details = await windows.WifiManager.currentConnection();
-        final int percentage = details?.signalStrength ?? 0;
+        if (details == null) return WifiNetworkMetrics.disconnected();
+        final int percentage = details.signalStrength;
 
-        if (percentage <= 0) return WifiNetworkMetrics.disconnected();
+        // An adapter with no reading is not an adapter with no signal.
+        if (percentage <= 0) return WifiNetworkMetrics.noReading();
 
         // Inverse equation maps 0-100% telemetry to an estimated dBm window (-100 to -30 dBm)
         final int calculatedDbm = dbmFromSignalPercent(percentage);
@@ -57,7 +59,7 @@ class WifiRepository {
       // 3. macOS and Linux Core CLI Engine Fallbacks
       if (Platform.isMacOS || Platform.isLinux) {
         final int? desktopDbm = await _getDesktopFallbackRssi();
-        if (desktopDbm == null) return WifiNetworkMetrics.disconnected();
+        if (desktopDbm == null) return WifiNetworkMetrics.noReading();
 
         return WifiNetworkMetrics(
           rawRssi: desktopDbm,
@@ -69,7 +71,7 @@ class WifiRepository {
       debugPrint("Cross-platform unified Wi-Fi metrics failure: $error");
     }
 
-    return WifiNetworkMetrics.disconnected();
+    return WifiNetworkMetrics.noReading();
   }
 
   /// System execution methods targeting advanced desktop operating architectures
@@ -100,11 +102,15 @@ class WifiRepository {
   }
 
   /// Signal of the network Linux is associated with, in dBm, from the first
-  /// source that knows.
+  /// source that answers.
   ///
-  /// `/proc/net/wireless` is the old WEXT interface: mac80211 and iwd drivers,
-  /// which is everything current, do not create it, so reading only that file
-  /// reported no signal on a healthy connection.
+  /// Order matters for accuracy rather than speed: `iw` reads the driver's own
+  /// number, `nmcli` reads NetworkManager's 0-100 link quality, and
+  /// `/proc/net/wireless` is the WEXT compatibility file that a current
+  /// cfg80211-only kernel leaves as two header lines. A snap has to ship the
+  /// first two binaries itself — see snap/snapcraft.yaml — because the base
+  /// image does not carry them and none of the three is a defect in the
+  /// connection.
   static Future<int?> _linuxSignalDbm() async {
     return await _iwSignalDbm() ??
         await _nmcliSignalDbm() ??
