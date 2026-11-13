@@ -8,8 +8,11 @@ import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
+import 'package:vernet/store/inline_adaptive_banner.dart';
+import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 import 'package:vernet/values/tooltip_messages.dart';
@@ -147,9 +150,12 @@ class HostScanWidget extends StatelessWidget {
           ),
         Expanded(
           child: ListView.builder(
-            itemCount: activeHostList.length,
+            itemCount: activeHostList.length + kStoreBannerRows,
             itemBuilder: (context, index) {
-              final DeviceData host = activeHostList[index];
+              if (index < kStoreBannerRows) {
+                return const InlineAdaptiveBanner(slot: StoreAdSlot.hostScan);
+              }
+              final DeviceData host = activeHostList[index - kStoreBannerRows];
               final isCurrentDevice = DeviceUtil.isCurrentDevice(host);
               return AdaptiveListTile(
                 //TODO: fix below errors

@@ -252,6 +252,38 @@ Packaging scripts are located in:
 
 scripts/installers/
 
+## Build flavors
+
+Android builds in three flavors (`dev`, `fdroid`, `store`). Only `store`
+carries the proprietary SDKs, so the committed `pubspec.yaml` never
+declares them and the ad-free builds stay F-Droid compliant:
+
+-   `lib/values/build_flavor.dart` holds the const gates. A const
+    comparison against `String.fromEnvironment` folds at compile time, so
+    a flavor carries no dead branch in its AOT image.
+-   `lib/store/` is the inert seam every call site uses. It compiles
+    without an ad SDK and renders nothing.
+-   `store_overlay/` holds the real AdMob and InAppReview
+    implementations. `dart run scripts/build_store.dart` splices those
+    files into `lib/store/`, adds the SDK dependencies to `pubspec.yaml`,
+    builds the store bundle, then restores every touched file
+    byte-for-byte. The overlay never reaches a commit.
+-   Per-flavor manifest entries live in
+    `android/app/src/<flavor>/AndroidManifest.xml`.
+
+The release pipeline publishes from one build: `release-android` ships
+the ad-free APKs, then builds the store bundle in the same job and
+`publish-play-store` supplies it to Google Play, at the same stage as
+`publish-snap` does for the Snap Store.
+
+The Android integration workflow runs the whole suite once per flavor as a
+matrix. `flutter test --flavor` injects the same define a build does, which is
+the only route to the gated branches: `--dart-define=FLUTTER_APP_FLAVOR` is
+rejected as a reserved tool name, so unit tests can never reach them. A suite
+that reaches flavor-gated UI has to read the gate constants instead of assuming
+one flavor — `fdroid` has no update tile, and `store` prepends a banner row to
+the host, port and DNS lists.
+
 ------------------------------------------------------------------------
 
 # Design Principles

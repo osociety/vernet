@@ -19,6 +19,9 @@ on:
 permissions:
   contents: write
   discussions: write
+  # A called reusable workflow can only narrow the permissions of its caller,
+  # so this covers play_store_release.yml's download of the store bundle.
+  actions: read
 
 env:
   ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
@@ -244,6 +247,30 @@ jobs:
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_ARM_V8A}}
             ${{ env.ANDROID_BUILD_PATH}}/Vernet-${{env.RELEASE_TAG}}-${{env.ANDROID_APK_x86_64}}
 
+      # Last, so the ad-free APKs above are built from the committed tree and
+      # nothing downstream in this job reads a pubspec the overlay touched.
+      - name: Build the store app bundle
+        run: dart run scripts/build_store.dart
+
+      - name: Confirm the overlay did not leak
+        run: |
+          set -euo pipefail
+          git diff --exit-code pubspec.yaml pubspec.lock lib/store
+          if grep -q google_mobile_ads pubspec.yaml; then
+            echo "::error::pubspec.yaml still declares the ad SDK. F-Droid builds this file."
+            exit 1
+          fi
+
+      - name: Upload store bundle
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: store-bundle
+          path: build/app/outputs/bundle/storeRelease/app-store-release.aab
+          if-no-files-found: error
+          # Kept longer than the snap so a later track rollout can still reuse
+          # this exact, already tested bundle.
+          retention-days: 14
+
   release-linux:
     name: Build Linux ${{ matrix.architecture }} packages
     needs: create-release
@@ -357,6 +384,16 @@ jobs:
         with:
           snap: ${{ steps.snaps.outputs.arm64 }}
           release: beta # Change to 'stable', 'candidate', or 'beta' as needed
+
+  publish-play-store:
+    name: Publish store bundle to Google Play
+    needs:
+      - create-release
+      - release-android
+    uses: ./.github/workflows/play_store_release.yml
+    with:
+      track: beta
+    secrets: inherit
 
   release-firebase-hosting:
     name: Deploy Firebase Hosting with app release

@@ -13,8 +13,18 @@ concurrency:
 
 jobs:
   android-integration-test:
-    name: Android integration tests
+    name: Android integration tests (${{ matrix.flavor }})
     runs-on: ubuntu-latest
+
+    # The flavor is what these legs differ on. `flutter test --flavor` makes
+    # flutter_tools define FLUTTER_APP_FLAVOR, so lib/values/build_flavor.dart
+    # folds per leg and the fdroid and store branches are really built and run.
+    # No unit test can reach them: --dart-define of that name is rejected as a
+    # reserved tool define.
+    strategy:
+      fail-fast: false
+      matrix:
+        flavor: [dev, fdroid, store]
 
     steps:
       - name: Checkout
@@ -43,7 +53,9 @@ jobs:
         with:
           java_version: '17'
 
+      # Unit tests are flavor independent, so one leg runs them for the matrix.
       - name: Run unit tests
+        if: matrix.flavor == 'dev'
         run: flutter test
 
       - name: Android Emulator Runner
@@ -56,4 +68,8 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-window -no-boot-anim -camera-back none
           disable-animations: true
-          script: chmod +x ./scripts/android_integration && ./scripts/android_integration
+          # The store leg builds the committed tree, so lib/store/ holds the
+          # inert seam: this leg proves the gating, not AdMob itself. The real
+          # SDK is only ever spliced in by scripts/build_store.dart, and
+          # release-android verifies the resulting bundle by its contents.
+          script: chmod +x ./scripts/android_integration && ./scripts/android_integration ${{ matrix.flavor }}

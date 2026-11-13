@@ -1,0 +1,9 @@
+# Dependencies for the Google Play build only, indented as pubspec.yaml
+# `dependencies:` entries. scripts/build_store.dart splices this block in
+# before building and restores pubspec.yaml and pubspec.lock afterwards.
+#
+# Keep this ad-free by necessity in the reverse direction: anything listed here
+# must not be needed by lib/ outside of lib/store/, because F-Droid builds the
+# committed pubspec.yaml unchanged.
+  google_mobile_ads: ^9.1.0
+  in_app_review: ^2.0.12

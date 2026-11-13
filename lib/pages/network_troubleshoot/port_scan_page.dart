@@ -5,10 +5,13 @@ import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
+import 'package:vernet/store/inline_adaptive_banner.dart';
+import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/adaptive_radio.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 
 class PortScanPage extends StatefulWidget {
@@ -487,10 +490,16 @@ class _PortScanPageState extends State<PortScanPage>
                           ),
                         )
                       : ListView.builder(
-                          itemCount: _openPorts.length,
+                          itemCount: _openPorts.length + kStoreBannerRows,
                           itemBuilder: (context, index) {
+                            if (index < kStoreBannerRows) {
+                              return const InlineAdaptiveBanner(
+                                slot: StoreAdSlot.portScan,
+                              );
+                            }
+
                             final OpenPort openPort =
-                                _openPorts.toList()[index];
+                                _openPorts.toList()[index - kStoreBannerRows];
                             final port = allPorts[openPort.port.toString()];
 
                             return Column(
@@ -502,7 +511,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     right: 10.0,
                                   ),
                                   leading: Text(
-                                    '${index + 1}',
+                                    '${index - kStoreBannerRows + 1}',
                                     style:
                                         Theme.of(context).textTheme.titleMedium,
                                   ),

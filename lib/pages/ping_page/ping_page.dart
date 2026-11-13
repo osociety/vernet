@@ -8,6 +8,8 @@ import 'package:vernet/main.dart';
 import 'package:vernet/pages/base_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/network_score_repository.dart';
+import 'package:vernet/store/inline_adaptive_banner.dart';
+import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -160,6 +162,8 @@ class _PingPageState extends BasePage<PingPage> {
                     child: Text('Connection results will appear here'),
                   ),
                 ),
+              if (_pingPackets.isNotEmpty)
+                const InlineAdaptiveBanner(slot: StoreAdSlot.ping),
             ],
           );
         }

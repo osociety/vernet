@@ -1,0 +1,103 @@
+name: Play Store release
+
+# Publishes the Google Play bundle. The store flavor is this repository plus
+# store_overlay/, and the release pipeline builds it with
+# scripts/build_store.dart in the release-android job; this workflow only ever
+# uploads a bundle that run produced, which is why the ad SDK never reaches a
+# workflow that F-Droid, the snap or the GitHub APK depend on.
+#
+# Called from flutter_release.yml for the beta upload on every release, and
+# dispatched by hand to move a bundle to the production track. The Android
+# integration gate is not repeated here: it already ran before the release that
+# built this bundle, so the gate travels with the artifact.
+
+on:
+  workflow_call:
+    inputs:
+      track:
+        description: Google Play release track
+        type: string
+        required: false
+        default: beta
+      run_id:
+        description: Run that built the store bundle
+        type: string
+        required: false
+        default: ''
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Google Play release track
+        type: choice
+        options:
+          - beta
+          - production
+        default: beta
+        required: true
+      run_id:
+        description: Run ID that built the store bundle (blank for this run)
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  # Only needed when run_id points at an earlier release run.
+  actions: read
+
+concurrency:
+  group: play-store-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Upload store bundle to ${{ inputs.track }}
+    if: github.event.repository.fork != true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      # The fastfile lanes read the bundle from this exact relative path.
+      - name: Download store bundle
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: store-bundle
+          path: build/app/outputs/bundle/storeRelease
+          run-id: ${{ inputs.run_id || github.run_id }}
+          repository: ${{ github.repository }}
+
+      - name: Confirm the bundle is the store build
+        run: |
+          set -euo pipefail
+          bundle=build/app/outputs/bundle/storeRelease/app-store-release.aab
+          test -s "$bundle"
+          unzip -p "$bundle" base/manifest/AndroidManifest.xml \
+            | grep -q 'com.google.android.gms.ads.APPLICATION_ID'
+          echo "Publishing $(du -h "$bundle" | cut -f1) to the ${{ inputs.track }} track."
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1.221.0
+        with:
+          ruby-version: 3.4.2
+
+      - name: Cache bundle dependencies
+        uses: actions/cache@v4.2.2
+        with:
+          path: android/vendor/bundle
+          key: '${{ runner.os }}-gems-${{ hashFiles(''**/Gemfile.lock'') }}'
+          restore-keys: '${{ runner.os }}-gems-'
+
+      - name: Install bundle dependencies
+        working-directory: android/
+        run: |
+          gem install bundler
+          bundle config path vendor/bundle
+          bundle install
+
+      - name: Release to Google Play
+        env:
+          SUPPLY_PACKAGE_NAME: '${{ secrets.ANDROID_PACKAGE_NAME }}'
+          SUPPLY_JSON_KEY_DATA: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}'
+        working-directory: android/
+        run: bundle exec fastlane android ${{ inputs.track == 'beta' && 'beta' || 'deploy_full' }}

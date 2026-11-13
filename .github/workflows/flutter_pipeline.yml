@@ -11,6 +11,9 @@ permissions:
   contents: write
   pull-requests: read
   discussions: write
+  # The cap travels down the whole uses: chain, and publish-release calls
+  # flutter_release.yml, which calls play_store_release.yml needing actions.
+  actions: read
 
 concurrency:
   group: flutter-main-pipeline-${{ github.ref }}

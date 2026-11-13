@@ -1,17 +1,51 @@
 #!/usr/bin/env bash
 
+# Usage: scripts/android_integration [dev|fdroid|store]
+#
+# One flavor per run, which is how the CI matrix spreads the suite across three
+# emulators. --flavor is what puts FLUTTER_APP_FLAVOR into the Dart defines, so
+# this is the only path that exercises the fdroid and store branches.
+
+set -uo pipefail
+
+flavor="${1:-dev}"
+case "$flavor" in
+    dev | fdroid | store) ;;
+    *)
+        echo "unknown flavor '$flavor' (expected dev, fdroid or store)" >&2
+        exit 2
+        ;;
+esac
+
+# Only the store flavor carries an applicationIdSuffix (android/app/build.gradle).
+package="org.fsociety.vernet"
+if [ "$flavor" = "store" ]; then
+    package="org.fsociety.vernet.store"
+fi
+
+echo "Running integration tests for flavor '$flavor' as $package"
+
+# CI attaches exactly one device, so it needs no -d. Set FLUTTER_TEST_DEVICE
+# when running this on a machine that also has a desktop device registered.
 adb shell settings put secure show_ime_with_hard_keyboard 0
-flutter test integration_test/app_test.dart --flavor dev &
+if [ -n "${FLUTTER_TEST_DEVICE:-}" ]; then
+    flutter test integration_test/app_test.dart --flavor "$flavor" \
+        -d "$FLUTTER_TEST_DEVICE" &
+else
+    flutter test integration_test/app_test.dart --flavor "$flavor" &
+fi
 test_pid=$!
 
+# The flavored build has to install before the grants can bind to it, and
+# LocationTool needs both permissions to scan at all.
 for attempt in $(seq 1 60); do
-    if adb shell pm list packages | grep -q 'org.fsociety.vernet'; then
-    break
+    if adb shell pm list packages | grep -qx "package:$package"; then
+        break
     fi
     sleep 5
 done
 
-adb shell pm grant org.fsociety.vernet android.permission.ACCESS_FINE_LOCATION || true
-adb shell pm grant org.fsociety.vernet android.permission.ACCESS_COARSE_LOCATION || true
+adb shell pm grant "$package" android.permission.ACCESS_FINE_LOCATION || true
+adb shell pm grant "$package" android.permission.ACCESS_COARSE_LOCATION || true
 adb shell settings put secure location_mode 3
 wait "$test_pid"

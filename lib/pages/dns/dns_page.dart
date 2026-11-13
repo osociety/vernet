@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/store/inline_adaptive_banner.dart';
+import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -27,9 +30,12 @@ class _DNSPageState extends BasePage<DNSPage> {
             ),
           )
         : ListView.builder(
-            itemCount: _addresses.length,
+            itemCount: _addresses.length + kStoreBannerRows,
             itemBuilder: (context, index) {
-              final address = _addresses[index];
+              if (index < kStoreBannerRows) {
+                return const InlineAdaptiveBanner(slot: StoreAdSlot.dns);
+              }
+              final address = _addresses[index - kStoreBannerRows];
               return AdaptiveListTile(
                 key: WidgetKey.dnsResultTile.key,
                 onTap: () {
