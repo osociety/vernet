@@ -1,0 +1,139 @@
+name: Microsoft Store release
+
+# Publishes the multi-architecture MSIX bundle to the live Store product.
+# flutter_release.yml's publish-windows job builds and signs that bundle; this
+# workflow only hands those exact bytes to the Store, which is why it never
+# builds — the same shape as play_store_release.yml, including the run_id
+# input that re-publishes an older release's bundle.
+#
+# `msstore publish` commits the submission, so a release run goes straight
+# into Store certification. Two consequences worth knowing:
+#   - The CLI cannot make a first publication, it can only update a product
+#     that is already live. 9N1170N3PHMM is.
+#   - publish rebuilds the draft from the last published submission and throws
+#     away any listing metadata staged in that draft, so it shares its
+#     concurrency group with ms_store_metadata.yml and the two never overlap.
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        description: Run that built the MSIX bundle
+        type: string
+        required: false
+        default: ''
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Run ID that built the MSIX bundle (blank for this run)
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  # Only needed when run_id points at an earlier release run.
+  actions: read
+
+concurrency:
+  group: ms-store-publish
+  cancel-in-progress: false
+
+env:
+  # Not a secret: the product ID is the public Store listing URL segment and
+  # README.md already links it.
+  MSSTORE_PRODUCT_ID: 9N1170N3PHMM
+  # Pinned so a CLI release cannot change what a publish does unreviewed.
+  # v0.4.2 added --payload for large submission JSON and stopped
+  # --uploadTimeout defaulting to 0, which failed every blob upload; v0.4.3
+  # keeps a free product's price when publishing.
+  MSSTORE_CLI_VERSION: v0.4.4
+
+jobs:
+  publish:
+    name: Publish MSIX bundle to Microsoft Store
+    if: github.event.repository.fork != true
+    runs-on: windows-2022
+    steps:
+      # The Store publishes one file for both architectures, so the bundle
+      # artifact is the only thing this job needs from the release run.
+      - name: Download MSIX bundle
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: msix-bundle
+          path: release
+          run-id: ${{ inputs.run_id || github.run_id }}
+          repository: ${{ github.repository }}
+
+      - name: Confirm the bundle carries both architectures
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $bundle = Get-ChildItem release -Filter '*.msixbundle' -File | Select-Object -First 1
+          if (-not $bundle) { throw 'The msix-bundle artifact contained no .msixbundle.' }
+
+          # A single-architecture bundle publishes cleanly and then ships to
+          # only part of the install base, so both packages have to be inside.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($bundle.FullName)
+          try {
+            $entry = $zip.GetEntry('AppxBundleManifest.xml')
+            if (-not $entry) { throw "$($bundle.Name) has no AppxBundleManifest.xml." }
+            $packages = @($zip.Entries | Where-Object { $_.Name -like '*.msix' } | ForEach-Object FullName)
+            $reader = [System.IO.StreamReader]::new($entry.Open())
+            try { [xml]$manifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
+          } finally { $zip.Dispose() }
+
+          foreach ($architecture in @('x64', 'arm64')) {
+            if (-not ($packages | Where-Object { $_ -match $architecture })) {
+              throw "Bundle carries no $architecture package: $($packages -join ', ')"
+            }
+          }
+
+          Write-Host "Publishing $($bundle.Name) ($($packages -join ', '))."
+          $version = $manifest.Package.Identity.Version
+          if ($version) { Write-Host "Bundle version $version." }
+
+          # The next steps run in a separate shell, so hand the path over as
+          # an environment variable instead of re-discovering it.
+          "MSSTORE_BUNDLE=$($bundle.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Configure the Microsoft Store CLI
+        uses: microsoft/microsoft-store-apppublisher@v1.4
+        with:
+          version: ${{ env.MSSTORE_CLI_VERSION }}
+
+      # Credentials go through the step environment rather than being
+      # interpolated into the script text, so no secret lands in the rendered
+      # command line. $ErrorActionPreference cannot see a native exit code, so
+      # every msstore call is checked the way the Windows build steps do.
+      - name: Reconfigure store credentials
+        env:
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+          SELLER_ID: ${{ secrets.SELLER_ID }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          msstore reconfigure --tenantId "$env:AZURE_AD_TENANT_ID" --sellerId "$env:SELLER_ID" `
+            --clientId "$env:AZURE_AD_APPLICATION_CLIENT_ID" --clientSecret "$env:AZURE_AD_APPLICATION_SECRET"
+          if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure exited with $LASTEXITCODE." }
+
+      - name: Publish the package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          msstore publish "$env:MSSTORE_BUNDLE" --appId "$env:MSSTORE_PRODUCT_ID"
+          if ($LASTEXITCODE -ne 0) {
+            throw "msstore publish exited with $LASTEXITCODE - the submission was not committed."
+          }
+
+      # Read-only, and the log is where the certification state is visible
+      # without opening Partner Center. A failure here says nothing about the
+      # publish above, so it must not turn a green publish red.
+      - name: Report the submission state
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        shell: pwsh
+        run: msstore submission status "$env:MSSTORE_PRODUCT_ID"

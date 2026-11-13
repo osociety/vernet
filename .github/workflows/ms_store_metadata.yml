@@ -1,0 +1,158 @@
+name: Microsoft Store metadata
+
+# Keeps the Store listing (description, screenshots, release notes, locales)
+# under version control, the way the snap and Play listings already are.
+#
+# The Store will not accept a partial listing: `submission updateMetadata`
+# replaces the whole submission, so metadata/metadata.json has to be the
+# complete JSON, not an edited fragment. That is what mode `get` produces —
+# run it once, download the artifact, and commit its metadata/metadata.json.
+# From then on a push to that file on main publishes the listing.
+#
+# Publishing a package (ms_store_release.yml) rebuilds the draft from the last
+# published submission and discards metadata staged in it, so this workflow
+# shares that workflow's concurrency group instead of running alongside it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - metadata/metadata.json
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: get captures the live listing, update publishes metadata/metadata.json
+        type: choice
+        options:
+          - get
+          - update
+        default: get
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ms-store-publish
+  cancel-in-progress: false
+
+env:
+  # Same product and same pinned CLI as ms_store_release.yml.
+  MSSTORE_PRODUCT_ID: 9N1170N3PHMM
+  MSSTORE_CLI_VERSION: v0.4.4
+
+jobs:
+  metadata:
+    name: ${{ inputs.mode == 'get' && 'Fetch' || 'Publish' }} Store listing metadata
+    if: github.event.repository.fork != true
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Configure the Microsoft Store CLI
+        uses: microsoft/microsoft-store-apppublisher@v1.4
+        with:
+          version: ${{ env.MSSTORE_CLI_VERSION }}
+
+      - name: Reconfigure store credentials
+        env:
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+          SELLER_ID: ${{ secrets.SELLER_ID }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          msstore reconfigure --tenantId "$env:AZURE_AD_TENANT_ID" --sellerId "$env:SELLER_ID" `
+            --clientId "$env:AZURE_AD_APPLICATION_CLIENT_ID" --clientSecret "$env:AZURE_AD_APPLICATION_SECRET"
+          if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure exited with $LASTEXITCODE." }
+
+      # The payload goes to stdout and the progress text to stderr, so the
+      # redirect captures clean JSON. Parsing it here stops a truncated or
+      # empty capture from becoming a committed listing.
+      #
+      # The captured submission also carries the package blob URLs, and those
+      # come back with a shared-access signature attached -- a credential for
+      # a public repository's history and its artifacts. The listing keeps the
+      # URL without the query, so nothing signed leaves the runner.
+      - name: Capture the live submission
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'get'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path metadata | Out-Null
+          msstore submission get "$env:MSSTORE_PRODUCT_ID" |
+            Set-Content -Path metadata/metadata.json -Encoding utf8
+          if ($LASTEXITCODE -ne 0) { throw "msstore submission get exited with $LASTEXITCODE." }
+
+          $submission = Get-Content -Raw metadata/metadata.json | ConvertFrom-Json
+          if (-not $submission) { throw 'The captured submission was not valid JSON.' }
+
+          $raw = Get-Content -Raw metadata/metadata.json
+          $redacted = [regex]::Replace($raw, '(https://[^"]*\.blob\.core\.windows\.net/[^"]*)\?[^"]*', '$1')
+          if ($redacted -match 'sig=' -or $redacted -match 'skoid=') {
+            throw 'A signed blob URL survived redaction; refusing to publish it.'
+          }
+          if ($redacted -ne $raw) { Write-Host 'Stripped shared-access query strings from the package URLs.' }
+          Set-Content -Path metadata/metadata.json -Value $redacted -Encoding utf8 -NoNewline
+
+          Write-Host "Captured $(@($submission.listings.PSObject.Properties.Name).Count) locales, $(($redacted | ConvertFrom-Json | ConvertTo-Json -Depth 100 -Compress).Length) characters."
+
+      - name: Upload the captured submission
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'get'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ms-store-metadata
+          path: metadata/metadata.json
+          if-no-files-found: error
+          retention-days: 1
+
+      # The Store rejects an update whose base price is missing or the
+      # placeholder 'Base' that the API returns for a product priced in every
+      # market the same way, which is how a free app is priced. Repairing it
+      # here keeps a captured listing publishable without hand-editing JSON.
+      - name: Check the metadata file
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path metadata/metadata.json)) {
+            throw 'metadata/metadata.json is missing. Run this workflow with mode=get and commit the artifact it uploads.'
+          }
+          $submission = Get-Content -Raw metadata/metadata.json | ConvertFrom-Json
+          if (-not $submission) { throw 'metadata/metadata.json is not valid JSON.' }
+
+          if (-not $submission.pricing.priceId -or $submission.pricing.priceId -eq 'Base') {
+            Write-Host "pricing.priceId was '$($submission.pricing.priceId)'; Vernet is free, so the update sends Free."
+            if ($null -eq $submission.pricing) {
+              $submission | Add-Member -NotePropertyName pricing -NotePropertyValue ([PSCustomObject]@{})
+            }
+            $submission.pricing | Add-Member -NotePropertyName priceId -NotePropertyValue 'Free' -Force
+            $submission | ConvertTo-Json -Depth 100 | Set-Content -Path metadata/metadata.json -Encoding utf8
+          }
+
+      # --payload rather than the JSON inline: a 28-locale listing passes the
+      # 32,767 character command-line limit that Microsoft's own snippet hits.
+      - name: Update the submission metadata
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $payload = (Resolve-Path metadata/metadata.json).Path
+          msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload
+          if ($LASTEXITCODE -ne 0) { throw "msstore submission updateMetadata exited with $LASTEXITCODE." }
+
+      - name: Publish the submission
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          msstore submission publish "$env:MSSTORE_PRODUCT_ID"
+          if ($LASTEXITCODE -ne 0) { throw "msstore submission publish exited with $LASTEXITCODE." }
+
+      - name: Report the submission state
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        shell: pwsh
+        run: msstore submission status "$env:MSSTORE_PRODUCT_ID"
