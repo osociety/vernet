@@ -116,6 +116,25 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
+          # msstore binds --sellerId as a string and runs it through
+          # Convert.ToInt32, so a value that is not the plain MPN number dies
+          # inside .NET with a FormatException whose only clue is a masked
+          # secret. The shape is the whole diagnosis: the Account ID GUID, a
+          # thousands separator and a pasted non-breaking space differ here.
+          [int]$sellerId = 0
+          if (-not [int]::TryParse("$env:SELLER_ID", [ref] $sellerId)) {
+            $value = "$env:SELLER_ID"
+            if ($value.Length -eq 0) { throw 'SELLER_ID is empty: the secret is not set for this run.' }
+            $classes = @()
+            if ($value -match '[A-Za-z]') { $classes += 'letters' }
+            if ($value -match '-') { $classes += 'dashes' }
+            if ($value -match '[0-9],[0-9]') { $classes += 'thousands separators' }
+            if ($value -match '\s') { $classes += 'whitespace' }
+            if ($value -match '[^\x20-\x7E]') { $classes += 'non-ASCII bytes' }
+            $digits = ($value -replace '\D', '').Length
+            $found = if ($classes.Count -gt 0) { $classes -join ', ' } else { 'a number past the 32-bit id msstore expects' }
+            throw "SELLER_ID must be the numeric Seller Id from Partner Center (Account settings > Organization profile > Legal info). It has $($value.Length) characters, $digits of them digits; found $found."
+          }
           msstore reconfigure --tenantId "$env:AZURE_AD_TENANT_ID" --sellerId "$env:SELLER_ID" `
             --clientId "$env:AZURE_AD_APPLICATION_CLIENT_ID" --clientSecret "$env:AZURE_AD_APPLICATION_SECRET"
           if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure exited with $LASTEXITCODE." }
