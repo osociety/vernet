@@ -54,6 +54,10 @@ pre-release builds reach real networks mostly through volunteers. If you are
 willing to run a build that might break, you are exactly who this project
 needs.
 
+The app's **Settings → Updates & beta** page switches the update check between
+the stable and pre-release listings, and spells out how to join the beta track
+and how automatic updates work on your platform.
+
 ### Android
 
 Pick either route:

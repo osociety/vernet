@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/settings_page.dart';
+import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 
 void main() {
@@ -43,6 +45,38 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DonatePage), findsOneWidget);
+    });
+
+    testWidgets('updates tile opens the channel page', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      AppSettings.instance.resetForTesting();
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: const MaterialApp(home: SettingsPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final tile = find.byKey(WidgetKey.updateSettingsTile.key);
+      // The flavored test matrix runs this file per flavor, and the fdroid
+      // build ships no update check at all.
+      if (!kUpdateChecksEnabled) {
+        expect(tile, findsNothing);
+        return;
+      }
+
+      await tester.ensureVisible(tile);
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(UpdatesPage), findsOneWidget);
+      // The check itself moved onto the page it opens.
+      expect(
+        find.byKey(WidgetKey.checkForUpdatesButton.key),
+        findsOneWidget,
+      );
     });
   });
 }

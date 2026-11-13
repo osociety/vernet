@@ -99,7 +99,12 @@ enum WidgetKey implements Comparable<WidgetKey> {
   donateMicrosoftStoreTile('donateMicrosoftStoreTile'),
   donateSettingsTile('donateSettingsTile'),
   rateAppTile('rateAppTile'),
-  donateHomeButton('donateHomeButton');
+  donateHomeButton('donateHomeButton'),
+  updateSettingsTile('updateSettingsTile'),
+  updateStableTile('updateStableTile'),
+  updateBetaTile('updateBetaTile'),
+  updateBetaOptInTile('updateBetaOptInTile'),
+  updateCopyCommandButton('updateCopyCommandButton');
 
   const WidgetKey(this.value);
   final String value;

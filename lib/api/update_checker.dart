@@ -9,24 +9,16 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/update_channel_dialog.dart';
-
-const String _githubReleasesUrl =
-    'https://github.com/osociety/vernet/releases/latest';
-const String _playStoreUrl =
-    'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
-const String _msStoreUrl = 'https://apps.microsoft.com/detail/9N1170N3PHMM';
-const String _snapUrl = 'https://snapcraft.io/vernet';
+import 'package:vernet/values/store_links.dart';
 
 @visibleForTesting
 Future<bool> checkUpdates(
   String v, {
   http.Client? client,
   Uri? url,
+  bool beta = false,
 }) async {
-  final Uri target = url ??
-      Uri.parse(
-        'https://api.github.com/repos/osociety/vernet/releases/latest',
-      );
+  final Uri target = url ?? releaseApiUrlFor(beta: beta);
   final c = client ?? http.Client();
   final response = await c.get(target);
   if (response.statusCode == HttpStatus.ok) {
@@ -37,16 +29,22 @@ Future<bool> checkUpdates(
       }
 
       final dynamic payload = jsonDecode(response.body);
-      // Only the single-release object shape is accepted. The old tags-array
-      // branch had no way to tell a beta tag from a stable one, and `/tags`
-      // listings would still expose pre-releases to stable installs.
-      if (payload is! Map<String, dynamic>) return false;
-      // `/releases/latest` already excludes drafts and pre-releases; this keeps
-      // an injected `/releases` listing URL from offering a beta to users.
-      if (payload['prerelease'] == true || payload['draft'] == true) {
-        return false;
-      }
-      final dynamic tagName = payload['tag_name'];
+      // The beta endpoint is a listing, so the newest entry has to be taken
+      // out of it. `/releases/latest` answers with the release itself.
+      final dynamic release = payload is List<dynamic>
+          ? (payload.isEmpty ? null : payload.first)
+          : payload;
+      // Only the release-object shape is accepted. A `/tags` listing would
+      // have no way to tell a beta tag from a stable one.
+      if (release is! Map<String, dynamic>) return false;
+      // A draft is never published, to beta testers or anyone else.
+      if (release['draft'] == true) return false;
+      // Every release this repo cuts starts life as a pre-release and is
+      // promoted to stable by hand, so `/releases/latest` is the promoted one
+      // and a pre-release in the listing is the current beta. Offering one to
+      // a stable install is the bug that beta testers reported.
+      if (release['prerelease'] == true && !beta) return false;
+      final dynamic tagName = release['tag_name'];
       if (tagName is! String) return false;
 
       final remoteVersion = _versionParts(tagName);
@@ -61,6 +59,15 @@ Future<bool> checkUpdates(
   }
   return false;
 }
+
+/// Which GitHub endpoint the channel is read from.
+///
+/// Stable asks for the newest non-draft, non-pre-release; beta asks for the
+/// newest release of any kind.
+@visibleForTesting
+Uri releaseApiUrlFor({required bool beta}) => beta
+    ? Uri.parse('$githubReleasesApiUrl?per_page=1')
+    : Uri.parse(githubLatestReleaseApiUrl);
 
 List<int>? _versionParts(String version) {
   var normalized = version.trim();
@@ -94,9 +101,17 @@ Future<bool> checkUpdatesForTest(
   String v, {
   http.Client? client,
   Uri? url,
+  bool beta = false,
 }) {
-  return checkUpdates(v, client: client, url: url);
+  return checkUpdates(v, client: client, url: url, beta: beta);
 }
+
+/// `compute` accepts one message, so the version and the channel travel
+/// together.
+Future<bool> _checkUpdatesForChannel(Map<String, dynamic> args) => checkUpdates(
+      args['version'] as String,
+      beta: args['beta'] as bool,
+    );
 
 Future<void> checkForUpdates(
   BuildContext context, {
@@ -107,9 +122,14 @@ Future<void> checkForUpdates(
     final String v = '${info.version}+${info.buildNumber}';
     bool available = false;
     if (appSettings.inAppInternet) {
-      available = await compute(checkUpdates, v);
+      available = await compute(
+        _checkUpdatesForChannel,
+        <String, dynamic>{'version': v, 'beta': appSettings.betaUpdates},
+      );
     }
-    ScaffoldMessenger.of(context).clearSnackBars();
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
     Widget? content;
     SnackBarAction? action;
     if (available) {
@@ -129,8 +149,8 @@ Future<void> checkForUpdates(
         }
       }
     }
-    if (ScaffoldMessenger.of(context).mounted && content != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (content != null) {
+      messenger.showSnackBar(
         SnackBar(
           content: content,
           action: action,
@@ -145,13 +165,15 @@ Future<void> checkForUpdates(
 /// Store releases trail the GitHub one, so the user is asked which to open.
 Future<void> navigateToStore(BuildContext context) async {
   final store = await _storeRelease();
+  if (!context.mounted) return;
   final channel =
       await UpdateChannelDialog.show(context, storeLabel: store?.label);
+  if (!context.mounted) return;
   switch (channel) {
     case UpdateChannel.store:
       await store?.open(context);
     case UpdateChannel.github:
-      await launchURLWithWarning(context, _githubReleasesUrl);
+      await launchURLWithWarning(context, githubLatestReleaseUrl);
     case null:
       break;
   }
@@ -169,13 +191,13 @@ Future<_StoreRelease?> _storeRelease() async {
   if (Platform.isWindows) {
     return _StoreRelease(
       'Microsoft Store',
-      (context) => launchURLWithWarning(context, _msStoreUrl),
+      (context) => launchURLWithWarning(context, microsoftStoreListingUrl),
     );
   }
   if (Platform.isLinux) {
     return _StoreRelease(
       'Snap Store',
-      (context) => launchURLWithWarning(context, _snapUrl),
+      (context) => launchURLWithWarning(context, snapStoreListingUrl),
     );
   }
   if (!Platform.isAndroid) {
@@ -184,7 +206,7 @@ Future<_StoreRelease?> _storeRelease() async {
   if ((await PackageInfo.fromPlatform()).version.contains('store')) {
     return _StoreRelease(
       'Play Store',
-      (context) => launchURLWithWarning(context, _playStoreUrl),
+      (context) => launchURLWithWarning(context, playStoreListingUrl),
     );
   }
   final fdroidInstalled = await LaunchApp.isAppInstalled(
