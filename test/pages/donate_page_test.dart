@@ -14,20 +14,29 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('DonatePage', () {
-    final tiles = [
+    // `flutter test` runs on the host that built it, so the store row is
+    // whatever this machine's platform resolves to — never Google Play unless
+    // the test host is Android.
+    final universal = [
       WidgetKey.donateLiberapayTile.key,
       WidgetKey.donateKofiTile.key,
       WidgetKey.donateRepositoryTile.key,
-      WidgetKey.donatePlayStoreTile.key,
     ];
 
     testWidgets('lists every support channel', (tester) async {
       await tester.pumpWidget(_wrap(const DonatePage()));
 
-      for (final key in tiles) {
+      for (final key in universal) {
         expect(find.byKey(key), findsOneWidget, reason: '$key missing');
       }
       expect(find.text('Support Vernet'), findsOneWidget);
+    });
+
+    testWidgets('offers no Play rating row off Android', (tester) async {
+      await tester.pumpWidget(_wrap(const DonatePage()));
+
+      expect(find.byKey(WidgetKey.donatePlayStoreTile.key), findsNothing);
+      expect(find.text('Rate Vernet on Google Play'), findsNothing);
     });
 
     testWidgets('a channel opens the external link warning with its url',
@@ -47,6 +56,33 @@ void main() {
       expect(DonatePage.koFiUrl, 'https://ko-fi.com/fs0c13ty');
       expect(DonatePage.repositoryUrl, 'https://github.com/osociety/vernet');
       expect(DonatePage.playStoreUrl, contains('org.fsociety.vernet.store'));
+      expect(DonatePage.microsoftStoreUrl, contains('9N1170N3PHMM'));
+    });
+
+    test('only the platform with ratings gets the rating row', () {
+      expect(
+        DonatePage.ratingStoreFor(os: 'android', isStoreBuild: true),
+        RatingStore.play,
+      );
+      // An F-Droid or dev install is not on Play and asking for a Play rating
+      // there is wrong twice over.
+      expect(
+        DonatePage.ratingStoreFor(os: 'android', isStoreBuild: false),
+        RatingStore.none,
+      );
+      expect(
+        DonatePage.ratingStoreFor(os: 'windows', isStoreBuild: false),
+        RatingStore.microsoft,
+      );
+      // The Snap Store takes no reviews, and there is no Mac App Store build.
+      expect(
+        DonatePage.ratingStoreFor(os: 'linux', isStoreBuild: false),
+        RatingStore.none,
+      );
+      expect(
+        DonatePage.ratingStoreFor(os: 'macos', isStoreBuild: false),
+        RatingStore.none,
+      );
     });
 
     test('the Android wording makes no ad-free claim', () {
@@ -63,13 +99,13 @@ void main() {
 
       await tester.pumpWidget(_wrap(const DonatePage()));
       await tester.dragUntilVisible(
-        find.byKey(WidgetKey.donatePlayStoreTile.key),
+        find.byKey(WidgetKey.donateRepositoryTile.key),
         find.byType(ListView),
         const Offset(0, 100),
       );
 
       expect(tester.takeException(), isNull);
-      expect(find.byKey(WidgetKey.donatePlayStoreTile.key), findsOneWidget);
+      expect(find.byKey(WidgetKey.donateRepositoryTile.key), findsOneWidget);
     });
   });
 }

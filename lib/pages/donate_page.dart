@@ -3,7 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
+import 'package:vernet/values/store_links.dart';
+
+/// The store on this platform where a rating actually reaches other users.
+enum RatingStore { play, microsoft, none }
 
 /// Channels that fund Vernet's development, mirroring the repository's
 /// README and `.github/FUNDING.yml`.
@@ -12,9 +17,9 @@ class DonatePage extends StatelessWidget {
 
   static const String liberapayUrl = 'https://liberapay.com/OpenSociety/donate';
   static const String koFiUrl = 'https://ko-fi.com/fs0c13ty';
-  static const String repositoryUrl = 'https://github.com/osociety/vernet';
-  static const String playStoreUrl =
-      'https://play.google.com/store/apps/details?id=org.fsociety.vernet.store';
+  static const String repositoryUrl = githubRepositoryUrl;
+  static const String playStoreUrl = playStoreListingUrl;
+  static const String microsoftStoreUrl = microsoftStoreListingUrl;
 
   /// The Android build carries ads, so it cannot claim an ad-free app.
   @visibleForTesting
@@ -26,9 +31,31 @@ class DonatePage extends StatelessWidget {
           'paid features. Donations pay for the devices, testing and '
           'development time behind every release.';
 
+  /// A rating ask only works where the platform's listing takes reviews and is
+  /// where the user actually installed from.
+  ///
+  /// The Snap Store has no reviews, there is no Mac App Store build, and an
+  /// F-Droid install is not on Play, so those platforms keep the three rows
+  /// everyone can act on instead of a link to a store the user is not in.
+  @visibleForTesting
+  static RatingStore ratingStoreFor({
+    required String os,
+    required bool isStoreBuild,
+  }) {
+    if (os == 'android') {
+      return isStoreBuild ? RatingStore.play : RatingStore.none;
+    }
+    if (os == 'windows') return RatingStore.microsoft;
+    return RatingStore.none;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final rating = ratingStoreFor(
+      os: Platform.operatingSystem,
+      isStoreBuild: kStoreBuild,
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('Support Vernet')),
       body: Center(
@@ -66,14 +93,24 @@ class DonatePage extends StatelessWidget {
                 subtitle: 'Costs nothing, and it helps others find the app',
                 url: repositoryUrl,
               ),
-              _channel(
-                context,
-                tileKey: WidgetKey.donatePlayStoreTile.key,
-                icon: Icons.thumb_up,
-                title: 'Rate Vernet on Google Play',
-                subtitle: 'Ratings are how a free app gets discovered',
-                url: playStoreUrl,
-              ),
+              if (rating == RatingStore.play)
+                _channel(
+                  context,
+                  tileKey: WidgetKey.donatePlayStoreTile.key,
+                  icon: Icons.thumb_up,
+                  title: 'Rate Vernet on Google Play',
+                  subtitle: 'Ratings are how a free app gets discovered',
+                  url: playStoreUrl,
+                ),
+              if (rating == RatingStore.microsoft)
+                _channel(
+                  context,
+                  tileKey: WidgetKey.donateMicrosoftStoreTile.key,
+                  icon: Icons.thumb_up,
+                  title: 'Review Vernet on the Microsoft Store',
+                  subtitle: 'Reviews are how a Store app gets found',
+                  url: microsoftStoreUrl,
+                ),
               const SizedBox(height: 8),
               Text(
                 'Reporting bugs and answering discussions are support too — '

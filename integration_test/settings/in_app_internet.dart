@@ -59,12 +59,21 @@ void main() {
       // reaches for is never built there.
       if (kUpdateChecksEnabled) {
         await TestUtils.scrollUntilVisibleByWidgetKey(
-          WidgetKey.checkForUpdatesButton,
+          WidgetKey.updateSettingsTile,
           tester,
           find,
           200.0,
         );
 
+        await TestUtils.tapByWidgetKey(
+          WidgetKey.updateSettingsTile,
+          tester,
+          find,
+        );
+
+        await tester.pumpAndSettle();
+
+        // The check itself lives on the updates page now.
         await TestUtils.tapByWidgetKey(
           WidgetKey.checkForUpdatesButton,
           tester,

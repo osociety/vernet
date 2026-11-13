@@ -93,6 +93,20 @@ parts:
       - libsqlite3-dev
       - libsqlite3-0
       - net-tools
+      # WifiRepository asks three sources in order: iw (nl80211, the driver's
+      # own dBm), nmcli (NetworkManager's 0-100 link quality) and
+      # /proc/net/wireless (WEXT). core22 ships no iw and no nmcli binary, so
+      # both Process.run calls failed silently and left only the WEXT file,
+      # which a cfg80211-only kernel keeps at two header lines — every Linux
+      # user saw an empty signal meter on a healthy connection.
+      #
+      # nmcli is the source that fits this confinement: the declared
+      # network-manager-observe plug is the read-only NetworkManager bus access
+      # it needs, and the README already asks users to connect it. iw is
+      # staged too, because it is small and answers with an exact reading
+      # wherever nl80211 is reachable.
+      - iw
+      - network-manager
 
     override-build: |
       # 0. Take the snap version from pubspec.yaml (1.4.10+67 -> 1.4.10)

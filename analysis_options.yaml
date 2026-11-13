@@ -3,15 +3,28 @@ include: package:lint/analysis_options.yaml
 
 analyzer:
   errors:
-    depend_on_referenced_packages: ignore
+    # Raised from the default `info` to `warning` because CI and the pre-commit
+    # hook run `flutter analyze --no-fatal-infos --fatal-warnings`, so at `info`
+    # a new undeclared import would print and still merge. lib/main.dart calls
+    # SharedPreferencesAndroid.registerWith(), which only worked while
+    # shared_preferences happened to resolve that implementation for it; it is
+    # now a declared dependency in pubspec.yaml.
+    depend_on_referenced_packages: warning
+    # Flutter 3.50 deprecated the `package:flutter/material.dart` and
+    # `package:flutter/cupertino.dart` umbrella imports and points at
+    # package:material_ui / package:cupertino_ui. Those are *parallel* widget
+    # libraries, not aliases: flutter/src/material is still a full copy
+    # alongside material_ui's own src. Mixing them breaks the Material ancestor
+    # lookup, so a dependency that still renders the old widgets throws inside
+    # our tree — SidebarX's InkWell failed `debugCheckHasMaterial` and 9
+    # notification tests with it when lib/ was moved to material_ui. 90 packages
+    # in the pub cache still import the umbrella libraries and only
+    # material_ui/cupertino_ui themselves import the replacements, so this
+    # cannot be fixed app-side. Revisit when the dependencies migrate.
+    deprecated_member_use: ignore
     missing_required_param: error
     missing_return: error
     must_be_immutable: error
-    # Flutter 3.50 deprecated the material.dart and cupertino.dart umbrella
-    # imports, so every widget file reports this: 104 + 9 infos, and those 113
-    # were the complete issue list. Warnings and errors stay fatal in CI and in
-    # the pre-commit hook, so a real regression still fails the build.
-    deprecated_member_use: ignore
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
@@ -39,12 +52,14 @@ linter:
     # Use parameter order as in json response
     #    always_put_required_named_parameters_first: false
 
+    # Deliberate, not suppression of a real defect: the eleven classes this
+    # fires on — WifiRepository, NotificationService, ConsentLoader, DeviceUtil,
+    # Ber, the CDP/LLDP/CLI/MIB neighbour parsers, and two test helpers — are
+    # namespaces of pure functions holding no state. Giving them an instance
+    # member would add nothing and rewrite every call site.
     avoid_classes_with_only_static_members: false
 
     sort_constructors_first: true
 
     # Good packages document everything
     public_member_api_docs: false
-    avoid_dynamic_calls: false
-    use_build_context_synchronously: false
-    avoid_positional_boolean_parameters: false

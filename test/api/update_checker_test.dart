@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,16 +46,25 @@ void main() {
   });
 
   group('update checker helper', () {
+    Map<String, dynamic> releaseMap(
+      String tagName, {
+      bool prerelease = false,
+      bool draft = false,
+    }) =>
+        {
+          'tag_name': tagName,
+          'prerelease': prerelease,
+          'draft': draft,
+        };
+
     String release(
       String tagName, {
       bool prerelease = false,
       bool draft = false,
     }) =>
-        jsonEncode({
-          'tag_name': tagName,
-          'prerelease': prerelease,
-          'draft': draft,
-        });
+        jsonEncode(
+          releaseMap(tagName, prerelease: prerelease, draft: draft),
+        );
 
     test('returns true when remote release is newer', () async {
       final client =
@@ -149,6 +159,51 @@ void main() {
     test('handles empty response body', () async {
       final client = MockClient((_) async => http.Response('', 200));
       final result = await checkUpdatesForTest('1.0.0', client: client);
+      expect(result, isFalse);
+    });
+
+    test('stable reads the promoted release, beta the newest of any kind', () {
+      expect(
+        releaseApiUrlFor(beta: false).toString(),
+        'https://api.github.com/repos/osociety/vernet/releases/latest',
+      );
+      expect(
+        releaseApiUrlFor(beta: true).toString(),
+        'https://api.github.com/repos/osociety/vernet/releases?per_page=1',
+      );
+    });
+
+    test('offers the newest pre-release to a beta install', () async {
+      final listing = jsonEncode([
+        releaseMap('v2.0.0+10', prerelease: true),
+      ]);
+      final client = MockClient((_) async => http.Response(listing, 200));
+
+      final result =
+          await checkUpdatesForTest('1.0.0+1', client: client, beta: true);
+      expect(result, isTrue);
+    });
+
+    test('never offers a draft, even to a beta install', () async {
+      final listing = jsonEncode([
+        releaseMap('v2.0.0+10', prerelease: true, draft: true),
+      ]);
+      final client = MockClient((_) async => http.Response(listing, 200));
+
+      final result =
+          await checkUpdatesForTest('1.0.0+1', client: client, beta: true);
+      expect(result, isFalse);
+    });
+
+    test('a listing on the stable check offers nothing', () async {
+      // The shape `/releases` returns, reached by an injected URL. A stable
+      // install must not be moved onto a pre-release by it.
+      final listing = jsonEncode([
+        releaseMap('v2.0.0+10', prerelease: true),
+      ]);
+      final client = MockClient((_) async => http.Response(listing, 200));
+
+      final result = await checkUpdatesForTest('1.0.0+1', client: client);
       expect(result, isFalse);
     });
   });

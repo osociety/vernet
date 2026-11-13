@@ -55,6 +55,9 @@ dependencies:
   provider: ^6.1.5
   # Reading and writing simple key-value pairs
   shared_preferences: ^2.5.6
+  # lib/main.dart calls SharedPreferencesAndroid.registerWith() directly, so
+  # this must be a declared dependency, not a transitive one pub can drop.
+  shared_preferences_android: ^2.5.4
   sidebarx: ^0.17.2
   # Multiplatform safe UI Canvas Asset
   signal_strength_indicator: ^0.5.0

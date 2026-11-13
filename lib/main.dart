@@ -164,6 +164,7 @@ class _MyAppState extends State<MyApp> {
       // The scan page is not an option here: it starts a fresh search, while a
       // tapped notification promises the results that were already found.
       final report = scan;
+      if (!navigator.mounted) return;
       await Navigator.push<void>(
         navigator.context,
         MaterialPageRoute<void>(

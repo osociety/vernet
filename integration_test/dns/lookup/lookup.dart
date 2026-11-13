@@ -13,6 +13,7 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
+
 import '../../settings/test_utils.dart';
 
 void main() {

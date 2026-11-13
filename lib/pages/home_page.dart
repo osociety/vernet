@@ -272,7 +272,7 @@ class _WifiDetailState extends State<HomePage> {
             ? '${info.metrics.statusMessage} · ${info.metrics.rawRssi} ${StringValue.signalStrengthUnit}'
             : connected
                 ? info.metrics.statusMessage
-                : 'Signal unavailable';
+                : 'Disconnected';
 
     return _OverviewPanel(
       child: Column(

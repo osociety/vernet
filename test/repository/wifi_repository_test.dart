@@ -1,7 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/repository/wifi_repository.dart';
 
 void main() {
+  group('WifiNetworkMetrics no-reading contract', () {
+    test('a missing reading is not reported as a disconnection', () {
+      final metrics = WifiNetworkMetrics.noReading();
+
+      expect(metrics.rawRssi, isNull);
+      expect(metrics.statusMessage, isNot(contains('Disconnected')));
+    });
+
+    test('nothing claims a signal value it does not have', () {
+      // 0 dBm is louder than any access point on the air, so the old
+      // sentinel read as a real measurement wherever a 0 was printed.
+      expect(WifiNetworkMetrics.noReading().rawRssi, isNull);
+      expect(WifiNetworkMetrics.disconnected().rawRssi, isNull);
+    });
+  });
+
   group('WifiRepository RSSI and Signal Level mappings', () {
     test('convertRssiToLevel maps dBm values properly', () {
       // Level 4 (Excellent): >= -55 dBm

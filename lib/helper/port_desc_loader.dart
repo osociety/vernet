@@ -12,7 +12,7 @@ Future<Map<String, Port>> _parsePortDesc(String json) async {
   for (final String key in ports.keys) {
     final List<dynamic> port = ports[key] as List<dynamic>;
     if (port.isNotEmpty) {
-      mPorts[key] = Port.fromJson(port[0]);
+      mPorts[key] = Port.fromJson(port[0] as Map<String, dynamic>);
     }
   }
   return mPorts;
