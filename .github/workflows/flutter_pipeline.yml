@@ -22,7 +22,8 @@ concurrency:
 jobs:
   # Push-time unit tests live inside the integration workflows, which run on
   # every platform this pipeline covers plus Android and iOS. Only pull
-  # requests need the standalone matrix, because integration jobs skip them.
+  # requests need the standalone matrix, because those push-time jobs skip
+  # them. The iOS leg carries no unit stage of its own.
   unit-tests:
     name: Unit tests and analysis
     if: github.event_name != 'push'
@@ -43,6 +44,14 @@ jobs:
 
   ios-integration-tests:
     name: iOS integration tests
+    # Push only. The leg costs one macOS ARM job and every push to a pull
+    # request branch re-pays it, so it stays off the PR path now that the
+    # simulator bring-up has been validated there (PR #610 ran the latest
+    # runtime leg green). Re-add `|| github.event_name == 'pull_request'`
+    # temporarily when a workflow or prepare_ios_simulator.sh change needs
+    # validating before it reaches main.
+    # Advisory either way: main has no required status checks and neither
+    # release job lists this leg in `needs`.
     if: github.event_name == 'push'
     uses: ./.github/workflows/ios-integration-test.yml
     secrets: inherit
