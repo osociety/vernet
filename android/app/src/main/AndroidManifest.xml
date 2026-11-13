@@ -16,7 +16,6 @@
         <intent>
             <action android:name="android.settings.WIFI_SETTINGS" />
         </intent>
-        <package android:name="org.fdroid.fdroid" /> 
     </queries>
    <application
         android:label="Vernet"

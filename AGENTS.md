@@ -149,6 +149,20 @@ Agents should avoid modifying these unless absolutely necessary.
 
 Most functionality should be implemented in Flutter/Dart.
 
+## Android build flavors
+
+`dev`, `fdroid` and `store` (see `README.md#build-flavors`). Only `store`
+carries AdMob and the Play SDK, and its code lives in `store_overlay/`, which
+`dart run scripts/build_store.dart` applies for the build and restores
+afterwards. So:
+
+-   `pubspec.yaml` stays ad-free. Never commit `google_mobile_ads` or
+    `in_app_review` there; F-Droid builds the committed file and rejects a
+    non-free dependency.
+-   Play-only behaviour goes behind the constants in `lib/values/build_flavor.dart`,
+    and the call sites use the `lib/store/` stubs, not the overlay files.
+-   Per-flavor manifest entries live in `android/app/src/<flavor>/AndroidManifest.xml`.
+
 ------------------------------------------------------------------------
 
 # Testing Guidelines

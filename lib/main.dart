@@ -35,7 +35,9 @@ import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/semantic_colors.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 AppSettings appSettings = AppSettings.instance;
@@ -67,6 +69,10 @@ Future<void> main() async {
   await appSettings.load();
 
   await NotificationService.initNotification();
+
+  if (kStoreBuild) {
+    await initializeStoreSdk();
+  }
 
   runApp(MyApp(stage));
   FlutterNativeSplash.remove();
@@ -238,7 +244,9 @@ class _HomePageState extends State<TabBarPage> {
   void initState() {
     super.initState();
     _sidebarController = SidebarXController(selectedIndex: 0, extended: true);
-    checkForUpdates(context);
+    if (kUpdateChecksEnabled) {
+      checkForUpdates(context);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showOnboardingPrompts();
     });
@@ -278,6 +286,11 @@ class _HomePageState extends State<TabBarPage> {
       _currentIndex = index;
     });
     _sidebarController.selectIndex(index);
+    // Opening Settings is the deepest commit a session reaches, so it is where
+    // Play is asked for a review. Only the store build has the SDK.
+    if (kStoreBuild && index == _navigationItems().length) {
+      unawaited(requestStoreReview());
+    }
   }
 
   List<SidebarXItem> _navigationItems() => [

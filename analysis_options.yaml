@@ -17,6 +17,10 @@ analyzer:
     - "**/*.gr.dart"
     - "**/*.config.dart"
     - build/**
+    # Store-only AdMob and InAppReview code, copied over lib/store/ by
+    # scripts/build_store.dart. Its SDKs are not dependencies of a normal
+    # build, so analyzing it here would fail on unresolvable imports.
+    - store_overlay/**
     - android/**
     - ios/**
     - web/**

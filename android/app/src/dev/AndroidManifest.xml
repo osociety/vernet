@@ -1,0 +1,9 @@
+<!-- Merged into src/main/AndroidManifest.xml for the dev flavor only: the APK
+     published on GitHub releases, which is the Android build that still carries
+     an in-app updater. The fdroid flavor has none (osociety/vernet#496), so it
+     must not query for the F-Droid package either. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <queries>
+        <package android:name="org.fdroid.fdroid" />
+    </queries>
+</manifest>

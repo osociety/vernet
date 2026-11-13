@@ -1,0 +1,18 @@
+<!-- Merged into src/main/AndroidManifest.xml for the store flavor only. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- AdMob reads the advertising id, and refuses to load a banner without
+         its application id. Both belong to this flavor alone: the F-Droid and
+         GitHub builds carry no ad SDK, and F-Droid flags one as the Ads and
+         NonFreeDep anti-features. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <queries>
+        <!-- Lets the updater offer the F-Droid channel when the app was
+             installed from there. -->
+        <package android:name="org.fdroid.fdroid" />
+    </queries>
+    <application>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9074226798924140~6155929904"/>
+    </application>
+</manifest>

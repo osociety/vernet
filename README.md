@@ -21,6 +21,8 @@ Vernet - Know your network
 |-----------|-----|-------|-------|---------|
 |<a href='https://f-droid.org/packages/org.fsociety.vernet'><img alt='Get it on F-Droid' src='https://fdroid.gitlab.io/artwork/badge/get-it-on.png'  width="100" /></a><a href='https://play.google.com/store/apps/details?id=org.fsociety.vernet.store'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'  width="100" /></a>| Coming soon |<a href='https://github.com/osociety/vernet/releases/latest'><img alt='Get it on GitHub Releases' src='https://i.ibb.co/q0mdc4Z/get-it-on-github.png'  width="100" /></a>|<a href="https://snapcraft.io/vernet"><img alt="Get it from the Snap Store" src="https://snapcraft.io/en/dark/install.svg" width="100" height="40"></a>|<a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="125"/></a>|
 
+The Google Play build contains ads. The F-Droid and GitHub builds are ad-free.
+
 ## Features
 
 1. See your Wi-Fi name, BSSID, local address, gateway, and subnet.
@@ -157,6 +159,33 @@ Note: the macOS build hasn't been notarized yet.
 
 ## Publishing to F-Droid
 You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
+
+## Build flavors
+
+Android is built in three flavors, and they differ in behavior, not only in id.
+
+| Flavor | Ships to | Behavior |
+|--------|----------|----------|
+| `dev` | GitHub releases | Ad-free, checks GitHub for a newer release at startup. |
+| `fdroid` | F-Droid | Ad-free and makes no GitHub request at all: no update check on startup and no update tile in Settings. |
+| `store` | Google Play (`org.fsociety.vernet.store`) | Ad-free build plus AdMob banners and the in-app review prompt. |
+
+One release run publishes all of them: the `dev` APKs go on the GitHub release,
+the `store` bundle goes to the Play beta track next to the Snap Store upload,
+and F-Droid builds the `fdroid` flavor from this repository itself.
+
+`lib/values/build_flavor.dart` reads the `FLUTTER_APP_FLAVOR` define that
+`flutter build` injects whenever `--flavor` is passed. Because the gate is a
+compile-time constant, the disabled code is removed from the binary rather than
+merely hidden at runtime. Anything built without a flavor — the snap, the
+desktop runners, iOS — gets the ad-free side with the update check.
+
+The `store` flavor is the only build carrying proprietary plugins, and they are
+deliberately absent from the committed `pubspec.yaml`: F-Droid rejects a non-free
+dependency there. `dart run scripts/build_store.dart` applies `store_overlay/`
+(the ad banner, the Play SDK calls, and the two dependencies), builds the
+bundle, then restores the tree byte for byte — including `pubspec.lock`, which
+F-Droid enforces.
 
 ## How to Contribute
 

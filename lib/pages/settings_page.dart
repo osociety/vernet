@@ -7,6 +7,7 @@ import 'package:vernet/main.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
@@ -14,6 +15,7 @@ import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/strings.dart';
 
@@ -200,18 +202,32 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-          Card(
-            child: AdaptiveListTile(
-              key: WidgetKey.checkForUpdatesButton.key,
-              title: const Text('Check for a newer version'),
-              trailing: IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  checkForUpdates(context, showIfNoUpdate: true);
-                },
+          if (kUpdateChecksEnabled)
+            Card(
+              child: AdaptiveListTile(
+                key: WidgetKey.checkForUpdatesButton.key,
+                title: const Text('Check for a newer version'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    checkForUpdates(context, showIfNoUpdate: true);
+                  },
+                ),
               ),
             ),
-          ),
+          if (kStoreBuild)
+            Card(
+              child: AdaptiveListTile(
+                key: WidgetKey.rateAppTile.key,
+                title: const Text('Rate Vernet'),
+                subtitle: const Text('Opens Google Play'),
+                trailing: Icon(
+                  Icons.star_border,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                onTap: openStoreListing,
+              ),
+            ),
           Card(
             child: ListTile(
               title: const Text('About'),
