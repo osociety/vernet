@@ -19,5 +19,6 @@ and tasks rather than session memory for in-progress work. Write repository
 facts into the project scope of the repository that was actually changed.
 The store flavor is built from this repository
 (`scripts/build_store.dart`), so its work belongs here too, not in the
-retired `vernet-store` fork. Skip anything already recorded in `AGENTS.md`
-or a `SKILL.md`.
+`vernet-store` fork — which still serves Google Play until one Play beta
+builds from this repository, so read it for reference but never write to it.
+Skip anything already recorded in `AGENTS.md` or a `SKILL.md`.
