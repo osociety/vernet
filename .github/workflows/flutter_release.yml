@@ -19,6 +19,9 @@ on:
 permissions:
   contents: write
   discussions: write
+  # A called reusable workflow can only narrow the permissions of its caller,
+  # so this covers play_store_release.yml's download of the store bundle.
+  actions: read
 
 env:
   ANDROID_BUILD_PATH: ${{ vars.ANDROID_BUILD_PATH }}
