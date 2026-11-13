@@ -131,8 +131,22 @@ sudo snap connect vernet:network-manager-observe
 3. Download the zip for your architecture from [releases](https://github.com/osociety/vernet/releases/latest):
    - `Vernet-<version>-linux-x64.zip` for x64
    - `Vernet-<version>-linux-arm64.zip` for arm64
-4. Extract the downloaded zip file.
-5. Go to the `bundle` folder and double click the `vernet` file.
+4. Extract the downloaded zip file. The executable sits at the top level of the
+   archive, next to `lib/` and `data/`, so use the folder you extracted into —
+   there is no `bundle/` subfolder.
+5. Double click `vernet`, or run it from a terminal to see any error output:
+   ```bash
+   ./vernet
+   ```
+
+The database needs SQLite, and the archive carries its own copy in
+`lib/libsqlite3.so`, so nothing has to be installed for it. If a startup error
+names `libsqlite3.so`, your loader is not searching the extracted `lib/`
+directory; point it there and start again:
+
+```bash
+LD_LIBRARY_PATH="$PWD/lib" ./vernet
+```
 
 ### Instructions for Windows
 
