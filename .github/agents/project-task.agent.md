@@ -22,6 +22,7 @@ You are the default task-completion agent for the Vernet repository. Your job is
    - `flutter-test-repair` for failing unit, widget, or integration test work
    - `github-actions-repository-workflows` for CI workflow failures and repository automation
    - `android-fastlane-release` for Android release and beta delivery tasks
+   - `play-store-release-notes` for Play Store release notes, changelog copy, or localized store text
    - `firebase-hosting-config` for hosting/app-config consistency issues involving Firebase or web deployment
    - `close-chat` when the user asks to close or wrap up a chat, preserve durable context, or prepare a handoff
 4. Start from the concrete symptom: a failing test, stack trace, named file, issue description, or explicit requested behavior. Do not start with a broad refactor.
