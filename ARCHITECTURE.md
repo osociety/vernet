@@ -276,6 +276,18 @@ the ad-free APKs, then builds the store bundle in the same job and
 `publish-play-store` supplies it to Google Play, at the same stage as
 `publish-snap` does for the Snap Store.
 
+Windows follows the same shape: `release-windows` builds the x64 and ARM64
+packages, `publish-windows` packs them into one `.msixbundle`, and
+`publish-ms-store` hands that bundle to the live product through
+`ms_store_release.yml`. The Store CLI only updates a published product, so
+the first publication had to happen in Partner Center, and publishing a
+package rebuilds the draft from the last published submission — which
+discards any listing metadata staged in it. `ms_store_metadata.yml` is
+therefore in the same `ms-store-publish` concurrency group. It replaces the
+whole listing, so `metadata/metadata.json` starts as the artifact of that
+workflow's `get` mode and stays the complete submission JSON rather than a
+fragment.
+
 The Android integration workflow runs the whole suite once per flavor as a
 matrix. `flutter test --flavor` injects the same define a build does, which is
 the only route to the gated branches: `--dart-define=FLUTTER_APP_FLAVOR` is
