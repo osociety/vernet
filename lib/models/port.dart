@@ -1,5 +1,5 @@
 class Port {
-  Port.fromJson(dynamic map)
+  Port.fromJson(Map<String, dynamic> map)
       : _desc = map['description'] as String,
         _tcp = map['tcp'] as bool,
         _udp = map['udp'] as bool,

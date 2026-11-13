@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/onboarding/whats_new_page.dart';
+import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
@@ -205,14 +205,22 @@ class _SettingsPageState extends State<SettingsPage> {
           if (kUpdateChecksEnabled)
             Card(
               child: AdaptiveListTile(
-                key: WidgetKey.checkForUpdatesButton.key,
-                title: const Text('Check for a newer version'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () {
-                    checkForUpdates(context, showIfNoUpdate: true);
-                  },
+                key: WidgetKey.updateSettingsTile.key,
+                title: const Text('Updates & beta'),
+                subtitle: const Text('Channel, automatic updates, pre-release '
+                    'builds'),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => const UpdatesPage(),
+                    ),
+                  );
+                },
               ),
             ),
           if (kStoreBuild)
@@ -233,6 +241,7 @@ class _SettingsPageState extends State<SettingsPage> {
               title: const Text('About'),
               onTap: () async {
                 final info = await PackageInfo.fromPlatform();
+                if (!context.mounted) return;
                 showAboutDialog(
                   context: context,
                   applicationName: 'Vernet',

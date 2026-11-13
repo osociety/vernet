@@ -12,6 +12,7 @@ class AppSettings {
   static const String _inAppInternetKey = 'AppSettings-IN-APP-INTERNET';
   static const String _runScanOnStartupKey = 'AppSettings-RUN-SCAN-ON-STARTUP';
   static const String _customSubnetKey = 'AppSettings-CUSTOM-SUBNET';
+  static const String _betaUpdatesKey = 'AppSettings-BETA-UPDATES';
   int _firstSubnet = 1;
   int _lastSubnet = 254;
   int _socketTimeout = 500;
@@ -21,6 +22,9 @@ class AppSettings {
   bool _inAppInternet = true;
   bool _runScanOnStartup = false;
   String _customSubnet = '';
+  // Stable installs are the default: a beta build can break the very scan the
+  // user opened the app for. Opting in is a choice made on the updates page.
+  bool _betaUpdates = false;
 
   static final AppSettings _instance = AppSettings._();
 
@@ -32,6 +36,7 @@ class AppSettings {
   bool get inAppInternet => _inAppInternet;
   bool get runScanOnStartup => _runScanOnStartup;
   String get customSubnet => _customSubnet;
+  bool get betaUpdates => _betaUpdates;
   String get gatewayIP => _customSubnet.isNotEmpty
       ? _customSubnet.substring(0, _customSubnet.lastIndexOf('.'))
       : _customSubnet;
@@ -78,6 +83,12 @@ class AppSettings {
         .setString(_customSubnetKey, _customSubnet);
   }
 
+  Future<bool> setBetaUpdates(bool betaUpdates) async {
+    _betaUpdates = betaUpdates;
+    return await (await SharedPreferences.getInstance())
+        .setBool(_betaUpdatesKey, _betaUpdates);
+  }
+
   Future<void> load() async {
     debugPrint("Fetching all app settings");
     _firstSubnet =
@@ -114,6 +125,11 @@ class AppSettings {
         (await SharedPreferences.getInstance()).getString(_customSubnetKey) ??
             _customSubnet;
     debugPrint("Custom Subnet : $_customSubnet");
+
+    _betaUpdates =
+        (await SharedPreferences.getInstance()).getBool(_betaUpdatesKey) ??
+            _betaUpdates;
+    debugPrint("Beta updates : $_betaUpdates");
   }
 
   ({int first, int last}) calculateHostRange(
@@ -194,5 +210,6 @@ class AppSettings {
     _inAppInternet = false;
     _runScanOnStartup = false;
     _customSubnet = '';
+    _betaUpdates = false;
   }
 }

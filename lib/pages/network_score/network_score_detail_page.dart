@@ -554,7 +554,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
       context,
       MaterialPageRoute(builder: (context) => page),
     );
-    if (mounted) {
+    if (mounted && context.mounted) {
       _refreshScore(context);
     }
   }

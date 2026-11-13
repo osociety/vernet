@@ -307,14 +307,34 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev libsqlite3-0 clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 
-      - name: Copy sqlite3 library
-        run: |
-          mkdir -p build/linux/${{ matrix.architecture }}/release/bundle/lib/
-          cp /usr/lib/${{ matrix.deb_arch }}/libsqlite3.so build/linux/${{ matrix.architecture }}/release/bundle/lib/
-
       - name: Build Linux Bundle
         run: |
           flutter build linux --release
+
+      # The copy has to come after the build. `flutter build linux` runs
+      # `ninja install`, and linux/CMakeLists.txt opens with
+      # `file(REMOVE_RECURSE "${BUILD_BUNDLE_DIR}/")`, so a library dropped into
+      # the bundle beforehand is deleted before the zip is made. Released
+      # zips therefore had no libsqlite3.so and Drift threw on the first
+      # database open. snap/snapcraft.yaml copies after building for the
+      # same reason, and the Windows job copies sqlite3.dll after building.
+      #
+      # Both names are staged: package:sqlite3 3.9.0 dlopens the unversioned
+      # `libsqlite3.so` (that is the name in the crash), while the system's
+      # unversioned entry is only a -dev symlink, so it is dereferenced with -L
+      # into a real file. `libsqlite3.so.0` is the SONAME and covers a runtime
+      # that asks for it instead.
+      - name: Copy sqlite3 library into the bundle
+        run: |
+          system_lib="/usr/lib/${{ matrix.deb_arch }}/libsqlite3.so.0"
+          if [ ! -f "$system_lib" ]; then
+            echo "::error::$system_lib is missing. libsqlite3-0 provides it."
+            exit 1
+          fi
+          bundle_lib="${{ env.LINUX_BUILD_PATH }}/lib"
+          mkdir -p "$bundle_lib"
+          cp -L "$system_lib" "$bundle_lib/libsqlite3.so.0"
+          cp -L "$system_lib" "$bundle_lib/libsqlite3.so"
 
       - name: Linux Archive
         uses: TheDoctor0/zip-release@0.7.6
@@ -322,6 +342,74 @@ jobs:
           type: 'zip'
           filename: ${{ env.LINUX_ZIP }}
           directory: ${{  env.LINUX_BUILD_PATH }}
+
+      # The Linux integration leg runs against the runner's system sqlite3, so
+      # nothing else in CI notices a bundle that cannot open its database. This
+      # asserts the shipped archive, not the directory it was made from.
+      - name: Verify the archive is self-contained
+        run: |
+          archive="${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}"
+          contents="$(unzip -Z1 "$archive")"
+          check() {
+            if ! printf '%s\n' "$contents" | grep -q "$1"; then
+              echo "::error::$2 is missing from $archive."
+              printf '%s\n' "$contents"
+              exit 1
+            fi
+            echo "ok: $2"
+          }
+          check '^vernet$'              'the vernet executable'
+          check '^lib/libsqlite3\.so$'  'libsqlite3.so'
+          check '^lib/libsqlite3\.so\.0$' 'libsqlite3.so.0'
+          check '^data/flutter_assets/'   'the bundled Flutter assets'
+
+      # The step above only proves the archive carries the library. Whether the
+      # app can resolve it is a loader question: package:sqlite3 3.x dlopens the
+      # bare name `libsqlite3.so`, so a bundle that ships the file still fails
+      # if nothing searches the app's own lib/ directory. Ubuntu runners have a
+      # system copy that would mask that, so it is moved aside first — with a
+      # rename rather than `apt remove`, which would drag reverse dependencies
+      # down with it. After this, a start can only come from inside the release
+      # artifact.
+      - name: Smoke test the extracted archive
+        run: |
+          set -uo pipefail
+          smoke=/tmp/vernet-smoke
+          rm -rf "$smoke"
+          mkdir -p "$smoke"
+          unzip -q "${{ env.LINUX_BUILD_PATH }}/${{ env.LINUX_ZIP }}" -d "$smoke"
+
+          hide=/var/tmp/vernet-hidden-sqlite
+          sudo mkdir -p "$hide"
+          for found in $(sudo find /usr/lib /lib -maxdepth 4 -name 'libsqlite3.so*' 2>/dev/null); do
+            sudo mv "$found" "$hide/$(echo "${found//\//_}")"
+          done
+          sudo ldconfig
+          if sudo ldconfig -p | grep -q 'libsqlite3\.so'; then
+            echo "::error::libsqlite3 is still resolvable from the system, so this run could not tell the bundled copy from the distro's."
+            exit 1
+          fi
+
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          sleep 2
+          export DISPLAY=:99
+          log=/tmp/vernet-smoke.log
+          cd "$smoke"
+          timeout 45 ./vernet > "$log" 2>&1
+          status=$?
+          if grep -qi 'libsqlite3' "$log"; then
+            echo "::error::the released bundle could not load its own SQLite library."
+            sed -n '1,40p' "$log"
+            exit 1
+          fi
+          # 124 is the timeout firing, which is the pass: the app stayed up.
+          # Anything else means it came up and died, or never started.
+          if [ "$status" -ne 124 ]; then
+            echo "::error::vernet from the release archive exited with status $status."
+            sed -n '1,40p' "$log"
+            exit 1
+          fi
+          echo "Released bundle started with the distro's SQLite removed."
 
       - name: Publish Linux Release
         uses: softprops/action-gh-release@v2.2.1
