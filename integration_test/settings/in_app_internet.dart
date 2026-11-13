@@ -9,6 +9,7 @@ import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -54,20 +55,24 @@ void main() {
         find,
       );
 
-      await TestUtils.scrollUntilVisibleByWidgetKey(
-        WidgetKey.checkForUpdatesButton,
-        tester,
-        find,
-        200.0,
-      );
+      // The fdroid flavor ships no update check at all, so the tile this step
+      // reaches for is never built there.
+      if (kUpdateChecksEnabled) {
+        await TestUtils.scrollUntilVisibleByWidgetKey(
+          WidgetKey.checkForUpdatesButton,
+          tester,
+          find,
+          200.0,
+        );
 
-      await TestUtils.tapByWidgetKey(
-        WidgetKey.checkForUpdatesButton,
-        tester,
-        find,
-      );
+        await TestUtils.tapByWidgetKey(
+          WidgetKey.checkForUpdatesButton,
+          tester,
+          find,
+        );
 
-      await tester.pumpAndSettle(const Duration(seconds: 3));
+        await tester.pumpAndSettle(const Duration(seconds: 3));
+      }
     });
   });
 }

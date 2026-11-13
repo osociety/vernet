@@ -175,10 +175,22 @@ the `store` bundle goes to the Play beta track next to the Snap Store upload,
 and F-Droid builds the `fdroid` flavor from this repository itself.
 
 `lib/values/build_flavor.dart` reads the `FLUTTER_APP_FLAVOR` define that
-`flutter build` injects whenever `--flavor` is passed. Because the gate is a
-compile-time constant, the disabled code is removed from the binary rather than
-merely hidden at runtime. Anything built without a flavor — the snap, the
-desktop runners, iOS — gets the ad-free side with the update check.
+`flutter build` and `flutter test` inject whenever `--flavor` is passed. Because
+the gate is a compile-time constant, the disabled code is removed from the
+binary rather than merely hidden at runtime. Anything built without a flavor —
+the snap, the desktop runners, iOS — gets the ad-free side with the update
+check.
+
+All three flavors are tested, not just built: the Android integration workflow
+runs the full suite as a `dev` / `fdroid` / `store` matrix, and `--flavor` is the
+only way to reach those branches, because `flutter test` refuses a
+`--dart-define` of a name the tool reserves for itself. The `store` leg builds
+the committed tree, so it exercises the gating against the inert `lib/store/`
+seam rather than AdMob.
+
+```bash
+./scripts/android_integration fdroid   # dev, fdroid or store
+```
 
 The `store` flavor is the only build carrying proprietary plugins, and they are
 deliberately absent from the committed `pubspec.yaml`: F-Droid rejects a non-free
