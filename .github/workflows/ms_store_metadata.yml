@@ -9,6 +9,10 @@ name: Microsoft Store metadata
 # run it once, download the artifact, and commit its metadata/metadata.json.
 # From then on a push to that file on main publishes the listing.
 #
+# The capture also names the package set it was taken from, so re-run `get`
+# and commit the refresh after every release. The check below refuses to
+# publish a listing whose packages no longer match the live submission.
+#
 # Publishing a package (ms_store_release.yml) rebuilds the draft from the last
 # published submission and discards metadata staged in it, so this workflow
 # shares that workflow's concurrency group instead of running alongside it.
@@ -107,6 +111,28 @@ jobs:
           path: metadata/metadata.json
           if-no-files-found: error
           retention-days: 1
+
+      # An update replaces the whole submission, which means a committed
+      # listing replays the package set it was captured against. Publishing
+      # one after a release shipped a newer MSIX would put the older build
+      # back on the storefront, so compare against the live submission and
+      # fail here rather than silently downgrading the product.
+      - name: Refuse a capture the releases have moved past
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $committed = Get-Content -Raw metadata/metadata.json | ConvertFrom-Json
+          $liveJson = msstore submission get "$env:MSSTORE_PRODUCT_ID" | Out-String
+          if ($LASTEXITCODE -ne 0) { throw "msstore submission get exited with $LASTEXITCODE." }
+          $live = $liveJson | ConvertFrom-Json
+
+          $committedPackages = @($committed.ApplicationPackages | ForEach-Object { $_.FileName }) | Sort-Object
+          $livePackages = @($live.ApplicationPackages | ForEach-Object { $_.FileName }) | Sort-Object
+          if ($committedPackages -join ',' -ne $livePackages -join ',') {
+            throw "metadata/metadata.json was captured against '$($committedPackages -join ', ')' but the live submission carries '$($livePackages -join ', ')'. Re-run this workflow with mode=get and commit that artifact before publishing metadata."
+          }
+          Write-Host "Capture matches the live submission ($($livePackages -join ', '))."
 
       # The Store rejects an update whose base price is missing or the
       # placeholder 'Base' that the API returns for a product priced in every
