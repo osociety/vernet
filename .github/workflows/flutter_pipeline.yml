@@ -20,11 +20,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Runs on both paths. Each push-time integration workflow opens with its own
-  # `flutter test`, but those legs are booting emulators and collecting
-  # coverage: this job is the only one that gates `dart format` and
+  # Runs on both paths. This job is the only one that gates `dart format` and
   # `flutter analyze`, and it reports a unit failure as a unit failure instead
-  # of a red integration leg.
+  # of a red integration leg. Every integration leg needs it: an emulator, a
+  # simulator and a coverage run all cost more than the suite that would have
+  # failed them, and a needed job that fails skips the legs below it because
+  # the implicit `success()` still applies to a job that lists `needs`.
   unit-tests:
     name: Unit tests and analysis
     uses: ./.github/workflows/flutter_unit_test.yml
@@ -32,18 +33,21 @@ jobs:
 
   integration-tests:
     name: Integration tests and coverage
+    needs: unit-tests
     if: github.event_name == 'push'
     uses: ./.github/workflows/flutter_test_main.yml
     secrets: inherit
 
   android-integration-tests:
     name: Android integration tests
+    needs: unit-tests
     if: github.event_name == 'push'
     uses: ./.github/workflows/android-integration-test.yml
     secrets: inherit
 
   ios-integration-tests:
     name: iOS integration tests
+    needs: unit-tests
     # Push only. The leg costs one macOS ARM job and every push to a pull
     # request branch re-pays it, so it stays off the PR path now that the
     # simulator bring-up has been validated there (PR #610 ran the latest
