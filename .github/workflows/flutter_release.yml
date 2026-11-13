@@ -709,6 +709,17 @@ jobs:
           $bundlePath = Join-Path $env:RUNNER_TEMP "Vernet-$env:RELEASE_TAG.msixbundle"
           & $makeAppx.FullName bundle /d $bundleDirectory /p $bundlePath /bv $version /o
           if ($LASTEXITCODE -ne 0) { throw 'MakeAppx failed to create the MSIX bundle.' }
+
+      # ms_store_release.yml uploads these exact bytes to the Store and a hand
+      # dispatch re-reads them by run_id, so the published package is the one
+      # this job signed.
+      - name: Upload MSIX bundle
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: msix-bundle
+          path: ${{ runner.temp }}/Vernet-${{ env.RELEASE_TAG }}.msixbundle
+          if-no-files-found: error
+          retention-days: 1
           
       - name: Attach MSIX bundle to GitHub Release
         uses: softprops/action-gh-release@v2.2.1
@@ -716,3 +727,11 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           draft: false
           files: ${{ runner.temp }}/Vernet-${{ env.RELEASE_TAG }}.msixbundle
+
+  publish-ms-store:
+    name: Publish MSIX bundle to Microsoft Store
+    needs:
+      - create-release
+      - publish-windows
+    uses: ./.github/workflows/ms_store_release.yml
+    secrets: inherit
