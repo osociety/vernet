@@ -1,0 +1,5 @@
+New Support page for donations, stars and ratings.
+Choose whether updates come from GitHub or from the store.
+Scan notifications now open the report for that scan.
+Wi-Fi signal strength is read correctly on Linux.
+Bug fixes and performance improvements.
