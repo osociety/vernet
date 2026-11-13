@@ -175,6 +175,11 @@ void main() {
         find.byType(TextFormField).first,
         '127.0.0.1',
       );
+      // Only iOS animates the software keyboard into viewInsets, and that
+      // animation moves the radio row while the tap below is still measuring
+      // it: the derived centre then lands on the tile ink underneath, single
+      // port mode never turns on, and the port field is missing.
+      await tester.pumpAndSettle();
 
       // Verify radio button exists before tapping
       if (find
@@ -188,11 +193,22 @@ void main() {
           scrollable: find.byType(Scrollable).first,
         );
       }
+      await tester.ensureVisible(radioButton);
+      await tester.pumpAndSettle();
       await tester.tap(radioButton);
       await tester.pumpAndSettle();
 
+      // The port field only exists once the radio has turned single port mode
+      // on, so waiting on it reports a missed tap instead of the bare
+      // "Bad state: No element" enterText throws when the finder is empty.
+      final portField = find.byKey(WidgetKey.enterPortTextField.key);
+      await TestUtils.waitForWidget(
+        tester,
+        portField,
+        timeout: const Duration(seconds: 10),
+      );
       await tester.enterText(
-        find.byKey(WidgetKey.enterPortTextField.key),
+        portField,
         test_port.port.toString(),
       );
       await tester.pumpAndSettle();
