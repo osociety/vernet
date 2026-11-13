@@ -44,15 +44,15 @@ jobs:
 
   ios-integration-tests:
     name: iOS integration tests
-    # TEMPORARY (added 2026-11-13): also run on pull requests so the simulator
-    # bring-up change in ios-integration-test.yml can be validated before it
-    # reaches main. This leg is the only one that boots an Apple simulator, so
-    # without it a workflow or prepare_ios_simulator.sh edit ships untested.
-    # Revert to `github.event_name == 'push'` once the leg has been confirmed
-    # green on a main push.
-    # The leg stays advisory: main has no required status checks, so it cannot
-    # block a merge or a release.
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    # Push only. The leg costs one macOS ARM job and every push to a pull
+    # request branch re-pays it, so it stays off the PR path now that the
+    # simulator bring-up has been validated there (PR #610 ran the latest
+    # runtime leg green). Re-add `|| github.event_name == 'pull_request'`
+    # temporarily when a workflow or prepare_ios_simulator.sh change needs
+    # validating before it reaches main.
+    # Advisory either way: main has no required status checks and neither
+    # release job lists this leg in `needs`.
+    if: github.event_name == 'push'
     uses: ./.github/workflows/ios-integration-test.yml
     secrets: inherit
 
