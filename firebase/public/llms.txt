@@ -1,11 +1,13 @@
 # Vernet
 
-> Vernet is a free and open-source network diagnostics app for discovering devices, viewing device details, monitoring servers, waking compatible devices, calculating IPv4 and IPv6 subnets, checking ports, testing internet speed, and using ping and DNS tools.
+> Vernet is a free and open-source network diagnostics app that scores network health, discovers devices, views device details, keeps scan history, monitors servers, wakes compatible devices, calculates IPv4 and IPv6 subnets, checks ports, tests internet speed, and runs ping and DNS tools.
 
 ## Features
 
+- Score overall network health out of 100 from security, health, reliability, and speed dimensions, each with the factors behind it.
 - Discover devices on a Wi-Fi network and inspect switch neighbors with CDP and LLDP.
-- View detailed device information including IP, MAC address, hostname, vendor, mDNS names, and open ports.
+- View detailed device information including IP, MAC address, hostname, mDNS names, and open ports, plus the MAC vendor on desktop platforms.
+- Keep a scan history of past scans by network, time, and duration, and compare devices between them.
 - Monitor ICMP, TCP, HTTP, and HTTPS server availability with history and down alerts.
 - Wake compatible devices with Wake on LAN.
 - Calculate IPv4 and IPv6 network addresses, masks, ranges, and subnet sizes from CIDR input.
@@ -13,12 +15,16 @@
 
 ## Website
 
-- [Vernet home](https://vernet.app/): Product overview, features, and platform downloads.
+- [Vernet home](https://vernet-app.web.app/): Product overview, features, and platform downloads.
 - [Privacy policy](https://github.com/osociety/vernet/wiki/Privacy-Policy): Privacy information for the app.
 - [Source code](https://github.com/osociety/vernet): Public source code and project documentation.
 - [Latest releases](https://github.com/osociety/vernet/releases/latest): Desktop downloads and release notes.
 
 ## App availability
 
-- [Google Play](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store)
-- [F-Droid](https://f-droid.org/packages/org.fsociety.vernet)
+- [Google Play](https://play.google.com/store/apps/details?id=org.fsociety.vernet.store): Android. This build contains ads.
+- [F-Droid](https://f-droid.org/packages/org.fsociety.vernet): Android, FOSS build, ad-free.
+- [Microsoft Store](https://apps.microsoft.com/detail/9N1170N3PHMM): Windows, x64 and arm64.
+- [Snap Store](https://snapcraft.io/vernet): Linux, x64 and arm64.
+- [GitHub releases](https://github.com/osociety/vernet/releases/latest): macOS, Linux, and Windows archives, ad-free.
+- iOS is not released yet.
