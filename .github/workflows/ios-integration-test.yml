@@ -7,15 +7,14 @@ on:
         description: Simulator legs to run
         type: choice
         options:
-          - ios-18
           - latest
+          - ios-18
           - both
-        default: ios-18
+        default: latest
   workflow_call:
   schedule:
-    # Weekly check for breakage on the newest simulator runtime. Xcode 26's
-    # runtime is currently unreliable on hosted runners, so it must not gate
-    # pull requests.
+    # Weekly sweep of both legs: the newest runtime is what ships to users, and
+    # iOS 18.0 keeps the deployment floor covered outside the push path.
     - cron: '0 6 * * 1'
 
 permissions:
@@ -39,20 +38,33 @@ jobs:
           EVENT: ${{ github.event_name }}
           LEGS: ${{ inputs.legs }}
         run: |
+          # The push leg runs the runtime the image already ships. Pinning an
+          # older build costs an `xcodebuild -downloadPlatform` (~4 min) plus
+          # the cold runtime prep that turned bring-up into 7-14 minutes instead
+          # of the ~90 seconds a pre-installed runtime needs.
+          latest='{"include":[{"label":"latest","ios_version":"latest"}]}'
+          ios18='{"include":[{"label":"iOS 18.0","ios_version":"18.0"}]}'
+          both='{"include":[{"label":"latest","ios_version":"latest"},{"label":"iOS 18.0","ios_version":"18.0"}]}'
+
           case "$EVENT:$LEGS" in
             schedule:*)
-              echo 'value={"include":[{"label":"latest","ios_version":"latest"}]}' >> "$GITHUB_OUTPUT"
+              value="$both"
+              ;;
+            workflow_dispatch:ios-18)
+              value="$ios18"
               ;;
             workflow_dispatch:latest)
-              echo 'value={"include":[{"label":"latest","ios_version":"latest"}]}' >> "$GITHUB_OUTPUT"
+              value="$latest"
               ;;
             workflow_dispatch:both)
-              echo 'value={"include":[{"label":"iOS 18.0","ios_version":"18.0"},{"label":"latest","ios_version":"latest"}]}' >> "$GITHUB_OUTPUT"
+              value="$both"
               ;;
             *)
-              echo 'value={"include":[{"label":"iOS 18.0","ios_version":"18.0"}]}' >> "$GITHUB_OUTPUT"
+              value="$latest"
               ;;
           esac
+
+          echo "value=$value" >> "$GITHUB_OUTPUT"
 
   ios-integration-test:
     name: iOS integration tests (${{ matrix.label }})
