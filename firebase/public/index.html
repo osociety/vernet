@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vernet - Know your network</title>
-<meta name="description" content="Discover devices, inspect device details, monitor servers, wake devices, calculate IPv4 and IPv6 subnets, test speed, scan ports, and use ping and DNS tools with Vernet.">
+<meta name="description" content="Score your network's health, discover devices, review scan history, monitor servers, calculate IPv4 and IPv6 subnets, test speed, scan ports, and run ping and DNS checks with Vernet.">
 <link rel="canonical" href="https://vernet-app.web.app/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Vernet">
 <meta property="og:title" content="Vernet - Know your network">
-<meta property="og:description" content="Discover devices, inspect device details, monitor servers, wake devices, calculate IPv4 and IPv6 subnets, test speed, scan ports, and use ping and DNS tools with Vernet.">
+<meta property="og:description" content="Score your network's health, discover devices, review scan history, monitor servers, calculate IPv4 and IPv6 subnets, test speed, scan ports, and run ping and DNS checks with Vernet.">
 <meta property="og:url" content="https://vernet-app.web.app/">
 <meta property="og:image" content="https://vernet-app.web.app/images/og-preview.png">
 <meta property="og:image:secure_url" content="https://vernet-app.web.app/images/og-preview.png">
@@ -19,7 +19,7 @@
 <meta property="og:image:alt" content="Vernet helps you discover devices, test network speed, and stay in control.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Vernet - Know your network">
-<meta name="twitter:description" content="Discover devices, inspect device details, monitor servers, wake devices, calculate IPv4 and IPv6 subnets, test speed, scan ports, and use ping and DNS tools with Vernet.">
+<meta name="twitter:description" content="Score your network's health, discover devices, review scan history, monitor servers, calculate IPv4 and IPv6 subnets, test speed, scan ports, and run ping and DNS checks with Vernet.">
 <meta name="twitter:image" content="https://vernet-app.web.app/images/og-preview.png">
 <meta name="twitter:image:alt" content="Vernet helps you discover devices, test network speed, and stay in control.">
 <link rel="ard" href="/.well-known/ard.json">
@@ -269,6 +269,9 @@
   }
   .oss h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 14px; }
   .oss p { color: var(--ink-dim); max-width: 520px; margin: 0 auto 28px; line-height: 1.6; }
+  .oss p.oss-links { margin: 22px auto 0; font-size: 0.85rem; }
+  .oss-links a { color: var(--purple-accent-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .oss-links a:hover { color: var(--purple-accent); }
 
   footer {
     border-top: 1px solid var(--card-border); padding: 40px 0; text-align: center;
@@ -444,7 +447,7 @@
   .showcase img.investigate-shot { background: #100a1a; border-radius: 14px; }
   .checklist li { color: var(--ink-dim); }
   .checklist li::before { color: var(--mint-accent); }
-  .platforms { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+  .platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .platform-card {
     display: grid;
     grid-template-rows: auto auto 1fr auto;
@@ -455,6 +458,7 @@
     border-color: var(--card-border);
     padding: 20px 18px;
     min-height: 184px;
+    max-width: none;
   }
   .platform-category { padding-bottom: 6px; border-bottom: 1px solid var(--card-border); color: var(--purple-accent-2); font-size: 0.68rem; font-weight: 700; }
   .platform-card .name { display: flex; align-items: center; justify-content: center; gap: 9px; margin-bottom: 0; font-weight: 600; }
@@ -476,6 +480,21 @@
   }
   .platform-card a:hover, .platform-card a:focus-visible { background: rgba(160,107,255,0.12); border-color: var(--purple-accent); }
   .platform-card a:focus-visible { outline: 2px solid var(--purple-accent-2); outline-offset: 3px; }
+  .platform-inline { display: flex; justify-content: center; gap: 12px; font-size: 0.76rem; }
+  .platform-card .platform-inline a {
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--ink-dim);
+    font-size: 0.76rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .platform-card .platform-inline a:hover, .platform-card .platform-inline a:focus-visible { background: none; border-color: transparent; color: var(--purple-accent-2); }
   .platform-card > .soon-tag { align-self: center; margin-top: 0; }
   .soon-tag { border-radius: 4px; background: rgba(160,107,255,0.18); color: var(--purple-accent-2); }
   .oss {
@@ -503,9 +522,6 @@
     .showcase .txt h2, .oss h2 { font-size: 1.65rem; }
     .platforms { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .platform-card .name { font-size: 0.92rem; }
-  }
-  @media (max-width: 900px) and (min-width: 561px) {
-    .platforms { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 
   .video-container {
@@ -541,7 +557,7 @@
   <div class="wrap">
     <span class="eyebrow">Free &amp; open source</span>
     <h1>See what's really<br class="desktop-break"> happening on <span>your network</span></h1>
-    <p class="sub">Discover devices, inspect device details, monitor servers, wake compatible devices, calculate IPv4 and IPv6 subnets, and run speed, port, ping, and DNS checks in one network utility.</p>
+    <p class="sub">Score your network's health, discover devices and inspect their details, review past scans, monitor servers, wake compatible devices, calculate IPv4 and IPv6 subnets, and run speed, port, ping, and DNS checks in one network utility.</p>
     <div class="cta-row">
       <a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store" class="btn">Get it on Google Play</a>
       <a href="https://f-droid.org/packages/org.fsociety.vernet" class="btn ghost">Get it on F-Droid</a>
@@ -549,8 +565,8 @@
     <div class="store-row">
       <span class="store-pill soon"><img loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS <span class="soon-tag">Coming soon</span></span>
       <a href="https://github.com/osociety/vernet/releases/latest" data-release-platform="macos" class="store-pill"><img loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</a>
-      <a href="https://get.microsoft.com/installer/download/9N1170N3PHMM?referrer=appbadge" target="_self" class="btn ghost"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="130"/></a>
-      <a href="https://snapcraft.io/vernet"  class="btn ghost"><img alt="Get it from the Snap Store" src="https://snapcraft.io/en/dark/install.svg" width="110"></a>
+      <a href="https://apps.microsoft.com/detail/9N1170N3PHMM" class="store-pill"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#F5F2FB" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</a>
+      <a href="https://snapcraft.io/vernet" class="store-pill"><img loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</a>
     </div>
     <p style="font-size:0.82rem;color:var(--ink-dim);margin:10px 0 0;">The Google Play build contains ads to support development. F-Droid and GitHub builds are ad-free.</p>
     <div class="screens">
@@ -585,7 +601,7 @@
       <div class="card">
         <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6m-6 3h6m-6 3h4"/></svg></div>
         <h3>Device details</h3>
-        <p>Inspect IP and MAC addresses, hostnames, mDNS names, and run quick port scans, ping checks, or Wake-on-LAN directly from any discovered device.</p>
+        <p>Inspect IP and MAC addresses, hostnames, mDNS names, and on desktop the manufacturer behind each MAC, then run quick port scans, ping checks, or Wake-on-LAN directly from any discovered device.</p>
       </div>
       <div class="card">
         <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/></svg></div>
@@ -623,9 +639,14 @@
         <p>Measure your real download and upload speed whenever you need to.</p>
       </div>
       <div class="card">
-        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg></div>
-        <h3>ISP information</h3>
-        <p>See your public IP and internet provider without digging through settings.</p>
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="m12 14 4-4"/></svg></div>
+        <h3>Network health score</h3>
+        <p>One score out of 100 for how well your network is doing, built from security, health, reliability, and speed, with the checks behind each.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></div>
+        <h3>Scan history</h3>
+        <p>Review your past scans by network, time, and duration, and compare what changed between them.</p>
       </div>
       <div class="card">
         <div class="icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></div>
@@ -732,17 +753,15 @@
     <div class="section-head">
       <span class="eyebrow">Available platforms</span>
       <h2>Choose your platform</h2>
-      <p>Get Vernet from your preferred app store or find the latest desktop releases on GitHub. iOS is coming soon.</p>
+      <p>Windows and Linux install from their own stores, or grab the archives from GitHub. macOS builds are on GitHub. iOS is coming soon.</p>
     </div>
     <div class="platforms">
       <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/android/3DDC84" alt="" aria-hidden="true"> Android</div><div class="platform-meta">Contains ads</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play</a></div>
       <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/fdroid/1976D2" alt="" aria-hidden="true"> Android (FOSS)</div><div class="platform-meta">Ad-free</div><a href="https://f-droid.org/packages/org.fsociety.vernet">F-Droid</a></div>
       <div class="platform-card soon"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> iOS</div><div class="platform-meta">iPhone and iPad</div><span class="soon-tag">Coming soon</span></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="macos" href="https://github.com/osociety/vernet/releases/latest">Download for macOS</a></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="linux_x64" href="https://github.com/osociety/vernet/releases/latest">Download for Linux (x64)</a></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="linux_arm64" href="https://github.com/osociety/vernet/releases/latest">Download for Linux (arm64)</a></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows_x64" href="https://github.com/osociety/vernet/releases/latest">Download for Windows (x64)</a></div>
-      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">Latest builds on GitHub</div><a data-release-platform="windows_arm64" href="https://github.com/osociety/vernet/releases/latest">Download for Windows (arm64)</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/apple/F5F2FB" alt="" aria-hidden="true"> macOS</div><div class="platform-meta">Apple silicon and Intel</div><a data-release-platform="macos" href="https://github.com/osociety/vernet/releases/latest">Download for macOS</a></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><svg class="platform-icon" aria-hidden="true" viewBox="0 0 24 24"><path fill="#f5f2fb" d="M2 3.5 10.5 2v9H2V3.5Zm10 0L22 1v10h-10V3.5ZM2 12.5h8.5v9L2 20v-7.5Zm10 0h10v10l-10-1.5v-8.5Z"/></svg> Windows</div><div class="platform-meta">x64 and arm64</div><a href="https://apps.microsoft.com/detail/9N1170N3PHMM">Microsoft Store</a><div class="platform-inline"><a data-release-platform="windows_x64" href="https://github.com/osociety/vernet/releases/latest">GitHub x64</a><a data-release-platform="windows_arm64" href="https://github.com/osociety/vernet/releases/latest">GitHub arm64</a></div></div>
+      <div class="platform-card"><div class="platform-category">Desktop</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/linux/FCC624" alt="" aria-hidden="true"> Linux</div><div class="platform-meta">x64 and arm64</div><a href="https://snapcraft.io/vernet">Snap Store</a><div class="platform-inline"><a data-release-platform="linux_x64" href="https://github.com/osociety/vernet/releases/latest">GitHub x64</a><a data-release-platform="linux_arm64" href="https://github.com/osociety/vernet/releases/latest">GitHub arm64</a></div></div>
     </div>
   </div>
 </section>
@@ -751,11 +770,13 @@
   <div class="wrap">
     <div class="oss">
       <h2>Free, open source, and built in the open</h2>
-      <p>The full source code is public on GitHub under the Apache License 2.0, for anyone to read, build, or modify. The Google Play build contains ads to support development; F-Droid and GitHub builds are ad-free. No account is required, and no data is sold.</p>
+      <p>The full source code is public on GitHub under the Apache License 2.0, for anyone to read, build, or modify. The Google Play build contains ads to support development; F-Droid and GitHub builds are ad-free. No account is required, and the app ships no analytics or crash reporting.</p>
       <div class="cta-row">
         <a href="https://github.com/osociety/vernet" class="btn">View on GitHub</a>
+        <a href="https://github.com/osociety/vernet/discussions" class="btn ghost">Ask in Discussions</a>
         <a href="https://github.com/osociety/vernet/issues" class="btn ghost">Report an issue</a>
       </div>
+      <p class="oss-links">Supported by <a href="https://ko-fi.com/fs0c13ty" rel="noopener">Ko-fi</a> and <a href="https://liberapay.com/OpenSociety" rel="noopener">Liberapay</a>.</p>
     </div>
   </div>
 </section>
@@ -765,6 +786,7 @@
   <div class="wrap">
     <div class="foot-links">
       <a href="https://github.com/osociety/vernet">GitHub</a>
+      <a href="https://github.com/osociety/vernet/discussions">Discussions</a>
       <a href="https://github.com/osociety/vernet/wiki/Privacy-Policy">Privacy Policy</a>
       <a href="mailto:fs0c19ty@protonmail.com">Contact</a>
     </div>
