@@ -4,6 +4,15 @@ import 'package:vernet/models/changelog_entry.dart';
 /// every version bump in pubspec.yaml, otherwise the dialog opens empty.
 const List<ChangelogEntry> kChangelogEntries = [
   ChangelogEntry(
+    version: '1.6.3',
+    changes: [
+      'New Updates page explains how Vernet updates and how to join beta',
+      'Wi-Fi signal strength now reads correctly on Linux',
+      'Linux downloads carry the database library they need',
+      'The Support page shows only channels your platform can use',
+    ],
+  ),
+  ChangelogEntry(
     version: '1.6.2',
     changes: [
       'New Support page for donations, stars and ratings',
