@@ -1,5 +1,3 @@
-New Support page for donations, stars and ratings.
-Choose whether updates come from GitHub or from the store.
-Scan notifications now open the report for that scan.
-Wi-Fi signal strength is read correctly on Linux.
+A new Updates page in Settings explains how Vernet updates on Windows.
+The Support page shows only the ways to contribute that Windows can use.
 Bug fixes and performance improvements.

@@ -1,0 +1,5 @@
+A new Updates page in Settings explains how Vernet updates and how to join beta.
+Wi-Fi signal strength now reads correctly on Linux.
+Linux downloads carry the database library they need, so history opens on a fresh install.
+The Support page shows only the ways to contribute that your platform can use.
+Bug fixes and performance improvements.
