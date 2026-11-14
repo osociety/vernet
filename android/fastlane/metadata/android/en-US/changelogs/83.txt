@@ -1,0 +1,3 @@
+Version 1.6.4 changes the Linux downloads only.
+Linux archives now carry the database library they need, so scan history opens on a fresh install.
+Nothing changed for Android in this release.

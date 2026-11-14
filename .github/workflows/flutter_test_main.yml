@@ -14,6 +14,7 @@ concurrency:
 jobs:
   flutter-integration-test:
     name: 'Integration Tests on ${{ matrix.os }}'
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      # Capped below the job because this step is the one that has actually
+      # stalled: run 36893890235 spent 46.6m here while the whole Linux leg
+      # normally finishes in about 7m.
       - name: Install platform dependencies (Linux)
+        timeout-minutes: 15
         if: matrix.os == 'ubuntu'
         run: |
           sudo apt-get update

@@ -14,6 +14,7 @@ concurrency:
 jobs:
   flutter-unit-test:
     name: Unit Tests on ${{ matrix.os }}
+    timeout-minutes: 25
     strategy:
       matrix:
         os: [ubuntu, macos, windows]

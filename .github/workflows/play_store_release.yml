@@ -52,6 +52,7 @@ concurrency:
 jobs:
   publish:
     name: Upload store bundle to ${{ inputs.track }}
+    timeout-minutes: 30
     if: github.event.repository.fork != true
     runs-on: ubuntu-latest
     steps:

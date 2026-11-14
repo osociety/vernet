@@ -1,3 +1,1 @@
-A new Updates page in Settings explains how Vernet updates on Windows.
-The Support page shows only the ways to contribute that Windows can use.
-Bug fixes and performance improvements.
+No changes to Vernet on Windows in this release.

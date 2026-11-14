@@ -17,6 +17,11 @@ substitute their own auto-memory directories: user-scoped memory for
 durable preferences, project-scoped memory for verified repository facts,
 and tasks rather than session memory for in-progress work. Write repository
 facts into the project scope of the repository that was actually changed.
+Note that `UpdateMemory` rejects a project category such as
+`project_engineering_configuration` for the main agent; only the
+user-preference groups, the available specification groups and the
+`others` fallback are creatable, so verified repository facts go under
+`others`.
 The store flavor is built from this repository
 (`scripts/build_store.dart`), so its work belongs here too, not in the
 `vernet-store` fork — which still serves Google Play until one Play beta
