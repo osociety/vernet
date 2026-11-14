@@ -27,6 +27,7 @@ concurrency:
 jobs:
   select-legs:
     name: Select simulator legs
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix.outputs.value }}
@@ -70,7 +71,7 @@ jobs:
     name: iOS integration tests (${{ matrix.label }})
     needs: select-legs
     runs-on: macos-latest
-    timeout-minutes: 60
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.select-legs.outputs.matrix) }}

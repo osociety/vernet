@@ -52,6 +52,7 @@ env:
 jobs:
   publish:
     name: Publish MSIX bundle to Microsoft Store
+    timeout-minutes: 45
     if: github.event.repository.fork != true
     runs-on: windows-2022
     steps:

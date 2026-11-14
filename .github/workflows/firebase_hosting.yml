@@ -10,6 +10,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy Firebase Hosting
+    timeout-minutes: 10
     if: github.event.repository.fork != true
     runs-on: ubuntu-latest
     steps:

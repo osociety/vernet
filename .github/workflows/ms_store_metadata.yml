@@ -90,6 +90,7 @@ env:
 jobs:
   metadata:
     name: ${{ inputs.mode == 'get' && 'Fetch' || inputs.mode == 'update' && 'Publish' || 'Stage' }} Store listing metadata
+    timeout-minutes: 20
     if: github.event.repository.fork != true
     runs-on: windows-2022
     env:
