@@ -90,12 +90,16 @@ env:
 jobs:
   metadata:
     name: ${{ inputs.mode == 'get' && 'Fetch' || inputs.mode == 'update' && 'Publish' || 'Stage' }} Store listing metadata
-    timeout-minutes: 20
+    timeout-minutes: 35
     if: github.event.repository.fork != true
     runs-on: windows-2022
     env:
-      # A push carries no inputs, and a push only ever stages.
-      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event_name == 'workflow_call' && inputs.mode || 'stage' }}
+      # Keyed on the input, never on github.event_name: inside a nested `uses:`
+      # chain that context still reports the root event, and a push carries no
+      # inputs at all. Keying on the event therefore made the release stage
+      # instead of publish - run 43594484224 named the job `Publish Store
+      # listing metadata` from inputs.mode while MODE itself resolved to `stage`.
+      MODE: ${{ inputs.mode || 'stage' }}
       ALLOW_NEW_LOCALES: ${{ inputs.allow_new_locales }}
     steps:
       - name: Checkout
@@ -161,6 +165,9 @@ jobs:
           $locales = @($submission.Listings.PSObject.Properties.Name)
           if ($locales.Count -lt 1) { throw 'The captured submission carries no listings.' }
           Write-Host "Captured $($locales -join ', ') serving $(@($submission.ApplicationPackages.FileName) -join ', ')."
+          # Printed every run, because the job name is built from inputs.mode
+          # while the steps act on MODE, and a release proved they can disagree.
+          Write-Host "Mode = $env:MODE."
 
           if ($env:MODE -eq 'get') {
             $raw = Get-Content -Raw $live
@@ -174,9 +181,13 @@ jobs:
           }
 
       # A release run gets here seconds after msstore publish committed the
-      # package, and the Store may still be ingesting that submission, so retry
-      # inside a window rather than treat a slow Store as a broken pipeline. If
-      # the window is spent the log says so and the fix is one dispatch.
+      # package, and the Store refuses a metadata write while it still holds
+      # that submission: v1.6.4+83 lost this leg to five refusals inside four
+      # minutes, with the package submission still certifying when the job
+      # ended. So the window is about twenty minutes, and every refusal also
+      # reports the state the Store is actually in, because the CLI itself says
+      # only "Error!". If the window is spent the log names the one dispatch
+      # that finishes the job once certification clears.
       #
       # $ErrorActionPreference is deliberately Continue here: the CLI writes its
       # complaint to stderr, and a retry loop has to read that text instead of
@@ -198,7 +209,9 @@ jobs:
           # --payload rather than the JSON inline: a multi-locale listing passes
           # the 32,767 character command-line limit that Microsoft's own
           # snippet hits.
-          for ($attempt = 1; $attempt -le 5; $attempt++) {
+          $attempts = 14
+          $gap = 90
+          for ($attempt = 1; $attempt -le $attempts; $attempt++) {
             $output = & msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload 2>&1 |
               Out-String
             if ($LASTEXITCODE -eq 0) {
@@ -206,11 +219,13 @@ jobs:
               if ($output.Trim()) { Write-Host $output.Trim() }
               exit 0
             }
-            Write-Host "Attempt $attempt was refused (exit $LASTEXITCODE):"
+            Write-Host "Attempt $attempt of $attempts was refused (exit $LASTEXITCODE):"
             if ($output.Trim()) { Write-Host $output.Trim() }
-            if ($attempt -lt 5) { Start-Sleep -Seconds 60 }
+            $state = msstore submission status "$env:MSSTORE_PRODUCT_ID" 2>&1 | Out-String
+            Write-Host "  the Store says: $($state.Trim() -replace '\r?\n', ' ')"
+            if ($attempt -lt $attempts) { Start-Sleep -Seconds $gap }
           }
-          throw 'msstore submission updateMetadata refused the payload 5 times. If a submission is still being ingested, wait for it and dispatch this workflow with mode=update - gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY'
+          throw "msstore submission updateMetadata refused the payload $attempts times. Once the package submission leaves certification, this listing is one command away: gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY"
 
       - name: Publish the listing
         if: env.MODE == 'update'
