@@ -286,10 +286,15 @@ discards any listing metadata staged in it. `ms_store_metadata.yml` is
 therefore in the same `ms-store-publish` concurrency group. It replaces the
 whole listing, so `metadata/metadata.json` starts as the artifact of that
 workflow's `get` mode and stays the complete submission JSON rather than a
-fragment. That JSON also names the package set it was captured against, so
-every release has to be followed by a fresh `get` commit; a metadata push
-whose packages no longer match the live submission is refused rather than
-allowed to roll the product back to the previous build.
+fragment. It has three modes — `get` reads the live submission, `stage` writes
+that JSON into the pending draft, `update` stages and then commits it — and a
+push to the listing file only ever stages. Committing a listing to the
+storefront is a deliberate `mode=update` dispatch, because the update replaces
+every field and screenshot at once and a bad round-trip would otherwise go live
+in the same run that made it. That JSON also names the package set it was
+captured against, so every release has to be followed by a fresh `get` commit; a
+metadata run whose packages no longer match the live submission is refused
+rather than allowed to roll the product back to the previous build.
 
 The Android integration workflow runs the whole suite once per flavor as a
 matrix. `flutter test --flavor` injects the same define a build does, which is
