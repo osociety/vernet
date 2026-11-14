@@ -129,7 +129,14 @@ jobs:
 
           $committedPackages = @($committed.ApplicationPackages | ForEach-Object { $_.FileName }) | Sort-Object
           $livePackages = @($live.ApplicationPackages | ForEach-Object { $_.FileName }) | Sort-Object
-          if ($committedPackages -join ',' -ne $livePackages -join ',') {
+          # Parenthesize both sides. `-join` and `-ne` have equal precedence
+          # and run left to right, so `a -join ',' -ne b -join ','` groups as
+          # ((a -join ',') -ne b) -join ',' -- a string compared against an
+          # array, which is always true. The first run of this step proved it,
+          # throwing while printing two identical package lists.
+          $committedKey = $committedPackages -join ','
+          $liveKey = $livePackages -join ','
+          if ($committedKey -ne $liveKey) {
             throw "metadata/metadata.json was captured against '$($committedPackages -join ', ')' but the live submission carries '$($livePackages -join ', ')'. Re-run this workflow with mode=get and commit that artifact before publishing metadata."
           }
           Write-Host "Capture matches the live submission ($($livePackages -join ', '))."
