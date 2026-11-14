@@ -1,42 +1,65 @@
 name: Microsoft Store metadata
 
-# Keeps the Store listing (description, screenshots, release notes, locales)
-# under version control, the way the snap and Play listings already are.
+# Publishes the Store listing (title, description, features, keywords, release
+# notes) from the text versioned under metadata/store/<locale>/.
 #
-# The Store will not accept a partial listing: `submission updateMetadata`
-# replaces the whole submission, so metadata/metadata.json has to be the
-# complete JSON, not an edited fragment. That is what mode `get` produces —
-# run it once, download the artifact, and commit its metadata/metadata.json.
+# The Store replaces the whole submission on every update, so the payload is
+# assembled rather than stored: capture the live submission, overlay this
+# repository's words, and send the result. Screenshots, packages, markets and
+# hardware stay the Store's business because nothing in git owns them; the
+# listing prose lives in git because that is where a rewrite gets reviewed.
+#
+# metadata/metadata.json used to be that capture, committed. It went stale on
+# every release -- the file names the MSIX it was taken from, so publishing it
+# after a newer build shipped would have put the older package back on the
+# storefront -- and re-capturing it by hand was the chore that proved the model
+# wrong. Assembling from a fresh capture makes that staleness impossible, which
+# is why the step that compared committed packages with live ones is gone.
 #
 # Three modes, split so a listing change never reaches shoppers on its own:
 #
-#   get     read the live submission and upload it as an artifact
-#   stage   write metadata/metadata.json into the pending draft, publish nothing
-#   update  stage, then commit that draft to the Store
+#   get     read the live submission and upload a redacted copy
+#   stage   overlay git onto the capture and write the draft, submit nothing
+#   update  stage, then commit that draft so certification starts
 #
-# A push to metadata/metadata.json stages. Publishing is always a deliberate
-# `workflow_dispatch` with mode=update, because an update replaces every
-# listing field and screenshot at once and a bad round-trip would go live in
-# the same run it was made in. Staged is not durable: the next package release
-# rebuilds the draft, so stage and publish in one sitting.
+# A push to the listing text on main stages: the words land in Partner Center
+# as a draft where they can be read, and nothing ships until the release
+# pipeline or a deliberate mode=update dispatch submits them. Staged is not
+# durable -- the next package publish rebuilds the draft -- so a listing change
+# waits for a release instead of going live on its own. A field git does not
+# declare is carried through untouched, so a manual Partner Center edit of one
+# survives the overlay.
 #
-# The capture also names the package set it was taken from, so re-run `get`
-# and commit the refresh after every release. The check below refuses to
-# stage a listing whose packages no longer match the live submission.
+# flutter_release.yml calls this workflow with mode=update *after*
+# ms_store_release.yml has committed the package, because `msstore publish`
+# rebuilds the draft from the last published submission and throws away listing
+# text staged before it.
 #
-# Publishing a package (ms_store_release.yml) rebuilds the draft from the last
-# published submission and discards metadata staged in it, so this workflow
-# shares that workflow's concurrency group instead of running alongside it.
+# A locale directory has to name a language the product already serves (en-us,
+# de-de, fr-fr). Enable a new one in Partner Center first -- Store listing >
+# Add/remove languages -- then run with allow_new_locales.
 
 on:
   push:
     branches: [main]
     paths:
-      - metadata/metadata.json
+      - metadata/store/**
+  workflow_call:
+    inputs:
+      mode:
+        description: stage writes a draft, update stages and submits it
+        type: string
+        required: false
+        default: update
+      allow_new_locales:
+        description: every locale in git is already enabled on the product
+        type: boolean
+        required: false
+        default: false
   workflow_dispatch:
     inputs:
       mode:
-        description: get captures the live listing, stage writes a draft, update stages then publishes it
+        description: get captures, stage writes a draft, update stages and submits it
         type: choice
         options:
           - get
@@ -44,11 +67,18 @@ on:
           - update
         default: get
         required: true
+      allow_new_locales:
+        description: every locale in git is already enabled on the product
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
 
 concurrency:
+  # Same group as ms_store_release.yml: a package publish discards whatever
+  # listing draft exists, so the two must never overlap.
   group: ms-store-publish
   cancel-in-progress: false
 
@@ -62,15 +92,39 @@ jobs:
     name: ${{ inputs.mode == 'get' && 'Fetch' || inputs.mode == 'update' && 'Publish' || 'Stage' }} Store listing metadata
     if: github.event.repository.fork != true
     runs-on: windows-2022
+    env:
+      # A push carries no inputs, and a push only ever stages.
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event_name == 'workflow_call' && inputs.mode || 'stage' }}
+      ALLOW_NEW_LOCALES: ${{ inputs.allow_new_locales }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
+
+      # The assembler imports dart:io and dart:convert only, so this needs the
+      # Dart SDK, not the Flutter toolchain, pub get or code generation.
+      - name: Install Dart
+        if: env.MODE != 'get'
+        uses: dart-lang/setup-dart@v1.8.2
+        with:
+          sdk: stable
+
+      # Before any credential is used and before the Store is touched: an
+      # over-long description fails in seconds rather than after a capture.
+      - name: Check the listing tree
+        if: env.MODE != 'get'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          dart run scripts/ms_store_listing.dart --check
+          if ($LASTEXITCODE -ne 0) { throw 'metadata/store/ is not publishable as it stands.' }
 
       - name: Configure the Microsoft Store CLI
         uses: microsoft/microsoft-store-apppublisher@v1.4
         with:
           version: ${{ env.MSSTORE_CLI_VERSION }}
 
+      # Credentials go through the step environment rather than the script
+      # text, so no secret lands in a rendered command line.
       - name: Reconfigure store credentials
         env:
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
@@ -85,126 +139,91 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure exited with $LASTEXITCODE." }
 
       # The payload goes to stdout and the progress text to stderr, so the
-      # redirect captures clean JSON. Parsing it here stops a truncated or
-      # empty capture from becoming a committed listing.
+      # redirect captures clean JSON.
       #
-      # The captured submission also carries the package blob URLs, and those
-      # come back with a shared-access signature attached -- a credential for
-      # a public repository's history and its artifacts. The listing keeps the
-      # URL without the query, so nothing signed leaves the runner.
+      # The capture is written raw, and only into the runner's temp directory:
+      # it carries shared-access URLs for the package blobs, which are
+      # credentials against a public repository. mode=get additionally writes a
+      # redacted copy into the workspace, because reading a capture is the
+      # cheapest way to see what the Store actually serves to shoppers.
       - name: Capture the live submission
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'get'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force -Path metadata | Out-Null
+          $live = Join-Path $env:RUNNER_TEMP 'live-submission.json'
           msstore submission get "$env:MSSTORE_PRODUCT_ID" |
-            Set-Content -Path metadata/metadata.json -Encoding utf8
+            Set-Content -Path $live -Encoding utf8NoBOM
           if ($LASTEXITCODE -ne 0) { throw "msstore submission get exited with $LASTEXITCODE." }
 
-          $submission = Get-Content -Raw metadata/metadata.json | ConvertFrom-Json
+          $submission = Get-Content -Raw $live | ConvertFrom-Json
           if (-not $submission) { throw 'The captured submission was not valid JSON.' }
+          $locales = @($submission.Listings.PSObject.Properties.Name)
+          if ($locales.Count -lt 1) { throw 'The captured submission carries no listings.' }
+          Write-Host "Captured $($locales -join ', ') serving $(@($submission.ApplicationPackages.FileName) -join ', ')."
 
-          $raw = Get-Content -Raw metadata/metadata.json
-          $redacted = [regex]::Replace($raw, '(https://[^"]*\.blob\.core\.windows\.net/[^"]*)\?[^"]*', '$1')
-          if ($redacted -match 'sig=' -or $redacted -match 'skoid=') {
-            throw 'A signed blob URL survived redaction; refusing to publish it.'
-          }
-          if ($redacted -ne $raw) { Write-Host 'Stripped shared-access query strings from the package URLs.' }
-          Set-Content -Path metadata/metadata.json -Value $redacted -Encoding utf8 -NoNewline
-
-          Write-Host "Captured $(@($submission.listings.PSObject.Properties.Name).Count) locales, $(($redacted | ConvertFrom-Json | ConvertTo-Json -Depth 100 -Compress).Length) characters."
-
-      - name: Upload the captured submission
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'get'
-        uses: actions/upload-artifact@v4.6.2
-        with:
-          name: ms-store-metadata
-          path: metadata/metadata.json
-          if-no-files-found: error
-          retention-days: 1
-
-      # An update replaces the whole submission, which means a committed
-      # listing replays the package set it was captured against. Publishing
-      # one after a release shipped a newer MSIX would put the older build
-      # back on the storefront, so compare against the live submission and
-      # fail here rather than silently downgrading the product.
-      - name: Refuse a capture the releases have moved past
-        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $committed = Get-Content -Raw metadata/metadata.json | ConvertFrom-Json
-          $liveJson = msstore submission get "$env:MSSTORE_PRODUCT_ID" | Out-String
-          if ($LASTEXITCODE -ne 0) { throw "msstore submission get exited with $LASTEXITCODE." }
-          $live = $liveJson | ConvertFrom-Json
-
-          $committedPackages = @($committed.ApplicationPackages | ForEach-Object { $_.FileName }) | Sort-Object
-          $livePackages = @($live.ApplicationPackages | ForEach-Object { $_.FileName }) | Sort-Object
-          # Parenthesize both sides. `-join` and `-ne` have equal precedence
-          # and run left to right, so `a -join ',' -ne b -join ','` groups as
-          # ((a -join ',') -ne b) -join ',' -- a string compared against an
-          # array, which is always true. The first run of this step proved it,
-          # throwing while printing two identical package lists.
-          $committedKey = $committedPackages -join ','
-          $liveKey = $livePackages -join ','
-          if ($committedKey -ne $liveKey) {
-            throw "metadata/metadata.json was captured against '$($committedPackages -join ', ')' but the live submission carries '$($livePackages -join ', ')'. Re-run this workflow with mode=get and commit that artifact before publishing metadata."
-          }
-          Write-Host "Capture matches the live submission ($($livePackages -join ', '))."
-
-      # The Store rejects an update whose base price is missing or the
-      # placeholder 'Base' that the API returns for a product priced in every
-      # market the same way, which is how a free app is priced. Repairing it
-      # here keeps a captured listing publishable without hand-editing JSON.
-      - name: Check the metadata file
-        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if (-not (Test-Path metadata/metadata.json)) {
-            throw 'metadata/metadata.json is missing. Run this workflow with mode=get and commit the artifact it uploads.'
-          }
-          $submission = Get-Content -Raw metadata/metadata.json | ConvertFrom-Json
-          if (-not $submission) { throw 'metadata/metadata.json is not valid JSON.' }
-
-          if (-not $submission.pricing.priceId -or $submission.pricing.priceId -eq 'Base') {
-            Write-Host "pricing.priceId was '$($submission.pricing.priceId)'; Vernet is free, so the update sends Free."
-            if ($null -eq $submission.pricing) {
-              $submission | Add-Member -NotePropertyName pricing -NotePropertyValue ([PSCustomObject]@{})
+          if ($env:MODE -eq 'get') {
+            $raw = Get-Content -Raw $live
+            $redacted = [regex]::Replace($raw, '(https://[^"]*\.blob\.core\.windows\.net/[^"]*)\?[^"]*', '$1')
+            if ($redacted -match 'sig=' -or $redacted -match 'skoid=') {
+              throw 'A signed blob URL survived redaction; refusing to upload it.'
             }
-            $submission.pricing | Add-Member -NotePropertyName priceId -NotePropertyValue 'Free' -Force
-            $submission | ConvertTo-Json -Depth 100 | Set-Content -Path metadata/metadata.json -Encoding utf8
+            New-Item -ItemType Directory -Force -Path capture | Out-Null
+            Set-Content -Path capture/metadata.json -Value $redacted -Encoding utf8NoBOM -NoNewline
+            Write-Host "Uploaded a redacted copy ($($redacted.Length) characters)."
           }
 
-      # --payload rather than the JSON inline: a 28-locale listing passes the
-      # 32,767 character command-line limit that Microsoft's own snippet hits.
-      - name: Update the submission metadata
-        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
+      # A release run gets here seconds after msstore publish committed the
+      # package, and the Store may still be ingesting that submission, so retry
+      # inside a window rather than treat a slow Store as a broken pipeline. If
+      # the window is spent the log says so and the fix is one dispatch.
+      #
+      # $ErrorActionPreference is deliberately Continue here: the CLI writes its
+      # complaint to stderr, and a retry loop has to read that text instead of
+      # having PowerShell throw on the first line of it. The exit code still
+      # decides, and the loop throws once the window is spent.
+      - name: Stage the listing
+        if: env.MODE != 'get'
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Stop'
-          $payload = (Resolve-Path metadata/metadata.json).Path
-          msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload
-          if ($LASTEXITCODE -ne 0) { throw "msstore submission updateMetadata exited with $LASTEXITCODE." }
+          $ErrorActionPreference = 'Continue'
+          $live = Join-Path $env:RUNNER_TEMP 'live-submission.json'
+          $payload = Join-Path $env:RUNNER_TEMP 'payload.json'
 
-      # Deliberately narrower than the steps above: a push stages, only an
-      # explicit mode=update commits the draft to the storefront. `publish`
-      # takes whatever the pending submission holds, so the two together are
-      # the review gate rather than a mode that can be forgotten.
-      - name: Publish the submission
-        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'update'
+          $assemble = @('run', 'scripts/ms_store_listing.dart', '--submission', $live, '--out', $payload)
+          if ($env:ALLOW_NEW_LOCALES -eq 'true') { $assemble += '--allow-new-locales' }
+          & dart $assemble
+          if ($LASTEXITCODE -ne 0) { throw "The listing assembler exited with $LASTEXITCODE." }
+
+          # --payload rather than the JSON inline: a multi-locale listing passes
+          # the 32,767 character command-line limit that Microsoft's own
+          # snippet hits.
+          for ($attempt = 1; $attempt -le 5; $attempt++) {
+            $output = & msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload 2>&1 |
+              Out-String
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "The Store accepted the listing on attempt $attempt."
+              if ($output.Trim()) { Write-Host $output.Trim() }
+              exit 0
+            }
+            Write-Host "Attempt $attempt was refused (exit $LASTEXITCODE):"
+            if ($output.Trim()) { Write-Host $output.Trim() }
+            if ($attempt -lt 5) { Start-Sleep -Seconds 60 }
+          }
+          throw 'msstore submission updateMetadata refused the payload 5 times. If a submission is still being ingested, wait for it and dispatch this workflow with mode=update - gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY'
+
+      - name: Publish the listing
+        if: env.MODE == 'update'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           msstore submission publish "$env:MSSTORE_PRODUCT_ID"
           if ($LASTEXITCODE -ne 0) { throw "msstore submission publish exited with $LASTEXITCODE." }
 
+      # Read-only, and a failure here says nothing about the steps above, so it
+      # must not turn a green publish red.
       - name: Report the submission state
         if: ${{ !cancelled() }}
         continue-on-error: true
-        env:
-          MODE: ${{ inputs.mode }}
         shell: pwsh
         run: |
           msstore submission status "$env:MSSTORE_PRODUCT_ID"
@@ -212,6 +231,15 @@ jobs:
           # Says so out loud, because on a push every step above looks like a
           # publish and only this one draws the distinction in the log.
           if ($env:MODE -ne 'update') {
-            Write-Host 'Nothing was published. To take the staged draft live:'
+            Write-Host 'Nothing was submitted. To take the staged draft live:'
             Write-Host "  gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY"
           }
+
+      - name: Upload the captured submission
+        if: env.MODE == 'get'
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ms-store-metadata
+          path: capture/metadata.json
+          if-no-files-found: error
+          retention-days: 1

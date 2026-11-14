@@ -1,0 +1,1 @@
+Wifi Details, Find Devices, Device Detail, Open ports scanner, Ping & DNS Lookup, Server Monitoring, IPv4 & IPv6 subnet calculator, Wake on LAN, Switch discovery, Speed test
