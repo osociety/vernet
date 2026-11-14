@@ -401,8 +401,11 @@ jobs:
           export DISPLAY=:99
           log=/tmp/vernet-smoke.log
           cd "$smoke"
-          timeout 45 ./vernet > "$log" 2>&1
-          status=$?
+          # `|| status=$?` rather than a bare capture: the runner shell runs
+          # steps with -e, so a 124 from timeout would end the step before the
+          # guards below ever read it.
+          status=0
+          timeout 45 ./vernet > "$log" 2>&1 || status=$?
           if grep -qi 'libsqlite3' "$log"; then
             echo "::error::the released bundle could not load its own SQLite library."
             sed -n '1,40p' "$log"

@@ -78,8 +78,12 @@ jobs:
           Add-Type -AssemblyName System.IO.Compression.FileSystem
           $zip = [System.IO.Compression.ZipFile]::OpenRead($bundle.FullName)
           try {
-            $entry = $zip.GetEntry('AppxBundleManifest.xml')
-            if (-not $entry) { throw "$($bundle.Name) has no AppxBundleManifest.xml." }
+            # GetEntry matches the whole path, and an AppxBundle keeps its
+            # manifest under AppxMetadata/, so a root lookup is always null.
+            $entry = $zip.GetEntry('AppxMetadata/AppxBundleManifest.xml')
+            if (-not $entry) {
+              throw "$($bundle.Name) has no AppxMetadata/AppxBundleManifest.xml. Entries: $((($zip.Entries | ForEach-Object FullName) -join ', '))"
+            }
             $packages = @($zip.Entries | Where-Object { $_.Name -like '*.msix' } | ForEach-Object FullName)
             $reader = [System.IO.StreamReader]::new($entry.Open())
             try { [xml]$manifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
@@ -92,8 +96,10 @@ jobs:
           }
 
           Write-Host "Publishing $($bundle.Name) ($($packages -join ', '))."
-          $version = $manifest.Package.Identity.Version
-          if ($version) { Write-Host "Bundle version $version." }
+          # The manifest root is Bundle in a default namespace, so match the
+          # local name; GetElementsByTagName ignores the namespace URI.
+          $identity = $manifest.GetElementsByTagName('Identity')[0]
+          if ($identity) { Write-Host "Bundle version $($identity.Version), package family $($identity.Name)." }
 
           # The next steps run in a separate shell, so hand the path over as
           # an environment variable instead of re-discovering it.
