@@ -279,22 +279,37 @@ the ad-free APKs, then builds the store bundle in the same job and
 Windows follows the same shape: `release-windows` builds the x64 and ARM64
 packages, `publish-windows` packs them into one `.msixbundle`, and
 `publish-ms-store` hands that bundle to the live product through
-`ms_store_release.yml`. The Store CLI only updates a published product, so
-the first publication had to happen in Partner Center, and publishing a
-package rebuilds the draft from the last published submission — which
-discards any listing metadata staged in it. `ms_store_metadata.yml` is
-therefore in the same `ms-store-publish` concurrency group. It replaces the
-whole listing, so `metadata/metadata.json` starts as the artifact of that
-workflow's `get` mode and stays the complete submission JSON rather than a
-fragment. It has three modes — `get` reads the live submission, `stage` writes
-that JSON into the pending draft, `update` stages and then commits it — and a
-push to the listing file only ever stages. Committing a listing to the
-storefront is a deliberate `mode=update` dispatch, because the update replaces
-every field and screenshot at once and a bad round-trip would otherwise go live
-in the same run that made it. That JSON also names the package set it was
-captured against, so every release has to be followed by a fresh `get` commit; a
-metadata run whose packages no longer match the live submission is refused
-rather than allowed to roll the product back to the previous build.
+`ms_store_release.yml`. `publish-ms-store-listing` then publishes the Store
+listing through `ms_store_metadata.yml` — after the package, because
+`msstore publish` rebuilds the draft from the last published submission and
+so discards any listing text staged before it. Both legs share the
+`ms-store-publish` concurrency group, and the Store CLI only updates a product
+that is already live, which is why the first publication had to happen in
+Partner Center.
+
+The listing is assembled rather than stored. `metadata/store/<locale>/` holds
+one directory per language — `title.txt`, `description.txt`, `features.txt`,
+`keywords.txt`, `release_notes.txt`, and `short_description.txt` when that
+field is written — and `dart run scripts/ms_store_listing.dart` overlays those
+files onto a fresh `msstore submission get` capture. Screenshots, packages,
+markets and hardware come from the Store because nothing in git owns them; the
+prose comes from git because that is where a rewrite gets reviewed. The same
+script enforces the Store's per-field limits, repairs the placeholder price a
+free product is captured with, and reports each field it changes by size, so a
+public CI log shows what moved without copying the listing into it.
+
+An update replaces the whole submission, so a locale that git does not declare
+is carried through from the capture rather than dropped, and a locale in git
+that the product does not serve is refused until it is enabled in Partner
+Center — Store listing > Add/remove languages — with `allow_new_locales` saying
+that has happened. The workflow has three modes: `get` captures the live
+submission and uploads a redacted copy, which is the cheapest way to read what
+the Store actually serves; `stage` writes the overlay into the pending draft;
+`update` stages and then commits it. A push to `metadata/store/**` on main only
+ever stages, so the release pipeline — or a deliberate `mode=update` dispatch —
+is what reaches shoppers. The checked-in `metadata/metadata.json` capture this
+replaced went stale against the release that followed it, and a run publishing a
+listing whose package set no longer matched was a rollback waiting to happen.
 
 The Android integration workflow runs the whole suite once per flavor as a
 matrix. `flutter test --flavor` injects the same define a build does, which is
