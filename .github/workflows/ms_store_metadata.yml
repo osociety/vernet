@@ -7,11 +7,22 @@ name: Microsoft Store metadata
 # replaces the whole submission, so metadata/metadata.json has to be the
 # complete JSON, not an edited fragment. That is what mode `get` produces —
 # run it once, download the artifact, and commit its metadata/metadata.json.
-# From then on a push to that file on main publishes the listing.
+#
+# Three modes, split so a listing change never reaches shoppers on its own:
+#
+#   get     read the live submission and upload it as an artifact
+#   stage   write metadata/metadata.json into the pending draft, publish nothing
+#   update  stage, then commit that draft to the Store
+#
+# A push to metadata/metadata.json stages. Publishing is always a deliberate
+# `workflow_dispatch` with mode=update, because an update replaces every
+# listing field and screenshot at once and a bad round-trip would go live in
+# the same run it was made in. Staged is not durable: the next package release
+# rebuilds the draft, so stage and publish in one sitting.
 #
 # The capture also names the package set it was taken from, so re-run `get`
 # and commit the refresh after every release. The check below refuses to
-# publish a listing whose packages no longer match the live submission.
+# stage a listing whose packages no longer match the live submission.
 #
 # Publishing a package (ms_store_release.yml) rebuilds the draft from the last
 # published submission and discards metadata staged in it, so this workflow
@@ -25,10 +36,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: get captures the live listing, update publishes metadata/metadata.json
+        description: get captures the live listing, stage writes a draft, update stages then publishes it
         type: choice
         options:
           - get
+          - stage
           - update
         default: get
         required: true
@@ -47,7 +59,7 @@ env:
 
 jobs:
   metadata:
-    name: ${{ inputs.mode == 'get' && 'Fetch' || 'Publish' }} Store listing metadata
+    name: ${{ inputs.mode == 'get' && 'Fetch' || inputs.mode == 'update' && 'Publish' || 'Stage' }} Store listing metadata
     if: github.event.repository.fork != true
     runs-on: windows-2022
     steps:
@@ -176,8 +188,12 @@ jobs:
           msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload
           if ($LASTEXITCODE -ne 0) { throw "msstore submission updateMetadata exited with $LASTEXITCODE." }
 
+      # Deliberately narrower than the steps above: a push stages, only an
+      # explicit mode=update commits the draft to the storefront. `publish`
+      # takes whatever the pending submission holds, so the two together are
+      # the review gate rather than a mode that can be forgotten.
       - name: Publish the submission
-        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'get'
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'update'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -187,5 +203,15 @@ jobs:
       - name: Report the submission state
         if: ${{ !cancelled() }}
         continue-on-error: true
+        env:
+          MODE: ${{ inputs.mode }}
         shell: pwsh
-        run: msstore submission status "$env:MSSTORE_PRODUCT_ID"
+        run: |
+          msstore submission status "$env:MSSTORE_PRODUCT_ID"
+
+          # Says so out loud, because on a push every step above looks like a
+          # publish and only this one draws the distinction in the log.
+          if ($env:MODE -ne 'update') {
+            Write-Host 'Nothing was published. To take the staged draft live:'
+            Write-Host "  gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY"
+          }
