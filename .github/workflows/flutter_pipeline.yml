@@ -63,6 +63,7 @@ jobs:
 
   detect-deployments:
     name: Detect release and Hosting changes
+    timeout-minutes: 10
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
@@ -150,6 +151,7 @@ jobs:
 
   approve-firebase-content:
     name: Approve Firebase Hosting content deployment
+    timeout-minutes: 10
     if: github.event_name == 'push' && github.event.repository.fork != true && needs.detect-deployments.outputs.firebase_changed == 'true' && needs.detect-deployments.outputs.release != 'true'
     needs:
       - detect-deployments

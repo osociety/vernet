@@ -14,6 +14,7 @@ concurrency:
 jobs:
   android-integration-test:
     name: Android integration tests (${{ matrix.flavor }})
+    timeout-minutes: 30
     runs-on: ubuntu-latest
 
     # The flavor is what these legs differ on. `flutter test --flavor` makes
