@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/base_settings_dialog.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class PingCountDialog extends StatefulWidget {
   const PingCountDialog({super.key});
@@ -13,12 +13,12 @@ class PingCountDialog extends StatefulWidget {
 class _PingCountDialogState extends BaseSettingsDialog<PingCountDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.pingCount;
+    return context.l10n.pingCount;
   }
 
   @override
   String getHintText() {
-    return StringValue.pingCountDesc;
+    return context.l10n.pingCountDesc;
   }
 
   @override

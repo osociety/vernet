@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
@@ -19,10 +20,11 @@ import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 import '../settings/test_utils.dart';
 
+/// The resource bundle the test device renders: these suites run in English.
+final _en = AppLocalizationsEn();
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -80,7 +82,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // App bar
-      expect(find.text(StringValue.deviceDetailPageTitle), findsOneWidget);
+      expect(find.text(_en.deviceDetailPageTitle), findsOneWidget);
 
       // Header card
       expect(find.byKey(WidgetKey.deviceDetailName.key), findsOneWidget);
@@ -195,7 +197,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(WakeOnLanPage), findsOneWidget);
-      expect(find.text(StringValue.wakeOnLanPageTitle), findsOneWidget);
+      expect(find.text(_en.wakeOnLanPageTitle), findsOneWidget);
 
       // Verify MAC address is prefilled in MAC text field
       final macFieldFinder = find.byKey(WidgetKey.wakeOnLanMacField.key);

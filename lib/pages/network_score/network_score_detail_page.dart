@@ -11,7 +11,7 @@ import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class NetworkScoreDetailPage extends StatelessWidget {
   const NetworkScoreDetailPage({super.key, required this.initialScore});
@@ -53,7 +53,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(StringValue.networkScoreTitle),
+            title: Text(context.l10n.networkScoreTitle),
             actions: [
               IconButton(
                 icon: isComputing

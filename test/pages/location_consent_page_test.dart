@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
@@ -103,6 +104,8 @@ void main() {
     return ChangeNotifierProvider<DarkThemeProvider>(
       create: (_) => DarkThemeProvider(),
       child: const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: LocationConsentPage(),
       ),
     );

@@ -3,8 +3,8 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vernet/models/wake_on_lan_target.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class WakeOnLanPage extends StatefulWidget {
   const WakeOnLanPage({
@@ -201,7 +201,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringValue.wakeOnLanPageTitle),
+        title: Text(context.l10n.wakeOnLanPageTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
@@ -319,10 +319,10 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
               ),
             ),
           if (_saved.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Text(
-                StringValue.wakeOnLanEmptyPlaceholder,
+                context.l10n.wakeOnLanEmptyPlaceholder,
                 textAlign: TextAlign.center,
               ),
             )

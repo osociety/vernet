@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
-import 'package:vernet/values/strings.dart';
+import '../../helpers/test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -19,15 +19,13 @@ void main() {
 
     testWidgets('shows empty placeholder before any lookup', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: ReverseDNSPage(),
-          ),
+        wrapWithLocalizations(
+          child: const Scaffold(body: ReverseDNSPage()),
         ),
       );
 
       expect(
-        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        find.text(l10nEn().reverseDnsLookupEmptyPlaceholder),
         findsOneWidget,
       );
     });

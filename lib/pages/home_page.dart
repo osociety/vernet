@@ -29,9 +29,9 @@ import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/ui/timestamp_chip.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -269,7 +269,7 @@ class _WifiDetailState extends State<HomePage> {
     final signalDescription = isChecking
         ? 'Measuring signal…'
         : info.metrics.rawRssi != null && level > 0
-            ? '${info.metrics.statusMessage} · ${info.metrics.rawRssi} ${StringValue.signalStrengthUnit}'
+            ? '${info.metrics.statusMessage} · ${info.metrics.rawRssi} ${context.l10n.signalStrengthUnit}'
             : connected
                 ? info.metrics.statusMessage
                 : 'Disconnected';
@@ -421,7 +421,7 @@ class _WifiDetailState extends State<HomePage> {
               const SizedBox(width: 12),
               IconButton.outlined(
                 key: WidgetKey.scanHistoryIconButton.key,
-                tooltip: StringValue.previousScansTitle,
+                tooltip: context.l10n.previousScansTitle,
                 onPressed: _openScanHistory,
                 icon: const Icon(Icons.history),
               ),

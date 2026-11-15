@@ -13,8 +13,8 @@ import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 /// A detail page that displays comprehensive information about a discovered
 /// network device and provides quick actions (port scan, ping, Wake-on-LAN).
@@ -99,7 +99,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringValue.deviceDetailPageTitle),
+        title: Text(context.l10n.deviceDetailPageTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(12),

@@ -5,8 +5,8 @@ import 'package:vernet/models/neighbor_info.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/services/neighbor_discovery/neighbor_discovery_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class NeighborDiscoveryPage extends StatefulWidget {
   const NeighborDiscoveryPage({
@@ -134,7 +134,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringValue.neighborDiscoveryPageTitle),
+        title: Text(context.l10n.neighborDiscoveryPageTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
@@ -260,10 +260,10 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
               child: Text(_error!),
             ),
           if (_neighbors.isEmpty && !_loading && _error == null)
-            const Padding(
-              padding: EdgeInsets.all(24),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Text(
-                StringValue.neighborDiscoveryEmptyPlaceholder,
+                context.l10n.neighborDiscoveryEmptyPlaceholder,
                 textAlign: TextAlign.center,
               ),
             ),

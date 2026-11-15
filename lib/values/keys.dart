@@ -21,6 +21,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   rescanIconButton('rescanIconButton'),
   scanHistoryIconButton('scanHistoryIconButton'),
   changeThemeTile('changeThemeTile'),
+  languageTile('languageTile'),
   inAppInternetSwitch('inAppInternetSwitch'),
   checkForUpdatesButton('checkForUpdatesButton'),
   pingSummarySent('pingSummarySent'),

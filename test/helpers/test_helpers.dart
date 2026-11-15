@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/l10n/app_localizations.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
 /// Shared test helpers for common mocking and setup.
@@ -74,6 +76,25 @@ Widget wrapWithDarkThemeProvider({
     child: child,
   );
 }
+
+/// Wraps a widget in a MaterialApp carrying the app's real localization
+/// delegates, so anything under test can read `context.l10n` the way the
+/// running app does.
+Widget wrapWithLocalizations({
+  required Widget child,
+  Locale locale = const Locale('en'),
+}) {
+  return MaterialApp(
+    locale: locale,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: child,
+  );
+}
+
+/// The English resource bundle, so a test can assert on rendered text without
+/// repeating the literal that the app already owns.
+AppLocalizations l10nEn() => AppLocalizationsEn();
 
 /// Common test data builders.
 class TestDataBuilder {

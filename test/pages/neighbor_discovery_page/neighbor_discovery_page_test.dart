@@ -6,12 +6,12 @@ import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dar
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/services/neighbor_discovery/neighbor_discovery_service.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
+import '../../helpers/test_helpers.dart';
 
 Widget wrap(Widget child) {
   return ChangeNotifierProvider<DarkThemeProvider>(
     create: (_) => DarkThemeProvider(),
-    child: MaterialApp(home: child),
+    child: wrapWithLocalizations(child: child),
   );
 }
 
@@ -28,12 +28,12 @@ void main() {
         wrap(const NeighborDiscoveryPage(initialSwitchIp: '192.168.1.1')));
     await tester.pump();
 
-    expect(find.text(StringValue.neighborDiscoveryPageTitle), findsOneWidget);
+    expect(find.text(l10nEn().neighborDiscoveryPageTitle), findsOneWidget);
     expect(find.byKey(WidgetKey.neighborSwitchIpField.key), findsOneWidget);
     expect(find.byKey(WidgetKey.neighborDiscoverButton.key), findsOneWidget);
     expect(find.byKey(WidgetKey.neighborCliTile.key), findsOneWidget);
-    expect(find.text(StringValue.neighborDiscoveryEmptyPlaceholder),
-        findsOneWidget);
+    expect(
+        find.text(l10nEn().neighborDiscoveryEmptyPlaceholder), findsOneWidget);
   });
 
   testWidgets('parses pasted CDP CLI into a neighbor card', (tester) async {

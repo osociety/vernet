@@ -1,0 +1,247 @@
+{
+  "@@locale": "en",
+  "firstSubnet": "Start of device search",
+  "@firstSubnet": {
+    "description": "Settings row title for the first host of the scanned range."
+  },
+  "firstSubnetDesc": "Choose the first number to check when looking for devices nearby",
+  "@firstSubnetDesc": {
+    "description": "Settings row subtitle for the first host of the scanned range."
+  },
+  "lastSubnet": "End of device search",
+  "@lastSubnet": {
+    "description": "Settings row title for the last host of the scanned range."
+  },
+  "lastSubnetDesc": "Choose the last number to check when looking for devices nearby",
+  "@lastSubnetDesc": {
+    "description": "Settings row subtitle for the last host of the scanned range."
+  },
+  "socketTimeout": "Wait time for a check",
+  "@socketTimeout": {
+    "description": "Settings row title for the socket timeout duration."
+  },
+  "socketTimeoutDesc": "How long to wait for a device or service to respond",
+  "@socketTimeoutDesc": {
+    "description": "Settings row subtitle for the socket timeout duration."
+  },
+  "pingCount": "Number of connection checks",
+  "@pingCount": {
+    "description": "Settings row title for the ping repeat count."
+  },
+  "pingCountDesc": "How many times to check whether a website or device responds",
+  "@pingCountDesc": {
+    "description": "Settings row subtitle for the ping repeat count."
+  },
+  "customSubnet": "Search a different network",
+  "@customSubnet": {
+    "description": "Settings row title for overriding the scanned network."
+  },
+  "customSubnetDesc": "Use this only if you want to look for devices on another local network",
+  "@customSubnetDesc": {
+    "description": "Settings row subtitle for overriding the scanned network."
+  },
+  "customSubnetHint": "e.g., 10.0.0.1",
+  "@customSubnetHint": {
+    "description": "Input hint showing the expected IPv4 format for a custom network."
+  },
+  "customSubnetInvalid": "Enter a valid IPv4 address, like 10.0.0.1. Leave empty to use your current network.",
+  "@customSubnetInvalid": {
+    "description": "Validation error for a malformed custom network address."
+  },
+  "customSubnetNotUsableHost": "This looks like a network or broadcast address. Enter a device or router address, like 10.0.0.1.",
+  "@customSubnetNotUsableHost": {
+    "description": "Validation error when the entered address cannot be a host."
+  },
+  "hostScanPageTitle": "Find devices",
+  "@hostScanPageTitle": {
+    "description": "App bar title of the local network scan page."
+  },
+  "previousScansTitle": "Previous scans",
+  "@previousScansTitle": {
+    "description": "App bar title of the scan history list."
+  },
+  "scanReportTitle": "Scan report",
+  "@scanReportTitle": {
+    "description": "App bar title of a single saved scan report."
+  },
+  "scanHistoryEmptyPlaceholder": "No previous scans yet.\nRun a scan to see its report here.",
+  "@scanHistoryEmptyPlaceholder": {
+    "description": "Empty state shown when no scan has been run yet. Two lines."
+  },
+  "scanHistoryEmptyTitle": "No scans yet",
+  "@scanHistoryEmptyTitle": {
+    "description": "Heading of the empty scan history state."
+  },
+  "scanHistoryRefresh": "Refresh",
+  "@scanHistoryRefresh": {
+    "description": "Button label that reloads the scan history list."
+  },
+  "scanHistoryLoadError": "We could not load previous scans.",
+  "@scanHistoryLoadError": {
+    "description": "Error shown when the scan history cannot be read from storage."
+  },
+  "scanHistoryOverviewTitle": "Scan activity",
+  "@scanHistoryOverviewTitle": {
+    "description": "Heading of the aggregate statistics panel above the history list."
+  },
+  "scanHistoryScansLabel": "Scans",
+  "@scanHistoryScansLabel": {
+    "description": "Statistic label for the number of scans run."
+  },
+  "scanHistoryDevicesFoundLabel": "Devices found",
+  "@scanHistoryDevicesFoundLabel": {
+    "description": "Statistic label for the total number of devices found across scans."
+  },
+  "scanHistoryLatestScanLabel": "Latest scan",
+  "@scanHistoryLatestScanLabel": {
+    "description": "Statistic label for the most recent scan."
+  },
+  "scanHistoryDevicesPerScanLabel": "Recent devices per scan",
+  "@scanHistoryDevicesPerScanLabel": {
+    "description": "Chart title for devices found per recent scan."
+  },
+  "scanHistoryListTitle": "Scan history",
+  "@scanHistoryListTitle": {
+    "description": "Heading of the saved scans table."
+  },
+  "scanHistoryNetworkColumn": "Network",
+  "@scanHistoryNetworkColumn": {
+    "description": "Table column header for the scanned network."
+  },
+  "scanHistoryStartedColumn": "Started",
+  "@scanHistoryStartedColumn": {
+    "description": "Table column header for the scan start time."
+  },
+  "scanHistoryDurationColumn": "Duration",
+  "@scanHistoryDurationColumn": {
+    "description": "Table column header for how long the scan took."
+  },
+  "scanHistoryDevicesColumn": "Devices",
+  "@scanHistoryDevicesColumn": {
+    "description": "Table column header for the device count of a scan."
+  },
+  "scanHistoryStatusColumn": "Status",
+  "@scanHistoryStatusColumn": {
+    "description": "Table column header for whether a scan finished or is running."
+  },
+  "scanReportCompleted": "Completed",
+  "@scanReportCompleted": {
+    "description": "Status label for a finished scan."
+  },
+  "scanReportInProgress": "In progress",
+  "@scanReportInProgress": {
+    "description": "Status label for a scan still running."
+  },
+  "scanReportDiscoveredDevices": "Discovered devices",
+  "@scanReportDiscoveredDevices": {
+    "description": "Section heading listing the devices a scan found."
+  },
+  "scanReportNoDevices": "No devices in this scan.",
+  "@scanReportNoDevices": {
+    "description": "Empty state for a report with no discovered devices."
+  },
+  "scanReportLoadError": "We could not load this report.",
+  "@scanReportLoadError": {
+    "description": "Error shown when a single scan report cannot be read."
+  },
+  "scanReportScanWindow": "Scan window",
+  "@scanReportScanWindow": {
+    "description": "Detail label for the time range a scan covered."
+  },
+  "scanReportStarted": "Started",
+  "@scanReportStarted": {
+    "description": "Detail label for when the scan began."
+  },
+  "scanReportEnded": "Ended",
+  "@scanReportEnded": {
+    "description": "Detail label for when the scan finished."
+  },
+  "scanReportStillRunning": "Still running",
+  "@scanReportStillRunning": {
+    "description": "Value shown in the ended field of a running scan."
+  },
+  "scanReportDuration": "Duration",
+  "@scanReportDuration": {
+    "description": "Detail label for how long the scan took."
+  },
+  "scanReportDeviceColumn": "Device",
+  "@scanReportDeviceColumn": {
+    "description": "Table column header for the device name."
+  },
+  "scanReportVendorColumn": "Vendor",
+  "@scanReportVendorColumn": {
+    "description": "Table column header for the MAC address vendor."
+  },
+  "scanReportIpColumn": "IP address",
+  "@scanReportIpColumn": {
+    "description": "Table column header for the IP address."
+  },
+  "scanReportMacColumn": "MAC address",
+  "@scanReportMacColumn": {
+    "description": "Table column header for the MAC address."
+  },
+  "scanReportDeviceLabel": "Device",
+  "@scanReportDeviceLabel": {
+    "description": "Singular label for one discovered device."
+  },
+  "scanReportDevicesLabel": "Devices",
+  "@scanReportDevicesLabel": {
+    "description": "Plural label for discovered devices."
+  },
+  "unknownDevice": "Unknown device",
+  "@unknownDevice": {
+    "description": "Name shown when a device reports no hostname."
+  },
+  "loadingDevicesMessage": "Looking for devices connected to your local network",
+  "@loadingDevicesMessage": {
+    "description": "Progress message shown while a scan runs."
+  },
+  "dnsLookupEmptyPlaceholder": "No results yet.\nThe addresses for this website will appear here.",
+  "@dnsLookupEmptyPlaceholder": {
+    "description": "Empty state of the DNS lookup result list. Two lines."
+  },
+  "reverseDnsLookupEmptyPlaceholder": "No name found yet.\nThe device name will appear here.",
+  "@reverseDnsLookupEmptyPlaceholder": {
+    "description": "Empty state of the reverse DNS lookup result. Two lines."
+  },
+  "neighborDiscoveryPageTitle": "Switch neighbors",
+  "@neighborDiscoveryPageTitle": {
+    "description": "App bar title of the CDP/LLDP neighbor discovery page."
+  },
+  "neighborDiscoveryEmptyPlaceholder": "No neighbors yet.\nQuery a switch or paste CDP/LLDP CLI output to see ports and platforms.",
+  "@neighborDiscoveryEmptyPlaceholder": {
+    "description": "Empty state of the neighbor list. Two lines."
+  },
+  "wakeOnLanPageTitle": "Wake a device",
+  "@wakeOnLanPageTitle": {
+    "description": "App bar title of the Wake-on-LAN page."
+  },
+  "wakeOnLanEmptyPlaceholder": "No saved devices yet.\nEnter a MAC address and send a wake packet, or save a computer you use often.",
+  "@wakeOnLanEmptyPlaceholder": {
+    "description": "Empty state of the saved Wake-on-LAN targets. Two lines."
+  },
+  "deviceDetailPageTitle": "Device details",
+  "@deviceDetailPageTitle": {
+    "description": "App bar title of the per-device detail page."
+  },
+  "signalStrengthUnit": "dBm",
+  "@signalStrengthUnit": {
+    "description": "Unit suffix for the signal strength reading. Usually left untranslated."
+  },
+  "networkScoreTitle": "Network Score",
+  "@networkScoreTitle": {
+    "description": "App bar title of the network score detail page."
+  },
+  "languageTitle": "Language",
+  "@languageTitle": {
+    "description": "Settings row title for the app language."
+  },
+  "languageDesc": "Choose the language Vernet uses",
+  "@languageDesc": {
+    "description": "Settings row subtitle for the app language."
+  },
+  "languageSystemDefault": "System default",
+  "@languageSystemDefault": {
+    "description": "Entry in the language picker that follows the operating system language."
+  }
+}

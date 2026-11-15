@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
@@ -15,9 +17,9 @@ import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -30,6 +32,8 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
+    final localeChange = Provider.of<LocaleProvider>(context);
+    final l10n = context.l10n;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -50,6 +54,28 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
+              key: WidgetKey.languageTile.key,
+              title: Text(l10n.languageTitle),
+              subtitle: Text(l10n.languageDesc),
+              trailing: DropdownButton<Locale?>(
+                value: localeChange.locale,
+                underline: const SizedBox.shrink(),
+                items: [
+                  // No value means follow the system language.
+                  DropdownMenuItem(child: Text(l10n.languageSystemDefault)),
+                  ...AppLocalizations.supportedLocales.map(
+                    (locale) => DropdownMenuItem(
+                      value: locale,
+                      child: Text(languageName(locale)),
+                    ),
+                  ),
+                ],
+                onChanged: (locale) => localeChange.locale = locale,
+              ),
+            ),
+          ),
+          Card(
+            child: ListTile(
               title: const Text('In-App Internet'),
               trailing: Switch(
                 key: WidgetKey.inAppInternetSwitch.key,
@@ -65,8 +91,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.firstSubnetTile.key,
-              title: const Text(StringValue.firstSubnet),
-              subtitle: const Text(StringValue.firstSubnetDesc),
+              title: Text(l10n.firstSubnet),
+              subtitle: Text(l10n.firstSubnetDesc),
               trailing: Text(
                 '${appSettings.firstSubnet}',
                 style: Theme.of(context)
@@ -87,8 +113,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.lastSubnetTile.key,
-              title: const Text(StringValue.lastSubnet),
-              subtitle: const Text(StringValue.lastSubnetDesc),
+              title: Text(l10n.lastSubnet),
+              subtitle: Text(l10n.lastSubnetDesc),
               trailing: Text(
                 '${appSettings.lastSubnet}',
                 style: Theme.of(context)
@@ -109,8 +135,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.socketTimeoutTile.key,
-              title: const Text(StringValue.socketTimeout),
-              subtitle: const Text(StringValue.socketTimeoutdesc),
+              title: Text(l10n.socketTimeout),
+              subtitle: Text(l10n.socketTimeoutDesc),
               trailing: Text(
                 '${appSettings.socketTimeout} ms',
                 style: Theme.of(context)
@@ -131,8 +157,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.pingCountTile.key,
-              title: const Text(StringValue.pingCount),
-              subtitle: const Text(StringValue.pingCountDesc),
+              title: Text(l10n.pingCount),
+              subtitle: Text(l10n.pingCountDesc),
               trailing: Text(
                 '${appSettings.pingCount}',
                 style: Theme.of(context)
@@ -153,8 +179,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.customSubnetTile.key,
-              title: const Text(StringValue.customSubnet),
-              subtitle: const Text(StringValue.customSubnetDesc),
+              title: Text(l10n.customSubnet),
+              subtitle: Text(l10n.customSubnetDesc),
               trailing: Text(
                 appSettings.customSubnet,
                 style: Theme.of(context)

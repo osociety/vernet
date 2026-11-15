@@ -6,7 +6,7 @@ import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
+import '../helpers/test_helpers.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -15,7 +15,7 @@ import 'package:vernet/values/strings.dart';
 /// Wraps the page with all required providers.
 Widget _wrap(Widget child) => ChangeNotifierProvider<DarkThemeProvider>(
       create: (_) => DarkThemeProvider(),
-      child: MaterialApp(home: child),
+      child: wrapWithLocalizations(child: child),
     );
 
 Future<void> _fakeSender({
@@ -60,7 +60,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text(StringValue.wakeOnLanPageTitle), findsOneWidget);
+      expect(find.text(l10nEn().wakeOnLanPageTitle), findsOneWidget);
     });
 
     testWidgets('shows MAC and IP form fields', (tester) async {
@@ -93,7 +93,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text(StringValue.wakeOnLanEmptyPlaceholder),
+        find.text(l10nEn().wakeOnLanEmptyPlaceholder),
         findsOneWidget,
       );
     });
@@ -251,7 +251,7 @@ void main() {
 
       expect(find.text('Old PC'), findsNothing);
       expect(
-        find.text(StringValue.wakeOnLanEmptyPlaceholder),
+        find.text(l10nEn().wakeOnLanEmptyPlaceholder),
         findsOneWidget,
       );
     });

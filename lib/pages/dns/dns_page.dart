@@ -6,9 +6,9 @@ import 'package:vernet/pages/base_page.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class DNSPage extends StatefulWidget {
   const DNSPage({super.key});
@@ -23,9 +23,9 @@ class _DNSPageState extends BasePage<DNSPage> {
   @override
   Widget buildResults(BuildContext context) {
     return _addresses.isEmpty
-        ? const Center(
+        ? Center(
             child: Text(
-              StringValue.dnsLookupEmptyPlaceholder,
+              context.l10n.dnsLookupEmptyPlaceholder,
               textAlign: TextAlign.center,
             ),
           )

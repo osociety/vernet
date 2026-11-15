@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/pages/base_page.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/globals.dart' as globals;
-import 'package:vernet/values/strings.dart';
 
 class ReverseDNSPage extends StatefulWidget {
   const ReverseDNSPage({super.key});
@@ -23,9 +23,9 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
   @override
   Widget buildResults(BuildContext context) {
     if (_hostname == null) {
-      return const Center(
+      return Center(
         child: Text(
-          StringValue.reverseDnsLookupEmptyPlaceholder,
+          context.l10n.reverseDnsLookupEmptyPlaceholder,
           textAlign: TextAlign.center,
         ),
       );

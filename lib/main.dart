@@ -16,6 +16,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/dns/dns_page.dart';
 import 'package:vernet/pages/dns/reverse_dns_page.dart';
 import 'package:vernet/pages/donate_page.dart';
@@ -33,6 +34,7 @@ import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/pages/subnet_calculator_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/store/store_features.dart';
@@ -101,6 +103,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   DarkThemeProvider themeChangeProvider = DarkThemeProvider();
+  LocaleProvider localeProvider = LocaleProvider();
   StreamSubscription<String?>? _notificationTapSubscription;
 
   /// A notification that opens a report stays opened until the user leaves it,
@@ -128,6 +131,7 @@ class _MyAppState extends State<MyApp> {
       );
     }
     getCurrentAppTheme();
+    getCurrentAppLocale();
   }
 
   @override
@@ -183,14 +187,19 @@ class _MyAppState extends State<MyApp> {
         await themeChangeProvider.darkThemePreference.getTheme();
   }
 
+  Future<void> getCurrentAppLocale() async {
+    localeProvider.locale = await localeProvider.localePreference.getLocale();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) {
-        return themeChangeProvider;
-      },
-      child: Consumer<DarkThemeProvider>(
-        builder: (BuildContext context, value, Widget? child) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => themeChangeProvider),
+        ChangeNotifierProvider(create: (_) => localeProvider),
+      ],
+      child: Consumer2<DarkThemeProvider, LocaleProvider>(
+        builder: (BuildContext context, theme, locale, Widget? child) {
           return MaterialApp(
             navigatorKey: MyApp.navigatorKey,
             initialRoute: '/',
@@ -207,7 +216,10 @@ class _MyAppState extends State<MyApp> {
               }
             },
             title: 'Vernet',
-            theme: createSemanticTheme(themeChangeProvider.darkTheme),
+            theme: createSemanticTheme(theme.darkTheme),
+            locale: locale.locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: homePage,
           );
         },

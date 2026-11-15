@@ -12,9 +12,9 @@ import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 import 'package:vernet/values/tooltip_messages.dart';
 
 class HostScanWidget extends StatelessWidget {
@@ -60,7 +60,7 @@ class HostScanWidget extends StatelessWidget {
                         Text(
                           appSettings.gatewayIP.isNotEmpty
                               ? 'Looking for devices connected through ${appSettings.gatewayIP}'
-                              : StringValue.loadingDevicesMessage,
+                              : context.l10n.loadingDevicesMessage,
                           textAlign: TextAlign.center,
                         ),
                         if (percent > 0) ...[

@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -27,14 +29,60 @@ void main() {
     // Further widget layout testing for SettingsPage is skipped to avoid
     // large-tree layout issues in tests; constructor/type checks are sufficient.
 
+    testWidgets('choosing a language re-renders the page in it',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      AppSettings.instance.resetForTesting();
+      final localeProvider = LocaleProvider();
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
+            ChangeNotifierProvider<LocaleProvider>.value(value: localeProvider),
+          ],
+          child: Consumer<LocaleProvider>(
+            builder: (context, locale, child) => MaterialApp(
+              locale: locale.locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const SettingsPage(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Language'), findsOneWidget);
+
+      final dropdown = find.byType(DropdownButton<Locale?>);
+      await tester.ensureVisible(dropdown);
+      await tester.tap(dropdown);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Deutsch'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Sprache'), findsOneWidget);
+      expect(find.text('Language'), findsNothing);
+      expect(localeProvider.locale, const Locale('de'));
+    });
+
     testWidgets('support tile opens the donation page', (tester) async {
       SharedPreferences.setMockInitialValues({});
       AppSettings.instance.resetForTesting();
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(home: SettingsPage()),
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
+            ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: SettingsPage(),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -52,9 +100,16 @@ void main() {
       AppSettings.instance.resetForTesting();
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(home: SettingsPage()),
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
+            ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: SettingsPage(),
+          ),
         ),
       );
       await tester.pumpAndSettle();

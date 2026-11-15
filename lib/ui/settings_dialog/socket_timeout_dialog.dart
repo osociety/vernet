@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/base_settings_dialog.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class SocketTimeoutDialog extends StatefulWidget {
   const SocketTimeoutDialog({super.key});
@@ -14,12 +14,12 @@ class _SocketTimeoutDialogState
     extends BaseSettingsDialog<SocketTimeoutDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.socketTimeout;
+    return context.l10n.socketTimeout;
   }
 
   @override
   String getHintText() {
-    return StringValue.socketTimeoutdesc;
+    return context.l10n.socketTimeoutDesc;
   }
 
   @override

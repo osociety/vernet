@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/pages/donate_page.dart';
@@ -24,7 +25,8 @@ import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
+
+import '../helpers/test_helpers.dart';
 
 class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
   _InMemoryDatabaseService(this.db);
@@ -106,6 +108,8 @@ void main() {
       ChangeNotifierProvider<DarkThemeProvider>(
         create: (_) => DarkThemeProvider(),
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: HomePage(
             connectivityService: connectivityService,
             wifiInfoLoader: wifiInfoLoader ??
@@ -416,7 +420,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(ScanHistoryPage), findsOneWidget);
-      expect(find.text(StringValue.previousScansTitle), findsOneWidget);
+      expect(find.text(l10nEn().previousScansTitle), findsOneWidget);
     });
 
     testWidgets('opens the support page from the desktop header icon',

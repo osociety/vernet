@@ -6,12 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 
 void main() {
@@ -67,9 +69,16 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      ChangeNotifierProvider<DarkThemeProvider>(
-        create: (_) => DarkThemeProvider(),
-        child: const MaterialApp(home: TabBarPage()),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: TabBarPage(),
+        ),
       ),
     );
     await pumpVisibleFrame(tester);

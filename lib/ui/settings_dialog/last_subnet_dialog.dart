@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/base_settings_dialog.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class LastSubnetDialog extends StatefulWidget {
   const LastSubnetDialog({super.key});
@@ -13,12 +13,12 @@ class LastSubnetDialog extends StatefulWidget {
 class _LastSubnetDialogState extends BaseSettingsDialog<LastSubnetDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.lastSubnet;
+    return context.l10n.lastSubnet;
   }
 
   @override
   String getHintText() {
-    return StringValue.lastSubnetDesc;
+    return context.l10n.lastSubnetDesc;
   }
 
   @override

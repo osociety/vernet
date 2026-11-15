@@ -8,7 +8,7 @@ import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class ScanHistoryPage extends StatefulWidget {
   const ScanHistoryPage({
@@ -58,10 +58,10 @@ class _ScanHistoryPageState extends State<ScanHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringValue.previousScansTitle),
+        title: Text(context.l10n.previousScansTitle),
         actions: [
           IconButton(
-            tooltip: StringValue.scanHistoryRefresh,
+            tooltip: context.l10n.scanHistoryRefresh,
             onPressed: _reload,
             icon: const Icon(Icons.refresh),
           ),
@@ -75,7 +75,7 @@ class _ScanHistoryPageState extends State<ScanHistoryPage> {
           }
           if (snapshot.hasError) {
             return _MessageView(
-              message: StringValue.scanHistoryLoadError,
+              message: context.l10n.scanHistoryLoadError,
               onRetry: _reload,
             );
           }
@@ -150,7 +150,7 @@ class _ScanActivityOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            StringValue.scanHistoryOverviewTitle.toUpperCase(),
+            context.l10n.scanHistoryOverviewTitle.toUpperCase(),
             style: textTheme.labelSmall?.copyWith(
               color: colors.onSurfaceVariant,
               letterSpacing: 1.2,
@@ -163,21 +163,21 @@ class _ScanActivityOverview extends StatelessWidget {
             children: [
               Expanded(
                 child: _OverviewStat(
-                  label: StringValue.scanHistoryScansLabel,
+                  label: context.l10n.scanHistoryScansLabel,
                   value: '${summaries.length}',
                 ),
               ),
               const _OverviewDivider(),
               Expanded(
                 child: _OverviewStat(
-                  label: StringValue.scanHistoryDevicesFoundLabel,
+                  label: context.l10n.scanHistoryDevicesFoundLabel,
                   value: '$totalDevices',
                 ),
               ),
               const _OverviewDivider(),
               Expanded(
                 child: _OverviewStat(
-                  label: StringValue.scanHistoryLatestScanLabel,
+                  label: context.l10n.scanHistoryLatestScanLabel,
                   value: _relativeTime(latestScan),
                 ),
               ),
@@ -191,7 +191,7 @@ class _ScanActivityOverview extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    StringValue.scanHistoryDevicesPerScanLabel,
+                    context.l10n.scanHistoryDevicesPerScanLabel,
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -274,7 +274,7 @@ class _ScanActivityBars extends StatelessWidget {
 
     return Semantics(
       label:
-          '${StringValue.scanHistoryDevicesPerScanLabel}: ${counts.join(', ')}',
+          '${context.l10n.scanHistoryDevicesPerScanLabel}: ${counts.join(', ')}',
       excludeSemantics: true,
       child: SizedBox(
         height: 34,
@@ -335,7 +335,7 @@ class _ScanHistoryPanel extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    StringValue.scanHistoryListTitle,
+                    context.l10n.scanHistoryListTitle,
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -389,7 +389,7 @@ class _ScanTableHeader extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 52),
               child: Text(
-                StringValue.scanHistoryNetworkColumn.toUpperCase(),
+                context.l10n.scanHistoryNetworkColumn.toUpperCase(),
                 style: style,
               ),
             ),
@@ -397,28 +397,28 @@ class _ScanTableHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              StringValue.scanHistoryStartedColumn.toUpperCase(),
+              context.l10n.scanHistoryStartedColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              StringValue.scanHistoryDurationColumn.toUpperCase(),
+              context.l10n.scanHistoryDurationColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              StringValue.scanHistoryDevicesColumn.toUpperCase(),
+              context.l10n.scanHistoryDevicesColumn.toUpperCase(),
               style: style,
             ),
           ),
           SizedBox(
             width: 104,
             child: Text(
-              StringValue.scanHistoryStatusColumn.toUpperCase(),
+              context.l10n.scanHistoryStatusColumn.toUpperCase(),
               style: style,
             ),
           ),
@@ -650,14 +650,14 @@ class _HistoryEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              StringValue.scanHistoryEmptyTitle,
+              context.l10n.scanHistoryEmptyTitle,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              StringValue.scanHistoryEmptyPlaceholder,
+              context.l10n.scanHistoryEmptyPlaceholder,
               textAlign: TextAlign.center,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
@@ -667,7 +667,7 @@ class _HistoryEmptyState extends StatelessWidget {
             FilledButton.tonalIcon(
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh),
-              label: const Text(StringValue.scanHistoryRefresh),
+              label: Text(context.l10n.scanHistoryRefresh),
             ),
           ],
         ),
@@ -704,7 +704,7 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(StringValue.scanReportTitle)),
+      appBar: AppBar(title: Text(context.l10n.scanReportTitle)),
       body: FutureBuilder<List<DeviceData>>(
         future: _devicesFuture,
         builder: (context, snapshot) {
@@ -712,7 +712,7 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text(StringValue.scanReportLoadError));
+            return Center(child: Text(context.l10n.scanReportLoadError));
           }
           final devices = snapshot.data ?? const <DeviceData>[];
           return _ResponsiveBody(
@@ -832,8 +832,8 @@ class _ScanSummaryCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       inProgress
-                          ? StringValue.scanReportInProgress
-                          : StringValue.scanReportCompleted,
+                          ? context.l10n.scanReportInProgress
+                          : context.l10n.scanReportCompleted,
                       style: textTheme.bodySmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
@@ -857,7 +857,7 @@ class _ScanSummaryCard extends StatelessWidget {
           Divider(color: colors.outlineVariant),
           const SizedBox(height: 12),
           Text(
-            StringValue.scanReportScanWindow.toUpperCase(),
+            context.l10n.scanReportScanWindow.toUpperCase(),
             style: textTheme.labelSmall?.copyWith(
               color: colors.onSurfaceVariant,
               letterSpacing: 1.2,
@@ -867,20 +867,20 @@ class _ScanSummaryCard extends StatelessWidget {
           const SizedBox(height: 8),
           _ScanTimelineRow(
             icon: Icons.play_arrow_rounded,
-            label: StringValue.scanReportStarted,
+            label: context.l10n.scanReportStarted,
             value: _formatTimestamp(scan.startTime),
           ),
           _ScanTimelineRow(
             icon: Icons.stop_rounded,
-            label: StringValue.scanReportEnded,
+            label: context.l10n.scanReportEnded,
             value: scan.endTime == null
-                ? StringValue.scanReportStillRunning
+                ? context.l10n.scanReportStillRunning
                 : _formatTimestamp(scan.endTime),
           ),
           if (duration.isNotEmpty)
             _ScanTimelineRow(
               icon: Icons.timer_outlined,
-              label: StringValue.scanReportDuration,
+              label: context.l10n.scanReportDuration,
               value: duration,
             ),
         ],
@@ -929,8 +929,8 @@ class _ScanRadar extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   (deviceCount == 1
-                          ? StringValue.scanReportDeviceLabel
-                          : StringValue.scanReportDevicesLabel)
+                          ? context.l10n.scanReportDeviceLabel
+                          : context.l10n.scanReportDevicesLabel)
                       .toUpperCase(),
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.onSurfaceVariant,
@@ -1089,7 +1089,7 @@ class _DeviceResultsPanel extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    StringValue.scanReportDiscoveredDevices,
+                    context.l10n.scanReportDiscoveredDevices,
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -1111,8 +1111,8 @@ class _DeviceResultsPanel extends StatelessWidget {
                     color: colors.onSurfaceVariant,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    StringValue.scanReportNoDevices,
+                  Text(
+                    context.l10n.scanReportNoDevices,
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -1163,7 +1163,7 @@ class _DeviceTableHeader extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 52),
               child: Text(
-                StringValue.scanReportDeviceColumn.toUpperCase(),
+                context.l10n.scanReportDeviceColumn.toUpperCase(),
                 style: style,
               ),
             ),
@@ -1171,21 +1171,21 @@ class _DeviceTableHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              StringValue.scanReportVendorColumn.toUpperCase(),
+              context.l10n.scanReportVendorColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              StringValue.scanReportIpColumn.toUpperCase(),
+              context.l10n.scanReportIpColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
-              StringValue.scanReportMacColumn.toUpperCase(),
+              context.l10n.scanReportMacColumn.toUpperCase(),
               style: style,
             ),
           ),
@@ -1226,7 +1226,7 @@ class _DesktopDeviceRow extends StatelessWidget {
                   Expanded(
                     child: Text(
                       DeviceUtil.getDeviceMake(device) ??
-                          StringValue.unknownDevice,
+                          context.l10n.unknownDevice,
                       style: textTheme.titleSmall,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1289,7 +1289,7 @@ class _MobileDeviceRow extends StatelessWidget {
     return AdaptiveListTile(
       leading: _DeviceAvatar(device: device),
       title: Text(
-        DeviceUtil.getDeviceMake(device) ?? StringValue.unknownDevice,
+        DeviceUtil.getDeviceMake(device) ?? context.l10n.unknownDevice,
       ),
       subtitle: Text(subtitle),
       onTap: onTap,
@@ -1373,8 +1373,8 @@ class _StatusChip extends StatelessWidget {
           Flexible(
             child: Text(
               inProgress
-                  ? StringValue.scanReportInProgress
-                  : StringValue.scanReportCompleted,
+                  ? context.l10n.scanReportInProgress
+                  : context.l10n.scanReportCompleted,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context)

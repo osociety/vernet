@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/home_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
@@ -15,7 +16,6 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 import '../settings/test_utils.dart';
 
@@ -48,6 +48,8 @@ Finder _savedDeviceLabel(String label) => find.byWidgetPredicate(
       description: 'saved device label "$label"',
     );
 
+/// The resource bundle the test device renders: these suites run in English.
+final _en = AppLocalizationsEn();
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -88,7 +90,7 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
 
       expect(find.byType(WakeOnLanPage), findsOneWidget);
-      expect(find.text(StringValue.wakeOnLanPageTitle), findsOneWidget);
+      expect(find.text(_en.wakeOnLanPageTitle), findsOneWidget);
     });
 
     testWidgets('WakeOnLanPage shows all expected form fields', (tester) async {
@@ -376,7 +378,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text(StringValue.wakeOnLanEmptyPlaceholder),
+        find.text(_en.wakeOnLanEmptyPlaceholder),
         findsOneWidget,
       );
     });
@@ -429,7 +431,7 @@ void main() {
       // saved tile's Text widget specifically.
       expect(savedLabel, findsOneWidget);
       // Placeholder should now be gone
-      expect(find.text(StringValue.wakeOnLanEmptyPlaceholder), findsNothing);
+      expect(find.text(_en.wakeOnLanEmptyPlaceholder), findsNothing);
     });
 
     testWidgets('tapping a saved device tile fills the form', (tester) async {
@@ -491,7 +493,7 @@ void main() {
 
       expect(find.text('Old PC'), findsNothing);
       expect(
-        find.text(StringValue.wakeOnLanEmptyPlaceholder),
+        find.text(_en.wakeOnLanEmptyPlaceholder),
         findsOneWidget,
       );
     });
