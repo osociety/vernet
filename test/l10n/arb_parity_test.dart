@@ -15,14 +15,14 @@ void main() {
     ..sort((a, b) => a.path.compareTo(b.path));
 
   test('the template ARB exists', () {
-    expect(arbFiles.map((file) => file.path), contains('lib/l10n/app_en.arb'));
+    expect(arbFiles.map(nameOf), contains('app_en.arb'));
   });
 
   test('every locale ARB carries exactly the template key set', () {
     final templateKeys = messageKeys(File('lib/l10n/app_en.arb'));
     expect(templateKeys, isNotEmpty);
 
-    for (final file in arbFiles.where((f) => f.path != 'lib/l10n/app_en.arb')) {
+    for (final file in arbFiles.where((f) => nameOf(f) != 'app_en.arb')) {
       expect(
         messageKeys(file),
         equals(templateKeys),
@@ -46,3 +46,7 @@ Set<String> messageKeys(File file) {
   final decoded = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
   return decoded.keys.where((key) => !key.startsWith('@')).toSet();
 }
+
+/// ARB files are named by locale, and `Directory.listSync` builds its paths with
+/// the platform separator, so the name is the only part safe to compare.
+String nameOf(File file) => file.uri.pathSegments.last;
