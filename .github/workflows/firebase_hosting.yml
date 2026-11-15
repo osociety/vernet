@@ -17,7 +17,6 @@ env:
   FIREBASE_ENTRY_POINT: firebase
   FIREBASE_PROJECT_ID: vernet-app
   HOSTING_PREVIEW_CHANNEL: ci-${{ github.run_id }}-${{ github.run_attempt }}
-  GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-account.json
 
 jobs:
   deploy:
@@ -46,8 +45,15 @@ jobs:
             exit 1
           fi
 
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$GOOGLE_APPLICATION_CREDENTIALS"
-          chmod 600 "$GOOGLE_APPLICATION_CREDENTIALS"
+          # RUNNER_TEMP, not ${{ runner.temp }}: the runner context is not
+          # readable in an env: block, only inside a step. Publishing the path
+          # through GITHUB_ENV keeps firebase-tools' application default
+          # credentials pointed at it for every later step, including the
+          # always() cleanup.
+          key_file="$RUNNER_TEMP/firebase-account.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$key_file"
+          chmod 600 "$key_file"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$key_file" >> "$GITHUB_ENV"
 
       - name: Set up Node
         uses: actions/setup-node@v4.1.0
