@@ -1,0 +1,7 @@
+hálózatfigyelő alkalmazás
+hálózati áttekintés
+Wi-Fi eszközkereső
+Wi-Fi figyelés
+IP-cím nyomkövető
+otthonihálózat-kezelő
+Vernet App

@@ -1,0 +1,1 @@
+Wifidetails, Apparaten vinden, Apparaatdetails, Poortscanner, Ping en DNS, Serverbewaking, IPv4/IPv6-subnetcalculator, Wake on LAN, Switchdetectie, Snelheidstest

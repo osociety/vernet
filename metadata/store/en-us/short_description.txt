@@ -1,0 +1,1 @@
+A free, open-source network toolkit for Windows. See every device on your Wi-Fi, measure your real download and upload speed, and run ping, DNS, port and subnet checks — with answers in plain language, no technical background needed.

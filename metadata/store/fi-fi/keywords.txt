@@ -1,0 +1,7 @@
+verkonvalvontasovellus
+verkon tilannetiedot
+Wi-Fi-laitetunnistus
+Wi-Fi-valvonta
+IP-osoiteseuranta
+kotiverkon hallinta
+Vernet-sovellus

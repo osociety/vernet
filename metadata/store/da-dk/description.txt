@@ -1,0 +1,21 @@
+Tag kontrollen over dit netværk derhjemme eller på kontoret med Vernet – et gratis open source-sæt af værktøjer, der giver dig overblikket.
+
+Uanset om du undersøger en langsom forbindelse, vil se hvem der er på din Wi-Fi, eller tjekke om dine enheder kan nås, giver Vernet dig klare svar – uden teknisk baggrund.
+
+🔍 Hvad er på mit netværk?
+Se alle enheder på dit lokale Wi-Fi med deres IP-adresser og navne. Du ved præcis hvem og hvad der deler din forbindelse.
+
+📡 Virker mit internet?
+Kør en ping-test for at se om et website eller en enhed svarer. Opdag afbrydelser og forsinkelser på få sekunder.
+
+⚡ Hvor hurtig er min forbindelse?
+Mål din faktiske download- og upload-hastighed med den indbyggede hastighedstest. Nøjagtige resultater uden at forlade appen.
+
+🔓 Hvilke tjenester er eksponeret?
+Søg en enhed for åbne porte og se hvilke tjenester der kan nås – nyttigt for at forstå sikkerheden på dit hjemmenetværk.
+
+🌐 Hvad ligger bag denne adresse?
+Brug de indbyggede DNS-værktøjer til at slå domænenavne op, løse IP-adresser og følge hvordan adresser kortlægges på internettet.
+
+✅ Gratis og open source
+Vernet er gratis og open source på GitHub: https://github.com/osociety/vernet

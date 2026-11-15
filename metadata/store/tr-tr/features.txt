@@ -1,0 +1,1 @@
+Wi-Fi ayrıntıları, Cihazları bul, Cihaz detayı, Port tarayıcı, Ping ve DNS, Sunucu izleme, IPv4/IPv6 alt ağ hesaplayıcı, Wake on LAN, Switch keşfi, Hız testi

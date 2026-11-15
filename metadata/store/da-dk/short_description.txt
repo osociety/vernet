@@ -1,0 +1,1 @@
+Et gratis, open source-netværksværktøj til Windows. Se alle enheder på dit Wi-Fi-netværk, mål din faktiske download- og uploadhastighed og kør ping-, DNS-, port- og subnettests — på et lige sprog, uden teknisk baggrund.

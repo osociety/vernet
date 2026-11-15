@@ -1,0 +1,21 @@
+Làm chủ mạng gia đình hoặc văn phòng với Vernet — bộ công cụ mã nguồn mở miễn phí đưa mọi thông tin mạng vào tay bạn.
+
+Dù bạn đang xử lý kết nối chậm, xem ai đang dùng Wi-Fi của mình, hay kiểm tra thiết bị có truy cập được không, Vernet đều cho câu trả lời rõ ràng, dễ hiểu, không cần kiến thức kỹ thuật.
+
+🔍 Có gì trong mạng của tôi?
+Xem mọi thiết bị kết nối vào Wi-Fi nội bộ cùng địa chỉ IP và tên. Biết chính xác ai và điều gì đang dùng chung kết nối của bạn.
+
+📡 Internet của tôi có hoạt động?
+Chạy thử ping để kiểm tra một trang web hay thiết bị có phản hồi không. Phát hiện gián đoạn và độ trễ trong vài giây.
+
+⚡ Kết nối của tôi nhanh đến đâu?
+Đo tốc độ tải xuống và tải lên thực tế bằng thử nghiệm tốc độ tích hợp. Kết quả chính xác mà không cần rời khỏi ứng dụng.
+
+🔓 Dịch vụ nào đang mở?
+Quét thiết bị để tìm cổng mở và xem dịch vụ nào truy cập được — giúp bạn hiểu mức độ an toàn của mạng gia đình.
+
+🌐 Đứng sau địa chỉ này là gì?
+Dùng công cụ DNS tích hợp để tra tên miền, phân giải IP và theo dõi cách địa chỉ được ánh xạ trên internet.
+
+✅ Miễn phí & mã nguồn mở
+Vernet miễn phí và mã nguồn mở trên GitHub: https://github.com/osociety/vernet

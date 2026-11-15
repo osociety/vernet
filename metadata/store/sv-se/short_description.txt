@@ -1,0 +1,1 @@
+Ett gratis nätverksverktyg med öppen källkod för Windows. Se alla enheter i ditt Wi-Fi, mät din verkliga nedladdnings- och uppladdningshastighet och kör ping-, DNS-, port- och subnättester — på enkelt språk, utan tekniska kunskaper.

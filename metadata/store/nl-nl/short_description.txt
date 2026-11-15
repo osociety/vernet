@@ -1,0 +1,1 @@
+Een gratis, open-source netwerkgereedschap voor Windows. Zie elk apparaat op je wifi, meet je echte download- en uploadsnelheid en voer ping-, DNS-, poort- en subnettests uit — in duidelijke taal, zonder technische kennis.

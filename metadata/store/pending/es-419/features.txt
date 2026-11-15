@@ -1,0 +1,1 @@
+Detalles del Wi-Fi, Buscar dispositivos, Ficha del dispositivo, Escáner de puertos, Ping y DNS, Monitoreo de servidores, Cálculo IPv4/IPv6, Wake on LAN, Detección de switches, Prueba de velocidad

@@ -1,0 +1,21 @@
+Ota kotisi tai toimistosi verkko haltuun Vernetillä – ilmaisella avoimen lähdekoodin työkalupakilla, joka antaa sinulle kaiken verkkotiedon.
+
+Olipa kyseessä hidas yhteys, kuka Wi-Fi-verkossasi on tai ovatko laitteesi tavoitettavissa, Vernet antaa selkeät vastaukset – ei vaadi teknistä taustaa.
+
+🔍 Mitä verkossani on?
+Näe kaikki paikalliseen Wi-Fi-yhteyteen liitetyt laitteet IP-osoitteineen ja nimineen. Tiedät tarkkaan, kuka ja mikä jakaa yhteyttäsi.
+
+📡 Toimiiko internet?
+Tee ping-testi ja katso, vastaako verkkosivusto tai laite. Huomaa katkokset ja viiveet sekunneissa.
+
+⚡ Kuinka nopea yhteys minulla on?
+Mittaa todellinen lataus- ja lähetysnopeus sisäänrakennetulla nopeustestillä. Tarkat tulokset poistumatta sovelluksesta.
+
+🔓 Mitä palveluita on auki?
+Tarkista laitteesta avoimet portit ja näe mitkä palvelut ovat tavoitettavissa – hyödyllistä verkon tietoturvan hahmottamisessa.
+
+🌐 Mitä tämän osoitteen takana on?
+Käytä sisäänrakennettuja DNS-työkaluja verkkotunnusten hakuun, IP-osoitteiden selvittämiseen ja osoitteiden kartoituksen seurantaan.
+
+✅ Ilmainen ja avoin lähdekoodi
+Vernet on ilmainen ja avoimen lähdekoodin ohjelmisto GitHubissa: https://github.com/osociety/vernet

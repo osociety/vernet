@@ -1,0 +1,7 @@
+app for nettverksovervåking
+innsikt i nettverket
+Wi-Fi-enhetsskanner
+Wi-Fi-overvåking
+IP-adressesporing
+styr hjemmenettverket
+Vernet App

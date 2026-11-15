@@ -1,0 +1,1 @@
+Una suite di strumenti di rete gratuita e open source per Windows. Vedi tutti i dispositivi della tua rete Wi-Fi, misura la velocità reale di download e upload ed esegui test ping, DNS, porte e sottoreti — in linguaggio semplice, senza competenze tecniche.

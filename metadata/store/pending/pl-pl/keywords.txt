@@ -1,0 +1,7 @@
+aplikacja do monitorowania sieci
+informacje o sieci
+skaner urządzeń Wi-Fi
+monitorowanie Wi-Fi
+tracker adresów IP
+menedżer sieci domowej
+Vernet App

@@ -1,0 +1,1 @@
+Darmowy, otwartoźródłowy zestaw narzędzi sieciowych dla Windows. Zobacz wszystkie urządzenia w swojej sieci Wi-Fi, zmierz realną prędkość pobierania i wysyłania oraz wykonaj testy ping, DNS, portów i podsieci — prostym językiem, bez wiedzy technicznej.

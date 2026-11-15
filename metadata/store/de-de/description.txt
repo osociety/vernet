@@ -1,0 +1,21 @@
+Behalte dein Heim- oder Büronetzwerk mit Vernet im Griff – ein kostenloses Open-Source-Toolkit, das dir alle Infos zu deinem Netzwerk liefert.
+
+Ob du eine langsame Verbindung untersuchst, prüfen willst, wer in deinem Wi-Fi steckt, oder ob deine Geräte erreichbar sind: Vernet gibt dir klare, verständliche Antworten – ganz ohne technisches Vorwissen.
+
+🔍 Was ist in meinem Netzwerk unterwegs?
+Sieh jedes Gerät im lokalen Wi-Fi, inklusive IP-Adresse und Namen. Du weißt genau, wer und was deine Verbindung nutzt.
+
+📡 Funktioniert mein Internet?
+Prüfe mit einem Ping-Test, ob eine Website oder ein Gerät antwortet. Aussetzer und Verzögerungen fallen dir sofort auf.
+
+⚡ Wie schnell ist meine Verbindung?
+Miss dein echtes Download- und Upload-Tempo mit dem eingebauten Speedtest. Genaue Ergebnisse, ohne die App zu verlassen.
+
+🔓 Welche Dienste sind offen?
+Scanne ein Gerät nach offenen Ports und sieh, welche Dienste erreichbar sind – hilfreich für die Sicherheit deines Heimnetzwerks.
+
+🌐 Was steckt hinter dieser Adresse?
+Nutze die eingebauten DNS-Tools, um Domains nachzuschlagen, IPs aufzulösen und zu verfolgen, wie Adressen im Internet abgebildet werden.
+
+✅ Kostenlos & Open Source
+Vernet ist kostenlos und Open Source auf GitHub: https://github.com/osociety/vernet
