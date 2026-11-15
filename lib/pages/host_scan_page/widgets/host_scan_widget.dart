@@ -16,7 +16,6 @@ import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/tooltip_messages.dart';
 
 class HostScanWidget extends StatelessWidget {
   @override
@@ -207,7 +206,7 @@ class HostScanWidget extends StatelessWidget {
                   children: [
                     if (host.macAddress != null && host.macAddress!.isNotEmpty)
                       IconButton(
-                        tooltip: TooltipMessages.wakeOnLan,
+                        tooltip: context.l10n.wakeOnLanTooltip,
                         icon: const Icon(Icons.power_settings_new),
                         onPressed: () {
                           Navigator.push(
@@ -234,7 +233,7 @@ class HostScanWidget extends StatelessWidget {
                       key: isCurrentDevice
                           ? WidgetKey.thisDeviceTileIconButton.key
                           : null,
-                      tooltip: TooltipMessages.currentDevicePortScan,
+                      tooltip: context.l10n.devicePortScanTooltip,
                       icon: const Icon(Icons.radar),
                       onPressed: () {
                         Navigator.push(

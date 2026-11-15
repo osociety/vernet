@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
@@ -470,7 +470,7 @@ void main() {
       await pumpHomePage(tester, size: const Size(1100, 800));
 
       expect(find.text('SPEED TEST'), findsOneWidget);
-      final timeText = find.text(DateFormat('MMM d, h:mm a').format(testedAt));
+      final timeText = find.text(formatTimestamp(l10nEn(), testedAt));
       expect(timeText, findsOneWidget);
 
       // Timestamp sits next to the card title in the header row.

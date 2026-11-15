@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
 abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
@@ -69,6 +70,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
               ),
       );
   List<Widget> actions(BuildContext context) {
+    final l10n = context.l10n;
     return [
       AdaptiveDialogAction(
         key: WidgetKey.settingsSubmitButton.key,
@@ -79,7 +81,7 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
           }
         },
         isDestructiveAction: true,
-        child: const Text('Save'),
+        child: Text(l10n.commonSave),
       ),
     ];
   }

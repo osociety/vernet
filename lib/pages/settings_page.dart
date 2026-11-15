@@ -17,6 +17,7 @@ import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
@@ -66,7 +67,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 underline: const SizedBox.shrink(),
                 items: [
                   // No value means follow the system language.
-                  DropdownMenuItem(child: Text(l10n.languageSystemDefault)),
+                  DropdownMenuItem(
+                    child: Text(
+                      l10n.languageSystemDefault(
+                        languageName(systemDefaultLocale()),
+                      ),
+                    ),
+                  ),
                   ...AppLocalizations.supportedLocales.map(
                     (locale) => DropdownMenuItem(
                       value: locale,

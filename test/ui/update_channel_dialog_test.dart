@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/update_channel_dialog.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<void> pumpShell(WidgetTester tester) async {
+  Future<void> pumpShell(
+    WidgetTester tester, {
+    Locale locale = const Locale('en'),
+  }) async {
     await tester.pumpWidget(
       ChangeNotifierProvider<DarkThemeProvider>(
         create: (_) => DarkThemeProvider(),
-        child: const MaterialApp(home: Scaffold(body: SizedBox())),
+        child: MaterialApp(
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(body: SizedBox()),
+        ),
       ),
     );
   }
@@ -59,6 +68,17 @@ void main() {
       await tester.tap(find.text('GitHub'));
       await tester.pumpAndSettle();
       expect(await choice, UpdateChannel.github);
+    });
+
+    testWidgets('explains the channels in German', (tester) async {
+      await pumpShell(tester, locale: const Locale('de'));
+      openDialog(tester, storeLabel: 'Play Store');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Woher das Update kommen soll'), findsOneWidget);
+      expect(find.textContaining('schnellste Weg'), findsOneWidget);
+      expect(find.textContaining('einige Tage dauern'), findsOneWidget);
+      expect(find.text('Where to get the update'), findsNothing);
     });
 
     testWidgets('closing answers nothing', (tester) async {

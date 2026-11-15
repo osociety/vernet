@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/update_channel_dialog.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/store_links.dart';
 
 @visibleForTesting
@@ -133,19 +134,18 @@ Future<void> checkForUpdates(
     Widget? content;
     SnackBarAction? action;
     if (available) {
-      content = const Text('A newer version is available');
+      content = Text(context.l10n.updatesAvailable);
       action = SnackBarAction(
-        label: 'Get update',
+        label: context.l10n.updatesGetUpdate,
         onPressed: () {
           navigateToStore(context);
         },
       );
     } else {
       if (showIfNoUpdate) {
-        content = const Text('You are using the latest version');
+        content = Text(context.l10n.updatesUpToDate);
         if (!appSettings.inAppInternet) {
-          content = const Text(
-              'Allow internet access in Settings to check for updates.');
+          content = Text(context.l10n.updatesNeedInternet);
         }
       }
     }

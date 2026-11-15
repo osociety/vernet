@@ -12,10 +12,16 @@ import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
 import 'package:vernet/values/keys.dart';
 import '../../helpers/test_helpers.dart';
 
-Widget wrapWithDarkThemeProvider({required Widget child}) {
+Widget wrapWithDarkThemeProvider({
+  required Widget child,
+  Locale locale = const Locale('en'),
+}) {
   return ChangeNotifierProvider(
     create: (_) => DarkThemeProvider(),
-    child: wrapWithLocalizations(child: Scaffold(body: child)),
+    child: wrapWithLocalizations(
+      child: Scaffold(body: child),
+      locale: locale,
+    ),
   );
 }
 
@@ -137,6 +143,28 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byType(PingCountDialog), findsOneWidget);
+      });
+
+      testWidgets('labels the submit button and rejects a bad value in German',
+          (tester) async {
+        await tester.pumpWidget(
+          wrapWithDarkThemeProvider(
+            locale: const Locale('de'),
+            child: const PingCountDialog(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10nDe().commonSave), findsOneWidget);
+
+        await tester.enterText(
+          find.byKey(WidgetKey.settingsTextField.key),
+          '0',
+        );
+        await tester.tap(find.byKey(WidgetKey.settingsSubmitButton.key));
+        await tester.pumpAndSettle();
+
+        expect(find.text(l10nDe().settingsNaturalNumber), findsOneWidget);
       });
     });
 

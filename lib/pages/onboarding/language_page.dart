@@ -7,6 +7,7 @@ import 'package:vernet/pages/onboarding/walkthrough_page.dart';
 import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/adaptive_radio.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -63,9 +64,10 @@ class _LanguagePageState extends State<LanguagePage> {
   Widget build(BuildContext context) {
     return Localizations.override(
       context: context,
-      // Previewing the pending pick: a null selection inherits the locale the
-      // app already resolved, which is what the system default means.
-      locale: _selected,
+      // Previewing the pending pick. An override with no locale inherits the
+      // ancestor's, which after a visit to this page is the language the user
+      // last applied — not the system one — so System default resolves itself.
+      locale: _selected ?? systemDefaultLocale(),
       child: Builder(builder: _scaffold),
     );
   }
@@ -108,7 +110,9 @@ class _LanguagePageState extends State<LanguagePage> {
                     children: [
                       _option(
                         key: WidgetKey.languageSystemOption.key,
-                        label: l10n.languageSystemDefault,
+                        label: l10n.languageSystemDefault(
+                          languageName(systemDefaultLocale()),
+                        ),
                         value: null,
                       ),
                       ...AppLocalizations.supportedLocales.map(

@@ -13,11 +13,11 @@ import 'package:vernet/utils/localization.dart';
 
 /// Name the quick-add suggestion stores for the gateway. The row keeps this
 /// token in the database so existing monitors stay stable; the UI translates
-/// it through [_monitorName].
+/// it through [monitorDisplayName].
 const String kLocalRouterSuggestion = 'Local Router';
 
 /// The suggestion token is English, everything the user sees is not.
-String _monitorName(AppLocalizations l10n, String name) =>
+String monitorDisplayName(AppLocalizations l10n, String name) =>
     name == kLocalRouterSuggestion ? l10n.serverCheckerLocalRouter : name;
 
 class ServerCheckerPage extends StatefulWidget {
@@ -96,7 +96,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.serverCheckerAdded(
-            _monitorName(context.l10n, monitor.name),
+            monitorDisplayName(context.l10n, monitor.name),
           )),
           duration: const Duration(seconds: 2),
         ),
@@ -276,7 +276,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                       : Icons.language,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: Text(_monitorName(context.l10n, monitor.name)),
+                title: Text(monitorDisplayName(context.l10n, monitor.name)),
                 subtitle: Text(
                     '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
                 trailing: IconButton(
@@ -337,7 +337,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_monitorName(context.l10n, monitor.name),
+                        Text(monitorDisplayName(context.l10n, monitor.name),
                             style: Theme.of(context).textTheme.titleMedium),
                         Text(
                             '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
@@ -533,7 +533,7 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
                 controller: _host,
                 decoration: InputDecoration(
                   labelText: context.l10n.serverCheckerHostLabel,
-                  hintText: 'example.com or 192.168.1.1',
+                  hintText: context.l10n.serverCheckerHostHint,
                 ),
                 validator: _required,
               ),

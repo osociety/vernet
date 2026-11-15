@@ -6,6 +6,7 @@ import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_score_service.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 part 'network_score_event.dart';
 part 'network_score_state.dart';
@@ -60,7 +61,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
-      emit(NetworkScoreState.failure('Failed to compute score: $e'));
+      emit(NetworkScoreState.failure(appStrings().scoreComputeFailed('$e')));
     }
   }
 
@@ -84,7 +85,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
-      emit(NetworkScoreState.failure('Failed to refresh score: $e'));
+      emit(NetworkScoreState.failure(appStrings().scoreRefreshFailed('$e')));
     }
   }
 
@@ -104,7 +105,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
-      emit(NetworkScoreState.failure('Failed to update score: $e'));
+      emit(NetworkScoreState.failure(appStrings().scoreUpdateFailed('$e')));
     }
   }
 }

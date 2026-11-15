@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/store_links.dart';
@@ -23,13 +25,9 @@ class DonatePage extends StatelessWidget {
 
   /// The Android build carries ads, so it cannot claim an ad-free app.
   @visibleForTesting
-  static String introFor({required bool hasAds}) => hasAds
-      ? 'Vernet is free and open source under Apache-2.0, with no paid '
-          'features. Donations pay for the devices, testing and development '
-          'time behind every release.'
-      : 'Vernet is free and open source under Apache-2.0, with no ads and no '
-          'paid features. Donations pay for the devices, testing and '
-          'development time behind every release.';
+  static String introFor(
+          {required bool hasAds, required AppLocalizations l10n}) =>
+      hasAds ? l10n.donateIntroAds : l10n.donateIntroNoAds;
 
   /// A rating ask only works where the platform's listing takes reviews and is
   /// where the user actually installed from.
@@ -52,12 +50,13 @@ class DonatePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final rating = ratingStoreFor(
       os: Platform.operatingSystem,
       isStoreBuild: kStoreBuild,
     );
     return Scaffold(
-      appBar: AppBar(title: const Text('Support Vernet')),
+      appBar: AppBar(title: Text(l10n.navSupport)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
@@ -65,7 +64,7 @@ class DonatePage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                introFor(hasAds: Platform.isAndroid),
+                introFor(hasAds: Platform.isAndroid, l10n: l10n),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
@@ -73,24 +72,24 @@ class DonatePage extends StatelessWidget {
                 context,
                 tileKey: WidgetKey.donateLiberapayTile.key,
                 icon: Icons.volunteer_activism,
-                title: 'Donate on Liberapay',
-                subtitle: 'Recurring or one-time, by card, SEPA or PayPal',
+                title: l10n.donateLiberapayTitle,
+                subtitle: l10n.donateLiberapayDesc,
                 url: liberapayUrl,
               ),
               _channel(
                 context,
                 tileKey: WidgetKey.donateKofiTile.key,
                 icon: Icons.local_cafe,
-                title: 'Buy me a coffee on Ko-fi',
-                subtitle: 'One-time payment, no account needed',
+                title: l10n.donateKofiTitle,
+                subtitle: l10n.donateKofiDesc,
                 url: koFiUrl,
               ),
               _channel(
                 context,
                 tileKey: WidgetKey.donateRepositoryTile.key,
                 icon: Icons.star,
-                title: 'Star Vernet on GitHub',
-                subtitle: 'Costs nothing, and it helps others find the app',
+                title: l10n.donateStarTitle,
+                subtitle: l10n.donateStarDesc,
                 url: repositoryUrl,
               ),
               if (rating == RatingStore.play)
@@ -98,8 +97,8 @@ class DonatePage extends StatelessWidget {
                   context,
                   tileKey: WidgetKey.donatePlayStoreTile.key,
                   icon: Icons.thumb_up,
-                  title: 'Rate Vernet on Google Play',
-                  subtitle: 'Ratings are how a free app gets discovered',
+                  title: l10n.donateRatePlayTitle,
+                  subtitle: l10n.donateRatePlayDesc,
                   url: playStoreUrl,
                 ),
               if (rating == RatingStore.microsoft)
@@ -107,14 +106,13 @@ class DonatePage extends StatelessWidget {
                   context,
                   tileKey: WidgetKey.donateMicrosoftStoreTile.key,
                   icon: Icons.thumb_up,
-                  title: 'Review Vernet on the Microsoft Store',
-                  subtitle: 'Reviews are how a Store app gets found',
+                  title: l10n.donateRateStoreTitle,
+                  subtitle: l10n.donateRateStoreDesc,
                   url: microsoftStoreUrl,
                 ),
               const SizedBox(height: 8),
               Text(
-                'Reporting bugs and answering discussions are support too — '
-                'the app is maintained by one person who reads them.',
+                l10n.donateCommunityNote,
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall

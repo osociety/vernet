@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/values/keys.dart';
 
+import '../helpers/test_helpers.dart';
+
 Widget _wrap(Widget child) => ChangeNotifierProvider<DarkThemeProvider>(
       create: (_) => DarkThemeProvider(),
-      child: MaterialApp(home: child),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: child,
+      ),
     );
 
 void main() {
@@ -86,9 +93,18 @@ void main() {
     });
 
     test('the Android wording makes no ad-free claim', () {
-      expect(DonatePage.introFor(hasAds: true), isNot(contains('no ads')));
-      expect(DonatePage.introFor(hasAds: true), contains('no paid features'));
-      expect(DonatePage.introFor(hasAds: false), contains('no ads'));
+      expect(
+        DonatePage.introFor(hasAds: true, l10n: l10nEn()),
+        isNot(contains('no ads')),
+      );
+      expect(
+        DonatePage.introFor(hasAds: true, l10n: l10nEn()),
+        contains('no paid features'),
+      );
+      expect(
+        DonatePage.introFor(hasAds: false, l10n: l10nEn()),
+        contains('no ads'),
+      );
     });
 
     testWidgets('lays out at phone width without overflow', (tester) async {

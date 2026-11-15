@@ -5,6 +5,7 @@ import 'package:vernet/models/neighbor_info.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/services/neighbor_discovery/neighbor_discovery_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -296,7 +297,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
               ? Icons.router
               : Icons.device_hub,
         ),
-        title: Text(neighbor.hostname),
+        title: Text(DeviceUtil.typeLabel(l10n, neighbor.hostname)),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -333,7 +334,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
               ),
         onLongPress: () {
           final text = [
-            neighbor.hostname,
+            DeviceUtil.typeLabel(l10n, neighbor.hostname),
             if (neighbor.managementIp != null) neighbor.managementIp,
             if (neighbor.localPort != null)
               l10n.neighborPortClipboard(neighbor.localPort!),

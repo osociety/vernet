@@ -27,8 +27,8 @@ class DeviceUtil {
     };
   }
 
-  /// [deviceType] as the app's own inferred types read in [l10n]. Anything else
-  /// is a name the network reported and is passed through untouched.
+  /// [deviceType] as the names the app invents itself read in [l10n]. Anything
+  /// else is a name the network reported and is passed through untouched.
   static String typeLabel(AppLocalizations l10n, String deviceType) =>
       switch (deviceType) {
         'Server' => l10n.deviceTypeServer,
@@ -39,6 +39,9 @@ class DeviceUtil {
         'IoT Device' => l10n.deviceTypeIotDevice,
         'Remote Display' => l10n.deviceTypeRemoteDisplay,
         'Unknown Device' => l10n.deviceTypeUnknownDevice,
+        'Printer' => l10n.deviceTypePrinter,
+        'NAS' => l10n.deviceTypeNas,
+        'Unknown device' => l10n.unknownDevice,
         _ => deviceType,
       };
 

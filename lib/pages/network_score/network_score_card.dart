@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_detail_page.dart';
+import 'package:vernet/pages/network_score/score_display.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/timestamp_chip.dart';
+import 'package:vernet/utils/localization.dart';
 
 class NetworkScoreCard extends StatelessWidget {
   const NetworkScoreCard({super.key});
@@ -25,6 +27,7 @@ class NetworkScoreCard extends StatelessWidget {
 
   Widget _buildInitialCard(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _ScoreCardContainer(
       onTap: () => _triggerCompute(context),
       child: Column(
@@ -38,7 +41,7 @@ class NetworkScoreCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'NETWORK SCORE',
+                      l10n.scoreCardLabel,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             letterSpacing: 1.1,
                             fontWeight: FontWeight.w700,
@@ -46,7 +49,7 @@ class NetworkScoreCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Tap to assess your network',
+                      l10n.scoreCardTapToAssess,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -64,6 +67,7 @@ class NetworkScoreCard extends StatelessWidget {
 
   Widget _buildComputingCard(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _ScoreCardContainer(
       child: Row(
         children: [
@@ -74,7 +78,7 @@ class NetworkScoreCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'NETWORK SCORE',
+                  l10n.scoreCardLabel,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         letterSpacing: 1.1,
                         fontWeight: FontWeight.w700,
@@ -82,7 +86,7 @@ class NetworkScoreCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Computing your network score...',
+                  l10n.scoreCardComputing,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
@@ -104,6 +108,7 @@ class NetworkScoreCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final scoreColor = _getScoreColor(score.overallScore, colors);
     final hasStalenessDecay = score.metadata['stalenessDecay'] != null;
+    final l10n = context.l10n;
 
     return _ScoreCardContainer(
       onTap: () => _openDetailPage(context, score),
@@ -124,7 +129,7 @@ class NetworkScoreCard extends StatelessWidget {
                       runSpacing: 4,
                       children: [
                         Text(
-                          'NETWORK SCORE',
+                          l10n.scoreCardLabel,
                           style:
                               Theme.of(context).textTheme.labelLarge?.copyWith(
                                     letterSpacing: 1.1,
@@ -136,7 +141,7 @@ class NetworkScoreCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _getScoreDescription(score.level),
+                      _getScoreDescription(context, score.level),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -152,7 +157,7 @@ class NetworkScoreCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Score reduced due to age',
+                            l10n.scoreCardStale,
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: colors.tertiary,
@@ -180,6 +185,7 @@ class NetworkScoreCard extends StatelessWidget {
 
   Widget _buildErrorCard(BuildContext context, String message) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return _ScoreCardContainer(
       onTap: () => _triggerCompute(context),
       child: Row(
@@ -191,7 +197,7 @@ class NetworkScoreCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'NETWORK SCORE',
+                  l10n.scoreCardLabel,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         letterSpacing: 1.1,
                         fontWeight: FontWeight.w700,
@@ -199,7 +205,7 @@ class NetworkScoreCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Unable to compute score. Tap to retry.',
+                  l10n.scoreCardError,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: colors.error,
                       ),
@@ -242,16 +248,17 @@ class NetworkScoreCard extends StatelessWidget {
     }
   }
 
-  String _getScoreDescription(ScoreLevel level) {
+  String _getScoreDescription(BuildContext context, ScoreLevel level) {
+    final l10n = context.l10n;
     switch (level) {
       case ScoreLevel.good:
-        return 'Your network is in good shape';
+        return l10n.scoreCardDescGood;
       case ScoreLevel.moderate:
-        return 'Some areas need attention';
+        return l10n.scoreCardDescModerate;
       case ScoreLevel.poor:
-        return 'Network issues detected';
+        return l10n.scoreCardDescPoor;
       case ScoreLevel.unknown:
-        return 'Score not yet computed';
+        return l10n.scoreCardDescUnknown;
     }
   }
 }
@@ -361,6 +368,7 @@ class _DimensionBarsState extends State<_DimensionBars> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Row(
       children: List.generate(widget.dimensions.length, (index) {
         final dim = widget.dimensions[index];
@@ -378,7 +386,7 @@ class _DimensionBarsState extends State<_DimensionBars> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _getDimensionLabel(dim.name),
+                    scoreDimensionChip(l10n, dim.name),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: colors.onSurfaceVariant,
                           fontSize: 10,
@@ -423,23 +431,6 @@ class _DimensionBarsState extends State<_DimensionBars> {
         return colors.error;
       case ScoreLevel.unknown:
         return colors.outlineVariant;
-    }
-  }
-
-  String _getDimensionLabel(String name) {
-    switch (name) {
-      case 'Security':
-        return 'SEC';
-      case 'Health':
-        return 'HLT';
-      case 'Reliability':
-        return 'REL';
-      case 'Speed':
-        return 'SPD';
-      case 'Vulnerabilities':
-        return 'VUL';
-      default:
-        return name.substring(0, name.length.clamp(0, 3)).toUpperCase();
     }
   }
 }

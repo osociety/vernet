@@ -240,9 +240,14 @@
   "@languageDesc": {
     "description": "Settings row subtitle for the app language."
   },
-  "languageSystemDefault": "System default",
+  "languageSystemDefault": "System default ({language})",
   "@languageSystemDefault": {
-    "description": "Entry in the language picker that follows the operating system language."
+    "description": "Entry in the language picker that follows the operating system language. {language} is what that language calls itself, such as English or Deutsch.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
   },
   "navHome": "Home",
   "@navHome": {
@@ -1701,7 +1706,7 @@
       }
     }
   },
-  "timeJustNow": "just now",
+  "timeJustNow": "Just now",
   "@timeJustNow": {
     "description": "Relative timestamp for something under a minute old."
   },
@@ -2612,5 +2617,1350 @@
   "deviceDetailWakeOnLan": "Wake on LAN",
   "@deviceDetailWakeOnLan": {
     "description": "Button opening the Wake-on-LAN page."
+  },
+  "scoreStaleReason": "Score is {hours}h old (-{points} points for staleness)",
+  "@scoreStaleReason": {
+    "description": "Staleness warning naming the age of the cached score and the points taken off it.",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityNoScansDesc": "Run a network scan to assess security",
+  "@scoreSecurityNoScansDesc": {
+    "description": "Security dimension description when no scan exists yet."
+  },
+  "scoreSecurityNoScans": "✗ No network scans found -50 points",
+  "@scoreSecurityNoScans": {
+    "description": "Security factor listing the missing scan and its deduction."
+  },
+  "scoreSecurityNoScansTip": "Tip: Run a network scan from the home screen to discover devices and assess security",
+  "@scoreSecurityNoScansTip": {
+    "description": "Advice shown beside the missing-scan factor."
+  },
+  "scoreSecurityUnknownDevices": "✗ {count} unidentified device(s) on network (-{points} points)",
+  "@scoreSecurityUnknownDevices": {
+    "description": "Security factor counting devices with neither a MAC nor a name.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityUnknownTip": "Tip: Identify unknown devices or run network scan to refresh device list",
+  "@scoreSecurityUnknownTip": {
+    "description": "Advice shown when devices are unidentified."
+  },
+  "scoreSecurityAllIdentified": "✓ All {count} device(s) identified",
+  "@scoreSecurityAllIdentified": {
+    "description": "Security factor confirming every device is known.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityScanRunning": "~ Scan in progress - results may be incomplete",
+  "@scoreSecurityScanRunning": {
+    "description": "Security factor warning that the latest scan has not finished."
+  },
+  "scoreSecuritySecure": "✓ All devices identified - network appears secure",
+  "@scoreSecuritySecure": {
+    "description": "Fallback security factor when nothing was deducted."
+  },
+  "scoreSecurityUnable": "Unable to assess security",
+  "@scoreSecurityUnable": {
+    "description": "Security description after a read failure."
+  },
+  "scoreSecurityError": "✗ Error reading scan data - try running a new network scan",
+  "@scoreSecurityError": {
+    "description": "Security factor after the scan data could not be read."
+  },
+  "scoreSecurityDescGood": "Your network security looks good",
+  "@scoreSecurityDescGood": {
+    "description": "Security description at 80 points or above."
+  },
+  "scoreSecurityDescConcerns": "Some security concerns detected",
+  "@scoreSecurityDescConcerns": {
+    "description": "Security description between 60 and 79 points."
+  },
+  "scoreSecurityDescIssues": "Security issues need attention",
+  "@scoreSecurityDescIssues": {
+    "description": "Security description between 40 and 59 points."
+  },
+  "scoreSecurityDescRisks": "Significant security risks detected",
+  "@scoreSecurityDescRisks": {
+    "description": "Security description below 40 points."
+  },
+  "scoreHealthNoWifiDesc": "Connect to Wi-Fi to assess network health",
+  "@scoreHealthNoWifiDesc": {
+    "description": "Health description when no Wi-Fi info is available."
+  },
+  "scoreHealthNoWifi": "No Wi-Fi connection detected",
+  "@scoreHealthNoWifi": {
+    "description": "Health factor stating there is no Wi-Fi."
+  },
+  "scoreHealthNoWifiTip": "Tip: Connect to a Wi-Fi network to see health score",
+  "@scoreHealthNoWifiTip": {
+    "description": "Advice shown when there is no Wi-Fi."
+  },
+  "scoreHealthUnstableDesc": "Wi-Fi connection unstable",
+  "@scoreHealthUnstableDesc": {
+    "description": "Health description for an incomplete Wi-Fi association."
+  },
+  "scoreHealthInvalidIp": "Invalid IP address assigned ({ip})",
+  "@scoreHealthInvalidIp": {
+    "description": "Health factor naming the unusable address.",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthUnstableNote": "Connection may be unstable or not fully established",
+  "@scoreHealthUnstableNote": {
+    "description": "Second line of the invalid-address factor."
+  },
+  "scoreHealthReconnectTip": "Tip: Try disconnecting and reconnecting to Wi-Fi",
+  "@scoreHealthReconnectTip": {
+    "description": "Advice shown for an unstable connection."
+  },
+  "scoreHealthValidIp": "✓ Valid IP address ({ip})",
+  "@scoreHealthValidIp": {
+    "description": "Health factor confirming the assigned address.",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthStrongSignal": "✓ Strong Wi-Fi signal ({quality})",
+  "@scoreHealthStrongSignal": {
+    "description": "Health factor for a strong signal, naming its quality label.",
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthModerateSignal": "~ Moderate Wi-Fi signal ({quality}) -10 points",
+  "@scoreHealthModerateSignal": {
+    "description": "Health factor for a moderate signal and its deduction.",
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthStrongSignalTip": "Tip: Move closer to router or reduce obstacles for better signal",
+  "@scoreHealthStrongSignalTip": {
+    "description": "Advice shown for a moderate signal."
+  },
+  "scoreHealthWeakSignal": "~ Weak Wi-Fi signal ({quality}) -20 points",
+  "@scoreHealthWeakSignal": {
+    "description": "Health factor for a weak signal and its deduction.",
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthWeakSignalTip": "Tip: Move closer to router or check for interference",
+  "@scoreHealthWeakSignalTip": {
+    "description": "Advice shown for a weak signal."
+  },
+  "scoreHealthNoSignal": "✗ Very weak or no signal -25 points",
+  "@scoreHealthNoSignal": {
+    "description": "Health factor for an absent signal and its deduction."
+  },
+  "scoreHealthNoSignalTip": "Tip: Check Wi-Fi connection and move closer to router",
+  "@scoreHealthNoSignalTip": {
+    "description": "Advice shown when there is no signal."
+  },
+  "scoreHealthCustomGateway": "✓ Custom gateway configured ({gateway})",
+  "@scoreHealthCustomGateway": {
+    "description": "Health factor for a gateway the user set by hand.",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthGateway": "✓ Gateway reachable ({gateway})",
+  "@scoreHealthGateway": {
+    "description": "Health factor for the discovered gateway.",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthNoGateway": "✗ No gateway detected -20 points",
+  "@scoreHealthNoGateway": {
+    "description": "Health factor for a missing gateway and its deduction."
+  },
+  "scoreHealthNoGatewayTip": "Tip: Check router connection and network settings",
+  "@scoreHealthNoGatewayTip": {
+    "description": "Advice shown when no gateway was found."
+  },
+  "scoreHealthInternetOn": "✓ Internet connection active",
+  "@scoreHealthInternetOn": {
+    "description": "Health factor confirming internet access."
+  },
+  "scoreHealthLatencyLow": "✓ Low latency ({ms}ms) - excellent for gaming/video calls",
+  "@scoreHealthLatencyLow": {
+    "description": "Health factor for a latency under 100 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthLatencyModerate": "~ Moderate latency ({ms}ms) - acceptable for most uses",
+  "@scoreHealthLatencyModerate": {
+    "description": "Health factor for a latency between 100 and 299 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthLatencyHigh": "~ High latency ({ms}ms) - may affect real-time applications",
+  "@scoreHealthLatencyHigh": {
+    "description": "Health factor for a latency of 300 ms or more.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthChecking": "~ Checking internet connectivity...",
+  "@scoreHealthChecking": {
+    "description": "Health factor while the connectivity check runs."
+  },
+  "scoreHealthNoInternet": "✗ No internet connection -30 points",
+  "@scoreHealthNoInternet": {
+    "description": "Health factor for missing internet access and its deduction."
+  },
+  "scoreHealthNoInternetTip": "Tip: Check router and modem, verify internet service is active",
+  "@scoreHealthNoInternetTip": {
+    "description": "Advice shown when there is no internet."
+  },
+  "scoreHealthStatusUnknown": "? Internet status unknown",
+  "@scoreHealthStatusUnknown": {
+    "description": "Health factor when connectivity has not been checked."
+  },
+  "scoreHealthDescExcellent": "Network health is excellent",
+  "@scoreHealthDescExcellent": {
+    "description": "Health description at 80 points or above."
+  },
+  "scoreHealthDescGood": "Network health is good",
+  "@scoreHealthDescGood": {
+    "description": "Health description between 60 and 79 points."
+  },
+  "scoreHealthDescAttention": "Network health needs attention",
+  "@scoreHealthDescAttention": {
+    "description": "Health description between 40 and 59 points."
+  },
+  "scoreHealthDescPoor": "Network health is poor",
+  "@scoreHealthDescPoor": {
+    "description": "Health description below 40 points."
+  },
+  "scoreReliabilityNoMonitorsDesc": "Add monitors to track reliability",
+  "@scoreReliabilityNoMonitorsDesc": {
+    "description": "Reliability description when no monitor exists."
+  },
+  "scoreReliabilityNoMonitors": "✗ No monitors configured -100 points",
+  "@scoreReliabilityNoMonitors": {
+    "description": "Reliability factor for an empty monitor list."
+  },
+  "scoreReliabilityAddRouter": "Add ICMP monitor to local router",
+  "@scoreReliabilityAddRouter": {
+    "description": "Reliability advice naming the missing router monitor."
+  },
+  "scoreReliabilityAddInternet": "Add HTTPS monitor to internet server (e.g., google.com)",
+  "@scoreReliabilityAddInternet": {
+    "description": "Reliability advice naming the missing upstream monitor."
+  },
+  "scoreReliabilityMissingRouter": "✗ Missing: ICMP monitor to local router",
+  "@scoreReliabilityMissingRouter": {
+    "description": "Reliability factor listing the absent router monitor."
+  },
+  "scoreReliabilityMissingInternet": "✗ Missing: HTTPS monitor to internet server",
+  "@scoreReliabilityMissingInternet": {
+    "description": "Reliability factor listing the absent upstream monitor."
+  },
+  "scoreReliabilityNoHistoryDesc": "No monitoring history yet",
+  "@scoreReliabilityNoHistoryDesc": {
+    "description": "Reliability description when monitors have never run."
+  },
+  "scoreReliabilityNoHistory": "~ Monitors configured but no data collected yet -70 points",
+  "@scoreReliabilityNoHistory": {
+    "description": "Reliability factor for monitors without history."
+  },
+  "scoreReliabilityCap50": "✗ Score capped at 50: Add both router and internet monitors",
+  "@scoreReliabilityCap50": {
+    "description": "Reliability factor explaining the cap when both monitor types are missing."
+  },
+  "scoreReliabilityCap75": "✗ Score capped at 75: Add missing monitor type for full score",
+  "@scoreReliabilityCap75": {
+    "description": "Reliability factor explaining the cap when one monitor type is missing."
+  },
+  "scoreReliabilityUptime": "✓ {uptime}% uptime across {count} monitor(s)",
+  "@scoreReliabilityUptime": {
+    "description": "Leading reliability factor with the average uptime.",
+    "placeholders": {
+      "uptime": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreReliabilityUnable": "Unable to assess reliability",
+  "@scoreReliabilityUnable": {
+    "description": "Reliability description after a read failure."
+  },
+  "scoreReliabilityError": "✗ Error reading monitor data",
+  "@scoreReliabilityError": {
+    "description": "Reliability factor after monitor data could not be read."
+  },
+  "scoreReliabilityDescExcellent": "Network reliability is excellent",
+  "@scoreReliabilityDescExcellent": {
+    "description": "Reliability description at 80 points or above."
+  },
+  "scoreReliabilityDescGood": "Network reliability is good",
+  "@scoreReliabilityDescGood": {
+    "description": "Reliability description between 60 and 79 points."
+  },
+  "scoreReliabilityDescInconsistent": "Network reliability is inconsistent",
+  "@scoreReliabilityDescInconsistent": {
+    "description": "Reliability description between 40 and 59 points."
+  },
+  "scoreReliabilityDescPoor": "Network reliability is poor",
+  "@scoreReliabilityDescPoor": {
+    "description": "Reliability description below 40 points."
+  },
+  "scoreSpeedNoResultDesc": "Run a speed test to assess performance",
+  "@scoreSpeedNoResultDesc": {
+    "description": "Speed description when no test has run."
+  },
+  "scoreSpeedNoResult": "No speed test results found",
+  "@scoreSpeedNoResult": {
+    "description": "Speed factor stating there is no result."
+  },
+  "scoreSpeedNoResultTip": "Tip: Run a speed test from the network score page to measure your connection",
+  "@scoreSpeedNoResultTip": {
+    "description": "Advice shown when no test has run."
+  },
+  "scoreSpeedDownloadExcellent": "✓ Download: {mbps} Mbps (excellent)",
+  "@scoreSpeedDownloadExcellent": {
+    "description": "Speed factor for a download of 100 Mbps or more.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadGood": "✓ Download: {mbps} Mbps (good)",
+  "@scoreSpeedDownloadGood": {
+    "description": "Speed factor for a download between 50 and 99 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadModerate": "~ Download: {mbps} Mbps (moderate) -12 points",
+  "@scoreSpeedDownloadModerate": {
+    "description": "Speed factor for a download between 25 and 49 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadSlow": "~ Download: {mbps} Mbps (slow) -20 points",
+  "@scoreSpeedDownloadSlow": {
+    "description": "Speed factor for a download between 10 and 24 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadVerySlow": "✗ Download: {mbps} Mbps (very slow) -26 points",
+  "@scoreSpeedDownloadVerySlow": {
+    "description": "Speed factor for a download under 10 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedHdTip": "Tip: For HD streaming, aim for 25+ Mbps",
+  "@scoreSpeedHdTip": {
+    "description": "Advice shown for a moderate download."
+  },
+  "scoreSpeedIspTip": "Tip: Contact ISP about upgrading your plan",
+  "@scoreSpeedIspTip": {
+    "description": "Advice shown for a slow download."
+  },
+  "scoreSpeedBackgroundTip": "Tip: Check for background downloads, restart router, or contact ISP",
+  "@scoreSpeedBackgroundTip": {
+    "description": "Advice shown for a very slow download."
+  },
+  "scoreSpeedUploadExcellent": "✓ Upload: {mbps} Mbps (excellent)",
+  "@scoreSpeedUploadExcellent": {
+    "description": "Speed factor for an upload of 20 Mbps or more.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUploadGood": "✓ Upload: {mbps} Mbps (good)",
+  "@scoreSpeedUploadGood": {
+    "description": "Speed factor for an upload between 10 and 19 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUploadModerate": "~ Upload: {mbps} Mbps (moderate) -7 points",
+  "@scoreSpeedUploadModerate": {
+    "description": "Speed factor for an upload between 5 and 9 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUploadSlow": "✗ Upload: {mbps} Mbps (slow) -12 points",
+  "@scoreSpeedUploadSlow": {
+    "description": "Speed factor for an upload under 5 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedVideoCallTip": "Tip: For video calls, aim for 5+ Mbps upload",
+  "@scoreSpeedVideoCallTip": {
+    "description": "Advice shown for a moderate upload."
+  },
+  "scoreSpeedUploadLimitTip": "Tip: Limit uploads during important calls or contact ISP",
+  "@scoreSpeedUploadLimitTip": {
+    "description": "Advice shown for a slow upload."
+  },
+  "scoreSpeedLatencyExcellent": "✓ Latency: {ms}ms (excellent for gaming)",
+  "@scoreSpeedLatencyExcellent": {
+    "description": "Speed factor for a latency under 20 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyGood": "✓ Latency: {ms}ms (good)",
+  "@scoreSpeedLatencyGood": {
+    "description": "Speed factor for a latency between 20 and 49 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyModerate": "~ Latency: {ms}ms (moderate) -7 points",
+  "@scoreSpeedLatencyModerate": {
+    "description": "Speed factor for a latency between 50 and 99 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyHigh": "✗ Latency: {ms}ms (high) -12 points",
+  "@scoreSpeedLatencyHigh": {
+    "description": "Speed factor for a latency of 100 ms or more.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyTip": "Tip: High latency affects gaming and video calls",
+  "@scoreSpeedLatencyTip": {
+    "description": "Advice shown for a moderate latency."
+  },
+  "scoreSpeedWiredTip": "Tip: Use wired connection, reduce network congestion, or contact ISP",
+  "@scoreSpeedWiredTip": {
+    "description": "Advice shown for a high latency."
+  },
+  "scoreSpeedNoPacketLoss": "✓ No packet loss",
+  "@scoreSpeedNoPacketLoss": {
+    "description": "Speed factor for a clean ping run."
+  },
+  "scoreSpeedLossMinimal": "~ Minimal packet loss ({percent}%)",
+  "@scoreSpeedLossMinimal": {
+    "description": "Speed factor for packet loss under one percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossSome": "~ Some packet loss ({percent}%) -4 points",
+  "@scoreSpeedLossSome": {
+    "description": "Speed factor for packet loss between one and five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossHigh": "✗ High packet loss ({percent}%) -5 points",
+  "@scoreSpeedLossHigh": {
+    "description": "Speed factor for packet loss above five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedWifiTip": "Tip: Check Wi-Fi signal strength and router placement",
+  "@scoreSpeedWifiTip": {
+    "description": "Advice shown for some packet loss."
+  },
+  "scoreSpeedCongestionTip": "Tip: Network congestion or hardware issues - restart router",
+  "@scoreSpeedCongestionTip": {
+    "description": "Advice shown for heavy packet loss."
+  },
+  "scoreSpeedJitterStable": "✓ Jitter: {ms}ms (stable connection)",
+  "@scoreSpeedJitterStable": {
+    "description": "Speed factor for jitter under 5 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterAcceptable": "✓ Jitter: {ms}ms (acceptable)",
+  "@scoreSpeedJitterAcceptable": {
+    "description": "Speed factor for jitter between 5 and 14 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterVariable": "~ Jitter: {ms}ms (variable) -4 points",
+  "@scoreSpeedJitterVariable": {
+    "description": "Speed factor for jitter between 15 and 29 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterUnstable": "✗ Jitter: {ms}ms (unstable) -5 points",
+  "@scoreSpeedJitterUnstable": {
+    "description": "Speed factor for jitter of 30 ms or more.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterVoiceTip": "Tip: High jitter affects video/voice quality",
+  "@scoreSpeedJitterVoiceTip": {
+    "description": "Advice shown for variable jitter."
+  },
+  "scoreSpeedJitterWiredTip": "Tip: Use wired connection or reduce network congestion",
+  "@scoreSpeedJitterWiredTip": {
+    "description": "Advice shown for unstable jitter."
+  },
+  "scoreSpeedNoLossMlab": "✓ No packet loss (M-Lab)",
+  "@scoreSpeedNoLossMlab": {
+    "description": "Packet-loss factor measured by the speed test instead of ping."
+  },
+  "scoreSpeedLossMinimalMlab": "~ Minimal packet loss ({percent}%, M-Lab)",
+  "@scoreSpeedLossMinimalMlab": {
+    "description": "Speed-test packet loss under one percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossSomeMlab": "~ Some packet loss ({percent}%, M-Lab) -4 points",
+  "@scoreSpeedLossSomeMlab": {
+    "description": "Speed-test packet loss between one and five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossHighMlab": "✗ High packet loss ({percent}%, M-Lab) -5 points",
+  "@scoreSpeedLossHighMlab": {
+    "description": "Speed-test packet loss above five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedNoPingData": "✗ No ping data available -10 points",
+  "@scoreSpeedNoPingData": {
+    "description": "Speed factor for a missing connectivity check."
+  },
+  "scoreSpeedNoPingDataTip": "Tip: Run a connectivity check to measure packet loss and jitter",
+  "@scoreSpeedNoPingDataTip": {
+    "description": "Advice shown when ping data is missing."
+  },
+  "scoreSpeedMeasuredMlab": "ℹ Measured via M-Lab NDT7 protocol",
+  "@scoreSpeedMeasuredMlab": {
+    "description": "Speed factor naming the test provider."
+  },
+  "scoreSpeedServerAt": "📍 Server: {server}",
+  "@scoreSpeedServerAt": {
+    "description": "Speed factor naming the test server location.",
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUnable": "Unable to assess speed",
+  "@scoreSpeedUnable": {
+    "description": "Speed description after a read failure."
+  },
+  "scoreSpeedError": "Error reading speed data",
+  "@scoreSpeedError": {
+    "description": "Speed factor after the snapshot could not be read."
+  },
+  "scoreSpeedErrorTip": "Tip: Try running a new speed test",
+  "@scoreSpeedErrorTip": {
+    "description": "Advice shown after a read failure."
+  },
+  "scoreSpeedDescExcellent": "Network speed is excellent",
+  "@scoreSpeedDescExcellent": {
+    "description": "Speed description at 80 points or above."
+  },
+  "scoreSpeedDescGood": "Network speed is good",
+  "@scoreSpeedDescGood": {
+    "description": "Speed description between 60 and 79 points."
+  },
+  "scoreSpeedDescModerate": "Network speed is moderate",
+  "@scoreSpeedDescModerate": {
+    "description": "Speed description between 40 and 59 points."
+  },
+  "scoreSpeedDescImprove": "Network speed needs improvement",
+  "@scoreSpeedDescImprove": {
+    "description": "Speed description below 40 points."
+  },
+  "scoreVulnExcellentDesc": "Excellent security posture",
+  "@scoreVulnExcellentDesc": {
+    "description": "Vulnerability description when security is near perfect."
+  },
+  "scoreVulnStrongPosture": "✓ Strong security posture detected",
+  "@scoreVulnStrongPosture": {
+    "description": "Vulnerability factor confirming a strong posture."
+  },
+  "scoreVulnAllIdentified": "✓ All network devices identified",
+  "@scoreVulnAllIdentified": {
+    "description": "Vulnerability factor confirming every device is known."
+  },
+  "scoreVulnNoVulnerabilities": "✓ No obvious vulnerabilities found",
+  "@scoreVulnNoVulnerabilities": {
+    "description": "Vulnerability factor for a clean scan."
+  },
+  "scoreVulnMinimalBaseline": "~ Minimal baseline risk: -2 points (theoretical)",
+  "@scoreVulnMinimalBaseline": {
+    "description": "Vulnerability factor for the unavoidable baseline risk."
+  },
+  "scoreVulnLowDesc": "Low vulnerability risk",
+  "@scoreVulnLowDesc": {
+    "description": "Vulnerability description for a good security score."
+  },
+  "scoreVulnSmallBaseline": "~ Small baseline risk: -5 points (theoretical)",
+  "@scoreVulnSmallBaseline": {
+    "description": "Vulnerability factor for a slightly larger baseline risk."
+  },
+  "scoreVulnSomeDesc": "Some vulnerabilities detected",
+  "@scoreVulnSomeDesc": {
+    "description": "Vulnerability description for a middling security score."
+  },
+  "scoreVulnModerateScore": "~ Moderate security score ({value}/100) -35 points",
+  "@scoreVulnModerateScore": {
+    "description": "Vulnerability factor carrying the security score through.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnPartialIdentification": "~ Some devices on network not fully identified",
+  "@scoreVulnPartialIdentification": {
+    "description": "Vulnerability factor for unknown devices."
+  },
+  "scoreVulnScanTip": "Tip: Run a network scan to identify all devices",
+  "@scoreVulnScanTip": {
+    "description": "Advice shown with partial identification."
+  },
+  "scoreVulnReviewTip": "Tip: Review unknown devices and verify they're authorized",
+  "@scoreVulnReviewTip": {
+    "description": "Second advice shown with partial identification."
+  },
+  "scoreVulnAttentionDesc": "Vulnerabilities require attention",
+  "@scoreVulnAttentionDesc": {
+    "description": "Vulnerability description for a poor security score."
+  },
+  "scoreVulnLowScore": "✗ Low security score ({value}/100) -65 points",
+  "@scoreVulnLowScore": {
+    "description": "Vulnerability factor for a low security score.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnUnknownDevices": "✗ Unknown devices detected on network",
+  "@scoreVulnUnknownDevices": {
+    "description": "Vulnerability factor warning about unknown devices."
+  },
+  "scoreVulnExposedServices": "✗ Potential exposed services",
+  "@scoreVulnExposedServices": {
+    "description": "Vulnerability factor warning about exposed services."
+  },
+  "scoreVulnActionRequired": "Action required:",
+  "@scoreVulnActionRequired": {
+    "description": "Heading above the list of remediation steps."
+  },
+  "scoreVulnActionScan": "• Run a network scan immediately to discover all devices",
+  "@scoreVulnActionScan": {
+    "description": "First remediation step."
+  },
+  "scoreVulnActionVerify": "• Identify and verify all unknown devices",
+  "@scoreVulnActionVerify": {
+    "description": "Second remediation step."
+  },
+  "scoreVulnActionPorts": "• Run a port scan to check for exposed services",
+  "@scoreVulnActionPorts": {
+    "description": "Third remediation step."
+  },
+  "scoreVulnActionTrust": "• Consider enabling device trust features",
+  "@scoreVulnActionTrust": {
+    "description": "Fourth remediation step."
+  },
+  "scoreDimSecurity": "Security",
+  "@scoreDimSecurity": {
+    "description": "Display name of the security dimension."
+  },
+  "scoreDimHealth": "Health",
+  "@scoreDimHealth": {
+    "description": "Display name of the network health dimension."
+  },
+  "scoreDimReliability": "Reliability",
+  "@scoreDimReliability": {
+    "description": "Display name of the reliability dimension."
+  },
+  "scoreDimSpeed": "Speed",
+  "@scoreDimSpeed": {
+    "description": "Display name of the speed dimension."
+  },
+  "scoreDimVulnerabilities": "Vulnerabilities",
+  "@scoreDimVulnerabilities": {
+    "description": "Display name of the vulnerability dimension."
+  },
+  "scoreNotEnoughData": "Not enough data to assess",
+  "@scoreNotEnoughData": {
+    "description": "Description for a dimension built without data."
+  },
+  "scoreCardLabel": "NETWORK SCORE",
+  "@scoreCardLabel": {
+    "description": "Uppercase eyebrow label on every state of the network score card."
+  },
+  "scoreCardTapToAssess": "Tap to assess your network",
+  "@scoreCardTapToAssess": {
+    "description": "Subtitle of the score card before the first computation."
+  },
+  "scoreCardComputing": "Computing your network score...",
+  "@scoreCardComputing": {
+    "description": "Subtitle while the score is being computed."
+  },
+  "scoreCardStale": "Score reduced due to age",
+  "@scoreCardStale": {
+    "description": "Note on the card and detail page when staleness decay lowered the score."
+  },
+  "scoreCardError": "Unable to compute score. Tap to retry.",
+  "@scoreCardError": {
+    "description": "Subtitle when the score computation failed; tapping retries."
+  },
+  "scoreCardDescGood": "Your network is in good shape",
+  "@scoreCardDescGood": {
+    "description": "Card subtitle for a good overall score."
+  },
+  "scoreCardDescModerate": "Some areas need attention",
+  "@scoreCardDescModerate": {
+    "description": "Card subtitle for a moderate overall score."
+  },
+  "scoreCardDescPoor": "Network issues detected",
+  "@scoreCardDescPoor": {
+    "description": "Card subtitle for a poor overall score."
+  },
+  "scoreCardDescUnknown": "Score not yet computed",
+  "@scoreCardDescUnknown": {
+    "description": "Card subtitle when no score exists yet."
+  },
+  "scoreChipSecurity": "SEC",
+  "@scoreChipSecurity": {
+    "description": "Three-letter chip for the Security dimension on the card."
+  },
+  "scoreChipHealth": "HLT",
+  "@scoreChipHealth": {
+    "description": "Three-letter chip for the Health dimension on the card; abbreviation of scoreDimHealth."
+  },
+  "scoreChipReliability": "REL",
+  "@scoreChipReliability": {
+    "description": "Three-letter chip for the Reliability dimension on the card; abbreviation of scoreDimReliability."
+  },
+  "scoreChipSpeed": "SPD",
+  "@scoreChipSpeed": {
+    "description": "Three-letter chip for the Speed dimension on the card; abbreviation of scoreDimSpeed."
+  },
+  "scoreChipVulnerabilities": "VUL",
+  "@scoreChipVulnerabilities": {
+    "description": "Three-letter chip for the Vulnerabilities dimension on the card; abbreviation of scoreDimVulnerabilities."
+  },
+  "scorePointsUnit": "points",
+  "@scorePointsUnit": {
+    "description": "Word that follows a score deduction in a factor line; the detail page parses it to split the number out of the text."
+  },
+  "scoreRefreshTooltip": "Refresh score",
+  "@scoreRefreshTooltip": {
+    "description": "Tooltip of the app-bar refresh action on the score detail page."
+  },
+  "scoreBreakdown": "Score Breakdown",
+  "@scoreBreakdown": {
+    "description": "Heading of the per-dimension list on the detail page."
+  },
+  "scoreFactorsGood": "What's good",
+  "@scoreFactorsGood": {
+    "description": "Group heading for factors that added points."
+  },
+  "scoreFactorsImprove": "What needs improvement",
+  "@scoreFactorsImprove": {
+    "description": "Group heading for factors that deducted points."
+  },
+  "scoreFactorsInfo": "Info",
+  "@scoreFactorsInfo": {
+    "description": "Group heading for neutral factors without points."
+  },
+  "scoreLastComputed": "Last computed: {time}",
+  "@scoreLastComputed": {
+    "description": "Timestamp under the overall score.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreLastFresh": "Last fresh score: {time}",
+  "@scoreLastFresh": {
+    "description": "Timestamp inside the staleness warning.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreImproveTitle": "Improve Your Score",
+  "@scoreImproveTitle": {
+    "description": "Heading of the remediation section."
+  },
+  "scoreActionScanTitle": "Run Network Scan",
+  "@scoreActionScanTitle": {
+    "description": "Remediation card that opens the host scan."
+  },
+  "scoreActionScanCritical": "Critical: Identify unknown devices on your network",
+  "@scoreActionScanCritical": {
+    "description": "Subtitles for the host-scan remediation card."
+  },
+  "scoreActionScanSubtitle": "Discover devices and assess security",
+  "@scoreActionScanSubtitle": {
+    "description": "Subtitles for the host-scan remediation card."
+  },
+  "scoreActionWifiTitle": "Check Wi-Fi Connection",
+  "@scoreActionWifiTitle": {
+    "description": "Remediation card that opens the Wi-Fi health tips."
+  },
+  "scoreActionMonitorTitle": "Monitor Servers",
+  "@scoreActionMonitorTitle": {
+    "description": "Remediation card that opens the server checker."
+  },
+  "scoreActionSpeedTitle": "Test Internet Speed",
+  "@scoreActionSpeedTitle": {
+    "description": "Remediation card that opens the speed test."
+  },
+  "scoreActionSpeedLow": "Run a speed test to measure your connection",
+  "@scoreActionSpeedLow": {
+    "description": "Subtitles for the speed-test remediation card."
+  },
+  "scoreActionSpeedNormal": "Improve download/upload performance",
+  "@scoreActionSpeedNormal": {
+    "description": "Subtitles for the speed-test remediation card."
+  },
+  "scoreActionReviewTitle": "Review Security",
+  "@scoreActionReviewTitle": {
+    "description": "Remediation card for the vulnerabilities dimension."
+  },
+  "scoreActionReviewSubtitle": "Address vulnerabilities to improve score",
+  "@scoreActionReviewSubtitle": {
+    "description": "Subtitles for the vulnerabilities remediation card."
+  },
+  "scoreHealthSubNoInternet": "Check your internet connection",
+  "@scoreHealthSubNoInternet": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubWeakSignal": "Move closer to router or reduce obstacles",
+  "@scoreHealthSubWeakSignal": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubNoGateway": "Check router connection",
+  "@scoreHealthSubNoGateway": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubLatency": "Reduce network congestion",
+  "@scoreHealthSubLatency": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubDefault": "Optimize your network connection",
+  "@scoreHealthSubDefault": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreReliabilitySubNoMonitors": "Add monitors to track network uptime",
+  "@scoreReliabilitySubNoMonitors": {
+    "description": "Subtitles under the server-monitor remediation card, chosen by the worst reliability factor."
+  },
+  "scoreReliabilitySubMissing": "Add required monitors for full score",
+  "@scoreReliabilitySubMissing": {
+    "description": "Subtitles under the server-monitor remediation card, chosen by the worst reliability factor."
+  },
+  "scoreReliabilitySubDefault": "Track reliability of important services",
+  "@scoreReliabilitySubDefault": {
+    "description": "Subtitles under the server-monitor remediation card, chosen by the worst reliability factor."
+  },
+  "scoreMonitorAdded": "{name} added",
+  "@scoreMonitorAdded": {
+    "description": "Snackbar after a quick-add monitor is saved.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthTipsTitle": "Wi-Fi Health Tips",
+  "@scoreHealthTipsTitle": {
+    "description": "Title of the Wi-Fi tips dialog from the remediation card."
+  },
+  "scoreHealthTipCloser": "• Move closer to your router",
+  "@scoreHealthTipCloser": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipObstacles": "• Reduce physical obstacles",
+  "@scoreHealthTipObstacles": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipInterference": "• Avoid interference from other devices",
+  "@scoreHealthTipInterference": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipCongestion": "• Check for network congestion",
+  "@scoreHealthTipCongestion": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipRestart": "• Restart your router if needed",
+  "@scoreHealthTipRestart": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "commonGotIt": "Got it",
+  "@scoreHealthTipsDismiss": {
+    "description": "Dismiss action of the Wi-Fi tips dialog."
+  },
+  "scoreLevelGood": "Good",
+  "@scoreLevelGood": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelModerate": "Moderate",
+  "@scoreLevelModerate": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelPoor": "Needs Attention",
+  "@scoreLevelPoor": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelUnknown": "Unknown",
+  "@scoreLevelUnknown": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelDescGood": "Your network is performing well across all dimensions.",
+  "@scoreLevelDescGood": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreLevelDescModerate": "Some areas of your network could use improvement.",
+  "@scoreLevelDescModerate": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreLevelDescPoor": "Your network has issues that should be addressed.",
+  "@scoreLevelDescPoor": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreLevelDescUnknown": "Run network tools to get your score.",
+  "@scoreLevelDescUnknown": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreOutOf100": "out of 100",
+  "@scoreOutOf100": {
+    "description": "Caption under the number in the score gauge."
+  },
+  "scoreQuickAddTitle": "Quick Add Required Monitors",
+  "@scoreQuickAddTitle": {
+    "description": "Heading of the reliability quick-add block."
+  },
+  "scoreQuickAddSubtitle": "Add these monitors to get full reliability score:",
+  "@scoreQuickAddSubtitle": {
+    "description": "Explanation of the reliability quick-add block."
+  },
+  "scoreComputeFailed": "Failed to compute score: {error}",
+  "@scoreComputeFailed": {
+    "description": "Bloc failure message for a failed computation.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreRefreshFailed": "Failed to refresh score: {error}",
+  "@scoreRefreshFailed": {
+    "description": "Bloc failure message for a failed refresh.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreUpdateFailed": "Failed to update score: {error}",
+  "@scoreUpdateFailed": {
+    "description": "Bloc failure message for a failed update.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updatesReleaseChannel": "Release channel",
+  "@updatesReleaseChannel": {
+    "description": "Heading above the stable/beta radio card."
+  },
+  "updatesHowArrive": "How updates reach you",
+  "@updatesHowArrive": {
+    "description": "Heading of the per-platform update guidance card. Tests assert this string."
+  },
+  "updatesBetaDisclaimer": "Choosing beta makes Vernet report a pre-release as an update. Beta builds are tested on real networks by volunteers, so a scan can break until it is reported and fixed.",
+  "@updatesBetaDisclaimer": {
+    "description": "Warning under the release channel card."
+  },
+  "updatesCheckingStable": "Checking the stable releases.",
+  "@updatesCheckingStable": {
+    "description": "Caption on the version card when the stable channel is selected."
+  },
+  "updatesCheckingBeta": "Checking the beta releases.",
+  "@updatesCheckingBeta": {
+    "description": "Caption on the version card when the beta channel is selected."
+  },
+  "updatesCheckButton": "Check for updates",
+  "@updatesCheckButton": {
+    "description": "Action that runs an update check from the updates page."
+  },
+  "updatesChannelStable": "Stable",
+  "@updatesChannelStable": {
+    "description": "Release channel radio title."
+  },
+  "updatesChannelStableDesc": "Only versions that were promoted by hand",
+  "@updatesChannelStableDesc": {
+    "description": "Release channel radio subtitle."
+  },
+  "updatesChannelBeta": "Beta",
+  "@updatesChannelBeta": {
+    "description": "Release channel radio title."
+  },
+  "updatesChannelBetaDesc": "Include the newest pre-release",
+  "@updatesChannelBetaDesc": {
+    "description": "Release channel radio subtitle."
+  },
+  "updatesAutomaticHeading": "Automatic updates",
+  "@updatesAutomaticHeading": {
+    "description": "Heading inside the update guidance card."
+  },
+  "updatesBetaTestingHeading": "Beta testing",
+  "@updatesBetaTestingHeading": {
+    "description": "Heading inside the update guidance card."
+  },
+  "updatesCannotChangeNote": "Vernet cannot change any of that from inside the app.",
+  "@updatesCannotChangeNote": {
+    "description": "Closing note of the update guidance card."
+  },
+  "updatesCopyTooltip": "Copy",
+  "@updatesCopyTooltip": {
+    "description": "Tooltip of the button that copies the snap command."
+  },
+  "updatesCommandCopied": "Command copied",
+  "@updatesCommandCopied": {
+    "description": "Snackbar after copying the snap command."
+  },
+  "updatesPlayAuto": "Play updates Vernet by itself while \"Update apps automatically\" is on in the Play app.",
+  "@updatesPlayAuto": {
+    "description": "Guidance for the Google Play build: what keeps it current."
+  },
+  "updatesPlayBetaHow": "Beta builds go to a Play test track first. Joining it switches this install over and you keep updating through Play.",
+  "@updatesPlayBetaHow": {
+    "description": "Guidance for the Google Play build: how to get betas."
+  },
+  "updatesPlayBetaLink": "Join the beta on Google Play",
+  "@updatesPlayBetaLink": {
+    "description": "Link label on the Google Play build."
+  },
+  "updatesFdroidAuto": "F-Droid refreshes its index and updates Vernet with it unless automatic updates are turned off.",
+  "@updatesFdroidAuto": {
+    "description": "Guidance for an F-Droid install: what keeps it current."
+  },
+  "updatesFdroidBetaHow": "F-Droid only publishes stable. Pre-release APKs are on GitHub and are built to install beside this one.",
+  "@updatesFdroidBetaHow": {
+    "description": "Guidance for an F-Droid install: how to get betas. Tests assert that this mentions F-Droid."
+  },
+  "updatesFdroidBetaLink": "Pre-release APKs on GitHub",
+  "@updatesFdroidBetaLink": {
+    "description": "Link label on an F-Droid install."
+  },
+  "updatesSnapAuto": "snapd refreshes a snap on its own, a couple of times a day, from whichever channel it was installed from.",
+  "@updatesSnapAuto": {
+    "description": "Guidance for the snap build: what keeps it current."
+  },
+  "updatesSnapBetaHow": "The channel belongs to snapd, not to Vernet, so this command has to be run once yourself.",
+  "@updatesSnapBetaHow": {
+    "description": "Guidance for the snap build: how to get betas; followed by the command itself."
+  },
+  "updatesSnapLink": "Vernet in the Snap Store",
+  "@updatesSnapLink": {
+    "description": "Link label on the snap build."
+  },
+  "updatesMicrosoftAuto": "The Microsoft Store updates Vernet by itself unless automatic app updates are off in the Store app.",
+  "@updatesMicrosoftAuto": {
+    "description": "Guidance for the Microsoft Store build: what keeps it current."
+  },
+  "updatesMicrosoftBetaHow": "There is no beta track for Windows. The only way to run a build early is the GitHub pre-release zip or .msixbundle.",
+  "@updatesMicrosoftBetaHow": {
+    "description": "Guidance for the Microsoft Store build: why there is no switch."
+  },
+  "updatesPreReleaseLink": "Pre-release builds on GitHub",
+  "@updatesPreReleaseLink": {
+    "description": "Link label where a beta means downloading a GitHub pre-release."
+  },
+  "updatesNoStoreAuto": "This platform has no store build, so nothing updates Vernet for you.",
+  "@updatesNoStoreAuto": {
+    "description": "Guidance on a platform with no store build: what keeps it current."
+  },
+  "updatesNoBetaHow": "There is no beta channel here. A pre-release has to be downloaded and installed by hand.",
+  "@updatesNoBetaHow": {
+    "description": "Guidance on a platform without a beta channel."
+  },
+  "updatesReleasesLink": "Releases on GitHub",
+  "@updatesReleasesLink": {
+    "description": "Link label on a platform with no store build."
+  },
+  "updatesAvailable": "A newer version is available",
+  "@updatesAvailable": {
+    "description": "Snackbar when the update check finds a release."
+  },
+  "updatesGetUpdate": "Get update",
+  "@updatesGetUpdate": {
+    "description": "Snackbar action that opens the store or the release page."
+  },
+  "updatesUpToDate": "You are using the latest version",
+  "@updatesUpToDate": {
+    "description": "Snackbar when a manual check finds nothing newer."
+  },
+  "updatesNeedInternet": "Allow internet access in Settings to check for updates.",
+  "@updatesNeedInternet": {
+    "description": "Snackbar when a check was skipped because networking is off."
+  },
+  "donateIntroAds": "Vernet is free and open source under Apache-2.0, with no paid features. Donations pay for the devices, testing and development time behind every release.",
+  "@donateIntroAds": {
+    "description": "Intro of the support page on the Android build, which carries ads and so cannot claim to be ad-free."
+  },
+  "donateIntroNoAds": "Vernet is free and open source under Apache-2.0, with no ads and no paid features. Donations pay for the devices, testing and development time behind every release.",
+  "@donateIntroNoAds": {
+    "description": "Intro of the support page on every build without ads."
+  },
+  "donateLiberapayTitle": "Donate on Liberapay",
+  "@donateLiberapayTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateLiberapayDesc": "Recurring or one-time, by card, SEPA or PayPal",
+  "@donateLiberapayDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateKofiTitle": "Buy me a coffee on Ko-fi",
+  "@donateKofiTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateKofiDesc": "One-time payment, no account needed",
+  "@donateKofiDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateStarTitle": "Star Vernet on GitHub",
+  "@donateStarTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateStarDesc": "Costs nothing, and it helps others find the app",
+  "@donateStarDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateRatePlayTitle": "Rate Vernet on Google Play",
+  "@donateRatePlayTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateRatePlayDesc": "Ratings are how a free app gets discovered",
+  "@donateRatePlayDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateRateStoreTitle": "Review Vernet on the Microsoft Store",
+  "@donateRateStoreTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateRateStoreDesc": "Reviews are how a Store app gets found",
+  "@donateRateStoreDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateCommunityNote": "Reporting bugs and answering discussions are support too — the app is maintained by one person who reads them.",
+  "@donateCommunityNote": {
+    "description": "Closing note of the support page."
+  },
+  "whatsNewDialogTitle": "What's New",
+  "@whatsNewDialogTitle": {
+    "description": "Title of the release-notes dialog."
+  },
+  "whatsNewEmpty": "No release notes available for this version.",
+  "@whatsNewEmpty": {
+    "description": "Body of the release-notes dialog when the running version has no entry."
+  },
+  "changelogLinuxDatabaseIncluded": "Linux downloads carry the database library they need",
+  "@changelogLinuxDatabaseIncluded": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogNothingElseChanged": "Nothing changed for Android, macOS and Windows in this release",
+  "@changelogNothingElseChanged": {
+    "description": "What's New release-note bullet."
+  },
+  "commonCouldNotLaunch": "Could not launch {url}",
+  "@commonCouldNotLaunch": {
+    "description": "Error text when the operating system refuses to open a link.",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "updateChannelTitle": "Where to get the update",
+  "@updateChannelTitle": {
+    "description": "Title of the dialog that asks whether to update from GitHub or the store."
+  },
+  "updateChannelGithubBody": "GitHub carries a new version the day it ships, so it is the fastest way to get features and fixes.",
+  "@updateChannelGithubBody": {
+    "description": "Body of the update-channel dialog, explaining why GitHub is first."
+  },
+  "updateChannelStoresBody": "Stores get it later: every release has to be tested and published by hand, and the store reviews it again before it reaches you.",
+  "@updateChannelStoresBody": {
+    "description": "Body of the update-channel dialog for a platform whose store is not named."
+  },
+  "updateChannelStoreBody": "{store} gets it only once that release is tested, published and approved there, which can take a few days.",
+  "@updateChannelStoreBody": {
+    "description": "Body of the update-channel dialog naming this platform's store.",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "devicePortScanTooltip": "Look for reachable services on this device",
+  "@devicePortScanTooltip": {
+    "description": "Tooltip on the port-scan button in the device list."
+  },
+  "wakeOnLanTooltip": "Send a Wake-on-LAN packet to this device",
+  "@wakeOnLanTooltip": {
+    "description": "Tooltip on the wake button in the device list."
+  },
+  "serverCheckerHostHint": "example.com or 192.168.1.1",
+  "@serverCheckerHostHint": {
+    "description": "Example shown inside the host field when adding a monitored server."
+  },
+  "externalLinkTitle": "Open this link?",
+  "@externalLinkTitle": {
+    "description": "Title of the warning shown before an outside link is opened."
+  },
+  "externalLinkOpen": "Open link",
+  "@externalLinkOpen": {
+    "description": "Button that lets the dialog hand the link to the browser."
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Label of the button that applies a settings dialog."
+  },
+  "deviceTypePrinter": "Printer",
+  "@deviceTypePrinter": {
+    "description": "Device type the scanner infers from IPP or JetDirect ports."
+  },
+  "deviceTypeNas": "NAS",
+  "@deviceTypeNas": {
+    "description": "Device type the scanner infers from FTP plus SMB ports."
+  },
+  "settingsValueRequired": "Please enter a value",
+  "@settingsValueRequired": {
+    "description": "Form error shown when a settings field is left empty."
+  },
+  "settingsNaturalNumber": "Should be a natural number",
+  "@settingsNaturalNumber": {
+    "description": "Form error shown when a settings value is zero or negative."
+  },
+  "settingsValueNaturalNumber": "Value must be a natural number",
+  "@settingsValueNaturalNumber": {
+    "description": "Form error shown when a subnet range value is zero or negative."
+  },
+  "settingsMustBeNumber": "Must be a number",
+  "@settingsMustBeNumber": {
+    "description": "Form error shown when a numeric settings value cannot be parsed."
+  },
+  "settingsAfterStart": "Choose a value after the search start",
+  "@settingsAfterStart": {
+    "description": "Form error shown when the last host of a scan range is below the first host."
+  },
+  "settingsBeforeEnd": "Choose a value before the search end",
+  "@settingsBeforeEnd": {
+    "description": "Form error shown when the first host of a scan range is above the last host."
+  },
+  "netStepsHeading": "Troubleshooting Steps",
+  "@netStepsHeading": {
+    "description": "Heading above the fix-it list in the connection details dialog."
   }
 }

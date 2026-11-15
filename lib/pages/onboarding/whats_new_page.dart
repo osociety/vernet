@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/models/changelog_entry.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/changelog_data.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -17,14 +18,14 @@ class WhatsNewDialog extends StatefulWidget {
 
     // Already seen What's New for this version
     if (hasSeen) return;
+    if (!context.mounted) return;
 
-    final entry = changelogEntryForVersion(info.version);
+    final entry = changelogEntryForVersion(info.version, context.l10n);
 
     // Nothing to announce: leave the version unmarked so the dialog can still
     // appear once notes are added, instead of showing an empty one forever.
     if (entry == null) return;
 
-    if (!context.mounted) return;
     await showAdaptiveDialog(
       context: context,
       builder: (_) => WhatsNewDialog(entry: entry),
@@ -35,9 +36,9 @@ class WhatsNewDialog extends StatefulWidget {
 
   static Future<void> showCurrent(BuildContext context) async {
     final info = await PackageInfo.fromPlatform();
-    final entry = changelogEntryForVersion(info.version);
-
     if (!context.mounted) return;
+    final entry = changelogEntryForVersion(info.version, context.l10n);
+
     await showAdaptiveDialog(
       context: context,
       builder: (_) => WhatsNewDialog(entry: entry),
@@ -80,7 +81,7 @@ class _WhatsNewDialogState extends State<WhatsNewDialog>
           children: [
             Icon(Icons.auto_awesome, color: colors.primary, size: 24),
             const SizedBox(width: 8),
-            const Expanded(child: Text("What's New")),
+            Expanded(child: Text(context.l10n.whatsNewDialogTitle)),
           ],
         ),
         content: SingleChildScrollView(
@@ -113,7 +114,7 @@ class _WhatsNewDialogState extends State<WhatsNewDialog>
                   );
                 }),
               ] else
-                const Text('No release notes available for this version.'),
+                Text(context.l10n.whatsNewEmpty),
             ],
           ),
         ),
@@ -121,7 +122,7 @@ class _WhatsNewDialogState extends State<WhatsNewDialog>
           FilledButton(
             key: WidgetKey.whatsNewGotItButton.key,
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it'),
+            child: Text(context.l10n.commonGotIt),
           ),
         ],
       ),

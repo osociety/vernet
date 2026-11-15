@@ -30,6 +30,7 @@ void main() {
   Future<void> pumpPage(
     WidgetTester tester, {
     Locale locale = const Locale('en'),
+    LanguagePage page = const LanguagePage(),
   }) async {
     await tester.pumpWidget(
       MultiProvider(
@@ -41,7 +42,7 @@ void main() {
           locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const LanguagePage(),
+          home: page,
         ),
       ),
     );
@@ -85,17 +86,21 @@ void main() {
       );
     });
 
-    testWidgets('renders the prompt in the active locale', (tester) async {
-      await pumpPage(tester, locale: const Locale('de'));
+    testWidgets('renders the prompt in the language it opens on',
+        (tester) async {
+      // Opening on German, the way the walkthrough hands the applied language
+      // back, has to read the German bundle rather than fall back silently.
+      await pumpPage(
+        tester,
+        locale: const Locale('de'),
+        page: const LanguagePage(selected: Locale('de')),
+      );
 
       expect(
           find.text('Welche Sprache soll Vernet verwenden?'), findsOneWidget);
-      // Only the English bundle carries this wording, so its absence proves the
-      // page really switched rather than falling back silently.
       expect(find.text('Which language should Vernet use?'), findsNothing);
-
-      await pumpPage(tester);
-      expect(find.text(l10nEn().languageContinue), findsOneWidget);
+      expect(find.text(l10nEn().languageContinue), findsNothing);
+      expect(find.text(l10nDe().languageContinue), findsOneWidget);
     });
 
     testWidgets('a pick stays unapplied until Continue', (tester) async {
@@ -125,6 +130,35 @@ void main() {
 
       expect(find.text('Which language should Vernet use?'), findsOneWidget);
       // The preview must not leak into the persisted preference.
+      expect(localeProvider.locale, isNull);
+    });
+
+    testWidgets(
+        'System default follows the operating system, not the app language',
+        (tester) async {
+      // An English machine whose Vernet was put in German by hand, which is the
+      // state returning to this step after a language has been applied.
+      tester.platformDispatcher.localesTestValue = const [Locale('en')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+
+      await pumpPage(tester, locale: const Locale('de'));
+
+      // System default means the system, so the page is in English from the
+      // start and says out loud which language that is.
+      expect(find.text('System default (English)'), findsOneWidget);
+      expect(find.text('Which language should Vernet use?'), findsOneWidget);
+
+      await tester.tap(find.text('Deutsch'));
+      await tester.pumpAndSettle();
+      expect(find.text('Systemstandard (English)'), findsOneWidget);
+
+      await tester.tap(find.byKey(WidgetKey.languageSystemOption.key));
+      await tester.pumpAndSettle();
+
+      // The bug this guards: the row previewed the German the app was showing
+      // instead of the English the operating system asks for.
+      expect(find.text('Which language should Vernet use?'), findsOneWidget);
+      expect(find.text('Welche Sprache soll Vernet verwenden?'), findsNothing);
       expect(localeProvider.locale, isNull);
     });
 

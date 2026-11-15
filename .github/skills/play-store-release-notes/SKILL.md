@@ -19,9 +19,9 @@ no upload. For building or publishing the bundle use `android-fastlane-release`.
 2. Read that file as the source of truth. If it does not exist, the release is
    not prepared yet — say so and stop rather than inventing notes.
 3. Check the copy against the two other surfaces that must agree:
-   `lib/values/changelog_data.dart` (the in-app What's New dialog, keyed by
-   version name, not build) and `firebase/hosting` landing copy if it mentions
-   features. Report a mismatch; only change files the user asked for.
+   `lib/values/changelog_data.dart` (the in-app What's New dialog, which holds
+   only the current version's notes) and `firebase/hosting` landing copy if it
+   mentions features. Report a mismatch; only change files the user asked for.
 4. Emit the plain block first — one sentence per line, no bullets, no markdown,
    no version header — matching the shape of `en-US/changelogs/<build>.txt`.
 5. Then emit all 29 locale blocks in one code block for bulk paste, each

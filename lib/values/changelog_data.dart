@@ -1,80 +1,31 @@
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/changelog_entry.dart';
 
-/// Release notes shown by the What's New dialog. A new entry is required for
-/// every version bump in pubspec.yaml, otherwise the dialog opens empty.
-const List<ChangelogEntry> kChangelogEntries = [
-  ChangelogEntry(
-    version: '1.6.4',
-    changes: [
-      'Linux downloads carry the database library they need',
-      'Nothing changed for Android, macOS and Windows in this release',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.6.3',
-    changes: [
-      'New Updates page explains how Vernet updates and how to join beta',
-      'Wi-Fi signal strength now reads correctly on Linux',
-      'Linux downloads carry the database library they need',
-      'The Support page shows only channels your platform can use',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.6.2',
-    changes: [
-      'New Support page for donations, stars and ratings',
-      'Choose whether updates come from GitHub or from the store',
-      'Scan notifications now open the report for that scan',
-      'Wi-Fi signal strength is read correctly on Linux',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.6.1',
-    changes: [
-      'Release builds no longer write debug logs on your device',
-      "What's New now shows notes for the version you are running",
-      'Update checks offer stable releases only, never pre-releases',
-      'Android notification icon is visible in the status bar',
-      'Scan results now appear even when the completion alert fails',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.6.0',
-    changes: [
-      'Discovered devices now show their manufacturer, from the MAC address',
-      'Vendor names are saved with each scan, so history keeps them too',
-      'Desktop builds use the Vernet App name on Windows, macOS and Linux',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.5.0',
-    changes: [
-      'New first-time onboarding flow with app walkthrough and Wi-Fi prompt',
-      'Wi-Fi settings open system preferences on every platform',
-      'Better Android 17+ permission handling for local network access',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.4.20',
-    changes: [
-      'IPv6 port scanning support',
-      'Improved local network permission on Android 17',
-      'Reorganized project structure for easier contribution',
-    ],
-  ),
-  ChangelogEntry(
-    version: '1.4.19',
-    changes: [
-      'Network score with security, health, reliability and speed factors',
-      'Device trust and camera detection indicators',
-      'Smoother speed test progress and graph display',
-    ],
-  ),
-];
+/// The version these notes describe: the `version:` in `pubspec.yaml`.
+const String changelogVersion = '1.6.4';
 
-/// The entry for [version], tolerating the shapes `PackageInfo` and release
-/// tags use: a leading `v`, a build number, and the store flavor's `-store`.
-ChangelogEntry? changelogEntryForVersion(String version) {
+/// Release notes for [changelogVersion], in the language [l10n] renders.
+///
+/// The app only ever describes the build it ships in, so this entry is
+/// replaced at every version bump instead of appended to. The notes of earlier
+/// releases live on the GitHub releases page, which also keeps the list short
+/// enough to read in one dialog.
+ChangelogEntry currentChangelog(AppLocalizations l10n) => ChangelogEntry(
+      version: changelogVersion,
+      changes: [
+        l10n.changelogLinuxDatabaseIncluded,
+        l10n.changelogNothingElseChanged,
+      ],
+    );
+
+/// [currentChangelog], but only for the build that is running.
+///
+/// [version] comes from `PackageInfo`, so it tolerates the shapes it and the
+/// release tags use: a leading `v`, a build number and the store flavor's
+/// `-store`. Anything else returns null and the dialog stays closed rather than
+/// announcing the previous release again.
+ChangelogEntry? changelogEntryForVersion(
+    String version, AppLocalizations l10n) {
   var normalized = version.trim();
   if (normalized.startsWith('v')) normalized = normalized.substring(1);
   normalized = normalized.replaceAll('-store', '');
@@ -83,8 +34,5 @@ ChangelogEntry? changelogEntryForVersion(String version) {
     normalized = normalized.substring(0, buildSeparator);
   }
 
-  for (final entry in kChangelogEntries) {
-    if (entry.version == normalized) return entry;
-  }
-  return null;
+  return normalized == changelogVersion ? currentChangelog(l10n) : null;
 }

@@ -37,14 +37,14 @@ class _SocketTimeoutDialogState
 
   @override
   String? validate(String? value) {
-    if (value == null) return 'Please enter a value';
+    if (value == null) return context.l10n.settingsValueRequired;
     try {
       final int val = int.parse(value);
       if (val < 1) {
-        return 'Should be a natural number';
+        return context.l10n.settingsNaturalNumber;
       }
     } catch (e) {
-      return 'Must be a number';
+      return context.l10n.settingsMustBeNumber;
     }
     return null;
   }

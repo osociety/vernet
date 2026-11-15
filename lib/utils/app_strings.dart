@@ -23,10 +23,16 @@ AppLocalizations stringsForLocale(Locale locale) =>
         : AppLocalizationsEn();
 
 /// The locale [MaterialApp] ends up rendering with: the saved choice, else the
-/// first system language the app supports, else English.
-Locale currentAppLocale() {
-  final saved = LocaleProvider.active;
-  if (saved != null) return saved;
+/// system language, else English.
+Locale currentAppLocale() => LocaleProvider.active ?? systemDefaultLocale();
+
+/// The language the operating system reports, matched to one Vernet ships and
+/// falling back to English.
+///
+/// The app's own override is ignored on purpose: the language picker labels and
+/// previews this for its "System default" row, and that has to keep meaning the
+/// operating system's language after the user picks another one in the app.
+Locale systemDefaultLocale() {
   // The dispatcher, not the binding: a service can ask for strings before any
   // widget layer exists, and in a plain unit test where none ever will.
   for (final system in ui.PlatformDispatcher.instance.locales) {
