@@ -1,14 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/models/wifi_metrics.dart';
 import 'package:wifi_plus/wifi_plus.dart' as windows;
-// Safe conditional platform imports to prevent compile-time crashes
-import 'package:wifi_signal_strength_indicator/wifi_signal_strength_indicator.dart'
-    as mobile;
 
 class WifiRepository {
+  /// Android signal level, answered natively by `MainActivity`.
+  static const MethodChannel _wifiSignalChannel =
+      MethodChannel('org.fsociety.vernet/wifi_signal');
+
   /// Verifies OS permissions and fetches structural hardware network telemetry
   static Future<WifiNetworkMetrics> fetchWifiMetrics() async {
     if (kIsWeb) return WifiNetworkMetrics.disconnected();
@@ -18,15 +20,16 @@ class WifiRepository {
       if (Platform.isAndroid || Platform.isIOS) {
         // Enforce structural hardware security checks required by mobile operating systems
         if (await Permission.location.request().isGranted) {
-          final int? dbm = await mobile.WifiSignalStrength.getSignalStrength();
-          final int? nativeLevel =
-              await mobile.WifiSignalStrength.getSignalLevel();
+          // iOS publishes no public API for Wi-Fi RSSI, so it still has no
+          // reading to report; Android answers from its own Wi-Fi stack.
+          final int? dbm =
+              Platform.isIOS ? null : await _androidSignalStrength();
 
           if (dbm == null) return WifiNetworkMetrics.noReading();
 
           return WifiNetworkMetrics(
             rawRssi: dbm,
-            normalizedLevel: nativeLevel ?? convertRssiToLevel(dbm),
+            normalizedLevel: convertRssiToLevel(dbm),
             statusMessage: getDiagnosticString(dbm),
           );
         } else {
@@ -72,6 +75,16 @@ class WifiRepository {
     }
 
     return WifiNetworkMetrics.noReading();
+  }
+
+  /// dBm from the Android Wi-Fi stack, or null when there is no association.
+  static Future<int?> _androidSignalStrength() async {
+    try {
+      return await _wifiSignalChannel.invokeMethod<int>('getSignalStrength');
+    } catch (error) {
+      debugPrint("Android Wi-Fi signal read failed: $error");
+      return null;
+    }
   }
 
   /// System execution methods targeting advanced desktop operating architectures
