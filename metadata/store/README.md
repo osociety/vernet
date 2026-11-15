@@ -48,6 +48,14 @@ then a first-time locale has no screenshots, because git does not carry
 images, so add them to that language in Partner Center before expecting the
 update through.
 
+Use the Add/remove languages picker, not the listing CSV, to bring a parked
+locale back. The CSV import can add a language the product never had, but it
+cannot fill one the product already lists as `Incomplete`: those columns stay
+empty, and a locale whose canonical code carries no region (`cs`, `it`, `pl`,
+`ru`, `sk`) is silently dropped when the file names it the Play way, as
+`cs-cz`. Deleting the language and re-adding it through the picker is the only
+route that produces a listing the Store will accept text for.
+
 `release_notes.txt` is the one file that changes every release. The Play
 changelogs under `android/fastlane/metadata/android/en-US/changelogs/` are the
 source of truth for what shipped — one plain line per change, no tag format —
