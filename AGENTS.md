@@ -151,7 +151,7 @@ Most functionality should be implemented in Flutter/Dart.
 
 ## Android build flavors
 
-`dev`, `fdroid` and `store` (see `README.md#build-flavors`). Only `store`
+`dev`, `fdroid` and `store` (see `docs/BUILD_FLAVORS.md`). Only `store`
 carries AdMob and the Play SDK, and its code lives in `store_overlay/`, which
 `dart run scripts/build_store.dart` applies for the build and restores
 afterwards. So:
