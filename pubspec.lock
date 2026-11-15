@@ -391,8 +391,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "95983262e86d34a24b699a878ee5b965ae0743db"
-      resolved-ref: "95983262e86d34a24b699a878ee5b965ae0743db"
+      ref: a497d5d9a80df008852e7a14e1fdf82928d91865
+      resolved-ref: a497d5d9a80df008852e7a14e1fdf82928d91865
       url: "https://github.com/git-elliot/flutter_isolate.git"
     source: git
     version: "2.1.0-pre"
@@ -1549,14 +1549,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.2"
-  wifi_signal_strength_indicator:
-    dependency: "direct main"
-    description:
-      name: wifi_signal_strength_indicator
-      sha256: f09c065e4cbe2afc3330ba0cd848f3a6ad8bf34ae1bd5d4b896122f0a732e217
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.8"
   win32:
     dependency: transitive
     description:
