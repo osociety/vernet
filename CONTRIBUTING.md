@@ -17,7 +17,7 @@ relevant.
 ## Development setup
 
 1. Install the Flutter SDK (stable channel) plus the tooling for the platform
-   you want to build for (Android SDK, Xcode, GTK, CocoaPods, or Visual Studio).
+   you want to build for (Android SDK, Xcode, GTK, or Visual Studio).
 2. `flutter pub get`
 3. Generated code (Drift tables, freezed models) is produced by build_runner:
    `dart run build_runner build --delete-conflicting-outputs`
