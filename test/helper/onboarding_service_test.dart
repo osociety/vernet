@@ -96,6 +96,21 @@ void main() {
       expect(stage, OnboardingStage.consent);
     });
 
+    test('an install predating the language step gets it once', () async {
+      // The language flag shipped after the tour and consent, so an upgraded
+      // install has never answered it. It is asked once and then the flow is
+      // finished, which is all the upgrade costs.
+      await OnboardingService.instance.setWalkthroughDone();
+      await OnboardingService.instance.setConsentDone();
+      expect(
+        await OnboardingService.instance.resolveStage(),
+        OnboardingStage.language,
+      );
+
+      await OnboardingService.instance.setLanguageDone();
+      expect(await OnboardingService.instance.resolveStage(), isNull);
+    });
+
     test('resolveStage returns null when all done', () async {
       await OnboardingService.instance.setLanguageDone();
       await OnboardingService.instance.setWalkthroughDone();

@@ -162,6 +162,19 @@ void main() {
       expect(find.byType(WalkthroughPage), findsOneWidget);
     });
 
+    testWidgets('the step is spent as soon as the user leaves it',
+        (tester) async {
+      await pumpPage(tester);
+      await tapContinue(tester);
+
+      // The flag is written before the route changes, so no later launch — and
+      // no landing on the home page — can put the chooser back on screen.
+      expect(
+        await OnboardingService.instance.resolveStage(),
+        isNot(OnboardingStage.language),
+      );
+    });
+
     testWidgets('skipping straight to the app when the tour is already done',
         (tester) async {
       await OnboardingService.instance.setWalkthroughDone();
