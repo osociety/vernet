@@ -3,9 +3,10 @@
 # iPhone for it, and records the device UDID for the workflow's wait guard.
 #
 # Runs in the background of the iOS integration job so the ~15 minutes of
-# simulator bring-up overlaps the Flutter bootstrap and CocoaPods steps, which
-# need nothing from it. The step's own logs are discarded by Actions once the
-# step exits, so progress goes to stdout of the launcher instead.
+# simulator bring-up overlaps the Flutter bootstrap and Swift Package
+# resolution, which need nothing from it. The step's own logs are discarded by
+# Actions once the step exits, so progress goes to stdout of the launcher
+# instead.
 set -euo pipefail
 
 ios_version="${1:?usage: prepare_ios_simulator.sh <ios_version|latest>}"
