@@ -21,7 +21,9 @@ Note that `UpdateMemory` rejects a project category such as
 `project_engineering_configuration` for the main agent; only the
 user-preference groups, the available specification groups and the
 `others` fallback are creatable, so verified repository facts go under
-`others`.
+`others`. An update there replaces the entire body, not a line: fetch the
+full text with `GetMemory` immediately first and resupply it with the
+stale sentence corrected, or the unrelated notes in it are lost.
 The store flavor is built from this repository
 (`scripts/build_store.dart`), so its work belongs here too, not in the
 `vernet-store` fork — which still serves Google Play until one Play beta
