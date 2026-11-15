@@ -178,3 +178,8 @@ graphify-out/
 .codex/skills/
 .agents/skills/
 .agents/plugins/vernet-toolkit/mcp_config.json
+
+# Firebase site e2e (firebase/e2e/): npm and Playwright output.
+node_modules/
+firebase/e2e/test-results/
+firebase/e2e/playwright-report/
