@@ -68,8 +68,6 @@ dependencies:
   wake_on_lan: ^4.1.1+3
   # Windows Specific Application Handlers
   wifi_plus: ^0.0.2
-  # Mobile Specific Compilation Handlers
-  wifi_signal_strength_indicator: ^1.0.7
 
 dev_dependencies:
   # Testing utilities for BLoC pattern
@@ -103,7 +101,7 @@ dependency_overrides:
   flutter_isolate:
     git:
       url: https://github.com/git-elliot/flutter_isolate.git
-      ref: 95983262e86d34a24b699a878ee5b965ae0743db
+      ref: a497d5d9a80df008852e7a14e1fdf82928d91865
 
 msix_config:
   store: true

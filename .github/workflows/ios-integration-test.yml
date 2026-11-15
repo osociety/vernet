@@ -98,19 +98,6 @@ jobs:
       # and windows before this leg is allowed to start. Re-running them cost 5
       # minutes of macOS runner time for no extra signal.
 
-      - name: Use CocoaPods instead of Swift Package Manager
-        run: flutter config --no-enable-swift-package-manager
-
-      - name: Cache CocoaPods
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/CocoaPods
-            ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile', 'pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
       - name: Wait for simulator
         shell: bash
         run: |
