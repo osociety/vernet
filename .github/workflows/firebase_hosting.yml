@@ -1,5 +1,11 @@
 name: Deploy Firebase Hosting
 
+# Live content only changes after the browser suite in firebase/e2e/ has passed
+# against a preview channel of the same bytes, so a missing site asset or an
+# unregistered-domain link cannot reach vernet-app.web.app. The steps below are
+# deliberately one job: promotion sits after the suite in step order, so it is
+# skipped by a red run without needing a cross-job condition.
+
 on:
   workflow_call:
   workflow_dispatch:
@@ -7,10 +13,16 @@ on:
 permissions:
   contents: read
 
+env:
+  FIREBASE_ENTRY_POINT: firebase
+  FIREBASE_PROJECT_ID: vernet-app
+  HOSTING_PREVIEW_CHANNEL: ci-${{ github.run_id }}-${{ github.run_attempt }}
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-account.json
+
 jobs:
   deploy:
-    name: Deploy Firebase Hosting
-    timeout-minutes: 10
+    name: Verify and publish Firebase Hosting site
+    timeout-minutes: 20
     if: github.event.repository.fork != true
     runs-on: ubuntu-latest
     steps:
@@ -21,6 +33,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_VERNET_APP }}
         run: |
+          set -euo pipefail
+
           if [[ -z "$FIREBASE_SERVICE_ACCOUNT" ]]; then
             echo "::error::FIREBASE_SERVICE_ACCOUNT_VERNET_APP is empty or unavailable to this workflow."
             exit 1
@@ -32,11 +46,56 @@ jobs:
             exit 1
           fi
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0.10.0
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$GOOGLE_APPLICATION_CREDENTIALS"
+          chmod 600 "$GOOGLE_APPLICATION_CREDENTIALS"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4.1.0
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_VERNET_APP }}
-          projectId: vernet-app
-          entryPoint: firebase
-          channelId: live
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: firebase/e2e/package-lock.json
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@13
+
+      - name: Install site e2e dependencies
+        working-directory: firebase/e2e
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: firebase/e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Deploy preview channel
+        id: preview
+        run: echo "url=$(./scripts/ci/firebase_site_channel.sh deploy 60m)" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for preview channel to serve
+        run: ./scripts/ci/firebase_site_channel.sh await "${{ steps.preview.outputs.url }}"
+
+      - name: Run site e2e suite against preview
+        id: verify-site
+        working-directory: firebase/e2e
+        env:
+          SITE_URL: ${{ steps.preview.outputs.url }}
+        run: npm test
+
+      - name: Promote verified channel to live
+        if: steps.verify-site.outcome == 'success'
+        run: ./scripts/ci/firebase_site_channel.sh promote
+
+      - name: Delete preview channel
+        if: always()
+        run: ./scripts/ci/firebase_site_channel.sh cleanup
+
+      - name: Upload e2e report
+        if: failure()
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: firebase-site-e2e-report
+          path: |
+            firebase/e2e/playwright-report/
+            firebase/e2e/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
