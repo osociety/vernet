@@ -37,7 +37,15 @@ name: Microsoft Store metadata
 #
 # A locale directory has to name a language the product already serves (en-us,
 # de-de, fr-fr). Enable a new one in Partner Center first -- Store listing >
-# Add/remove languages -- then run with allow_new_locales.
+# Add/remove languages -- then run with allow_new_locales. Text written for a
+# language that is not enabled yet lives under metadata/store/pending/, which
+# the assembler does not read, so the tree can carry more languages than the
+# product serves without refusing the publish.
+#
+# Titles are the one field git does not fully own: the package declares en-us
+# only, so every other language is listed under a reserved product name and the
+# Store refuses anything else. metadata/store/reserved_titles.txt says which
+# names are reserved, and a title outside it is skipped with a log line.
 
 on:
   push:

@@ -268,4 +268,77 @@ void main() {
     expect(base['Title'], 'Vernet — Réseau');
     expect(output.readAsStringSync(), isNot(contains(r'\u')));
   });
+
+  test('a title outside the reserved names leaves the store title alone', () {
+    final listings = {
+      'en-us': {
+        baseListingField: {
+          'Title': 'Vernet - Know your network',
+          'Description': 'old english',
+        },
+        platformOverridesField: <String, dynamic>{},
+      },
+      'de-de': {
+        baseListingField: {
+          'Title': 'Vernet - Know your network',
+          'Description': 'old german',
+        },
+        platformOverridesField: <String, dynamic>{},
+      },
+    };
+    final live = capture(listings: listings);
+    writeLocale(root, 'en-us', {
+      'title.txt': 'Vernet - Know your network\n',
+      'description.txt': 'New english.\n',
+    });
+    writeLocale(root, 'de-de', {
+      'title.txt': 'Vernet - Dein Netzwerk im Blick\n',
+      'description.txt': 'Neue Beschreibung.\n',
+    });
+    Map baseOf(Map payload, String locale) =>
+        ((payload[listingField] as Map)[locale] as Map)[baseListingField]
+            as Map;
+
+    final guarded = overlaySubmission(
+      live,
+      readListingTree(root),
+      reservedTitles: ['Vernet - Know your network'],
+    );
+    expect(baseOf(guarded, 'de-de')['Title'], 'Vernet - Know your network',
+        reason: 'the Store refuses a name nobody reserved');
+    expect(baseOf(guarded, 'de-de')['Description'], 'Neue Beschreibung.',
+        reason: 'the rest of the locale still overlays');
+    expect(baseOf(guarded, 'en-us')['Title'], 'Vernet - Know your network',
+        reason: 'a reserved git title is written like any other field');
+
+    final unguarded =
+        overlaySubmission(capture(listings: listings), readListingTree(root));
+    expect(
+        baseOf(unguarded, 'de-de')['Title'], 'Vernet - Dein Netzwerk im Blick',
+        reason: 'no reserved_titles.txt means nothing is enforced');
+  });
+
+  test('the reserved names come from the listing root', () {
+    expect(readReservedTitles(root), isEmpty,
+        reason: 'absent file, absent enforcement');
+    File('${root.path}${Platform.pathSeparator}$reservedTitlesFile')
+        .writeAsStringSync('Vernet - Know your network\r\nVernet App\r\n');
+    expect(
+        readReservedTitles(root), ['Vernet - Know your network', 'Vernet App']);
+  });
+
+  test('pending locales are written without being publishable', () {
+    Directory('${root.path}${Platform.pathSeparator}pending').createSync();
+    writeLocale(root, 'pending/cs-cz', {
+      'title.txt': 'Vernet - Přehled sítě\n',
+      'description.txt': 'Popis.\n',
+    });
+    writeLocale(root, 'en-us', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+
+    expect(
+      readListingTree(root).map((locale) => locale.locale),
+      ['en-us'],
+      reason: 'a directory named pending is not a locale tag',
+    );
+  });
 }

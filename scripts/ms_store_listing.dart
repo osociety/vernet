@@ -8,6 +8,10 @@
 //     dart run scripts/ms_store_listing.dart \
 //       --submission captured.json --listings metadata/store --out payload.json
 //
+// `metadata/store/pending/` holds the locales written but not yet enabled on the
+// product; the tree reader only matches locale-shaped directory names, so they
+// sit in review without reaching a payload.
+//
 // `--check` validates the locale tree on its own, which is the half a pull
 // request can run without Store credentials.
 //
@@ -44,6 +48,15 @@ const Map<String, String> fileToField = {
   'features.txt': 'Features',
   'keywords.txt': 'Keywords',
 };
+
+/// Product names Partner Center has reserved for this submission.
+///
+/// A locale the package does not serve can only be listed under one of these,
+/// so a `title.txt` outside the set is skipped instead of published: the Store
+/// refuses a submission that renames a listing to a name nobody reserved. The
+/// localized taglines stay committed and go live by adding their name here once
+/// it is reserved.
+const String reservedTitlesFile = 'reserved_titles.txt';
 
 /// Fields a locale directory must provide to be publishable at all.
 const List<String> requiredFiles = ['title.txt', 'description.txt'];
@@ -97,6 +110,19 @@ List<ListingLocale> readListingTree(Directory root) {
     locales.add(ListingLocale(name, fields));
   }
   return locales..sort((a, b) => a.locale.compareTo(b.locale));
+}
+
+/// The reserved product names, or empty when the file is absent and nothing is
+/// enforced.
+List<String> readReservedTitles(Directory root) {
+  final file = File('${root.path}${Platform.pathSeparator}$reservedTitlesFile');
+  if (!file.existsSync()) return const [];
+  return file
+      .readAsStringSync()
+      .replaceAll('\r\n', '\n')
+      .split('\n')
+      .where((line) => line.isNotEmpty)
+      .toList();
 }
 
 String _baseName(String path) =>
@@ -196,6 +222,7 @@ Map<String, dynamic> overlaySubmission(
   Map<String, dynamic> submission,
   List<ListingLocale> locales, {
   bool allowNewLocales = false,
+  List<String> reservedTitles = const [],
 }) {
   final violations = validateListingTree(locales);
   final Object? listings = submission[listingField];
@@ -209,6 +236,7 @@ Map<String, dynamic> overlaySubmission(
   final preserved = <String>[];
   final staged = <String>[];
   final unknown = <String>[];
+  final unreserved = <String>[];
   final added = <String>[];
   final changes = <String>[];
 
@@ -237,9 +265,16 @@ Map<String, dynamic> overlaySubmission(
       listing[baseListingField] = base;
     }
     final baseListing = base.cast<String, dynamic>();
-    changes.addAll(
-        describeOverlayChanges(locale.locale, baseListing, locale.fields));
-    locale.fields.forEach((field, value) {
+    final fields = Map<String, Object?>.from(locale.fields);
+    final title = fields['Title'];
+    if (reservedTitles.isNotEmpty &&
+        title is String &&
+        !reservedTitles.contains(title)) {
+      fields.remove('Title');
+      unreserved.add('${locale.locale} (${title.length})');
+    }
+    changes.addAll(describeOverlayChanges(locale.locale, baseListing, fields));
+    fields.forEach((field, value) {
       if (value != null) baseListing[field] = value;
     });
     listing.putIfAbsent(platformOverridesField, () => <String, dynamic>{});
@@ -252,6 +287,15 @@ Map<String, dynamic> overlaySubmission(
       'screenshots. The Store wants at least one image per language, which it '
       'can only get from a submission made in Partner Center -- expect this '
       'update to be refused until one has been.',
+    );
+  }
+
+  if (unreserved.isNotEmpty) {
+    stderr.writeln(
+      '${unreserved.length} locale(s) keep the title the Store already serves, '
+      'because title.txt is not a reserved product name (lengths in chars): '
+      '${unreserved.join(', ')}. Reserve each name in Partner Center, then add '
+      'it to metadata/store/$reservedTitlesFile to publish it.',
     );
   }
 
@@ -347,6 +391,7 @@ void main(List<String> args) {
       _readSubmission(options.submissionPath!),
       locales,
       allowNewLocales: options.allowNewLocales,
+      reservedTitles: readReservedTitles(options.listingsDirectory),
     );
     File(options.outputPath!)
         .writeAsStringSync(const JsonEncoder.withIndent('  ').convert(payload));

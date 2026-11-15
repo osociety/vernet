@@ -14,6 +14,22 @@ market settings come from the Store and the words come from here.
 | `features.txt` | Features | 20 lines, 200 characters each |
 | `keywords.txt` | Keywords | 7 lines, 40 characters each |
 
+`pending/` holds the languages that are written but not enabled on the product.
+Directory names there do not match the locale pattern, so the tree reader skips
+them: the text stays reviewed in git without reaching a payload. Move a
+directory back out once the language is enabled in Partner Center and carries at
+least one screenshot. Note that five of them are named the Play way
+(`cs-cz`, `it-it`, `pl-pl`, `ru-ru`, `sk-sk`) while the Store names those
+languages `cs`, `it`, `pl`, `ru`, `sk`, so rename on the way out or the capture
+and the tree never meet.
+
+`reserved_titles.txt` lists the product names Partner Center has reserved. The
+package declares only `en-us`, so every other language is listed under a
+reserved name and the Store refuses a submission that renames one to anything
+else. A `title.txt` outside that list is therefore skipped, with a log line
+naming the locale and its length, and the title the Store already serves is
+kept; the localized taglines stay committed until their names are reserved.
+
 A line-based file becomes a list, so one feature or keyword per line. A file
 that is absent leaves whatever the live submission already holds for that
 field, which is how a one-off Store edit survives a publish without moving into
