@@ -1,0 +1,14 @@
+{
+  "name": "vernet-site-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Browser end-to-end gate for the Firebase Hosting landing site. Runs against a preview channel URL before that channel is promoted to live.",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}
