@@ -47,201 +47,22 @@ review, such as devices and services that are reachable on your network.
 |Ping|DNS|Speed test|Settings|
 |<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width = "200">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width = "225">|<img src="android/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width = "200">|
 
-## Beta testing
+## Documentation
 
-Vernet is maintained by one person and tested on a handful of devices, so
-pre-release builds reach real networks mostly through volunteers. If you are
-willing to run a build that might break, you are exactly who this project
-needs.
-
-The app's **Settings → Updates & beta** page switches the update check between
-the stable and pre-release listings, and spells out how to join the beta track
-and how automatic updates work on your platform.
-
-### Android
-
-Pick either route:
-
-| Route | What you get |
+| Guide | Covers |
 |---|---|
-| [Google Play beta](https://play.google.com/apps/testing/org.fsociety.vernet.store) | Tap the link, press **Join the beta**, and update Vernet as usual. This switches your existing Play install to the beta channel, so you get new builds before anyone else. |
-| [GitHub pre-release APKs](https://github.com/osociety/vernet/releases) | Download the `*-app-arm64-v8a-dev-release.apk` for a modern phone, `armeabi-v7a` for older 32-bit devices, or `x86_64` for emulators. These are the `dev` build, so they install alongside the Play version instead of replacing it. |
-
-### Windows
-
-Windows has the fewest testers of any platform, and the most room for things to
-go quietly wrong — Wi-Fi adapter drivers, firewall prompts, and SmartScreen all
-behave differently from one machine to the next.
-
-1. Grab `Vernet-<version>-windows-x64.zip` (or `-windows-arm64.zip`, or the
-   `.msixbundle`) from [releases](https://github.com/osociety/vernet/releases).
-2. Extract it and run `vernet.exe`. If SmartScreen interrupts it, choose
-   **More info**, then **Run anyway**.
-3. Try a device scan, a ping, a port scan, and a speed test, and note anything
-   that hangs, errors, or looks wrong compared to the phone app.
-4. Tell us what happened in [Discussions](https://github.com/osociety/vernet/discussions/categories/q-a)
-   or file an [issue](https://github.com/osociety/vernet/issues).
-
-Linux and macOS testers use the same pre-release page, and Snap users can get
-updates early with `sudo snap install vernet --beta`.
-
-Beta testing has already turned up real bugs: release builds printing debug
-logs, an empty What's New screen, an invisible Android notification icon, and
-update checks offering pre-releases to stable installs. Reports like "the scan
-finds nothing on my laptop" or "speed test is way off on my machine" are the
-ones that get fixed.
-
-## How to install
-
-Vernet is available for Linux, Windows and macOS. Linux and Windows builds come in both **x64** and **arm64**.
-
-| Platform | Architectures | Install from |
-|---|---|---|
-| Linux | x64, arm64 | [Snap Store](https://snapcraft.io/vernet) or [GitHub releases](https://github.com/osociety/vernet/releases/latest) |
-| Windows | x64, arm64 | [Microsoft Store](https://apps.microsoft.com/detail/9N1170N3PHMM) or [GitHub releases](https://github.com/osociety/vernet/releases/latest) |
-| macOS | Apple silicon and Intel | [GitHub releases](https://github.com/osociety/vernet/releases/latest) |
-
-Not sure which architecture you have? On Linux, run `uname -m`: `x86_64` means x64 and `aarch64` means arm64. On Windows, open **Settings > System > About** and check "System type".
-
-### Instructions for Linux
-
-#### Option 1: Snap Store (recommended)
-
-```bash
-sudo snap install vernet --beta
-```
-
-Then connect the network permissions once, so the app can discover devices and
-read your Wi-Fi signal:
-
-```bash
-sudo snap connect vernet:network-observe
-sudo snap connect vernet:network-manager-observe
-```
-
-`snap install` picks the right build for your architecture (x64 or arm64) automatically.
-
-#### Option 2: Download from GitHub
-
-1. Star this repository.
-2. Install the `net-tools` package for the `arp` command, otherwise the app will not run.
-   ```bash
-   sudo apt install net-tools
-   ```
-3. Download the zip for your architecture from [releases](https://github.com/osociety/vernet/releases/latest):
-   - `Vernet-<version>-linux-x64.zip` for x64
-   - `Vernet-<version>-linux-arm64.zip` for arm64
-4. Extract the downloaded zip file. The executable sits at the top level of the
-   archive, next to `lib/` and `data/`, so use the folder you extracted into —
-   there is no `bundle/` subfolder.
-5. Double click `vernet`, or run it from a terminal to see any error output:
-   ```bash
-   ./vernet
-   ```
-
-The database needs SQLite, and the archive carries its own copy in
-`lib/libsqlite3.so`, so nothing has to be installed for it. If a startup error
-names `libsqlite3.so`, your loader is not searching the extracted `lib/`
-directory; point it there and start again:
-
-```bash
-LD_LIBRARY_PATH="$PWD/lib" ./vernet
-```
-
-### Instructions for Windows
-
-#### Option 1: Microsoft Store (recommended)
-
-Install Vernet from the [Microsoft Store](https://apps.microsoft.com/detail/9N1170N3PHMM). The Store installs the right build for your device (x64 or arm64) and keeps it updated.
-
-#### Option 2: Download from GitHub
-
-1. Star this repository.
-2. Download the zip for your architecture from [releases](https://github.com/osociety/vernet/releases/latest):
-   - `Vernet-<version>-windows-x64.zip` for x64
-   - `Vernet-<version>-windows-arm64.zip` for arm64
-3. Extract the downloaded zip file.
-4. Run `vernet.exe`.
-5. Click on **More info**, then tap **Run anyway**.
-6. Give permission if asked.
-
-### Instructions for macOS
-
-Note: the macOS build hasn't been notarized yet.
-
-1. Star this repository.
-2. Download `Vernet-<version>-macos.zip` (or the `.dmg`) from [releases](https://github.com/osociety/vernet/releases/latest).
-3. Extract the downloaded zip file, or open the `.dmg`.
-4. Copy the app to the Applications folder.
-5. Go to the Applications folder.
-6. Hold down Cmd and click on Vernet.
-7. In the context menu, click **Open**.
-
-## Publishing to F-Droid
-You can follow this guide to publish your app to f-droid - https://op3nsoc13ty.blogspot.com/2021/06/publish-your-first-flutter-app-to-fdroid.html
-
-## Build flavors
-
-Android is built in three flavors, and they differ in behavior, not only in id.
-
-| Flavor | Ships to | Behavior |
-|--------|----------|----------|
-| `dev` | GitHub releases | Ad-free, checks GitHub for a newer release at startup. |
-| `fdroid` | F-Droid | Ad-free and makes no GitHub request at all: no update check on startup and no update tile in Settings. |
-| `store` | Google Play (`org.fsociety.vernet.store`) | Ad-free build plus AdMob banners and the in-app review prompt. |
-
-One release run publishes all of them: the `dev` APKs go on the GitHub release,
-the `store` bundle goes to the Play beta track next to the Snap Store upload,
-and F-Droid builds the `fdroid` flavor from this repository itself.
-
-`lib/values/build_flavor.dart` reads the `FLUTTER_APP_FLAVOR` define that
-`flutter build` and `flutter test` inject whenever `--flavor` is passed. Because
-the gate is a compile-time constant, the disabled code is removed from the
-binary rather than merely hidden at runtime. Anything built without a flavor —
-the snap, the desktop runners, iOS — gets the ad-free side with the update
-check.
-
-All three flavors are tested, not just built: the Android integration workflow
-runs the full suite as a `dev` / `fdroid` / `store` matrix, and `--flavor` is the
-only way to reach those branches, because `flutter test` refuses a
-`--dart-define` of a name the tool reserves for itself. The `store` leg builds
-the committed tree, so it exercises the gating against the inert `lib/store/`
-seam rather than AdMob.
-
-```bash
-./scripts/android_integration fdroid   # dev, fdroid or store
-```
-
-The `store` flavor is the only build carrying proprietary plugins, and they are
-deliberately absent from the committed `pubspec.yaml`: F-Droid rejects a non-free
-dependency there. `dart run scripts/build_store.dart` applies `store_overlay/`
-(the ad banner, the Play SDK calls, and the two dependencies), builds the
-bundle, then restores the tree byte for byte — including `pubspec.lock`, which
-F-Droid enforces.
+| [Install on desktop](docs/INSTALL.md) | Snap, Microsoft Store, and manual downloads for Linux, Windows and macOS, with the `net-tools` and `libsqlite3.so` gotchas. |
+| [Beta testing](docs/BETA_TESTING.md) | How to run pre-release builds on each platform and what to report. |
+| [Android build flavors](docs/BUILD_FLAVORS.md) | Why `dev`, `fdroid` and `store` behave differently, and the `store_overlay/` rule. |
+| [Community](docs/COMMUNITY.md) | Which GitHub Discussions category to post in. |
+| [Contributing](CONTRIBUTING.md) | Setting up a development checkout and opening a pull request. |
+| [Architecture](ARCHITECTURE.md) | How `lib/` is layered and where new code belongs. |
 
 ## How to Contribute
 
 1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)
 2. Do you know Flutter? Fix bugs and open a [Pull Request](https://github.com/osociety/vernet/pulls)
-3. Don't write code? Run a [beta build](#beta-testing) and report what breaks — that is the most useful contribution of all, and it needs one device you already own.
-
-## Community
-
-[GitHub Discussions](https://github.com/osociety/vernet/discussions) is where
-Vernet gets discussed, and it is fine to just say hi. Nothing is gated, no
-template is required, and questions get answered — pick the shelf that fits:
-
-| Category | What goes there |
-|---|---|
-| [Announcements](https://github.com/osociety/vernet/discussions/categories/announcements) | Each new release, with what changed |
-| [Q&A](https://github.com/osociety/vernet/discussions/categories/q-a) | "Why doesn't the scan find my printer?" and other help |
-| [General](https://github.com/osociety/vernet/discussions/categories/general) | Anything about Vernet, networking, or your setup |
-| [Ideas](https://github.com/osociety/vernet/discussions/categories/ideas) | Features you want built |
-| [Show and tell](https://github.com/osociety/vernet/discussions/categories/show-and-tell) | Interesting things you found on your network |
-| [Polls](https://github.com/osociety/vernet/discussions/categories/polls) | Vote on what to work on next |
-
-Watching the repository (**Watch → Discussions**) means a new release shows up
-as a notification, and beta builds are announced there first.
+3. Don't write code? Run a [beta build](docs/BETA_TESTING.md) and report what breaks — that is the most useful contribution of all, and it needs one device you already own.
 
 ## Support and Donate
 
@@ -257,4 +78,3 @@ as a notification, and beta builds are announced there first.
     [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/fs0c13ty)
 
 *Vernet is an independent open-source project, licensed under Apache-2.0, and is not affiliated with or endorsed by any other organization or product with a similar name.*
-
