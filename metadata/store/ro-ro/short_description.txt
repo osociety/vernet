@@ -1,0 +1,1 @@
+Un pachet gratuit și open-source de instrumente de rețea pentru Windows. Vezi toate dispozitivele din rețeaua Wi-Fi, măsoară viteza reală de download și upload și rulează teste ping, DNS, porturi și subrețele — în limbaj simplu, fără cunoștințe tehnice.

@@ -1,0 +1,7 @@
+aplikace pro sledování sítě
+přehled o síti
+skener zařízení Wi-Fi
+sledování Wi-Fi
+sledování IP adres
+správa domácí sítě
+Vernet App

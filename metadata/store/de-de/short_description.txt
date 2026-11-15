@@ -1,0 +1,1 @@
+Ein kostenloses, quelloffenes Netzwerk-Toolkit für Windows. Sieh alle Geräte in deinem WLAN, miss dein echtes Down- und Upload-Tempo und führe Ping-, DNS-, Port- und Subnetz-Checks durch – in klarer Sprache, ohne Vorkenntnisse.

@@ -1,0 +1,7 @@
+App de monitorización de red
+Información de tu red
+Escáner de dispositivos Wi-Fi
+Monitorización Wi-Fi
+Rastreador de direcciones IP
+Gestor de red doméstica
+Vernet App

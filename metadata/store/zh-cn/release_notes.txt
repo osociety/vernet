@@ -1,0 +1,1 @@
+本次发布没有 Windows 版 Vernet 的改动。

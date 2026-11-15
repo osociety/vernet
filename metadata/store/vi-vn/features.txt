@@ -1,0 +1,1 @@
+Thông tin Wi-Fi, Tìm thiết bị, Chi tiết thiết bị, Quét cổng, Ping và DNS, Giám sát máy chủ, Máy tính subnet IPv4/IPv6, Wake on LAN, Phát hiện switch, Đo tốc độ

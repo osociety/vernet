@@ -1,0 +1,1 @@
+Ingyenes, nyílt forráskódú hálózati eszköztár Windowsra. Láthatja az összes eszközt a Wi-Fi hálózatában, mérheti a valódi letöltési és feltöltési sebességet, és futtathat ping, DNS, port- és alhálózat-teszteket — érthetően, technikai tudás nélkül.

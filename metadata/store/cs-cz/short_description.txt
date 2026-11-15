@@ -1,0 +1,1 @@
+Bezplatná open-source sada síťových nástrojů pro Windows. Zobrazte všechna zařízení ve své Wi-Fi, změřte skutečnou rychlost stahování a odesílání a otestujte ping, DNS, porty a podsítě — srozumitelně a bez technických znalostí.

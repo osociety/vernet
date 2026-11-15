@@ -1,0 +1,1 @@
+Un kit de herramientas de red gratuito y de código abierto para Windows. Revisa todos los dispositivos de tu Wi-Fi, mide tu velocidad real de bajada y subida, y ejecuta pruebas de ping, DNS, puertos y subredes — en lenguaje sencillo, sin experiencia técnica.

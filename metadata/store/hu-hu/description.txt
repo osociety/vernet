@@ -1,0 +1,21 @@
+Vezesd a otthoni vagy irodai hálózatodat a Vernettel – egy ingyenes, nyílt forráskódú eszközcsoport, amely a kezedbe adja a hálózattal kapcsolatos információkat.
+
+Legyen szó lassú kapcsolatról, arról, hogy ki van a Wi-Fi-dre, vagy arról, hogy elérhetők-e az eszközeid, a Vernet érthető válaszokat ad – technikai tudás nélkül.
+
+🔍 Mi van a hálózatomban?
+Lásd minden, a helyi Wi-Fi-re csatlakozó eszközt az IP-címükkel és a nevükkel együtt. Pontosan tudni fogod, ki és mi használja a kapcsolatot.
+
+📡 Működik az internetem?
+Futtass egy ping tesztet, hogy megnézd, válaszol-e egy weboldal vagy eszköz. A kimaradások és késések másodpercek alatt látszanak.
+
+⚡ Milyen gyors a kapcsolatom?
+Mérd le a tényleges letöltési és feltöltési sebességet a beépített sebességmérővel. Pontos eredmények, az alkalmazás elhagyása nélkül.
+
+🔓 Milyen szolgáltatások érhetők el?
+Keress egy eszközön nyitott portokat, és lásd, mely szolgáltatások érhetők el – a hálózatod biztonságának felméréséhez.
+
+🌐 Mi áll e cím mögött?
+A beépített DNS-eszközökkel domainneveket kereshetsz, IP-címeket oldhatsz fel, és nyomon követheted a címek feloldását az interneten.
+
+✅ Ingyenes és nyílt forráskódú
+A Vernet ingyenes és nyílt forráskódú a GitHubon: https://github.com/osociety/vernet

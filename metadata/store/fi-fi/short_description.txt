@@ -1,0 +1,1 @@
+Ilmainen ja avoimen lähdekoodin verkkotyökalupaketti Windowsille. Näe kaikki Wi-Fi-verkoosi liitetyt laitteet, mittaa todellinen lataus- ja lähetysnopeutesi ja suorita ping-, DNS-, portti- ja aliverkkotarkistukset — selkeästi, ilman teknillistä taustaa.

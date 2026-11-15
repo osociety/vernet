@@ -1,0 +1,21 @@
+Preia controlul rețelei de acasă sau de la birou cu Vernet — un set de instrumente gratuit și open source care îți oferă toate informațiile despre rețea.
+
+Fie că îți investighezi o conexiune lentă, vrei să vezi cine e pe Wi-Fi-ul tău sau verifici dacă dispozitivele tale sunt accesibile, Vernet îți răspunde clar, fără cunoștințe tehnice.
+
+🔍 Ce se află în rețeaua mea?
+Vezi fiecare dispozitiv conectat la Wi-Fi-ul local, cu adrese IP și nume. Știi exact cine și ce îți partajează conexiunea.
+
+📡 Funcționează internetul meu?
+Rulează un test ping ca să verifici dacă un site sau un dispozitiv răspunde. Observi întreruperile și întârzierile în câteva secunde.
+
+⚡ Cât de rapidă e conexiunea?
+Măsoară viteza reală de descărcare și încărcare cu testul de viteză integrat. Rezultate precise fără să părăsești aplicația.
+
+🔓 Ce servicii sunt expuse?
+Scanează un dispozitiv după porturi deschise și vezi ce servicii sunt accesibile — util pentru securitatea rețelei de acasă.
+
+🌐 Ce se ascunde în spatele acestei adrese?
+Folosește uneltele DNS integrate pentru a căuta nume de domeniu, a rezolva adrese IP și a urmări cum sunt mapate adresele pe internet.
+
+✅ Gratuit și open source
+Vernet este gratuit și open source pe GitHub: https://github.com/osociety/vernet

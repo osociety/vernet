@@ -1,0 +1,1 @@
+Windows için ücretsiz, açık kaynaklı bir ağ araç takımı. Wi-Fi ağınızdaki tüm cihazları görün, gerçek indirme ve yükleme hızınızı ölçün ve ping, DNS, bağlantı noktası ve alt ağ testleri yapın — sade bir dille, teknik bilgi gerektirmeden.

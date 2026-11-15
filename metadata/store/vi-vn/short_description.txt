@@ -1,0 +1,1 @@
+Bộ công cụ mạng mã nguồn mở, miễn phí cho Windows. Xem tất cả thiết bị trong Wi-Fi của bạn, đo tốc độ tải xuống và tải lên thực tế, cùng kiểm tra ping, DNS, cổng và subnet — bằng ngôn ngữ dễ hiểu, không cần kiến thức kỹ thuật.

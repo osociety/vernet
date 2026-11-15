@@ -1,0 +1,21 @@
+Prenez le contrôle de votre réseau domestique ou professionnel avec Vernet, une boîte à outils gratuite et open source qui vous donne toutes les informations sur votre réseau.
+
+Que vous cherchiez à corriger une connexion lente, à voir qui occupe votre Wi-Fi ou à vérifier que vos appareils sont bien accessibles, Vernet vous apporte des réponses claires, sans connaissances techniques requises.
+
+🔍 Qu'y a-t-il sur mon réseau ?
+Visualisez tous les appareils connectés à votre Wi-Fi local, avec leurs adresses IP et leurs noms. Sachez exactement qui et quoi partage votre connexion.
+
+📡 Mon internet fonctionne-t-il ?
+Lancez un test ping pour vérifier qu'un site ou un appareil répond. Repérez coupures et latences en quelques secondes.
+
+⚡ Quelle est la vitesse de ma connexion ?
+Mesurez vos débits réels en téléchargement et en envoi grâce au test de débit intégré. Des résultats précis, sans quitter l'application.
+
+🔓 Quels services sont exposés ?
+Analysez un appareil à la recherche de ports ouverts pour voir quels services sont joignables — utile pour évaluer la sécurité de votre réseau.
+
+🌐 Que se cache-t-il derrière cette adresse ?
+Utilisez les outils DNS intégrés pour rechercher un nom de domaine, résoudre une IP et suivre la façon dont les adresses sont résolues sur internet.
+
+✅ Gratuit & open source
+Vernet est gratuit et open source sur GitHub : https://github.com/osociety/vernet

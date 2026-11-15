@@ -1,0 +1,21 @@
+Kendalikan jaringan di rumah atau kantor dengan Vernet — perangkat sumber terbuka gratis yang memberi Anda informasi jaringan secara lengkap.
+
+Entah sedang memperbaiki koneksi lambat, melihat siapa saja di Wi-Fi Anda, atau memastikan perangkat bisa dijangkau, Vernet memberi jawaban yang jelas tanpa perlu latar belakang teknis.
+
+🔍 Apa saja di jaringan saya?
+Lihat semua perangkat yang terhubung ke Wi-Fi lokal Anda, lengkap dengan alamat IP dan namanya. Ketahui persis siapa dan apa yang memakai koneksi Anda.
+
+📡 Apakah internet saya berfungsi?
+Jalankan tes ping untuk memeriksa apakah sebuah situs atau perangkat merespons. Lihat gangguan dan keterlambatan dalam hitungan detik.
+
+⚡ Seberapa cepat koneksi saya?
+Ukur kecepatan unduh dan unggah sesungguhnya dengan tes kecepatan bawaan. Hasil akurat tanpa keluar dari aplikasi.
+
+🔓 Layanan apa saja yang terbuka?
+Pindai perangkat untuk mencari port terbuka dan lihat layanan mana yang bisa dijangkau — berguna untuk memahami keamanan jaringan rumah Anda.
+
+🌐 Apa di balik alamat ini?
+Gunakan alat DNS bawaan untuk mencari nama domain, menerjemahkan IP, dan menelusuri bagaimana alamat dipetakan di internet.
+
+✅ Gratis & sumber terbuka
+Vernet gratis dan sumber terbuka di GitHub: https://github.com/osociety/vernet

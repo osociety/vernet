@@ -1,0 +1,1 @@
+Wi-Fi-detaljer, Finn enheter, Enhetsinfo, Portskanner, Ping og DNS, Serverovervåking, IPv4/IPv6-subnettkalkulator, Wake on LAN, Switchoppdagelse, Fartstest
