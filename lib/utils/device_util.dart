@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 
 class DeviceUtil {
   static bool _isLikelyNetworkService(String? name) {
@@ -12,6 +13,34 @@ class DeviceUtil {
         normalizedName.contains('dnsmasq') ||
         normalizedName.contains('named');
   }
+
+  /// The make the app shows, with the two names it invents itself translated.
+  ///
+  /// [make] comes from [getDeviceMake] or from the stored device type, both of
+  /// which keep their English vocabulary because the icon lookup and the scans
+  /// already saved in the database match on it.
+  static String? makeLabel(AppLocalizations l10n, String? make) {
+    if (make == null) return null;
+    return switch (make) {
+      'Router/Gateway' => l10n.deviceMakeRouterGateway,
+      _ => typeLabel(l10n, make),
+    };
+  }
+
+  /// [deviceType] as the app's own inferred types read in [l10n]. Anything else
+  /// is a name the network reported and is passed through untouched.
+  static String typeLabel(AppLocalizations l10n, String deviceType) =>
+      switch (deviceType) {
+        'Server' => l10n.deviceTypeServer,
+        'Linux Server' => l10n.deviceTypeLinuxServer,
+        'Windows PC' => l10n.deviceTypeWindowsPc,
+        'Linux/Unix Device' => l10n.deviceTypeLinuxUnixDevice,
+        'Web Device' => l10n.deviceTypeWebDevice,
+        'IoT Device' => l10n.deviceTypeIotDevice,
+        'Remote Display' => l10n.deviceTypeRemoteDisplay,
+        'Unknown Device' => l10n.deviceTypeUnknownDevice,
+        _ => deviceType,
+      };
 
   static String? getDeviceMake(DeviceData deviceData) {
     // Return the actual device name, not "This device" label.

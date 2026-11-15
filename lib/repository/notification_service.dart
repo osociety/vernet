@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 class ReceivedNotification {
@@ -68,7 +69,10 @@ class NotificationService {
 
   /// Channel carrying the scan-complete notifications.
   static const String scanChannelId = 'device_scans';
-  static const String scanChannelName = 'Device scans';
+
+  /// Android shows this beside the channel id in its own settings screen, so it
+  /// follows the language the app is running in.
+  static String get scanChannelName => appStrings().notifScanChannelName;
 
   /// The placeholder channel id shipped before this rename. Android keeps a
   /// channel until it is deleted, so it would linger in the app's settings.
@@ -90,6 +94,7 @@ class NotificationService {
       return await Future.value();
     }
     await configureLocalTimeZone();
+    final l10n = appStrings();
     final NotificationAppLaunchDetails? notificationAppLaunchDetails =
         !kIsWeb && Platform.isLinux
             ? null
@@ -115,9 +120,9 @@ class NotificationService {
         actions: <DarwinNotificationAction>[
           DarwinNotificationAction.text(
             'view_scan',
-            'View scan',
-            buttonTitle: 'View',
-            placeholder: 'Placeholder',
+            l10n.notifViewScanAction,
+            buttonTitle: l10n.notifViewAction,
+            placeholder: l10n.notifViewScanPlaceholder,
           ),
         ],
       ),
@@ -134,7 +139,7 @@ class NotificationService {
     );
     final LinuxInitializationSettings initializationSettingsLinux =
         LinuxInitializationSettings(
-      defaultActionName: 'Open notification',
+      defaultActionName: l10n.notifLinuxAction,
       defaultIcon: AssetsLinuxIcon('app_icon.png'),
     );
     final InitializationSettings initializationSettings =
@@ -201,18 +206,19 @@ class NotificationService {
     if (Platform.isWindows && !debugIgnorePlatformCheck) {
       return await Future.value();
     }
-    const AndroidNotificationDetails androidNotificationDetails =
+    final l10n = appStrings();
+    final AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
       scanChannelId,
       scanChannelName,
-      channelDescription: 'Notifications about device searches',
+      channelDescription: l10n.notifScanChannelDesc,
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           navigationActionId,
-          'View',
+          l10n.notifViewAction,
         ),
       ],
     );
@@ -227,17 +233,17 @@ class NotificationService {
       categoryIdentifier: darwinNotificationCategoryPlain,
     );
 
-    const LinuxNotificationDetails linuxNotificationDetails =
+    final LinuxNotificationDetails linuxNotificationDetails =
         LinuxNotificationDetails(
       actions: <LinuxNotificationAction>[
         LinuxNotificationAction(
           key: navigationActionId,
-          label: 'View',
+          label: l10n.notifViewAction,
         ),
       ],
     );
 
-    const NotificationDetails notificationDetails = NotificationDetails(
+    final NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
       iOS: iosNotificationDetails,
       macOS: macOSNotificationDetails,
@@ -245,11 +251,14 @@ class NotificationService {
     );
     await flutterLocalNotificationsPlugin.show(
       id: id++,
-      title: 'Device search complete',
+      title: l10n.notifScanDoneTitle,
       body: deviceCount == null
-          ? 'Vernet finished looking for devices on your network'
-          : 'Scan complete - found ${_deviceCountLabel(deviceCount)} '
-              'on your network',
+          ? l10n.notifScanDoneBody
+          : l10n.notifScanFoundBody(
+              deviceCount == 1
+                  ? l10n.deviceCountOne
+                  : l10n.deviceCountMany('$deviceCount'),
+            ),
       notificationDetails: notificationDetails,
       payload: scanId == null ? hostScanPayload : scanReportPayload(scanId),
     );
@@ -257,22 +266,23 @@ class NotificationService {
 
   static Future<void> showServerDownAlert(String serverName) async {
     if (Platform.isWindows && !debugIgnorePlatformCheck) return;
-    const details = NotificationDetails(
+    final l10n = appStrings();
+    final details = NotificationDetails(
       android: AndroidNotificationDetails(
         'server_alerts',
-        'Server alerts',
-        channelDescription: 'Alerts when a monitored server is unreachable',
+        l10n.notifServerChannelName,
+        channelDescription: l10n.notifServerChannelDesc,
         importance: Importance.max,
         priority: Priority.high,
       ),
-      iOS: DarwinNotificationDetails(),
-      macOS: DarwinNotificationDetails(),
-      linux: LinuxNotificationDetails(),
+      iOS: const DarwinNotificationDetails(),
+      macOS: const DarwinNotificationDetails(),
+      linux: const LinuxNotificationDetails(),
     );
     await flutterLocalNotificationsPlugin.show(
       id: id++,
-      title: 'Server is unreachable',
-      body: '$serverName is down',
+      title: l10n.notifServerDownTitle,
+      body: l10n.notifServerDownBody(serverName),
       notificationDetails: details,
       payload: 'server_checker',
     );
@@ -343,6 +353,3 @@ class NotificationService {
     }
   }
 }
-
-String _deviceCountLabel(int count) =>
-    '$count ${count == 1 ? 'device' : 'devices'}';

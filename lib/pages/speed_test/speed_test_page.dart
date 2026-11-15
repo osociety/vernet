@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/speed_test/bloc/speed_test_bloc.dart';
+import 'package:vernet/utils/localization.dart';
 
 class SpeedTestPage extends StatefulWidget {
   const SpeedTestPage({super.key, this.preloadedServers, this.preloadedResult});
@@ -99,7 +101,7 @@ class _SpeedTestView extends StatelessWidget {
         if (state.isLoading) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Speed Test'),
+              title: Text(context.l10n.speedTestTitle),
             ),
             body: const Center(
               child: CircularProgressIndicator(),
@@ -112,7 +114,7 @@ class _SpeedTestView extends StatelessWidget {
             state.bestServers == null) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Speed Test'),
+              title: Text(context.l10n.speedTestTitle),
             ),
             body: Center(
               child: Padding(
@@ -127,7 +129,7 @@ class _SpeedTestView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Speed Test Unavailable',
+                      context.l10n.speedTestUnavailableTitle,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
@@ -139,7 +141,7 @@ class _SpeedTestView extends StatelessWidget {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Go Back'),
+                      child: Text(context.l10n.commonGoBack),
                     ),
                   ],
                 ),
@@ -150,7 +152,7 @@ class _SpeedTestView extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Speed Test'),
+            title: Text(context.l10n.speedTestTitle),
           ),
           body: LayoutBuilder(
             builder: (context, constraints) {
@@ -214,7 +216,7 @@ class _SpeedTestView extends StatelessWidget {
                       InkWell(
                         onTap: () => _showMlabAttributionDialog(context),
                         child: Text(
-                          'Powered by Measurement Lab (M-Lab)',
+                          context.l10n.speedTestPoweredBy,
                           style: Theme.of(context)
                               .textTheme
                               .labelSmall
@@ -226,7 +228,7 @@ class _SpeedTestView extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Tap for terms & privacy info',
+                        context.l10n.speedTestTermsHint,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                               color: colors.onSurface.withValues(alpha: 0.4),
                               fontSize: 10,
@@ -308,7 +310,7 @@ class _SpeedTestView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Test Server',
+                          context.l10n.speedTestServerLabel,
                           style:
                               Theme.of(context).textTheme.titleSmall?.copyWith(
                                     fontWeight: FontWeight.w600,
@@ -318,7 +320,7 @@ class _SpeedTestView extends StatelessWidget {
                         Text(
                           hasServers
                               ? state.bestServers!.first.displayName
-                              : 'No servers available',
+                              : context.l10n.speedTestNoServers,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -360,7 +362,7 @@ class _SpeedTestView extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Server: ${state.serverLocation}',
+                          context.l10n.speedTestServerAt(state.serverLocation!),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -378,7 +380,9 @@ class _SpeedTestView extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Packet Loss: ${state.packetLossPercent!.toStringAsFixed(2)}%',
+                          context.l10n.speedTestPacketLoss(
+                            state.packetLossPercent!.toStringAsFixed(2),
+                          ),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -412,7 +416,7 @@ class _SpeedTestView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Speed Over Time',
+                  context.l10n.speedTestOverTime,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -428,7 +432,13 @@ class _SpeedTestView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '${(state.downloadSpeedTestDone && !state.uploadSpeedTestDone ? state.currentUploadSpeed : state.currentDownloadSpeed).toStringAsFixed(1)} Mbps',
+                      context.l10n.speedTestMbps(
+                        (state.downloadSpeedTestDone &&
+                                    !state.uploadSpeedTestDone
+                                ? state.currentUploadSpeed
+                                : state.currentDownloadSpeed)
+                            .toStringAsFixed(1),
+                      ),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: colors.onPrimaryContainer,
@@ -447,7 +457,7 @@ class _SpeedTestView extends StatelessWidget {
                     )
                   : Center(
                       child: Text(
-                        'Start the test to see speed graph',
+                        context.l10n.speedTestGraphEmpty,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: colors.onSurface.withValues(alpha: 0.6),
                             ),
@@ -463,14 +473,14 @@ class _SpeedTestView extends StatelessWidget {
                     context,
                     colors,
                     const Color(0xFF43EA6A),
-                    'Download',
+                    context.l10n.speedTestMetricDownload,
                   ),
                   const SizedBox(width: 24),
                   _buildLegendItem(
                     context,
                     colors,
                     const Color(0xFFFFD700),
-                    'Upload',
+                    context.l10n.speedTestMetricUpload,
                   ),
                 ],
               ),
@@ -513,7 +523,7 @@ class _SpeedTestView extends StatelessWidget {
             reservedSize: 50,
             getTitlesWidget: (value, meta) {
               return Text(
-                '${value.round()} Mbps',
+                context.l10n.speedTestMbps('${value.round()}'),
                 style: Theme.of(context).textTheme.bodySmall,
               );
             },
@@ -555,7 +565,7 @@ class _SpeedTestView extends StatelessWidget {
                   ? const Color(0xFF43EA6A)
                   : const Color(0xFFFFD700);
               return LineTooltipItem(
-                '${spot.y.toStringAsFixed(1)} Mbps',
+                context.l10n.speedTestMbps(spot.y.toStringAsFixed(1)),
                 TextStyle(
                   color: color,
                   fontWeight: FontWeight.bold,
@@ -660,7 +670,7 @@ class _SpeedTestView extends StatelessWidget {
             context,
             colors,
             Icons.download,
-            'Download',
+            context.l10n.speedTestMetricDownload,
             state.downloadSpeedTestDone ? state.currentDownloadSpeed : null,
             const Color(0xFF43EA6A),
             isWide: isWide,
@@ -672,7 +682,7 @@ class _SpeedTestView extends StatelessWidget {
             context,
             colors,
             Icons.upload,
-            'Upload',
+            context.l10n.speedTestMetricUpload,
             state.uploadSpeedTestDone ? state.currentUploadSpeed : null,
             const Color(0xFFFFD700),
             isWide: isWide,
@@ -713,7 +723,7 @@ class _SpeedTestView extends StatelessWidget {
             const SizedBox(height: 4),
             if (isWarmingUp)
               Text(
-                'Warming up...',
+                context.l10n.speedTestWarmingUp,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colors.onSurface.withValues(alpha: 0.5),
@@ -722,7 +732,9 @@ class _SpeedTestView extends StatelessWidget {
               )
             else
               Text(
-                value != null ? '${value.toStringAsFixed(1)} Mbps' : '--',
+                value != null
+                    ? context.l10n.speedTestMbps(value.toStringAsFixed(1))
+                    : '--',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: color,
@@ -741,7 +753,7 @@ class _SpeedTestView extends StatelessWidget {
     final uploadSpeed = state.currentUploadSpeed;
     final latency = state.latencyMs;
     final retransmission = state.retransmissionPercentage;
-    final rating = _getSpeedRating(downloadSpeed);
+    final rating = _getSpeedRating(context.l10n, downloadSpeed);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
@@ -824,7 +836,7 @@ class _SpeedTestView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Mbps Download',
+                          context.l10n.speedTestMbpsDownload,
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: colors.onPrimaryContainer
@@ -858,9 +870,9 @@ class _SpeedTestView extends StatelessWidget {
                 context,
                 colors,
                 Icons.upload,
-                'Upload',
+                context.l10n.speedTestMetricUpload,
                 uploadSpeed,
-                'Mbps',
+                context.l10n.speedTestUnitMbps,
                 const Color(0xFFFFD700),
                 isWide: isWide,
                 isWarmingUp: state.isWarmingUp && !state.uploadSpeedTestDone,
@@ -877,9 +889,9 @@ class _SpeedTestView extends StatelessWidget {
                       context,
                       colors,
                       Icons.upload,
-                      'Upload',
+                      context.l10n.speedTestMetricUpload,
                       uploadSpeed,
-                      'Mbps',
+                      context.l10n.speedTestUnitMbps,
                       const Color(0xFFFFD700),
                       isWide: isWide,
                       isWarmingUp:
@@ -892,7 +904,7 @@ class _SpeedTestView extends StatelessWidget {
                     context,
                     colors,
                     Icons.timer,
-                    'Latency',
+                    context.l10n.speedTestMetricLatency,
                     latency,
                     'ms',
                     _getLatencyColor(latency ?? 999, colors),
@@ -905,7 +917,7 @@ class _SpeedTestView extends StatelessWidget {
                     context,
                     colors,
                     Icons.sync,
-                    'Retrans',
+                    context.l10n.speedTestMetricRetrans,
                     retransmission,
                     '%',
                     _getRetransmissionColor(retransmission ?? 100, colors),
@@ -958,7 +970,7 @@ class _SpeedTestView extends StatelessWidget {
           const SizedBox(height: 4),
           if (isWarmingUp)
             Text(
-              'Warming up...',
+              context.l10n.speedTestWarmingUp,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
@@ -987,7 +999,7 @@ class _SpeedTestView extends StatelessWidget {
   Widget _buildCapabilities(
       BuildContext context, ColorScheme colors, double downloadSpeed,
       {required bool isWide}) {
-    final capabilities = _getCapabilities(downloadSpeed);
+    final capabilities = _getCapabilities(context.l10n, downloadSpeed);
     if (capabilities.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -1001,7 +1013,7 @@ class _SpeedTestView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'What you can do',
+            context.l10n.speedTestWhatYouCanDo,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: colors.onSurface.withValues(alpha: 0.8),
@@ -1046,19 +1058,25 @@ class _SpeedTestView extends StatelessWidget {
     );
   }
 
-  SpeedRating _getSpeedRating(double speed) {
+  SpeedRating _getSpeedRating(AppLocalizations l10n, double speed) {
     if (speed >= 200) {
-      return const SpeedRating('Excellent', Icons.bolt, Color(0xFF43EA6A));
+      return SpeedRating(
+          l10n.speedRatingExcellent, Icons.bolt, const Color(0xFF43EA6A));
     } else if (speed >= 100) {
-      return const SpeedRating('Great', Icons.rocket_launch, Color(0xFF43EA6A));
+      return SpeedRating(
+          l10n.speedRatingGreat, Icons.rocket_launch, const Color(0xFF43EA6A));
     } else if (speed >= 50) {
-      return const SpeedRating('Good', Icons.check_circle, Color(0xFF8BC34A));
+      return SpeedRating(
+          l10n.speedRatingGood, Icons.check_circle, const Color(0xFF8BC34A));
     } else if (speed >= 25) {
-      return const SpeedRating('Fair', Icons.remove_circle, Color(0xFFFFD700));
+      return SpeedRating(
+          l10n.speedRatingFair, Icons.remove_circle, const Color(0xFFFFD700));
     } else if (speed >= 10) {
-      return const SpeedRating('Slow', Icons.trending_down, Color(0xFFFF9800));
+      return SpeedRating(
+          l10n.speedRatingSlow, Icons.trending_down, const Color(0xFFFF9800));
     } else {
-      return const SpeedRating('Very Slow', Icons.warning, Color(0xFFF44336));
+      return SpeedRating(
+          l10n.speedRatingVerySlow, Icons.warning, const Color(0xFFF44336));
     }
   }
 
@@ -1076,25 +1094,26 @@ class _SpeedTestView extends StatelessWidget {
     return const Color(0xFFF44336);
   }
 
-  List<Capability> _getCapabilities(double downloadSpeed) {
+  List<Capability> _getCapabilities(
+      AppLocalizations l10n, double downloadSpeed) {
     final caps = <Capability>[];
     if (downloadSpeed >= 5) {
-      caps.add(const Capability(Icons.music_note, 'Music'));
+      caps.add(Capability(Icons.music_note, l10n.speedCapMusic));
     }
     if (downloadSpeed >= 10) {
-      caps.add(const Capability(Icons.videocam, 'Video calls'));
+      caps.add(Capability(Icons.videocam, l10n.speedCapVideoCalls));
     }
     if (downloadSpeed >= 25) {
-      caps.add(const Capability(Icons.hd, 'HD streaming'));
+      caps.add(Capability(Icons.hd, l10n.speedCapHdStreaming));
     }
     if (downloadSpeed >= 50) {
-      caps.add(const Capability(Icons.sports_esports, 'Gaming'));
+      caps.add(Capability(Icons.sports_esports, l10n.speedCapGaming));
     }
     if (downloadSpeed >= 100) {
-      caps.add(const Capability(Icons.tv, '4K streaming'));
+      caps.add(Capability(Icons.tv, l10n.speedCap4kStreaming));
     }
     if (downloadSpeed >= 200) {
-      caps.add(const Capability(Icons.cloud_upload, 'Fast uploads'));
+      caps.add(Capability(Icons.cloud_upload, l10n.speedCapFastUploads));
     }
     return caps;
   }
@@ -1125,7 +1144,7 @@ class _SpeedTestView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'I agree to the data policy',
+                  context.l10n.speedTestConsentTitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: colors.onSurface,
@@ -1133,7 +1152,7 @@ class _SpeedTestView extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Includes retention and publication of IP addresses',
+                  context.l10n.speedTestConsentSubtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: colors.onSurface.withValues(alpha: 0.6),
                       ),
@@ -1167,7 +1186,7 @@ class _SpeedTestView extends StatelessWidget {
                 }
               : null,
           icon: const Icon(Icons.play_arrow),
-          label: const Text('Start Test'),
+          label: Text(context.l10n.speedTestStart),
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
             backgroundColor: colors.primary,
@@ -1193,7 +1212,7 @@ class _SpeedTestView extends StatelessWidget {
               }
             : null,
         icon: const Icon(Icons.refresh),
-        label: const Text('Test Again'),
+        label: Text(context.l10n.speedTestAgain),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: colors.primary,
@@ -1207,53 +1226,49 @@ class _SpeedTestView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Measurement Lab (M-Lab)'),
+        title: Text(context.l10n.speedTestMlabTitle),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Speed tests are powered by M-Lab's NDT7 protocol, providing accurate and standardized internet measurements.",
-              ),
+              Text(context.l10n.speedTestMlabIntro),
               const SizedBox(height: 16),
               Text(
-                'About M-Lab',
+                context.l10n.speedTestMlabAboutTitle,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Measurement Lab (M-Lab) is a research initiative that provides open internet measurement data. Learn more about their mission and data practices.',
-              ),
+              Text(context.l10n.speedTestMlabAboutBody),
               const SizedBox(height: 16),
               _buildLinkTile(
                 context,
                 icon: Icons.language,
-                title: 'M-Lab Website',
+                title: context.l10n.speedTestMlabWebsite,
                 subtitle: 'www.measurementlab.net',
                 url: 'https://www.measurementlab.net/',
               ),
               _buildLinkTile(
                 context,
                 icon: Icons.privacy_tip_outlined,
-                title: 'Privacy Policy',
-                subtitle: 'How M-Lab handles your data',
+                title: context.l10n.speedTestPrivacyPolicy,
+                subtitle: context.l10n.speedTestPrivacySubtitle,
                 url: 'https://www.measurementlab.net/privacy-policy/',
               ),
               _buildLinkTile(
                 context,
                 icon: Icons.description_outlined,
-                title: 'Terms of Service',
-                subtitle: 'Usage terms and conditions',
+                title: context.l10n.speedTestTermsOfService,
+                subtitle: context.l10n.speedTestTermsSubtitle,
                 url: 'https://www.measurementlab.net/terms-of-service/',
               ),
               _buildLinkTile(
                 context,
                 icon: Icons.info_outline,
-                title: 'About NDT Test',
-                subtitle: 'Technical documentation',
+                title: context.l10n.speedTestNdtAbout,
+                subtitle: context.l10n.speedTestNdtSubtitle,
                 url: 'https://www.measurementlab.net/tests/ndt/',
               ),
             ],
@@ -1262,7 +1277,7 @@ class _SpeedTestView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(context.l10n.commonClose),
           ),
         ],
       ),

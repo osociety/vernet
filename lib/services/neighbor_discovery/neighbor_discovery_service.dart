@@ -7,6 +7,7 @@ import 'package:vernet/services/neighbor_discovery/cli_neighbor_parser.dart';
 import 'package:vernet/services/neighbor_discovery/lldp_parser.dart';
 import 'package:vernet/services/neighbor_discovery/neighbor_mib_mapper.dart';
 import 'package:vernet/services/neighbor_discovery/snmp_client.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 class NeighborDiscoveryException implements Exception {
   const NeighborDiscoveryException(this.message);
@@ -31,11 +32,12 @@ class NeighborDiscoveryService {
     bool queryLldp = true,
     Duration timeout = const Duration(seconds: 4),
   }) async {
+    final l10n = appStrings();
     if (switchIp.trim().isEmpty) {
-      throw const NeighborDiscoveryException('Enter a switch address');
+      throw NeighborDiscoveryException(l10n.neighborErrorSwitchAddress);
     }
     if (!queryCdp && !queryLldp) {
-      throw const NeighborDiscoveryException('Choose CDP, LLDP, or both');
+      throw NeighborDiscoveryException(l10n.neighborErrorChooseProtocol);
     }
 
     final warnings = <String>[];
@@ -44,18 +46,18 @@ class NeighborDiscoveryService {
       identity = await _loadIdentity(switchIp.trim(), community, timeout);
     } on TimeoutException {
       throw NeighborDiscoveryException(
-        'No SNMP reply from ${switchIp.trim()}. Check the address, community, and that SNMP is allowed.',
+        l10n.neighborErrorNoReply(switchIp.trim()),
       );
     } on SocketException {
       throw NeighborDiscoveryException(
-        'Could not reach ${switchIp.trim()} over SNMP.',
+        l10n.neighborErrorUnreachable(switchIp.trim()),
       );
     } catch (e) {
       if (e is NeighborDiscoveryException) {
         rethrow;
       }
       throw NeighborDiscoveryException(
-        'Could not reach ${switchIp.trim()} over SNMP.',
+        l10n.neighborErrorUnreachable(switchIp.trim()),
       );
     }
 
@@ -75,7 +77,7 @@ class NeighborDiscoveryService {
         timeout: timeout,
       );
     } catch (_) {
-      warnings.add('Interface names or speeds were not available.');
+      warnings.add(l10n.neighborWarnInterface);
     }
 
     final neighbors = <NeighborInfo>[];
@@ -95,9 +97,9 @@ class NeighborDiscoveryService {
           ),
         );
       } on TimeoutException {
-        warnings.add('CDP table did not respond (common on non-Cisco gear).');
+        warnings.add(l10n.neighborWarnCdpTimeout);
       } catch (_) {
-        warnings.add('CDP neighbors could not be read.');
+        warnings.add(l10n.neighborWarnCdpRead);
       }
     }
 
@@ -139,8 +141,7 @@ class NeighborDiscoveryService {
             timeout: timeout,
           );
         } catch (_) {
-          warnings
-              .add('Some LLDP details (VLAN or management IP) were missing.');
+          warnings.add(l10n.neighborWarnLldpPartial);
         }
         neighbors.addAll(
           NeighborMibMapper.mapLldp(
@@ -153,9 +154,9 @@ class NeighborDiscoveryService {
           ),
         );
       } on TimeoutException {
-        warnings.add('LLDP table did not respond.');
+        warnings.add(l10n.neighborWarnLldpTimeout);
       } catch (_) {
-        warnings.add('LLDP neighbors could not be read.');
+        warnings.add(l10n.neighborWarnLldpRead);
       }
     }
 

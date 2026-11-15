@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/l10n/app_localizations.dart';
+import 'package:vernet/l10n/app_localizations_de.dart';
 import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
@@ -95,6 +96,10 @@ Widget wrapWithLocalizations({
 /// The English resource bundle, so a test can assert on rendered text without
 /// repeating the literal that the app already owns.
 AppLocalizations l10nEn() => AppLocalizationsEn();
+
+/// The German resource bundle, used by the assertions that have to prove a
+/// screen renders the locale under test instead of falling back to English.
+AppLocalizations l10nDe() => AppLocalizationsDe();
 
 /// Common test data builders.
 class TestDataBuilder {

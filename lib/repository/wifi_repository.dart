@@ -30,13 +30,13 @@ class WifiRepository {
           return WifiNetworkMetrics(
             rawRssi: dbm,
             normalizedLevel: convertRssiToLevel(dbm),
-            statusMessage: getDiagnosticString(dbm),
+            quality: getSignalQuality(dbm),
           );
         } else {
           return const WifiNetworkMetrics(
             rawRssi: null,
             normalizedLevel: 0,
-            statusMessage: "Missing Required Location Permissions",
+            quality: WifiSignalQuality.locationMissing,
           );
         }
       }
@@ -55,7 +55,7 @@ class WifiRepository {
         return WifiNetworkMetrics(
           rawRssi: calculatedDbm,
           normalizedLevel: convertRssiToLevel(calculatedDbm),
-          statusMessage: getDiagnosticString(calculatedDbm),
+          quality: getSignalQuality(calculatedDbm),
         );
       }
 
@@ -67,7 +67,7 @@ class WifiRepository {
         return WifiNetworkMetrics(
           rawRssi: desktopDbm,
           normalizedLevel: convertRssiToLevel(desktopDbm),
-          statusMessage: getDiagnosticString(desktopDbm),
+          quality: getSignalQuality(desktopDbm),
         );
       }
     } catch (error) {
@@ -231,11 +231,11 @@ class WifiRepository {
 
   /// Evaluates specific networking thresholds for user diagnosis
   @visibleForTesting
-  static String getDiagnosticString(int rssi) {
-    if (rssi >= -55) return "Excellent";
-    if (rssi >= -67) return "Good";
-    if (rssi >= -78) return "Fair";
-    if (rssi >= -90) return "Weak";
-    return "Critically Low";
+  static WifiSignalQuality getSignalQuality(int rssi) {
+    if (rssi >= -55) return WifiSignalQuality.excellent;
+    if (rssi >= -67) return WifiSignalQuality.good;
+    if (rssi >= -78) return WifiSignalQuality.fair;
+    if (rssi >= -90) return WifiSignalQuality.weak;
+    return WifiSignalQuality.criticallyLow;
   }
 }

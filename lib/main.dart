@@ -26,6 +26,7 @@ import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart'
 import 'package:vernet/pages/location_consent_page.dart';
 import 'package:vernet/pages/neighbor_discovery_page/neighbor_discovery_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
+import 'package:vernet/pages/onboarding/language_page.dart';
 import 'package:vernet/pages/onboarding/walkthrough_page.dart';
 import 'package:vernet/pages/onboarding/wifi_prompt_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
@@ -39,6 +40,7 @@ import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/semantic_colors.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
@@ -231,6 +233,8 @@ class _MyAppState extends State<MyApp> {
     final stage = widget.onboardingStage;
     if (stage != null) {
       switch (stage) {
+        case OnboardingStage.language:
+          return const LanguagePage();
         case OnboardingStage.walkthrough:
           return const WalkthroughPage();
         case OnboardingStage.consent:
@@ -301,68 +305,71 @@ class _HomePageState extends State<TabBarPage> {
     _sidebarController.selectIndex(index);
     // Opening Settings is the deepest commit a session reaches, so it is where
     // Play is asked for a review. Only the store build has the SDK.
-    if (kStoreBuild && index == _navigationItems().length) {
+    if (kStoreBuild && index == _navigationItems(context).length) {
       unawaited(requestStoreReview());
     }
   }
 
-  List<SidebarXItem> _navigationItems() => [
-        SidebarXItem(
-          icon: Icons.home,
-          label: 'Home',
-          onTap: () => _selectPage(0),
-        ),
-        SidebarXItem(
-          icon: Icons.wifi_find,
-          label: 'Scan your network',
-          onTap: () => _selectPage(1),
-        ),
-        SidebarXItem(
-          icon: Icons.trending_up,
-          label: 'Check a website',
-          onTap: () => _selectPage(2),
-        ),
-        SidebarXItem(
-          icon: Icons.monitor_heart,
-          label: 'Monitor server',
-          onTap: () => _selectPage(3),
-        ),
-        SidebarXItem(
-          icon: Icons.radar,
-          label: 'Find security gaps',
-          onTap: () => _selectPage(4),
-        ),
-        SidebarXItem(
-          icon: Icons.search,
-          label: 'Find website addresses',
-          onTap: () => _selectPage(7),
-        ),
-        SidebarXItem(
-          icon: Icons.find_replace,
-          label: 'Find a device name',
-          onTap: () => _selectPage(8),
-        ),
-        SidebarXItem(
-          icon: Icons.account_tree,
-          label: 'Subnet calculator',
-          onTap: () => _selectPage(9),
-        ),
-        SidebarXItem(
-          icon: Icons.hub,
-          label: 'Find switch',
-          onTap: () => _selectPage(5),
-        ),
-        SidebarXItem(
-          icon: Icons.power_settings_new,
-          label: 'Wake on LAN',
-          onTap: () => _selectPage(6),
-        ),
-        SidebarXItem(
-          icon: Icons.volunteer_activism,
-          label: 'Support Vernet',
-          onTap: () => _selectPage(10),
-        ),
-      ];
+  List<SidebarXItem> _navigationItems(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      SidebarXItem(
+        icon: Icons.home,
+        label: l10n.navHome,
+        onTap: () => _selectPage(0),
+      ),
+      SidebarXItem(
+        icon: Icons.wifi_find,
+        label: l10n.navScanNetwork,
+        onTap: () => _selectPage(1),
+      ),
+      SidebarXItem(
+        icon: Icons.trending_up,
+        label: l10n.navCheckWebsite,
+        onTap: () => _selectPage(2),
+      ),
+      SidebarXItem(
+        icon: Icons.monitor_heart,
+        label: l10n.navMonitorServer,
+        onTap: () => _selectPage(3),
+      ),
+      SidebarXItem(
+        icon: Icons.radar,
+        label: l10n.navFindSecurityGaps,
+        onTap: () => _selectPage(4),
+      ),
+      SidebarXItem(
+        icon: Icons.search,
+        label: l10n.navFindWebsiteAddresses,
+        onTap: () => _selectPage(7),
+      ),
+      SidebarXItem(
+        icon: Icons.find_replace,
+        label: l10n.navFindDeviceName,
+        onTap: () => _selectPage(8),
+      ),
+      SidebarXItem(
+        icon: Icons.account_tree,
+        label: l10n.navSubnetCalculator,
+        onTap: () => _selectPage(9),
+      ),
+      SidebarXItem(
+        icon: Icons.hub,
+        label: l10n.navFindSwitch,
+        onTap: () => _selectPage(5),
+      ),
+      SidebarXItem(
+        icon: Icons.power_settings_new,
+        label: l10n.navWakeOnLan,
+        onTap: () => _selectPage(6),
+      ),
+      SidebarXItem(
+        icon: Icons.volunteer_activism,
+        label: l10n.navSupport,
+        onTap: () => _selectPage(10),
+      ),
+    ];
+  }
 
   Widget _buildSidebar(
     BuildContext context, {
@@ -470,7 +477,7 @@ class _HomePageState extends State<TabBarPage> {
       },
       footerDivider: Divider(height: 1, color: colors.outlineVariant),
       footerBuilder: (context, isExtended) {
-        final settingsIndex = _navigationItems().length;
+        final settingsIndex = _navigationItems(context).length;
         final isSelected = _currentIndex == settingsIndex;
         final foreground =
             isSelected ? colors.primary : colors.onSurfaceVariant;
@@ -502,7 +509,7 @@ class _HomePageState extends State<TabBarPage> {
                           if (showLabel) ...[
                             const SizedBox(width: 14),
                             Text(
-                              'Settings',
+                              context.l10n.navSettings,
                               style: TextStyle(
                                 color: isSelected
                                     ? foreground
@@ -521,7 +528,7 @@ class _HomePageState extends State<TabBarPage> {
           ),
         );
       },
-      items: _navigationItems(),
+      items: _navigationItems(context),
     );
   }
 
@@ -535,7 +542,7 @@ class _HomePageState extends State<TabBarPage> {
           key: _scaffoldKey,
           appBar: isCompact
               ? AppBar(
-                  title: Text(_selectedPageTitle),
+                  title: Text(_selectedPageTitle(context)),
                   leading: IconButton(
                     icon: const Icon(Icons.menu),
                     onPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -569,20 +576,25 @@ class _HomePageState extends State<TabBarPage> {
     );
   }
 
-  String get _selectedPageTitle => switch (_currentIndex) {
-        0 => 'Your network',
-        1 => 'Scan your network',
-        2 => 'Check a website',
-        3 => 'Monitor server',
-        4 => 'Find security gaps',
-        5 => 'Find switch',
-        6 => 'Wake on LAN',
-        7 => 'Find website addresses',
-        8 => 'Find a device name',
-        9 => 'Subnet calculator',
-        10 => 'Support Vernet',
-        _ => 'Settings',
-      };
+  /// Compact app bar title. The sidebar labels the same destinations, except
+  /// index 0, where the rail says `navHome` and the bar names the dashboard.
+  String _selectedPageTitle(BuildContext context) {
+    final l10n = context.l10n;
+    return switch (_currentIndex) {
+      0 => l10n.navYourNetwork,
+      1 => l10n.navScanNetwork,
+      2 => l10n.navCheckWebsite,
+      3 => l10n.navMonitorServer,
+      4 => l10n.navFindSecurityGaps,
+      5 => l10n.navFindSwitch,
+      6 => l10n.navWakeOnLan,
+      7 => l10n.navFindWebsiteAddresses,
+      8 => l10n.navFindDeviceName,
+      9 => l10n.navSubnetCalculator,
+      10 => l10n.navSupport,
+      _ => l10n.navSettings,
+    };
+  }
 
   Widget get _selectedPage => switch (_currentIndex) {
         0 => const HomePage(),

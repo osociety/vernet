@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
@@ -85,14 +86,15 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
   void _copyToClipboard(String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$label copied')),
+      SnackBar(content: Text(context.l10n.deviceDetailCopied(label))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final device = widget.device;
-    final deviceMake = DeviceUtil.getDeviceMake(device);
+    final deviceMake =
+        DeviceUtil.makeLabel(context.l10n, DeviceUtil.getDeviceMake(device));
     final iconData = DeviceUtil.getIconData(device);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -157,7 +159,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                 children: [
                   Text(
                     key: WidgetKey.deviceDetailName.key,
-                    deviceMake ?? 'Unknown device',
+                    deviceMake ?? context.l10n.deviceDetailUnknownDevice,
                     style: theme.textTheme.titleLarge,
                   ),
                   const SizedBox(height: 4),
@@ -172,11 +174,11 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
               ),
             ),
             IconButton(
-              tooltip: 'Copy IP address',
+              tooltip: context.l10n.deviceDetailCopyIp,
               icon: const Icon(Icons.copy),
               onPressed: () => _copyToClipboard(
                 device.internetAddress,
-                'IP address',
+                context.l10n.deviceDetailIpAddress,
               ),
             ),
           ],
@@ -199,7 +201,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                'Network information',
+                context.l10n.deviceDetailNetworkInfo,
                 style: theme.textTheme.titleMedium,
               ),
             ),
@@ -207,61 +209,61 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
             _buildInfoRow(
               context,
               icon: Icons.lan,
-              label: 'IP address',
+              label: context.l10n.deviceDetailIpAddress,
               value: device.internetAddress,
               onCopy: () => _copyToClipboard(
                 device.internetAddress,
-                'IP address',
+                context.l10n.deviceDetailIpAddress,
               ),
             ),
             if (device.macAddress != null && device.macAddress!.isNotEmpty)
               _buildInfoRow(
                 context,
                 icon: Icons.perm_device_information,
-                label: 'MAC address',
+                label: context.l10n.deviceDetailMacAddress,
                 value: device.macAddress!,
                 onCopy: () => _copyToClipboard(
                   device.macAddress!,
-                  'MAC address',
+                  context.l10n.deviceDetailMacAddress,
                 ),
               ),
             if (device.vendorName != null && device.vendorName!.isNotEmpty)
               _buildInfoRow(
                 context,
                 icon: Icons.business,
-                label: 'Vendor',
+                label: context.l10n.deviceDetailVendor,
                 value: device.vendorName!,
               ),
             if (device.hostMake != null && device.hostMake!.isNotEmpty)
               _buildInfoRow(
                 context,
                 icon: Icons.label,
-                label: 'Hostname',
+                label: context.l10n.deviceDetailHostname,
                 value: device.hostMake!,
               ),
             if (device.deviceType != null && device.deviceType!.isNotEmpty)
               _buildInfoRow(
                 context,
                 icon: Icons.category,
-                label: 'Device type',
-                value: device.deviceType!,
+                label: context.l10n.deviceDetailDeviceType,
+                value: DeviceUtil.typeLabel(context.l10n, device.deviceType!),
               ),
             if (device.mdnsDomainName != null &&
                 device.mdnsDomainName!.isNotEmpty)
               _buildInfoRow(
                 context,
                 icon: Icons.dns,
-                label: 'mDNS name',
+                label: context.l10n.deviceDetailMdnsName,
                 value: device.mdnsDomainName!,
                 onCopy: () => _copyToClipboard(
                   device.mdnsDomainName!,
-                  'mDNS name',
+                  context.l10n.deviceDetailMdnsName,
                 ),
               ),
             _buildInfoRow(
               context,
               icon: Icons.router,
-              label: 'Gateway',
+              label: context.l10n.deviceDetailGateway,
               value: device.gatewayIp,
             ),
           ],
@@ -292,7 +294,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                'Open ports (${ports.length})',
+                context.l10n.deviceDetailOpenPortsCount('${ports.length}'),
                 style: theme.textTheme.titleMedium,
               ),
             ),
@@ -305,7 +307,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
   }
 
   Widget _buildPortRow(BuildContext context, int port) {
-    final description = _portDescription(port);
+    final description = _portDescription(context.l10n, port);
     return AdaptiveListTile(
       dense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -315,57 +317,33 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     );
   }
 
-  String _portDescription(int port) {
-    final shortName = DeviceUtil.getPortDescription(port);
-    switch (port) {
-      case 20:
-      case 21:
-        return 'FTP - File Transfer Protocol';
-      case 22:
-        return 'SSH - Secure Shell';
-      case 23:
-        return 'Telnet - Remote login';
-      case 25:
-        return 'SMTP - Email sending';
-      case 53:
-        return 'DNS - Domain Name System';
-      case 80:
-        return 'HTTP - Web server';
-      case 110:
-        return 'POP3 - Email retrieval';
-      case 143:
-        return 'IMAP - Email retrieval';
-      case 161:
-        return 'SNMP - Network management';
-      case 443:
-        return 'HTTPS - Secure web server';
-      case 445:
-        return 'SMB - Windows file sharing';
-      case 587:
-        return 'SMTP - Email submission';
-      case 631:
-        return 'IPP - Internet Printing Protocol';
-      case 993:
-        return 'IMAPS - Secure email retrieval';
-      case 995:
-        return 'POP3S - Secure email retrieval';
-      case 3306:
-        return 'MySQL - Database server';
-      case 3389:
-        return 'RDP - Remote Desktop Protocol';
-      case 5432:
-        return 'PostgreSQL - Database server';
-      case 5900:
-        return 'VNC - Virtual Network Computing';
-      case 8080:
-        return 'HTTP-Alt - Alternative web server';
-      case 8443:
-        return 'HTTPS-Alt - Alternative secure web';
-      case 9100:
-        return 'JetDirect - Network printer';
-      default:
-        return shortName ?? 'Unknown service';
-    }
+  String _portDescription(AppLocalizations l10n, int port) {
+    return switch (port) {
+      20 || 21 => l10n.portDescFtp,
+      22 => l10n.portDescSsh,
+      23 => l10n.portDescTelnet,
+      25 => l10n.portDescSmtp,
+      53 => l10n.portDescDns,
+      80 => l10n.portDescHttp,
+      110 => l10n.portDescPop3,
+      143 => l10n.portDescImap,
+      161 => l10n.portDescSnmp,
+      443 => l10n.portDescHttps,
+      445 => l10n.portDescSmb,
+      587 => l10n.portDescSmtpSubmission,
+      631 => l10n.portDescIpp,
+      993 => l10n.portDescImaps,
+      995 => l10n.portDescPop3s,
+      3306 => l10n.portDescMysql,
+      3389 => l10n.portDescRdp,
+      5432 => l10n.portDescPostgres,
+      5900 => l10n.portDescVnc,
+      8080 => l10n.portDescHttpAlt,
+      8443 => l10n.portDescHttpsAlt,
+      9100 => l10n.portDescJetDirect,
+      _ =>
+        DeviceUtil.getPortDescription(port) ?? l10n.deviceDetailUnknownService,
+    };
   }
 
   Widget _buildInfoRow(
@@ -385,7 +363,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           ? IconButton(
               icon: const Icon(Icons.copy, size: 18),
               onPressed: onCopy,
-              tooltip: 'Copy $label',
+              tooltip: context.l10n.deviceDetailCopyLabel(label),
             )
           : null,
     );
@@ -403,7 +381,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Actions',
+              context.l10n.deviceDetailActions,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -424,14 +402,16 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                     );
                   },
                   icon: const Icon(Icons.radar),
-                  label: const Text('Full port scan'),
+                  label: Text(context.l10n.deviceDetailFullScan),
                 ),
                 ElevatedButton.icon(
                   key: WidgetKey.deviceDetailQuickScanButton.key,
                   onPressed: _portScanRunning ? null : _startQuickPortScan,
                   icon: const Icon(Icons.flash_on),
                   label: Text(
-                    _portScanRunning ? 'Scanning...' : 'Quick scan',
+                    _portScanRunning
+                        ? context.l10n.deviceDetailScanning
+                        : context.l10n.deviceDetailQuickScan,
                   ),
                 ),
                 ElevatedButton.icon(
@@ -447,7 +427,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                     );
                   },
                   icon: const Icon(Icons.trending_up),
-                  label: const Text('Ping'),
+                  label: Text(context.l10n.deviceDetailPing),
                 ),
                 if (device.macAddress != null && device.macAddress!.isNotEmpty)
                   ElevatedButton.icon(
@@ -469,7 +449,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                       );
                     },
                     icon: const Icon(Icons.power_settings_new),
-                    label: const Text('Wake on LAN'),
+                    label: Text(context.l10n.deviceDetailWakeOnLan),
                   ),
               ],
             ),
@@ -479,7 +459,12 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     );
   }
 
+  String _foundPortsLabel(AppLocalizations l10n, int count) => count == 1
+      ? l10n.deviceDetailFoundPortsOne
+      : l10n.deviceDetailFoundPortsMany('$count');
+
   Widget _buildPortScanCard(ThemeData theme, ColorScheme colorScheme) {
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -492,7 +477,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Open ports',
+                      context.l10n.deviceDetailOpenPorts,
                       style: theme.textTheme.titleMedium,
                     ),
                   ),
@@ -507,10 +492,10 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
             ),
             const Divider(height: 1),
             if (!_portScanCompleted && _openPorts.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Tap "Quick scan" to check for common open ports on this device.',
+                  context.l10n.deviceDetailQuickScanHint,
                   textAlign: TextAlign.center,
                 ),
               )
@@ -518,7 +503,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'No open ports found on common services.',
+                  context.l10n.deviceDetailNoOpenPorts,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.outline,
@@ -549,7 +534,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                           ),
                         ),
                         title: Text(
-                          port?.desc ?? 'Port ${openPort.port}',
+                          port?.desc ??
+                              l10n.deviceDetailPortNumber('${openPort.port}'),
                         ),
                         subtitle: port != null
                             ? Row(
@@ -569,8 +555,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Text(
-                  'Found ${_openPorts.length} open '
-                  'port${_openPorts.length == 1 ? '' : 's'}',
+                  _foundPortsLabel(l10n, _openPorts.length),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall,
                 ),

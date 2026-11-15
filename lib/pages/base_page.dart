@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
 abstract class BasePage<T extends StatefulWidget> extends State<T> {
   TextEditingController textEditingController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String title();
-  String fieldLabel();
+  // These three take the context because the copy behind them lives in the ARB
+  // files, and reading them needs the locale the app is currently rendering.
+  String title(BuildContext context);
+  String fieldLabel(BuildContext context);
+  String buttonLabel(BuildContext context);
 
   Widget _getDomainChip(String label) {
     return PopularChip(
@@ -19,17 +23,17 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  String? validateIP(String? value) {
-    if (value != null) {
-      if (value.isEmpty) return 'Please enter a website or address';
+  String? validateIP(BuildContext context, String? value) {
+    if (value != null && value.isEmpty) {
+      return context.l10n.baseAddressRequired;
     }
     return null;
   }
 
-  Widget buildPopularChips() {
+  Widget buildPopularChips(BuildContext context) {
     return Card(
       child: AdaptiveListTile(
-        title: const Text('Try a website'),
+        title: Text(context.l10n.tryAWebsite),
         subtitle: Wrap(
           children: [
             _getDomainChip('google.com'),
@@ -51,14 +55,13 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
 
   Widget buildResults(BuildContext context);
 
-  String buttonLabel();
   Future<void> onPressed();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title()),
+        title: Text(title(context)),
       ),
       body: Container(
         margin: const EdgeInsets.all(5.0),
@@ -72,11 +75,11 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
                   children: [
                     Expanded(
                       child: TextFormField(
-                        validator: validateIP,
+                        validator: (value) => validateIP(context, value),
                         controller: textEditingController,
                         decoration: InputDecoration(
                           filled: true,
-                          hintText: fieldLabel(),
+                          hintText: fieldLabel(context),
                         ),
                       ),
                     ),
@@ -87,7 +90,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) onPressed();
                         },
-                        child: Text(buttonLabel()),
+                        child: Text(buttonLabel(context)),
                       ),
                     ),
                   ],
@@ -95,7 +98,7 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
               ),
             ),
             const SizedBox(height: 15),
-            buildPopularChips(),
+            buildPopularChips(context),
             Expanded(
               child: buildResults(context),
             ),

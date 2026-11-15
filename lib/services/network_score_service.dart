@@ -3,10 +3,12 @@ import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/models/wifi_info.dart';
+import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/server_monitor_service.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 @injectable
 class NetworkScoreService {
@@ -216,17 +218,18 @@ class NetworkScoreService {
     final signalLevel = wifiInfo.metrics.normalizedLevel;
     if (signalLevel >= 3) {
       score += 25;
-      factors.add('✓ Strong Wi-Fi signal (${wifiInfo.metrics.statusMessage})');
+      factors.add(
+          '✓ Strong Wi-Fi signal (${wifiInfo.metrics.quality.label(appStrings())})');
     } else if (signalLevel >= 2) {
       score += 15;
       factors.add(
-          '~ Moderate Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -10 points');
+          '~ Moderate Wi-Fi signal (${wifiInfo.metrics.quality.label(appStrings())}) -10 points');
       factors.add(
           'Tip: Move closer to router or reduce obstacles for better signal');
     } else if (signalLevel >= 1) {
       score += 5;
       factors.add(
-          '~ Weak Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -20 points');
+          '~ Weak Wi-Fi signal (${wifiInfo.metrics.quality.label(appStrings())}) -20 points');
       factors.add('Tip: Move closer to router or check for interference');
     } else {
       factors.add('✗ Very weak or no signal -25 points');

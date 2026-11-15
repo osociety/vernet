@@ -17,6 +17,8 @@ import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 
+import '../helpers/test_helpers.dart';
+
 class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
   _InMemoryDatabaseService(this.db);
 
@@ -27,6 +29,7 @@ class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
 }
 
 void main() {
+  final l10n = l10nEn();
   setUp(() {
     SharedPreferences.setMockInitialValues({});
 
@@ -75,48 +78,52 @@ void main() {
   });
 
   testWidgets('shows the empty state and add action', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: ServerCheckerPage()));
+    await tester
+        .pumpWidget(wrapWithLocalizations(child: const ServerCheckerPage()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Server checker'), findsOneWidget);
-    expect(find.text('Quick Add'), findsOneWidget);
-    expect(find.text('Add server'), findsOneWidget);
+    expect(find.text(l10n.serverCheckerTitle), findsOneWidget);
+    expect(find.text(l10n.serverCheckerQuickAdd), findsOneWidget);
+    expect(find.text(l10n.serverCheckerAdd), findsOneWidget);
   });
 
   testWidgets('requires name and host before saving a monitor', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: ServerCheckerPage()));
-    await tester.tap(find.text('Add server'));
+    await tester
+        .pumpWidget(wrapWithLocalizations(child: const ServerCheckerPage()));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
 
-    expect(find.text('Required'), findsNWidgets(2));
-    expect(find.text('Save and start'), findsOneWidget);
+    expect(find.text(l10n.commonRequired), findsNWidgets(2));
+    expect(find.text(l10n.serverCheckerSaveAndStart), findsOneWidget);
     expect(await ServerMonitorService().loadMonitors(), isEmpty);
   });
 
   testWidgets('validates TCP port range before saving', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: ServerCheckerPage()));
-    await tester.tap(find.text('Add server'));
+    await tester
+        .pumpWidget(wrapWithLocalizations(child: const ServerCheckerPage()));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Local TCP');
     await tester.enterText(find.byType(TextFormField).at(1), '127.0.0.1');
     await _selectType(tester, ServerCheckType.tcp);
     await tester.enterText(find.byType(TextFormField).at(2), '65536');
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
 
-    expect(find.text('Enter a port from 1 to 65535'), findsOneWidget);
+    expect(find.text(l10n.serverCheckerPortRange), findsOneWidget);
     expect(await ServerMonitorService().loadMonitors(), isEmpty);
   });
 
   testWidgets('cancel leaves monitor storage unchanged', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: ServerCheckerPage()));
-    await tester.tap(find.text('Add server'));
+    await tester
+        .pumpWidget(wrapWithLocalizations(child: const ServerCheckerPage()));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Discarded');
     await tester.enterText(find.byType(TextFormField).at(1), 'example.com');
-    await tester.tap(find.text('Cancel'));
+    await tester.tap(find.text(l10n.commonCancel));
     await tester.pumpAndSettle();
 
     expect(find.text('Discarded'), findsNothing);
@@ -131,11 +138,11 @@ void main() {
       return http.Response('all systems healthy', 200);
     });
     addTearDown(client.close);
-    await tester.pumpWidget(MaterialApp(
-      home:
+    await tester.pumpWidget(wrapWithLocalizations(
+      child:
           ServerCheckerPage(service: ServerMonitorService(httpClient: client)),
     ));
-    await tester.tap(find.text('Add server'));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Web service');
     await tester.enterText(
@@ -144,14 +151,14 @@ void main() {
     );
     await _selectType(tester, ServerCheckType.http);
     await tester.enterText(find.byType(TextFormField).at(2), 'healthy');
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
     await tester.pump();
 
     expect(find.text('Web service'), findsOneWidget);
-    expect(find.textContaining('Reachable'), findsOneWidget);
-    expect(find.text('Checks: 1'), findsOneWidget);
-    expect(find.text('Outages: 0'), findsOneWidget);
+    expect(find.textContaining(l10n.serverCheckerReachable), findsOneWidget);
+    expect(find.text(l10n.serverCheckerChecks('1')), findsOneWidget);
+    expect(find.text(l10n.serverCheckerOutages('0')), findsOneWidget);
     expect(find.byType(CustomPaint), findsWidgets);
     final saved = (await ServerMonitorService().loadMonitors()).single;
     expect(saved.name, 'Web service');
@@ -167,17 +174,17 @@ void main() {
       return http.Response('healthy', 200);
     });
     addTearDown(client.close);
-    await tester.pumpWidget(MaterialApp(
-      home:
+    await tester.pumpWidget(wrapWithLocalizations(
+      child:
           ServerCheckerPage(service: ServerMonitorService(httpClient: client)),
     ));
-    await tester.tap(find.text('Add server'));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Original name');
     await tester.enterText(find.byType(TextFormField).at(1), 'original.test');
     await _selectType(tester, ServerCheckType.http);
     await tester.enterText(find.byType(TextFormField).at(2), 'healthy');
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
     await tester.pump();
 
@@ -187,7 +194,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Updated name');
     await tester.enterText(find.byType(TextFormField).at(1), 'updated.test');
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text(l10n.serverCheckerSaveChanges));
     await tester.pumpAndSettle();
     await tester.pump();
 
@@ -197,23 +204,23 @@ void main() {
     expect(after.host, 'updated.test');
     expect(await ServerMonitorService().loadHistory(after.id), hasLength(2));
     expect(requests, 2);
-    expect(find.byTooltip('Stop monitoring'), findsOneWidget);
+    expect(find.byTooltip(l10n.serverCheckerStop), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets('editing a paused monitor leaves it paused', (tester) async {
     final client = MockClient((_) async => http.Response('ok', 200));
     addTearDown(client.close);
-    await tester.pumpWidget(MaterialApp(
-      home:
+    await tester.pumpWidget(wrapWithLocalizations(
+      child:
           ServerCheckerPage(service: ServerMonitorService(httpClient: client)),
     ));
-    await tester.tap(find.text('Add server'));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Paused');
     await tester.enterText(find.byType(TextFormField).at(1), 'paused.test');
     await _selectType(tester, ServerCheckType.http);
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
     await tester.pump();
     await tester.tap(find.byIcon(Icons.pause));
@@ -222,11 +229,11 @@ void main() {
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Still paused');
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text(l10n.serverCheckerSaveChanges));
     await tester.pumpAndSettle();
 
     expect(find.text('Still paused'), findsOneWidget);
-    expect(find.byTooltip('Start monitoring'), findsOneWidget);
+    expect(find.byTooltip(l10n.serverCheckerStart), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -237,19 +244,19 @@ void main() {
         MockClient((_) async => http.Response('', responses.removeAt(0)));
     addTearDown(client.close);
     final alerts = <String>[];
-    await tester.pumpWidget(MaterialApp(
-      home: ServerCheckerPage(
+    await tester.pumpWidget(wrapWithLocalizations(
+      child: ServerCheckerPage(
         service: ServerMonitorService(httpClient: client),
         onServerDown: (name) async => alerts.add(name),
       ),
     ));
-    await tester.tap(find.text('Add server'));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'API');
     await tester.enterText(find.byType(TextFormField).at(1), 'api.example');
     await _selectType(tester, ServerCheckType.http);
     await _selectInterval(tester, 15);
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
     await tester.pump();
     expect(alerts, ['API']);
@@ -260,11 +267,11 @@ void main() {
 
     await tester.pump(const Duration(seconds: 15));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Reachable'), findsOneWidget);
+    expect(find.textContaining(l10n.serverCheckerReachable), findsOneWidget);
     await tester.pump(const Duration(seconds: 15));
     await tester.pumpAndSettle();
     expect(alerts, ['API', 'API']);
-    expect(find.text('Outages: 2'), findsOneWidget);
+    expect(find.text(l10n.serverCheckerOutages('2')), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -291,8 +298,8 @@ void main() {
     );
     final alerts = <String>[];
 
-    await tester.pumpWidget(MaterialApp(
-      home: ServerCheckerPage(
+    await tester.pumpWidget(wrapWithLocalizations(
+      child: ServerCheckerPage(
         service: service,
         onServerDown: (name) async => alerts.add(name),
       ),
@@ -301,7 +308,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Saved monitor'), findsOneWidget);
-    expect(find.textContaining('Unreachable'), findsOneWidget);
+    expect(find.textContaining(l10n.serverCheckerUnreachable), findsOneWidget);
     expect(alerts, ['Saved monitor']);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -315,27 +322,28 @@ void main() {
       return http.Response('ok', 200);
     });
     addTearDown(client.close);
-    await tester.pumpWidget(MaterialApp(
-      home:
+    await tester.pumpWidget(wrapWithLocalizations(
+      child:
           ServerCheckerPage(service: ServerMonitorService(httpClient: client)),
     ));
-    await tester.tap(find.text('Add server'));
+    await tester.tap(find.text(l10n.serverCheckerAdd));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'Lifecycle');
     await tester.enterText(find.byType(TextFormField).at(1), 'lifecycle.test');
     await _selectType(tester, ServerCheckType.http);
     await _selectInterval(tester, 15);
-    await tester.tap(find.text('Save and start'));
+    await tester.tap(find.text(l10n.serverCheckerSaveAndStart));
     await tester.pumpAndSettle();
     await tester.pump();
     expect(requests, 1);
-    expect(find.text('Every 15s'), findsOneWidget);
+    expect(
+        find.text(l10n.serverCheckerEverySecondsShort('15')), findsOneWidget);
     final savedMonitor = (await ServerMonitorService().loadMonitors()).single;
 
     await tester.tap(find.byIcon(Icons.pause));
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Stop monitoring'), findsNothing);
-    expect(find.byTooltip('Start monitoring'), findsOneWidget);
+    expect(find.byTooltip(l10n.serverCheckerStop), findsNothing);
+    expect(find.byTooltip(l10n.serverCheckerStart), findsOneWidget);
     await tester.pump(const Duration(seconds: 30));
     expect(requests, 1);
 

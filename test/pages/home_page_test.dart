@@ -123,7 +123,7 @@ void main() {
                       const WifiNetworkMetrics(
                         rawRssi: -50,
                         normalizedLevel: 3,
-                        statusMessage: 'Good signal',
+                        quality: WifiSignalQuality.excellent,
                       ),
                     ),
           ),
@@ -197,7 +197,7 @@ void main() {
           const WifiNetworkMetrics(
             rawRssi: -50,
             normalizedLevel: 3,
-            statusMessage: 'Good signal',
+            quality: WifiSignalQuality.excellent,
           ),
           isCustomGateway: true,
         ),
@@ -388,7 +388,7 @@ void main() {
           const WifiNetworkMetrics(
             rawRssi: -50,
             normalizedLevel: 3,
-            statusMessage: 'Good signal',
+            quality: WifiSignalQuality.excellent,
           ),
         ),
       );

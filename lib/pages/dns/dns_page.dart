@@ -36,6 +36,9 @@ class _DNSPageState extends BasePage<DNSPage> {
                 return const InlineAdaptiveBanner(slot: StoreAdSlot.dns);
               }
               final address = _addresses[index - kStoreBannerRows];
+              final yes = context.l10n.valueYes;
+              final no = context.l10n.valueNo;
+              String flag(bool value) => value ? yes : no;
               return AdaptiveListTile(
                 key: WidgetKey.dnsResultTile.key,
                 onTap: () {
@@ -43,8 +46,8 @@ class _DNSPageState extends BasePage<DNSPage> {
                     ClipboardData(text: address.address),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Website address copied'),
+                    SnackBar(
+                      content: Text(context.l10n.dnsAddressCopied),
                     ),
                   );
                 },
@@ -53,10 +56,12 @@ class _DNSPageState extends BasePage<DNSPage> {
                   spacing: 12,
                   runSpacing: 4,
                   children: [
-                    Text('Address type: ${address.type.name},'),
-                    Text('Local network address: ${address.isLinkLocal},'),
-                    Text('This device: ${address.isLoopback},'),
-                    Text('Group address: ${address.isMulticast}'),
+                    Text(context.l10n.dnsAddressType(address.type.name)),
+                    Text(
+                        context.l10n.dnsIsLinkLocal(flag(address.isLinkLocal))),
+                    Text(context.l10n.dnsIsLoopback(flag(address.isLoopback))),
+                    Text(
+                        context.l10n.dnsIsMulticast(flag(address.isMulticast))),
                   ],
                 ),
               );
@@ -65,18 +70,18 @@ class _DNSPageState extends BasePage<DNSPage> {
   }
 
   @override
-  String buttonLabel() {
-    return 'Find addresses';
+  String buttonLabel(BuildContext context) {
+    return context.l10n.dnsFindAddresses;
   }
 
   @override
-  String fieldLabel() {
-    return 'Enter a website name';
+  String fieldLabel(BuildContext context) {
+    return context.l10n.dnsFieldHint;
   }
 
   @override
-  String title() {
-    return 'Find website addresses';
+  String title(BuildContext context) {
+    return context.l10n.dnsPageTitle;
   }
 
   @override

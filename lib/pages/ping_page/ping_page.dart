@@ -11,6 +11,7 @@ import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
 typedef PingFactory = Ping Function(
@@ -55,18 +56,19 @@ class _PingPageState extends BasePage<PingPage> {
   }
 
   @override
-  String fieldLabel() {
-    return 'Enter a website or device address';
+  String fieldLabel(BuildContext context) {
+    return context.l10n.pingFieldHint;
   }
 
   @override
-  String title() {
-    return 'Check connection';
+  String title(BuildContext context) {
+    return context.l10n.pingPageTitle;
   }
 
   @override
-  String buttonLabel() {
-    return _ping == null ? 'Start check' : 'Stop';
+  String buttonLabel(BuildContext context) {
+    final l10n = context.l10n;
+    return _ping == null ? l10n.startCheck : l10n.stopCheck;
   }
 
   @override
@@ -154,12 +156,12 @@ class _PingPageState extends BasePage<PingPage> {
         if (index == 0) {
           return Column(
             children: [
-              AdaptiveListTile(title: _getPingSummary()),
+              AdaptiveListTile(title: _getPingSummary(context)),
               if (_pingPackets.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Center(
-                    child: Text('Connection results will appear here'),
+                    child: Text(context.l10n.pingResultsEmpty),
                   ),
                 ),
               if (_pingPackets.isNotEmpty)
@@ -200,7 +202,8 @@ class _PingPageState extends BasePage<PingPage> {
     );
   }
 
-  Widget _getPingSummary() {
+  Widget _getPingSummary(BuildContext context) {
+    final l10n = context.l10n;
     final stats = _pingSummary?.stats ?? _stats;
     return Wrap(
       spacing: 12,
@@ -208,35 +211,35 @@ class _PingPageState extends BasePage<PingPage> {
       children: [
         Text(
           key: WidgetKey.pingSummarySent.key,
-          'Checks sent: ${_pingSummary?.transmitted ?? '--'}',
+          l10n.pingSummarySent('${_pingSummary?.transmitted ?? '--'}'),
         ),
         Text(
           key: WidgetKey.pingSummaryReceived.key,
-          'Replies received: ${_pingSummary?.received ?? '--'}',
+          l10n.pingSummaryReceived('${_pingSummary?.received ?? '--'}'),
         ),
         Text(
           key: WidgetKey.pingSummaryPacketLoss.key,
-          'Packet loss: ${_getPacketLoss()}',
+          l10n.pingSummaryPacketLoss(_getPacketLoss()),
         ),
         Text(
           key: WidgetKey.pingSummaryTotalTime.key,
-          'Total time: ${_getTime(_totalTime)}',
+          l10n.pingSummaryTotalTime(_getTime(_totalTime)),
         ),
         Text(
           key: WidgetKey.pingSummaryMin.key,
-          'Min: ${_getTime(stats?.min)}',
+          l10n.pingSummaryMin(_getTime(stats?.min)),
         ),
         Text(
           key: WidgetKey.pingSummaryAvg.key,
-          'Avg: ${_getTime(stats?.avg)}',
+          l10n.pingSummaryAvg(_getTime(stats?.avg)),
         ),
         Text(
           key: WidgetKey.pingSummaryMax.key,
-          'Max: ${_getTime(stats?.max)}',
+          l10n.pingSummaryMax(_getTime(stats?.max)),
         ),
         Text(
           key: WidgetKey.pingSummaryStdDev.key,
-          'Std dev: ${_getTime(stats?.stddev)}',
+          l10n.pingSummaryStdDev(_getTime(stats?.stddev)),
         ),
       ],
     );

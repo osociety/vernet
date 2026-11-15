@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/models/wake_on_lan_target.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:wake_on_lan/wake_on_lan.dart';
 
 class WakeOnLanException implements Exception {
@@ -46,23 +47,22 @@ class WakeOnLanService {
     int repeat = defaultRepeat,
     Duration repeatDelay = const Duration(milliseconds: 200),
   }) async {
+    final l10n = appStrings();
     final mac = normalizeMac(macAddress);
     final macValidation = MACAddress.validate(mac);
     if (!macValidation.state) {
-      throw const WakeOnLanException(
-        'Enter a MAC address like AA:BB:CC:DD:EE:FF',
-      );
+      throw WakeOnLanException(l10n.wakeOnLanMacFormat);
     }
 
     final ip =
         ipv4Address.trim().isEmpty ? defaultBroadcast : ipv4Address.trim();
     final ipValidation = IPAddress.validate(ip);
     if (!ipValidation.state) {
-      throw const WakeOnLanException('Enter a valid IPv4 broadcast address');
+      throw WakeOnLanException(l10n.wakeOnLanErrorBroadcast);
     }
 
     if (port < 0 || port > 65535) {
-      throw const WakeOnLanException('Port must be between 0 and 65535');
+      throw WakeOnLanException(l10n.wakeOnLanErrorPortRange);
     }
 
     final secureOn = password?.trim();
@@ -70,14 +70,12 @@ class WakeOnLanService {
       final passwordValidation =
           SecureONPassword.validate(normalizeMac(secureOn));
       if (!passwordValidation.state) {
-        throw const WakeOnLanException(
-          'SecureON password must look like a MAC address',
-        );
+        throw WakeOnLanException(l10n.wakeOnLanErrorSecureOn);
       }
     }
 
     if (repeat < 1) {
-      throw const WakeOnLanException('Send the packet at least once');
+      throw WakeOnLanException(l10n.wakeOnLanErrorRepeat);
     }
 
     try {
@@ -92,14 +90,12 @@ class WakeOnLanService {
         repeatDelay: repeatDelay,
       );
     } on SocketException {
-      throw const WakeOnLanException(
-        'Could not send the wake packet on this network',
-      );
+      throw WakeOnLanException(l10n.wakeOnLanErrorNoNetwork);
     } catch (e) {
       if (e is WakeOnLanException) {
         rethrow;
       }
-      throw const WakeOnLanException('Could not send the wake packet.');
+      throw WakeOnLanException(l10n.wakeOnLanErrorSend);
     }
 
     return WakeOnLanResult(
@@ -129,12 +125,11 @@ class WakeOnLanService {
   }
 
   Future<List<WakeOnLanTarget>> saveTarget(WakeOnLanTarget target) async {
+    final l10n = appStrings();
     final mac = normalizeMac(target.macAddress);
     final macValidation = MACAddress.validate(mac);
     if (!macValidation.state) {
-      throw const WakeOnLanException(
-        'Enter a MAC address like AA:BB:CC:DD:EE:FF',
-      );
+      throw WakeOnLanException(l10n.wakeOnLanMacFormat);
     }
     final label = target.label.trim().isEmpty ? mac : target.label.trim();
     final normalized = target.copyWith(label: label, macAddress: mac);

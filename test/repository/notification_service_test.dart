@@ -3,10 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:vernet/repository/notification_service.dart';
 
+import '../helpers/test_helpers.dart';
+
 class MockLocalNotificationsPlugin extends Mock
     implements FlutterLocalNotificationsPlugin {}
 
 void main() {
+  final l10n = l10nEn();
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockLocalNotificationsPlugin plugin;
@@ -38,8 +41,8 @@ void main() {
     final details = verify(
       () => plugin.show(
         id: any(named: 'id'),
-        title: 'Device search complete',
-        body: 'Scan complete - found 3 devices on your network',
+        title: l10n.notifScanDoneTitle,
+        body: l10n.notifScanFoundBody(l10n.deviceCountMany('3')),
         notificationDetails: captureAny(named: 'notificationDetails'),
         payload: NotificationService.hostScanPayload,
       ),
@@ -61,8 +64,8 @@ void main() {
     verify(
       () => plugin.show(
         id: any(named: 'id'),
-        title: 'Device search complete',
-        body: 'Scan complete - found 1 device on your network',
+        title: l10n.notifScanDoneTitle,
+        body: l10n.notifScanFoundBody(l10n.deviceCountOne),
         notificationDetails: any(named: 'notificationDetails'),
         payload: NotificationService.hostScanPayload,
       ),
@@ -83,7 +86,7 @@ void main() {
     ).captured.single as NotificationDetails;
 
     expect(details.android?.channelId, 'device_scans');
-    expect(details.android?.channelName, 'Device scans');
+    expect(details.android?.channelName, l10n.notifScanChannelName);
     expect(details.android?.channelId,
         isNot(NotificationService.legacyScanChannelId));
   });
@@ -94,8 +97,8 @@ void main() {
     verify(
       () => plugin.show(
         id: any(named: 'id'),
-        title: 'Device search complete',
-        body: 'Vernet finished looking for devices on your network',
+        title: l10n.notifScanDoneTitle,
+        body: l10n.notifScanDoneBody,
         notificationDetails: any(named: 'notificationDetails'),
         payload: NotificationService.hostScanPayload,
       ),

@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:signal_strength_indicator/signal_strength_indicator.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/models/network_connection_status.dart';
@@ -29,6 +30,7 @@ import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/ui/timestamp_chip.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
@@ -192,6 +194,9 @@ class _WifiDetailState extends State<HomePage> {
   Future<NetworkConnectionStatus> _loadInternetStatusAfterWifi(
     Future<WifiInfo?> wifiFuture,
   ) async {
+    // This pipeline starts in initState, where the Localizations scope is not
+    // readable yet, so the status text comes from the app's own bundle.
+    final l10n = appStrings();
     final wifiInfo = await wifiFuture;
     if (wifiInfo == null || !_isConnected(wifiInfo)) {
       if (mounted) {
@@ -199,23 +204,7 @@ class _WifiDetailState extends State<HomePage> {
           _lastConnectionCheck = DateTime.now();
         });
       }
-      return const NetworkConnectionStatus(
-        type: NetworkConnectionType.routerToInternet,
-        state: NetworkConnectionState.disconnected,
-        title: 'Internet Unreachable (No Local Link)',
-        summary: 'Not connected to Wi-Fi / router',
-        description:
-            'Your device is not connected to any Wi-Fi router or local network interface. An active local network connection is required before internet connectivity can be checked.',
-        troubleshootingSteps: [
-          'Connect to a Wi-Fi network or plug in an Ethernet cable.',
-          'Verify that Wi-Fi is enabled in your device settings.',
-          'Once connected to the router, internet connectivity will be tested automatically.',
-        ],
-        details: {
-          'Wi-Fi / Interface Status': 'Disconnected',
-          'Internet Status': 'Unreachable',
-        },
-      );
+      return _noLocalLinkStatus(l10n);
     }
 
     // Only if Wi-Fi or interface is connected: check connection to internet service
@@ -231,6 +220,26 @@ class _WifiDetailState extends State<HomePage> {
 
     return status;
   }
+
+  /// The dashboard needs this reading in two places: while the Wi-Fi state has
+  /// not settled yet, and when the local link really is down.
+  NetworkConnectionStatus _noLocalLinkStatus(AppLocalizations l10n) =>
+      NetworkConnectionStatus(
+        type: NetworkConnectionType.routerToInternet,
+        state: NetworkConnectionState.disconnected,
+        title: l10n.netTitleInternetUnreachable,
+        summary: l10n.netSummaryNotConnectedRouter,
+        description: l10n.netDescNoLocalLink,
+        troubleshootingSteps: [
+          l10n.netStepConnectWifiOrCable,
+          l10n.netStepWifiEnabledSettings,
+          l10n.netStepTestedAutomatically,
+        ],
+        details: {
+          l10n.netDetailWifiInterfaceStatus: l10n.netDisconnected,
+          l10n.netDetailInternetStatus: l10n.netValueUnreachable,
+        },
+      );
 
   void _showStatusDialog(BuildContext context, NetworkConnectionStatus status) {
     showAdaptiveDialog(
@@ -263,16 +272,17 @@ class _WifiDetailState extends State<HomePage> {
   Widget _buildWifiPanel(BuildContext context, WifiInfo info,
       {bool isChecking = false}) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final level = info.metrics.normalizedLevel.clamp(0, 4);
     final connected = _isConnected(info);
     final signalColor = level >= 3 ? Colors.green : Colors.amber;
     final signalDescription = isChecking
-        ? 'Measuring signal…'
+        ? l10n.homeMeasuringSignal
         : info.metrics.rawRssi != null && level > 0
-            ? '${info.metrics.statusMessage} · ${info.metrics.rawRssi} ${context.l10n.signalStrengthUnit}'
+            ? '${info.metrics.quality.label(l10n)} · ${info.metrics.rawRssi} ${l10n.signalStrengthUnit}'
             : connected
-                ? info.metrics.statusMessage
-                : 'Disconnected';
+                ? info.metrics.quality.label(l10n)
+                : l10n.netDisconnected;
 
     return _OverviewPanel(
       child: Column(
@@ -284,7 +294,7 @@ class _WifiDetailState extends State<HomePage> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'WI-FI CONNECTION',
+                  l10n.homeWifiConnection,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         letterSpacing: 1.1,
                         fontWeight: FontWeight.w700,
@@ -302,10 +312,10 @@ class _WifiDetailState extends State<HomePage> {
               ],
               _StatusPill(
                 label: isChecking
-                    ? 'CHECKING…'
+                    ? l10n.homeStatusChecking
                     : connected
-                        ? 'CONNECTED'
-                        : 'NOT CONNECTED',
+                        ? l10n.homeStatusConnected
+                        : l10n.homeStatusNotConnected,
                 color: isChecking
                     ? colors.onSurfaceVariant
                     : connected
@@ -332,7 +342,7 @@ class _WifiDetailState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Signal strength',
+                      l10n.homeSignalStrength,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -358,18 +368,18 @@ class _WifiDetailState extends State<HomePage> {
             children: [
               Expanded(
                 child: _NetworkValue(
-                  label: 'DEVICE IP',
-                  value: isChecking ? 'Checking…' : info.ip,
+                  label: l10n.homeDeviceIp,
+                  value: isChecking ? l10n.netChecking : info.ip,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _NetworkValue(
-                  label: 'GATEWAY',
+                  label: l10n.homeGateway,
                   value: isChecking
-                      ? 'Checking…'
+                      ? l10n.netChecking
                       : (info.gatewayIp.isEmpty
-                          ? 'Unavailable'
+                          ? l10n.netUnavailable
                           : info.gatewayIp),
                   badge: !isChecking &&
                           info.isCustomGateway &&
@@ -382,12 +392,12 @@ class _WifiDetailState extends State<HomePage> {
           ),
           if (info.bssid != WifiInfo.defaultBSSID.first) ...[
             const SizedBox(height: 12),
-            _NetworkValue(label: 'ACCESS POINT', value: info.bssid),
+            _NetworkValue(label: l10n.homeAccessPoint, value: info.bssid),
           ],
           if (!info.isLocationOn && (Platform.isAndroid || Platform.isIOS)) ...[
             const SizedBox(height: 12),
             Text(
-              'Allow location access to show the Wi-Fi name.',
+              l10n.homeLocationHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
@@ -411,10 +421,8 @@ class _WifiDetailState extends State<HomePage> {
                       : const Icon(Icons.radar),
                   label: Text(
                     scanRunning
-                        ? 'Scanning your network…'
-                        : appSettings.runScanOnStartup && devices.isNotEmpty
-                            ? '${devices.length} devices found'
-                            : 'Scan your network',
+                        ? l10n.homeScanningNetwork
+                        : _scanResultLabel(l10n, devices.length),
                   ),
                 ),
               ),
@@ -432,8 +440,18 @@ class _WifiDetailState extends State<HomePage> {
     );
   }
 
+  /// The scan button doubles as the startup-scan result, and "1 devices found"
+  /// reads wrong in every language, so the singular case has its own string.
+  String _scanResultLabel(AppLocalizations l10n, int count) {
+    if (!appSettings.runScanOnStartup || count == 0) {
+      return l10n.navScanNetwork;
+    }
+    return count == 1 ? l10n.devicesFoundOne : l10n.devicesFoundMany('$count');
+  }
+
   Widget _buildSpeedTestPanel(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return FutureBuilder<SpeedSnapshot?>(
       future: NetworkScoreRepository().loadSpeedSnapshot(),
       builder: (context, snapshot) {
@@ -450,7 +468,7 @@ class _WifiDetailState extends State<HomePage> {
                   _PanelIcon(icon: Icons.speed, color: colors.tertiary),
                   const SizedBox(width: 8),
                   Text(
-                    'SPEED TEST',
+                    l10n.homeSpeedTestPanel,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           letterSpacing: 1.1,
                           fontWeight: FontWeight.w700,
@@ -479,7 +497,7 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Download',
+                      l10n.homeDownload,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -505,7 +523,7 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Upload',
+                      l10n.homeUpload,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -531,7 +549,7 @@ class _WifiDetailState extends State<HomePage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Latency',
+                      l10n.homeLatency,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -557,7 +575,7 @@ class _WifiDetailState extends State<HomePage> {
                       children: [
                         Icon(Icons.download, size: 20, color: colors.primary),
                         const SizedBox(width: 8),
-                        Text('Download',
+                        Text(l10n.homeDownload,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
@@ -581,7 +599,7 @@ class _WifiDetailState extends State<HomePage> {
                       children: [
                         Icon(Icons.upload, size: 20, color: colors.tertiary),
                         const SizedBox(width: 8),
-                        Text('Upload',
+                        Text(l10n.homeUpload,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
@@ -606,7 +624,7 @@ class _WifiDetailState extends State<HomePage> {
                         Icon(Icons.network_ping,
                             size: 20, color: colors.onSurfaceVariant),
                         const SizedBox(width: 8),
-                        Text('Latency',
+                        Text(l10n.homeLatency,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
@@ -641,14 +659,15 @@ class _WifiDetailState extends State<HomePage> {
                         );
                       },
                       icon: const Icon(Icons.play_arrow),
-                      label:
-                          Text(hasData ? 'Run New Test' : 'Start Speed Test'),
+                      label: Text(hasData
+                          ? l10n.homeRunNewTest
+                          : l10n.homeStartSpeedTest),
                     ),
                   ),
                   if (hasData) ...[
                     const SizedBox(width: 12),
                     IconButton.outlined(
-                      tooltip: 'View last result',
+                      tooltip: l10n.homeViewLastResult,
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -705,22 +724,25 @@ class _WifiDetailState extends State<HomePage> {
     bool isWifiChecking = false,
   }) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final nodes = [
       _RouteData(
         Icons.devices,
-        'THIS DEVICE',
+        l10n.homeThisDevice,
         isWifiChecking
-            ? 'Checking…'
+            ? l10n.netChecking
             : (wifiInfo.ip.isEmpty || wifiInfo.ip == 'x.x.x.x'
-                ? 'Unavailable'
+                ? l10n.netUnavailable
                 : wifiInfo.ip),
       ),
       _RouteData(
         Icons.router_outlined,
-        'WI-FI ROUTER',
+        l10n.homeWifiRouter,
         isWifiChecking
-            ? 'Checking…'
-            : (wifiInfo.gatewayIp.isEmpty ? 'Unavailable' : wifiInfo.gatewayIp),
+            ? l10n.netChecking
+            : (wifiInfo.gatewayIp.isEmpty
+                ? l10n.netUnavailable
+                : wifiInfo.gatewayIp),
         badge: !isWifiChecking &&
                 wifiInfo.isCustomGateway &&
                 wifiInfo.gatewayIp.isNotEmpty
@@ -729,26 +751,25 @@ class _WifiDetailState extends State<HomePage> {
       ),
       _RouteData(
         Icons.cloud_outlined,
-        'INTERNET',
+        l10n.homeInternet,
         isWifiChecking
-            ? 'Checking…'
+            ? l10n.netChecking
             : (internetStatus?.isConnected == true
-                ? 'Connected'
+                ? l10n.netConnected
                 : internetStatus?.isChecking == true
-                    ? 'Checking…'
-                    : 'Disconnected'),
+                    ? l10n.netChecking
+                    : l10n.netDisconnected),
       ),
     ];
 
     final NetworkConnectionStatus deviceToRouterStatus;
     if (isWifiChecking) {
-      deviceToRouterStatus = const NetworkConnectionStatus(
+      deviceToRouterStatus = NetworkConnectionStatus(
         type: NetworkConnectionType.deviceToRouter,
         state: NetworkConnectionState.checking,
-        title: 'Checking Device to Router Link',
-        summary: 'Checking Wi-Fi / interface…',
-        description:
-            'Detecting your local network interface and verifying the connection to your Wi-Fi router or gateway.',
+        title: l10n.netTitleCheckingDeviceToRouter,
+        summary: l10n.netSummaryCheckingWifiInterface,
+        description: l10n.netDescCheckingDeviceToRouter,
       );
     } else {
       deviceToRouterStatus = _connectivityService.checkDeviceToRouter(wifiInfo);
@@ -756,41 +777,23 @@ class _WifiDetailState extends State<HomePage> {
 
     final NetworkConnectionStatus routerToInternetStatus;
     if (deviceToRouterStatus.isChecking) {
-      routerToInternetStatus = const NetworkConnectionStatus(
+      routerToInternetStatus = NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
         state: NetworkConnectionState.checking,
-        title: 'Waiting for Wi-Fi Connection…',
-        summary: 'Waiting for Wi-Fi / LAN connection…',
-        description:
-            'We must first establish a connection to your Wi-Fi router or local network interface before checking internet connectivity.',
+        title: l10n.netTitleWaitingWifi,
+        summary: l10n.netSummaryWaitingWifi,
+        description: l10n.netDescWaitingWifi,
       );
     } else if (deviceToRouterStatus.isDisconnected) {
-      routerToInternetStatus = const NetworkConnectionStatus(
-        type: NetworkConnectionType.routerToInternet,
-        state: NetworkConnectionState.disconnected,
-        title: 'Internet Unreachable (No Local Link)',
-        summary: 'Not connected to Wi-Fi / router',
-        description:
-            'Your device is not connected to any Wi-Fi router or local network interface. An active local network connection is required before internet connectivity can be checked.',
-        troubleshootingSteps: [
-          'Connect to a Wi-Fi network or plug in an Ethernet cable.',
-          'Verify that Wi-Fi is enabled in your device settings.',
-          'Once connected to the router, internet connectivity will be tested automatically.',
-        ],
-        details: {
-          'Wi-Fi / Interface Status': 'Disconnected',
-          'Internet Status': 'Unreachable',
-        },
-      );
+      routerToInternetStatus = _noLocalLinkStatus(l10n);
     } else {
       routerToInternetStatus = internetStatus ??
-          const NetworkConnectionStatus(
+          NetworkConnectionStatus(
             type: NetworkConnectionType.routerToInternet,
             state: NetworkConnectionState.checking,
-            title: 'Checking Internet Connection…',
-            summary: 'Checking connection to internet…',
-            description:
-                'Testing connection between your router and internet hosts.',
+            title: l10n.netTitleCheckingInternet,
+            summary: l10n.netSummaryCheckingInternet,
+            description: l10n.netDescCheckingInternet,
           );
     }
 
@@ -823,7 +826,7 @@ class _WifiDetailState extends State<HomePage> {
             children: [
               Icon(Icons.route, size: 18, color: colors.primary),
               Text(
-                'CONNECTION PATH',
+                l10n.homeConnectionPath,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       letterSpacing: 1.1,
                       fontWeight: FontWeight.w700,
@@ -944,7 +947,7 @@ class _WifiDetailState extends State<HomePage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'NETWORK OVERVIEW',
+                                              context.l10n.homeNetworkOverview,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .labelMedium
@@ -958,7 +961,7 @@ class _WifiDetailState extends State<HomePage> {
                                             ),
                                             const SizedBox(height: 5),
                                             Text(
-                                              'Your network',
+                                              context.l10n.navYourNetwork,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleLarge
@@ -968,7 +971,8 @@ class _WifiDetailState extends State<HomePage> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              'A live view of your Wi-Fi and internet connection.',
+                                              context
+                                                  .l10n.homeDashboardSubtitle,
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyMedium
@@ -991,12 +995,13 @@ class _WifiDetailState extends State<HomePage> {
                                         ),
                                         icon: const Icon(
                                             Icons.volunteer_activism),
-                                        tooltip: 'Support Vernet',
+                                        tooltip: context.l10n.navSupport,
                                       ),
                                       IconButton(
                                         onPressed: _refreshDashboard,
                                         icon: const Icon(Icons.refresh),
-                                        tooltip: 'Refresh dashboard',
+                                        tooltip:
+                                            context.l10n.homeRefreshDashboard,
                                       ),
                                     ],
                                   ),
@@ -1208,7 +1213,7 @@ class _CustomValueBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        'CUSTOM',
+        context.l10n.homeCustomBadge,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: colors.onTertiaryContainer,
               fontSize: 10,
@@ -1348,7 +1353,7 @@ class _HorizontalConnectionSegment extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Tooltip(
-          message: 'Network status: $label. Tap to view details.',
+          message: context.l10n.netStatusTooltip(label),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             child: Column(
@@ -1458,7 +1463,7 @@ class _VerticalConnectionSegment extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Tooltip(
-          message: 'Network status: $label. Tap to view details.',
+          message: context.l10n.netStatusTooltip(label),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(

@@ -16,7 +16,7 @@ class ReverseDNSPage extends StatefulWidget {
 class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
   String? _hostname;
   @override
-  Widget buildPopularChips() {
+  Widget buildPopularChips(BuildContext context) {
     return const SizedBox();
   }
 
@@ -40,8 +40,8 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
         onTap: () {
           Clipboard.setData(ClipboardData(text: _hostname!));
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Device name copied'),
+            SnackBar(
+              content: Text(context.l10n.reverseDnsNameCopied),
             ),
           );
         },
@@ -50,13 +50,13 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
   }
 
   @override
-  String buttonLabel() {
-    return 'Find name';
+  String buttonLabel(BuildContext context) {
+    return context.l10n.reverseDnsFindName;
   }
 
   @override
-  String fieldLabel() {
-    return 'Enter a device address';
+  String fieldLabel(BuildContext context) {
+    return context.l10n.reverseDnsFieldHint;
   }
 
   void _showMessage(String message) {
@@ -67,6 +67,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
 
   @override
   Future<void> onPressed() async {
+    final l10n = context.l10n;
     setState(() {
       _hostname = null;
     });
@@ -80,6 +81,7 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
           });
         } else {
           final InternetAddress address = await lookupAddress.reverse();
+          if (!mounted) return;
           setState(() {
             _hostname = address.host;
           });
@@ -88,17 +90,16 @@ class _ReverseDNSPageState extends BasePage<ReverseDNSPage> {
         if (e is SocketException) {
           _showMessage(e.message);
         } else {
-          _showMessage('We could not find a name for that address');
+          _showMessage(l10n.reverseDnsNotFound);
         }
       }
     } else {
-      //Show snackbar with error
-      _showMessage('That does not look like a valid device address');
+      _showMessage(l10n.reverseDnsInvalidAddress);
     }
   }
 
   @override
-  String title() {
-    return 'Find device name';
+  String title(BuildContext context) {
+    return context.l10n.reverseDnsPageTitle;
   }
 }

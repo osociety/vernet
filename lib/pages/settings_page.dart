@@ -40,8 +40,12 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.changeThemeTile.key,
-              title: const Text('Theme'),
-              subtitle: Text(themeChange.themePref.name),
+              title: Text(l10n.themeTitle),
+              subtitle: Text(switch (themeChange.themePref) {
+                ThemePreference.system => l10n.themeSystem,
+                ThemePreference.dark => l10n.themeDark,
+                ThemePreference.light => l10n.themeLight,
+              }),
               onTap: () async {
                 await showDialog(
                   context: context,
@@ -76,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: const Text('In-App Internet'),
+              title: Text(l10n.inAppInternetTitle),
               trailing: Switch(
                 key: WidgetKey.inAppInternetSwitch.key,
                 value: appSettings.inAppInternet,
@@ -201,7 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: AdaptiveListTile(
               key: WidgetKey.whatsNewSettingsTile.key,
-              title: const Text("What's new"),
+              title: Text(l10n.whatsNewTitle),
               trailing: Icon(
                 Icons.chevron_right,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -212,8 +216,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: AdaptiveListTile(
               key: WidgetKey.donateSettingsTile.key,
-              title: const Text('Support Vernet'),
-              subtitle: const Text('Donations, stars and ratings'),
+              title: Text(l10n.navSupport),
+              subtitle: Text(l10n.supportVernetDesc),
               trailing: Icon(
                 Icons.chevron_right,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -232,9 +236,8 @@ class _SettingsPageState extends State<SettingsPage> {
             Card(
               child: AdaptiveListTile(
                 key: WidgetKey.updateSettingsTile.key,
-                title: const Text('Updates & beta'),
-                subtitle: const Text('Channel, automatic updates, pre-release '
-                    'builds'),
+                title: Text(l10n.updatesTitle),
+                subtitle: Text(l10n.updatesDesc),
                 trailing: Icon(
                   Icons.chevron_right,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -253,8 +256,8 @@ class _SettingsPageState extends State<SettingsPage> {
             Card(
               child: AdaptiveListTile(
                 key: WidgetKey.rateAppTile.key,
-                title: const Text('Rate Vernet'),
-                subtitle: const Text('Opens Google Play'),
+                title: Text(l10n.rateAppTitle),
+                subtitle: Text(l10n.rateAppDesc),
                 trailing: Icon(
                   Icons.star_border,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -264,7 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           Card(
             child: ListTile(
-              title: const Text('About'),
+              title: Text(l10n.aboutTitle),
               onTap: () async {
                 final info = await PackageInfo.fromPlatform();
                 if (!context.mounted) return;
@@ -276,14 +279,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.bug_report),
-                      title: const Text('Report Issues'),
+                      title: Text(l10n.reportIssuesTitle),
                       onTap: () {
                         launchURLWithWarning(context, _issueUrl);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.favorite),
-                      title: const Text('Donate'),
+                      title: Text(l10n.donateTitle),
                       onTap: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).push(
@@ -295,14 +298,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.code),
-                      title: const Text('Source Code'),
+                      title: Text(l10n.sourceCodeTitle),
                       onTap: () {
                         launchURLWithWarning(context, _srcUrl);
                       },
                     ),
-                    const ListTile(
+                    ListTile(
                       title: Text(
-                        'Made with ❤️ in India',
+                        l10n.madeInIndia,
                         textAlign: TextAlign.center,
                       ),
                     ),

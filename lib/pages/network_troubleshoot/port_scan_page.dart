@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
@@ -11,6 +12,7 @@ import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/adaptive_radio.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -44,11 +46,16 @@ class _PortScanPageState extends State<PortScanPage>
   final TextEditingController _endPortEditingController =
       TextEditingController();
   late TabController _tabController;
-  final List<Tab> _tabs = [
-    const Tab(text: 'Common websites'),
-    const Tab(text: 'Custom Ranges'),
-    const Tab(text: 'Common services'),
-  ];
+
+  /// The tabs only name the three scan modes, so the controller can be built
+  /// from a fixed count while the labels come from the resource bundle.
+  static const int _tabCount = 3;
+
+  List<Tab> _tabs(AppLocalizations l10n) => [
+        Tab(text: l10n.portScanTabWebsites),
+        Tab(text: l10n.portScanTabRanges),
+        Tab(text: l10n.portScanTabServices),
+      ];
   final _formKey = GlobalKey<FormState>();
 
   void _showSnackBar(String message) {
@@ -73,7 +80,7 @@ class _PortScanPageState extends State<PortScanPage>
       _completed = true;
     });
     if (_completed && _openPorts.isEmpty) {
-      _showSnackBar('Security check complete: no reachable services found');
+      _showSnackBar(context.l10n.portScanNoneFoundSnackbar);
     }
     debugPrint(
       _completed && _openPorts.isEmpty
@@ -126,7 +133,7 @@ class _PortScanPageState extends State<PortScanPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: _tabCount, vsync: this);
     _targetIPEditingController.text = widget.target;
     if (widget.runDefaultScan) {
       Future.delayed(Durations.short2, _startScanning);
@@ -184,9 +191,9 @@ class _PortScanPageState extends State<PortScanPage>
         validator: validatePorts,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         controller: _singlePortEditingController,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           filled: true,
-          hintText: 'Enter a service number',
+          hintText: context.l10n.portScanHintServiceNumber,
         ),
       );
     } else if (_type == ScanType.range) {
@@ -198,9 +205,9 @@ class _PortScanPageState extends State<PortScanPage>
               validator: validatePorts,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               controller: _startPortEditingController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 filled: true,
-                hintText: 'First service number',
+                hintText: context.l10n.portScanHintFirstServiceNumber,
               ),
             ),
           ),
@@ -211,9 +218,9 @@ class _PortScanPageState extends State<PortScanPage>
               validator: validatePorts,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               controller: _endPortEditingController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 filled: true,
-                hintText: 'Last service number',
+                hintText: context.l10n.portScanHintLastServiceNumber,
               ),
             ),
           ),
@@ -224,13 +231,16 @@ class _PortScanPageState extends State<PortScanPage>
   }
 
   String? validatePorts(String? value) {
+    final l10n = context.l10n;
     if (value != null) {
-      if (value.isEmpty) return 'Please enter a service number';
+      if (value.isEmpty) return l10n.portScanErrorServiceNumberEmpty;
       try {
         final int port = int.parse(value.trim());
-        if (port < 0 || port > 65535) return 'Enter a number from 0 to 65535';
+        if (port < 0 || port > 65535) {
+          return l10n.portScanErrorServiceNumberRange;
+        }
       } catch (e) {
-        return 'Please enter a number';
+        return l10n.portScanErrorNotANumber;
       }
     }
     return null;
@@ -238,16 +248,17 @@ class _PortScanPageState extends State<PortScanPage>
 
   String? validateIP(String? value) {
     if (value != null) {
-      if (value.isEmpty) return 'Please enter a website or device address';
+      if (value.isEmpty) return context.l10n.portScanErrorTargetEmpty;
     }
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Find security gaps'),
+        title: Text(l10n.portScanTitle),
       ),
       body: FutureBuilder<Map<String, Port>>(
         future: PortDescLoader('assets/ports_lists.json').load(),
@@ -275,10 +286,9 @@ class _PortScanPageState extends State<PortScanPage>
                                 child: TextFormField(
                                   validator: validateIP,
                                   controller: _targetIPEditingController,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     filled: true,
-                                    hintText:
-                                        'Enter a website or device address',
+                                    hintText: l10n.portScanHintTarget,
                                   ),
                                 ),
                               ),
@@ -304,7 +314,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     });
                                   },
                                 ),
-                                child: const Text('Common services'),
+                                child: Text(l10n.portScanTabServices),
                               ),
                             ),
                             Expanded(
@@ -320,8 +330,8 @@ class _PortScanPageState extends State<PortScanPage>
                                     });
                                   },
                                 ),
-                                child: const Text(
-                                  'Choose a range',
+                                child: Text(
+                                  l10n.portScanRadioRange,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -339,7 +349,7 @@ class _PortScanPageState extends State<PortScanPage>
                                     });
                                   },
                                 ),
-                                child: const Text('One service'),
+                                child: Text(l10n.portScanRadioSingle),
                               ),
                             ),
                             Padding(
@@ -353,7 +363,11 @@ class _PortScanPageState extends State<PortScanPage>
                                         }
                                       }
                                     : null,
-                                child: Text(_completed ? 'Check' : 'Checking'),
+                                child: Text(
+                                  _completed
+                                      ? l10n.portScanRun
+                                      : l10n.portScanRunning,
+                                ),
                               ),
                             ),
                           ],
@@ -367,7 +381,7 @@ class _PortScanPageState extends State<PortScanPage>
                     child: Container(
                       padding: const EdgeInsets.all(5.0),
                       child: DefaultTabController(
-                        length: _tabs.length,
+                        length: _tabCount,
                         child: LayoutBuilder(
                           builder: (context, constraints) {
                             final tabs = Column(
@@ -375,7 +389,7 @@ class _PortScanPageState extends State<PortScanPage>
                               children: <Widget>[
                                 TabBar(
                                   controller: _tabController,
-                                  tabs: _tabs,
+                                  tabs: _tabs(l10n),
                                   labelColor:
                                       Theme.of(context).colorScheme.secondary,
                                 ),
@@ -415,25 +429,25 @@ class _PortScanPageState extends State<PortScanPage>
                                         children: [
                                           _getCustomRangeChip(
                                             WidgetKey.knownPortChip.key,
-                                            '0-1024 (known)',
+                                            l10n.portScanRangeKnown,
                                             '0',
                                             '1024',
                                           ),
                                           _getCustomRangeChip(
                                             WidgetKey.shortPortChip.key,
-                                            '0-100 (short)',
+                                            l10n.portScanRangeShort,
                                             '0',
                                             '100',
                                           ),
                                           _getCustomRangeChip(
                                             WidgetKey.veryShortPortChip.key,
-                                            '0-10 (very short)',
+                                            l10n.portScanRangeVeryShort,
                                             '0',
                                             '10',
                                           ),
                                           _getCustomRangeChip(
                                             WidgetKey.fullPortChip.key,
-                                            '0-65535 (Full)',
+                                            l10n.portScanRangeFull,
                                             '0',
                                             '65535',
                                           ),
@@ -442,17 +456,23 @@ class _PortScanPageState extends State<PortScanPage>
                                       Wrap(
                                         children: [
                                           _getSinglePortChip(
-                                            '20 (FTP Data)',
+                                            l10n.portScanChipFtpData,
                                             '20',
                                           ),
                                           _getSinglePortChip(
-                                            '21 (FTP Control)',
+                                            l10n.portScanChipFtpControl,
                                             '21',
                                           ),
-                                          _getSinglePortChip('22 (SSH)', '22'),
-                                          _getSinglePortChip('80 (HTTP)', '80'),
                                           _getSinglePortChip(
-                                            '443 (HTTPS)',
+                                            l10n.portScanChipSsh,
+                                            '22',
+                                          ),
+                                          _getSinglePortChip(
+                                            l10n.portScanChipHttp,
+                                            '80',
+                                          ),
+                                          _getSinglePortChip(
+                                            l10n.portScanChipHttps,
                                             '443',
                                           ),
                                         ],
@@ -482,10 +502,9 @@ class _PortScanPageState extends State<PortScanPage>
                 Expanded(
                   flex: 2,
                   child: _openPorts.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Text(
-                            'Security check results will appear here.\n'
-                            'Reachable services may be worth reviewing.',
+                            l10n.portScanEmptyResults,
                             textAlign: TextAlign.center,
                           ),
                         )
@@ -529,7 +548,7 @@ class _PortScanPageState extends State<PortScanPage>
                                   title: port == null
                                       ? const SizedBox()
                                       : Text(
-                                          'Finding: ${port.desc}',
+                                          l10n.portScanFinding(port.desc),
                                         ),
                                   subtitle: port == null
                                       ? const SizedBox()
@@ -559,24 +578,22 @@ class _PortScanPageState extends State<PortScanPage>
                   Padding(
                     padding: const EdgeInsets.all(12),
                     child: Text(
-                      'Security check complete: found ${_openPorts.length} '
-                      'reachable service${_openPorts.length == 1 ? '' : 's'}. '
-                      'Review anything you do not recognize.',
+                      _foundLabel(l10n, _openPorts.length),
                       textAlign: TextAlign.center,
                     ),
                   ),
               ],
             );
           } else if (snapshot.hasError) {
-            return const Center(
+            return Center(
               child: Text(
-                'We could not load the service list.\nPlease try again later.',
+                l10n.portScanListLoadError,
                 textAlign: TextAlign.center,
               ),
             );
           } else {
-            return const Center(
-              child: Text('Getting things ready...'),
+            return Center(
+              child: Text(l10n.portScanLoading),
             );
           }
         },
@@ -584,3 +601,8 @@ class _PortScanPageState extends State<PortScanPage>
     );
   }
 }
+
+/// "found 1 reachable services" reads wrong in every language, so the singular
+/// case has its own string instead of an interpolated plural.
+String _foundLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.portScanFoundOne : l10n.portScanFoundMany('$count');

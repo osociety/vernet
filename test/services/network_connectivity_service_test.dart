@@ -1,10 +1,17 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
+import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
+import '../helpers/test_helpers.dart';
 
 void main() {
+  // The service reads the app language without a BuildContext, so the tests
+  // pin it instead of inheriting whatever the machine running them speaks.
+  setUp(() => LocaleProvider.active = const Locale('en'));
+  tearDown(() => LocaleProvider.active = null);
   group('NetworkConnectivityService', () {
     group('checkDeviceToRouter', () {
       test('returns connected when device has a valid local IP and Wi-Fi', () {
@@ -19,7 +26,7 @@ void main() {
           const WifiNetworkMetrics(
             rawRssi: -55,
             normalizedLevel: 3,
-            statusMessage: 'Good signal',
+            quality: WifiSignalQuality.excellent,
           ),
         );
 
@@ -27,12 +34,17 @@ void main() {
 
         expect(status.state, NetworkConnectionState.connected);
         expect(status.isConnected, isTrue);
-        expect(status.label, 'Connected');
+        expect(status.label, l10nEn().netConnected);
         expect(status.type, NetworkConnectionType.deviceToRouter);
-        expect(status.details['Device IP'], '192.168.1.50');
-        expect(status.details['Gateway IP'], '192.168.1.1');
-        expect(status.details['Interface'], contains('Wi-Fi'));
-        expect(status.details['Access Point (BSSID)'], '00:11:22:33:44:55');
+        final l10n = l10nEn();
+        expect(status.details[l10n.netDetailDeviceIp], '192.168.1.50');
+        expect(status.details[l10n.netDetailGatewayIp], '192.168.1.1');
+        expect(status.details[l10n.netDetailInterface],
+            contains(l10n.netInterfaceWifi));
+        expect(
+          status.details[l10n.netDetailAccessPointBssid],
+          '00:11:22:33:44:55',
+        );
       });
 
       test('identifies LAN / local interface when Wi-Fi is not active', () {
@@ -50,7 +62,7 @@ void main() {
         final status = service.checkDeviceToRouter(wifiInfo);
 
         expect(status.isConnected, isTrue);
-        expect(status.details['Interface'], contains('LAN'));
+        expect(status.details[l10nEn().netDetailInterface], contains('LAN'));
       });
 
       test('returns disconnected when device has no IP address', () {
@@ -69,7 +81,7 @@ void main() {
 
         expect(status.state, NetworkConnectionState.disconnected);
         expect(status.isDisconnected, isTrue);
-        expect(status.label, 'Disconnected');
+        expect(status.label, l10nEn().netDisconnected);
         expect(status.troubleshootingSteps, isNotEmpty);
       });
     });
@@ -95,8 +107,10 @@ void main() {
 
         expect(status.state, NetworkConnectionState.disconnected);
         expect(status.troubleshootingSteps, isNotEmpty);
-        expect(status.description,
-            contains('disconnected from your local router'));
+        expect(
+          status.description,
+          contains(l10nEn().netDescNoLocalLinkCheck),
+        );
       });
 
       test('returns connected when ping probe succeeds', () async {
@@ -122,7 +136,7 @@ void main() {
         expect(status.state, NetworkConnectionState.connected);
         expect(status.isConnected, isTrue);
         expect(status.latency, const Duration(milliseconds: 22));
-        expect(status.details['Ping Latency'], '22 ms');
+        expect(status.details[l10nEn().netDetailPingLatency], '22 ms');
         expect(status.targetHost, 'google.com');
       });
 

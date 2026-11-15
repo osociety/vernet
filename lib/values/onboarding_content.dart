@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/onboarding_step.dart';
 
-const List<OnboardingStep> kOnboardingSteps = [
-  OnboardingStep(
-    icon: Icons.radar,
-    title: 'Discover Devices',
-    description:
-        'Scan your local network to find every connected device and inspect open ports.',
-  ),
-  OnboardingStep(
-    icon: Icons.lock_open,
-    title: 'Find Security Gaps',
-    description:
-        'Identify open ports and potential vulnerabilities on your network.',
-  ),
-  OnboardingStep(
-    icon: Icons.speed,
-    title: 'Test Internet Speed',
-    description: 'Measure download and upload speeds powered by M-Lab NDT7.',
-  ),
-  OnboardingStep(
-    icon: Icons.dns,
-    title: 'DNS & Diagnostics',
-    description:
-        'Look up DNS records, ping hosts, and diagnose connectivity issues.',
-  ),
-];
+/// The four feature highlights of the first-run walkthrough, in page order.
+///
+/// The copy comes from the active locale, so the tour reads in the language the
+/// user picked on the screen before this one.
+List<OnboardingStep> onboardingSteps(AppLocalizations l10n) => [
+      OnboardingStep(
+        icon: Icons.radar,
+        title: l10n.onboardingDiscoverTitle,
+        description: l10n.onboardingDiscoverDesc,
+      ),
+      OnboardingStep(
+        icon: Icons.lock_open,
+        title: l10n.onboardingSecurityTitle,
+        description: l10n.onboardingSecurityDesc,
+      ),
+      OnboardingStep(
+        icon: Icons.speed,
+        title: l10n.onboardingSpeedTitle,
+        description: l10n.onboardingSpeedDesc,
+      ),
+      OnboardingStep(
+        icon: Icons.dns,
+        title: l10n.onboardingDnsTitle,
+        description: l10n.onboardingDnsDesc,
+      ),
+    ];

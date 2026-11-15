@@ -6,6 +6,7 @@ import 'package:dart_ping/dart_ping.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/models/server_monitor.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 typedef IcmpProbe = Future<Duration?> Function(String host);
 
@@ -125,6 +126,7 @@ class ServerMonitorService {
 
   Future<ServerCheckResult> check(ServerMonitor monitor) async {
     final started = DateTime.now();
+    final l10n = appStrings();
     try {
       switch (monitor.type) {
         case ServerCheckType.icmp:
@@ -133,7 +135,9 @@ class ServerMonitorService {
             checkedAt: started,
             isUp: duration != null,
             latency: duration ?? DateTime.now().difference(started),
-            message: duration == null ? 'No ICMP reply' : 'ICMP reply received',
+            message: duration == null
+                ? l10n.serverCheckerNoIcmpReply
+                : l10n.serverCheckerIcmpReply,
           );
         case ServerCheckType.tcp:
           final socket = await Socket.connect(
@@ -146,7 +150,7 @@ class ServerMonitorService {
             checkedAt: started,
             isUp: true,
             latency: DateTime.now().difference(started),
-            message: 'TCP port ${monitor.port} is open',
+            message: l10n.serverCheckerTcpOpen('${monitor.port}'),
           );
         case ServerCheckType.http:
         case ServerCheckType.https:
@@ -168,8 +172,8 @@ class ServerMonitorService {
             isUp: isUp,
             latency: DateTime.now().difference(started),
             message: !textMatches
-                ? 'Expected text was not found'
-                : 'HTTP ${response.statusCode}',
+                ? l10n.serverCheckerTextNotFound
+                : l10n.serverCheckerHttpStatus('${response.statusCode}'),
           );
       }
     } on Object catch (error) {

@@ -63,6 +63,7 @@ void main() {
   Future<void> pumpTabBarPage(
     WidgetTester tester, {
     Size size = const Size(900, 800),
+    Locale? locale,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
@@ -74,10 +75,11 @@ void main() {
           ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
           ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: TabBarPage(),
+          home: const TabBarPage(),
         ),
       ),
     );
@@ -142,6 +144,24 @@ void main() {
       await tester.tap(find.text('Home').last);
       await pumpVisibleFrame(tester);
       expect(find.byType(HomePage), findsOneWidget);
+    });
+
+    testWidgets('the shell renders in the selected locale', (tester) async {
+      await pumpTabBarPage(tester, locale: const Locale('de'));
+
+      // The scan label sits on the rail and on the dashboard's own button, and
+      // both are German now that the button reads from the resource bundle.
+      expect(find.text('Netzwerk scannen'), findsNWidgets(2));
+      expect(find.text('Einstellungen'), findsOneWidget);
+      expect(find.text('Scan your network'), findsNothing);
+      expect(find.text('Monitor server'), findsNothing);
+
+      await tester.tap(find.text('Einstellungen'));
+      await pumpVisibleFrame(tester);
+
+      expect(find.byType(SettingsPage), findsOneWidget);
+      expect(find.text('Erscheinungsbild'), findsOneWidget);
+      expect(find.text('Theme'), findsNothing);
     });
   });
 }

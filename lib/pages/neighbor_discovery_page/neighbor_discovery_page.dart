@@ -93,8 +93,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
         _snmpResult = result;
         _loading = false;
         if (result.neighbors.isEmpty) {
-          _error =
-              'No CDP/LLDP neighbors were reported. SNMP may be denied, or discovery is disabled on this device.';
+          _error = context.l10n.neighborErrorNoResult;
         }
       });
     } on NeighborDiscoveryException catch (e) {
@@ -111,7 +110,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
       }
       setState(() {
         _loading = false;
-        _error = 'Neighbor discovery failed.';
+        _error = context.l10n.neighborFailed;
       });
     }
   }
@@ -121,9 +120,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
     setState(() {
       _cliNeighbors = neighbors;
       _snmpResult = null;
-      _error = neighbors.isEmpty
-          ? 'No neighbors found in that output. Paste show cdp/lldp neighbors detail.'
-          : null;
+      _error = neighbors.isEmpty ? context.l10n.neighborCliEmpty : null;
     });
   }
 
@@ -132,6 +129,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.neighborDiscoveryPageTitle),
@@ -150,14 +148,14 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
                     TextFormField(
                       key: WidgetKey.neighborSwitchIpField.key,
                       controller: _switchController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'Switch address',
+                        labelText: l10n.neighborSwitchAddressLabel,
                         hintText: '192.168.1.1',
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Enter a switch address';
+                          return l10n.neighborErrorSwitchAddress;
                         }
                         return null;
                       },
@@ -167,9 +165,9 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
                       key: WidgetKey.neighborCommunityField.key,
                       controller: _communityController,
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'SNMP community',
+                        labelText: l10n.neighborCommunityLabel,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -197,11 +195,12 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
                           _loading || (!_cdp && !_lldp) ? null : _discover,
                       icon: const Icon(Icons.hub),
                       label: Text(
-                          _loading ? 'Asking the switch…' : 'Find neighbors'),
+                        _loading ? l10n.neighborAsking : l10n.neighborFind,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Queries the switch with SNMP for CDP and LLDP neighbor tables. This is the same data as show cdp/lldp neighbors.',
+                      l10n.neighborExplainer,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -212,8 +211,8 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
           Card(
             child: ExpansionTile(
               key: WidgetKey.neighborCliTile.key,
-              title: const Text('Paste switch CLI output'),
-              subtitle: const Text('Use this when SNMP is not available'),
+              title: Text(l10n.neighborCliTitle),
+              subtitle: Text(l10n.neighborCliSubtitle),
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -224,10 +223,9 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
                         controller: _cliController,
                         minLines: 4,
                         maxLines: 8,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           filled: true,
-                          hintText:
-                              'show cdp neighbors detail\nor show lldp neighbors detail',
+                          hintText: l10n.neighborCliHint,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -236,7 +234,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
                         child: ElevatedButton(
                           key: WidgetKey.neighborParseCliButton.key,
                           onPressed: _parseCli,
-                          child: const Text('Read CLI output'),
+                          child: Text(l10n.neighborReadCli),
                         ),
                       ),
                     ],
@@ -290,6 +288,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
   }
 
   Widget _neighborTile(NeighborInfo neighbor) {
+    final l10n = context.l10n;
     return Card(
       child: AdaptiveListTile(
         leading: Icon(
@@ -306,20 +305,20 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
               style: Theme.of(context).textTheme.labelSmall,
             ),
             if (neighbor.managementIp != null)
-              Text('Management IP: ${neighbor.managementIp}'),
+              Text(l10n.neighborManagementIp(neighbor.managementIp!)),
             if (neighbor.localPort != null)
-              Text('Switch port: ${neighbor.localPort}'),
+              Text(l10n.neighborSwitchPort(neighbor.localPort!)),
             if (neighbor.remotePort != null)
-              Text('Remote interface: ${neighbor.remotePort}'),
+              Text(l10n.neighborRemoteInterface(neighbor.remotePort!)),
             if (neighbor.platform != null) Text(neighbor.platform!),
-            if (neighbor.vlan != null) Text('VLAN ${neighbor.vlan}'),
+            if (neighbor.vlan != null) Text(l10n.neighborVlan(neighbor.vlan!)),
             if (neighbor.speedDuplex != null) Text(neighbor.speedDuplex!),
           ],
         ),
         trailing: neighbor.managementIp == null
             ? null
             : IconButton(
-                tooltip: 'Look for reachable services',
+                tooltip: l10n.neighborPortScanTooltip,
                 icon: const Icon(Icons.radar),
                 onPressed: () {
                   Navigator.push(
@@ -336,11 +335,12 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
           final text = [
             neighbor.hostname,
             if (neighbor.managementIp != null) neighbor.managementIp,
-            if (neighbor.localPort != null) 'port ${neighbor.localPort}',
+            if (neighbor.localPort != null)
+              l10n.neighborPortClipboard(neighbor.localPort!),
           ].join(' ');
           Clipboard.setData(ClipboardData(text: text));
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Neighbor details copied')),
+            SnackBar(content: Text(l10n.neighborCopied)),
           );
         },
       ),

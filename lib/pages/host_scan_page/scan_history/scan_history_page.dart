@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
@@ -178,7 +179,7 @@ class _ScanActivityOverview extends StatelessWidget {
               Expanded(
                 child: _OverviewStat(
                   label: context.l10n.scanHistoryLatestScanLabel,
-                  value: _relativeTime(latestScan),
+                  value: _relativeTime(context.l10n, latestScan),
                 ),
               ),
             ],
@@ -441,7 +442,8 @@ class _DesktopScanRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final scan = summary.scan;
     final inProgress = scan.onGoing == true;
-    final duration = _formatDuration(scan.startTime, scan.endTime);
+    final duration =
+        _formatDuration(context.l10n, scan.startTime, scan.endTime);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -459,13 +461,13 @@ class _DesktopScanRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Network ${scan.gatewayIp}',
+                          context.l10n.scanHistoryNetwork(scan.gatewayIp),
                           style: textTheme.titleSmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          _relativeTime(scan.startTime),
+                          _relativeTime(context.l10n, scan.startTime),
                           style: textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -479,7 +481,7 @@ class _DesktopScanRow extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Text(
-                _formatTimestamp(scan.startTime),
+                _formatTimestamp(context.l10n, scan.startTime),
                 style: textTheme.bodyMedium,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -534,10 +536,11 @@ class _MobileScanRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scan = summary.scan;
     final inProgress = scan.onGoing == true;
-    final duration = _formatDuration(scan.startTime, scan.endTime);
+    final duration =
+        _formatDuration(context.l10n, scan.startTime, scan.endTime);
     return AdaptiveListTile(
       leading: _ScanAvatar(inProgress: inProgress),
-      title: Text('Network ${scan.gatewayIp}'),
+      title: Text(context.l10n.scanHistoryNetwork(scan.gatewayIp)),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 6),
         child: Wrap(
@@ -546,11 +549,11 @@ class _MobileScanRow extends StatelessWidget {
           children: [
             _MetaChip(
               icon: Icons.schedule,
-              label: _relativeTime(scan.startTime),
+              label: _relativeTime(context.l10n, scan.startTime),
             ),
             _MetaChip(
               icon: Icons.devices_other,
-              label: _deviceCountLabel(summary.deviceCount),
+              label: _deviceCountLabel(context.l10n, summary.deviceCount),
             ),
             if (duration.isNotEmpty)
               _MetaChip(icon: Icons.timer_outlined, label: duration),
@@ -806,7 +809,8 @@ class _ScanSummaryCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final inProgress = scan.onGoing == true;
-    final duration = _formatDuration(scan.startTime, scan.endTime);
+    final duration =
+        _formatDuration(context.l10n, scan.startTime, scan.endTime);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -826,7 +830,7 @@ class _ScanSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Network ${scan.gatewayIp}',
+                      context.l10n.scanHistoryNetwork(scan.gatewayIp),
                       style: textTheme.titleLarge,
                     ),
                     const SizedBox(height: 4),
@@ -849,7 +853,7 @@ class _ScanSummaryCard extends StatelessWidget {
           Center(child: _ScanRadar(deviceCount: deviceCount)),
           const SizedBox(height: 16),
           Text(
-            '${_deviceCountLabel(deviceCount)} found',
+            _devicesFoundLabel(context.l10n, deviceCount),
             textAlign: TextAlign.center,
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
@@ -868,14 +872,14 @@ class _ScanSummaryCard extends StatelessWidget {
           _ScanTimelineRow(
             icon: Icons.play_arrow_rounded,
             label: context.l10n.scanReportStarted,
-            value: _formatTimestamp(scan.startTime),
+            value: _formatTimestamp(context.l10n, scan.startTime),
           ),
           _ScanTimelineRow(
             icon: Icons.stop_rounded,
             label: context.l10n.scanReportEnded,
             value: scan.endTime == null
                 ? context.l10n.scanReportStillRunning
-                : _formatTimestamp(scan.endTime),
+                : _formatTimestamp(context.l10n, scan.endTime),
           ),
           if (duration.isNotEmpty)
             _ScanTimelineRow(
@@ -899,7 +903,7 @@ class _ScanRadar extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Semantics(
-      label: '${_deviceCountLabel(deviceCount)} found',
+      label: _devicesFoundLabel(context.l10n, deviceCount),
       excludeSemantics: true,
       child: SizedBox(
         width: 196,
@@ -1225,7 +1229,10 @@ class _DesktopDeviceRow extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      DeviceUtil.getDeviceMake(device) ??
+                      DeviceUtil.makeLabel(
+                            context.l10n,
+                            DeviceUtil.getDeviceMake(device),
+                          ) ??
                           context.l10n.unknownDevice,
                       style: textTheme.titleSmall,
                       overflow: TextOverflow.ellipsis,
@@ -1289,7 +1296,11 @@ class _MobileDeviceRow extends StatelessWidget {
     return AdaptiveListTile(
       leading: _DeviceAvatar(device: device),
       title: Text(
-        DeviceUtil.getDeviceMake(device) ?? context.l10n.unknownDevice,
+        DeviceUtil.makeLabel(
+              context.l10n,
+              DeviceUtil.getDeviceMake(device),
+            ) ??
+            context.l10n.unknownDevice,
       ),
       subtitle: Text(subtitle),
       onTap: onTap,
@@ -1405,7 +1416,7 @@ class _MessageView extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: const Text('Try again')),
+            TextButton(onPressed: onRetry, child: Text(context.l10n.tryAgain)),
           ],
         ),
       ),
@@ -1420,59 +1431,62 @@ class _ScanSummary {
   final int deviceCount;
 }
 
-String _deviceCountLabel(int count) =>
-    '$count ${count == 1 ? 'device' : 'devices'}';
+String _devicesFoundLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.devicesFoundOne : l10n.devicesFoundMany('$count');
 
-String _relativeTime(DateTime? value) {
+String _deviceCountLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.deviceCountOne : l10n.deviceCountMany('$count');
+
+String _relativeTime(AppLocalizations l10n, DateTime? value) {
   if (value == null) {
     return '—';
   }
   final local = value.toLocal();
   final difference = DateTime.now().difference(local);
   if (difference.isNegative || difference.inMinutes < 1) {
-    return 'just now';
+    return l10n.timeJustNow;
   }
   if (difference.inHours < 1) {
-    return '${difference.inMinutes}m ago';
+    return l10n.timeMinutesAgo('${difference.inMinutes}');
   }
   if (difference.inDays < 1) {
-    return '${difference.inHours}h ago';
+    return l10n.timeHoursAgo('${difference.inHours}');
   }
   if (difference.inDays < 7) {
-    return '${difference.inDays}d ago';
+    return l10n.timeDaysAgo('${difference.inDays}');
   }
-  return _formatShortDate(local);
+  return _formatShortDate(l10n, local);
 }
 
-String _formatShortDate(DateTime value) {
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+String _formatShortDate(AppLocalizations l10n, DateTime value) {
+  final months = [
+    l10n.monthShort1,
+    l10n.monthShort2,
+    l10n.monthShort3,
+    l10n.monthShort4,
+    l10n.monthShort5,
+    l10n.monthShort6,
+    l10n.monthShort7,
+    l10n.monthShort8,
+    l10n.monthShort9,
+    l10n.monthShort10,
+    l10n.monthShort11,
+    l10n.monthShort12,
   ];
   final year = value.year == DateTime.now().year ? '' : ' ${value.year}';
   return '${value.day} ${months[value.month - 1]}$year';
 }
 
-String _formatTimestamp(DateTime? value) {
+String _formatTimestamp(AppLocalizations l10n, DateTime? value) {
   if (value == null) {
-    return 'unknown time';
+    return l10n.timeUnknown;
   }
   final local = value.toLocal();
   return '${local.year}-${_twoDigits(local.month)}-${_twoDigits(local.day)} '
       '${_twoDigits(local.hour)}:${_twoDigits(local.minute)}';
 }
 
-String _formatDuration(DateTime? start, DateTime? end) {
+String _formatDuration(AppLocalizations l10n, DateTime? start, DateTime? end) {
   if (start == null || end == null) {
     return '';
   }
@@ -1481,9 +1495,9 @@ String _formatDuration(DateTime? start, DateTime? end) {
     return '';
   }
   if (seconds < 60) {
-    return '${seconds}s';
+    return l10n.durationSeconds('$seconds');
   }
-  return '${seconds ~/ 60}m ${seconds % 60}s';
+  return l10n.durationMinutesSeconds('${seconds ~/ 60}', '${seconds % 60}');
 }
 
 String _twoDigits(int value) => value.toString().padLeft(2, '0');

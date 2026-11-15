@@ -10,6 +10,17 @@ void main() {
   });
 
   group('OnboardingService', () {
+    test('language defaults to not done', () async {
+      final done = await OnboardingService.instance.isLanguageDone();
+      expect(done, isFalse);
+    });
+
+    test('language can be marked done', () async {
+      await OnboardingService.instance.setLanguageDone();
+      final done = await OnboardingService.instance.isLanguageDone();
+      expect(done, isTrue);
+    });
+
     test('walkthrough defaults to not done', () async {
       final done = await OnboardingService.instance.isWalkthroughDone();
       expect(done, isFalse);
@@ -67,18 +78,26 @@ void main() {
       expect(versions.where((v) => v == '1.4.20').length, 1);
     });
 
-    test('resolveStage returns walkthrough when not done', () async {
+    test('resolveStage returns language on a fresh install', () async {
+      final stage = await OnboardingService.instance.resolveStage();
+      expect(stage, OnboardingStage.language);
+    });
+
+    test('resolveStage returns walkthrough once language is done', () async {
+      await OnboardingService.instance.setLanguageDone();
       final stage = await OnboardingService.instance.resolveStage();
       expect(stage, OnboardingStage.walkthrough);
     });
 
     test('resolveStage returns consent when walkthrough done', () async {
+      await OnboardingService.instance.setLanguageDone();
       await OnboardingService.instance.setWalkthroughDone();
       final stage = await OnboardingService.instance.resolveStage();
       expect(stage, OnboardingStage.consent);
     });
 
     test('resolveStage returns null when all done', () async {
+      await OnboardingService.instance.setLanguageDone();
       await OnboardingService.instance.setWalkthroughDone();
       await OnboardingService.instance.setConsentDone();
       final stage = await OnboardingService.instance.resolveStage();

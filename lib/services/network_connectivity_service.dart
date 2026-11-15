@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:dart_ping/dart_ping.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/wifi_info.dart';
+import 'package:vernet/models/wifi_metrics.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 typedef PingProbe = Future<Duration?> Function(String host);
@@ -64,6 +66,7 @@ class NetworkConnectivityService {
 
   /// Diagnoses the local link between this device and the local router or interface.
   NetworkConnectionStatus checkDeviceToRouter(WifiInfo wifiInfo) {
+    final l10n = appStrings();
     final hasValidIp = wifiInfo.ip.isNotEmpty && wifiInfo.ip != 'x.x.x.x';
 
     final isWifi =
@@ -71,60 +74,58 @@ class NetworkConnectivityService {
             wifiInfo.metrics.normalizedLevel > 0;
     final interfaceName = isWifi
         ? (wifiInfo.name == WifiInfo.noWifiName
-            ? 'Wi-Fi'
-            : 'Wi-Fi (${wifiInfo.name})')
-        : 'LAN / Local Interface';
+            ? l10n.netInterfaceWifi
+            : l10n.netInterfaceWifiNamed(wifiInfo.name))
+        : l10n.netInterfaceLan;
 
     if (hasValidIp) {
       final details = <String, String>{
-        'Device IP': wifiInfo.ip,
-        'Gateway IP': wifiInfo.gatewayIp.isEmpty
-            ? 'Unavailable'
+        l10n.netDetailDeviceIp: wifiInfo.ip,
+        l10n.netDetailGatewayIp: wifiInfo.gatewayIp.isEmpty
+            ? l10n.netUnavailable
             : wifiInfo.isCustomGateway
-                ? '${wifiInfo.gatewayIp} (custom subnet)'
+                ? l10n.netValueCustomSubnet(wifiInfo.gatewayIp)
                 : wifiInfo.gatewayIp,
-        'Interface': interfaceName,
+        l10n.netDetailInterface: interfaceName,
       };
 
       if (wifiInfo.bssid != WifiInfo.defaultBSSID.first) {
-        details['Access Point (BSSID)'] = wifiInfo.bssid;
+        details[l10n.netDetailAccessPointBssid] = wifiInfo.bssid;
       }
-      if (wifiInfo.metrics.statusMessage.isNotEmpty &&
-          wifiInfo.metrics.normalizedLevel > 0) {
-        details['Signal Strength'] = wifiInfo.metrics.statusMessage;
+      if (wifiInfo.metrics.normalizedLevel > 0) {
+        details[l10n.netDetailSignalStrength] =
+            wifiInfo.metrics.quality.label(l10n);
       }
 
       return NetworkConnectionStatus(
         type: NetworkConnectionType.deviceToRouter,
         state: NetworkConnectionState.connected,
-        title: 'Device Connected to Router',
-        summary: 'Connected via $interfaceName',
-        description:
-            'Your device has a valid local IP address and is successfully communicating with your local router/gateway.',
+        title: l10n.netTitleDeviceConnected,
+        summary: l10n.netSummaryConnectedVia(interfaceName),
+        description: l10n.netDescDeviceConnected,
         details: details,
         interfaceType: interfaceName,
       );
     }
 
-    return const NetworkConnectionStatus(
+    return NetworkConnectionStatus(
       type: NetworkConnectionType.deviceToRouter,
       state: NetworkConnectionState.disconnected,
-      title: 'Device Disconnected from Router',
-      summary: 'No active connection to local network',
-      description:
-          'Your device does not have an active IP address or connection to a local network interface or Wi-Fi router.',
+      title: l10n.netTitleDeviceDisconnected,
+      summary: l10n.netSummaryNoActiveLocal,
+      description: l10n.netDescDeviceDisconnected,
       troubleshootingSteps: [
-        'Ensure Wi-Fi or Ethernet is turned on in your device settings.',
-        'Verify you are connected to the correct Wi-Fi network and entered the right password.',
-        'Check if your router or access point is powered on and within range.',
-        'Restart your device network interface or reconnect to the network.',
+        l10n.netStepWifiOrEthernetOn,
+        l10n.netStepCorrectNetwork,
+        l10n.netStepRouterPowered,
+        l10n.netStepReconnectInterface,
       ],
       details: {
-        'Device IP': 'Not assigned',
-        'Gateway IP': 'Unavailable',
-        'Interface': 'Disconnected',
+        l10n.netDetailDeviceIp: l10n.netValueNotAssigned,
+        l10n.netDetailGatewayIp: l10n.netUnavailable,
+        l10n.netDetailInterface: l10n.netDisconnected,
       },
-      interfaceType: 'None',
+      interfaceType: l10n.netInterfaceNone,
     );
   }
 
@@ -133,23 +134,23 @@ class NetworkConnectivityService {
     WifiInfo? wifiInfo,
     String? host,
   }) async {
+    final l10n = appStrings();
     final target = host ?? targetHost;
 
     if (wifiInfo != null && (wifiInfo.ip.isEmpty || wifiInfo.ip == 'x.x.x.x')) {
       return NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
         state: NetworkConnectionState.disconnected,
-        title: 'Internet Unreachable (No Local Link)',
-        summary: 'Device is not connected to router',
-        description:
-            'Because this device is disconnected from your local router or network interface, it cannot verify the internet connection.',
-        troubleshootingSteps: const [
-          'First connect your device to your local Wi-Fi or Ethernet network.',
-          'Once connected to the router, test the internet connection again.',
+        title: l10n.netTitleInternetUnreachable,
+        summary: l10n.netSummaryDeviceNotConnectedRouter,
+        description: l10n.netDescNoLocalLinkCheck,
+        troubleshootingSteps: [
+          l10n.netStepFirstConnectLocal,
+          l10n.netStepInternetCheckAgain,
         ],
         details: {
-          'Target Host': target,
-          'Local Status': 'Disconnected from local network',
+          l10n.netDetailTargetHost: target,
+          l10n.netDetailLocalStatus: l10n.netValueDisconnectedFromLocal,
         },
         targetHost: target,
       );
@@ -161,11 +162,10 @@ class NetworkConnectivityService {
       return NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
         state: NetworkConnectionState.disconnected,
-        title: 'Internet Check Skipped (Test Mode)',
-        summary: 'Network probes disabled in tests',
-        description:
-            'Real network probes are skipped during automated tests to avoid timeouts.',
-        details: const {'Target Host': 'skipped'},
+        title: l10n.netTitleCheckSkippedTestMode,
+        summary: l10n.netSummaryProbesDisabledTests,
+        description: l10n.netDescProbesDisabledTests,
+        details: {l10n.netDetailTargetHost: 'skipped'},
         targetHost: target,
       );
     }
@@ -186,21 +186,20 @@ class NetworkConnectivityService {
 
     if (isConnected) {
       final details = <String, String>{
-        'Test Target': target,
+        l10n.netDetailTestTarget: target,
       };
       if (latency != null) {
-        details['Ping Latency'] = '${latency.inMilliseconds} ms';
+        details[l10n.netDetailPingLatency] = '${latency.inMilliseconds} ms';
       }
 
       return NetworkConnectionStatus(
         type: NetworkConnectionType.routerToInternet,
         state: NetworkConnectionState.connected,
-        title: 'Router Connected to Internet',
+        title: l10n.netTitleRouterConnected,
         summary: latency != null
-            ? 'Internet reachable (${latency.inMilliseconds} ms)'
-            : 'Internet reachable',
-        description:
-            'Successfully reached internet servers ($target). Your router has an active WAN connection to your Internet Service Provider.',
+            ? l10n.netSummaryInternetReachableMs('${latency.inMilliseconds}')
+            : l10n.netSummaryInternetReachable,
+        description: l10n.netDescRouterConnected(target),
         latency: latency,
         targetHost: target,
         details: details,
@@ -208,22 +207,21 @@ class NetworkConnectivityService {
     }
 
     final details = <String, String>{
-      'Test Target': target,
-      'Connection Status': 'Host unreachable / No response',
+      l10n.netDetailTestTarget: target,
+      l10n.netDetailConnectionStatus: l10n.netValueHostUnreachable,
     };
 
     return NetworkConnectionStatus(
       type: NetworkConnectionType.routerToInternet,
       state: NetworkConnectionState.disconnected,
-      title: 'Router Disconnected from Internet',
-      summary: 'Unable to reach internet servers',
-      description:
-          'We were unable to reach internet servers ($target). Your device is connected to the router, but the router cannot access the internet.',
-      troubleshootingSteps: const [
-        'Check if the broadband, fiber, or DSL cable is securely plugged into your router WAN port.',
-        'Restart or power-cycle your modem and Wi-Fi router (unplug power for 30 seconds).',
-        'Verify that your Internet Service Provider (ISP) is not experiencing a service outage.',
-        'Check if your router requires PPPoE login or has DNS configuration errors.',
+      title: l10n.netTitleRouterDisconnected,
+      summary: l10n.netSummaryUnableToReachServers,
+      description: l10n.netDescRouterDisconnected(target),
+      troubleshootingSteps: [
+        l10n.netStepCheckWAN,
+        l10n.netStepPowerCycle,
+        l10n.netStepIspOutage,
+        l10n.netStepPppoeDns,
       ],
       details: details,
       targetHost: target,
