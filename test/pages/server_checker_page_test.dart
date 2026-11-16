@@ -359,6 +359,23 @@ void main() {
     expect(await ServerMonitorService().loadHistory(savedMonitor.id), isEmpty);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  // The suggestion name is persisted in English so existing rows keep matching;
+  // the display helper is the only place it turns German.
+  group('monitorDisplayName', () {
+    test('translates the stored gateway suggestion and nothing else', () {
+      expect(
+        monitorDisplayName(l10nDe(), kLocalRouterSuggestion),
+        l10nDe().serverCheckerLocalRouter,
+      );
+      expect(
+        monitorDisplayName(l10nEn(), kLocalRouterSuggestion),
+        'Local Router',
+      );
+      expect(monitorDisplayName(l10nDe(), 'Saved monitor'), 'Saved monitor');
+      expect(monitorDisplayName(l10nDe(), 'example.com'), 'example.com');
+    });
+  });
 }
 
 Future<void> _selectType(WidgetTester tester, ServerCheckType type) async {
