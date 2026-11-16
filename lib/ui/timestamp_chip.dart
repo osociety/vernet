@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/utils/localization.dart';
 
 /// Small muted clock-plus-timestamp shown next to a card title to indicate
 /// when the card's data was last measured.
@@ -23,7 +24,7 @@ class TimestampChip extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            formatTimestamp(timestamp),
+            formatTimestamp(context.l10n, timestamp),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colors.onSurfaceVariant,
                 ),

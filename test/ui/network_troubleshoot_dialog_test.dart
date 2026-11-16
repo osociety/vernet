@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/network_troubleshoot_dialog.dart';
@@ -10,6 +11,8 @@ void main() {
     return ChangeNotifierProvider<DarkThemeProvider>(
       create: (_) => DarkThemeProvider(),
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: NetworkTroubleshootDialog(status: status),
         ),

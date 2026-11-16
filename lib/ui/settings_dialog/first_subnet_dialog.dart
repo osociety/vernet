@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/base_settings_dialog.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class FirstSubnetDialog extends StatefulWidget {
   const FirstSubnetDialog({super.key});
@@ -13,12 +13,12 @@ class FirstSubnetDialog extends StatefulWidget {
 class _FirstSubnetDialogState extends BaseSettingsDialog<FirstSubnetDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.firstSubnet;
+    return context.l10n.firstSubnet;
   }
 
   @override
   String getHintText() {
-    return StringValue.firstSubnetDesc;
+    return context.l10n.firstSubnetDesc;
   }
 
   @override
@@ -36,17 +36,17 @@ class _FirstSubnetDialogState extends BaseSettingsDialog<FirstSubnetDialog> {
 
   @override
   String? validate(String? value) {
-    if (value == null) return 'Please enter a value';
+    if (value == null) return context.l10n.settingsValueRequired;
     try {
       final int val = int.parse(value);
       if (val < 1) {
-        return 'Value must be a natural number';
+        return context.l10n.settingsValueNaturalNumber;
       }
       if (val > appSettings.lastSubnet) {
-        return 'Choose a value before the search end';
+        return context.l10n.settingsBeforeEnd;
       }
     } catch (e) {
-      return 'Must be a number';
+      return context.l10n.settingsMustBeNumber;
     }
     return null;
   }

@@ -8,14 +8,16 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 import '../../settings/test_utils.dart';
 
+/// The resource bundle the test device renders: these suites run in English.
+final _en = AppLocalizationsEn();
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -45,12 +47,12 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
-        'Find website addresses',
+        _en.navFindWebsiteAddresses,
         tester,
         find,
       );
 
-      expect(find.text(StringValue.dnsLookupEmptyPlaceholder), findsOneWidget);
+      expect(find.text(_en.dnsLookupEmptyPlaceholder), findsOneWidget);
 
       await tester.enterText(
         find.byType(TextFormField),
@@ -75,7 +77,7 @@ void main() {
       // window instead of waiting the animation out.
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Website address copied'), findsOneWidget);
+      expect(find.text(_en.dnsAddressCopied), findsOneWidget);
     });
   });
 }

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -17,6 +18,8 @@ import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/values/keys.dart';
+
+import '../../helpers/test_helpers.dart';
 
 class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
   _InMemoryDatabaseService(this.db);
@@ -48,10 +51,16 @@ Widget createPingPageTestWidget(Widget child) {
   return ChangeNotifierProvider<DarkThemeProvider>(
     create: (_) => DarkThemeProvider(),
     child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: child,
     ),
   );
 }
+
+/// The English bundle, so the assertions follow the copy the app renders instead
+/// of repeating it.
+final l10n = l10nEn();
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -96,10 +105,10 @@ void main() {
         (tester) async {
       await tester.pumpWidget(createPingPageTestWidget(const PingPage()));
 
-      expect(find.text('Check connection'), findsOneWidget);
-      expect(find.text('Enter a website or device address'), findsOneWidget);
-      expect(find.text('Start check'), findsOneWidget);
-      expect(find.text('Connection results will appear here'), findsOneWidget);
+      expect(find.text(l10n.pingPageTitle), findsOneWidget);
+      expect(find.text(l10n.pingFieldHint), findsOneWidget);
+      expect(find.text(l10n.startCheck), findsOneWidget);
+      expect(find.text(l10n.pingResultsEmpty), findsOneWidget);
 
       // Verify all summary statistic items are present
       expect(find.byKey(WidgetKey.pingSummarySent.key), findsOneWidget);
@@ -111,14 +120,14 @@ void main() {
       expect(find.byKey(WidgetKey.pingSummaryMax.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingSummaryStdDev.key), findsOneWidget);
 
-      expect(find.text('Checks sent: --'), findsOneWidget);
-      expect(find.text('Replies received: --'), findsOneWidget);
-      expect(find.text('Packet loss: --'), findsOneWidget);
-      expect(find.text('Total time: --'), findsOneWidget);
-      expect(find.text('Min: --'), findsOneWidget);
-      expect(find.text('Avg: --'), findsOneWidget);
-      expect(find.text('Max: --'), findsOneWidget);
-      expect(find.text('Std dev: --'), findsOneWidget);
+      expect(find.text(l10n.pingSummarySent('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryReceived('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryPacketLoss('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryTotalTime('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMin('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryAvg('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMax('--')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryStdDev('--')), findsOneWidget);
     });
 
     testWidgets('initializes with target address when provided',
@@ -158,7 +167,7 @@ void main() {
       );
 
       // Tap 'Start check'
-      await tester.tap(find.text('Start check'));
+      await tester.tap(find.text(l10n.startCheck));
       await tester.pump();
 
       // Emit first response
@@ -181,9 +190,9 @@ void main() {
       // Verify packet list has seq 1 and 10.0 ms
       expect(find.text('1'), findsOneWidget);
       expect(find.text('10.0 ms'), findsWidgets);
-      expect(find.text('Min: 10.0 ms'), findsOneWidget);
-      expect(find.text('Avg: 10.0 ms'), findsOneWidget);
-      expect(find.text('Max: 10.0 ms'), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMin('10.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryAvg('10.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMax('10.0 ms')), findsOneWidget);
 
       // Emit second response
       controller.add(
@@ -203,10 +212,10 @@ void main() {
       await tester.pump();
 
       expect(find.text('2'), findsOneWidget);
-      expect(find.text('Min: 10.0 ms'), findsOneWidget);
-      expect(find.text('Avg: 15.0 ms'), findsOneWidget);
-      expect(find.text('Max: 20.0 ms'), findsOneWidget);
-      expect(find.text('Std dev: 5.0 ms'), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMin('10.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryAvg('15.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMax('20.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryStdDev('5.0 ms')), findsOneWidget);
 
       // Emit summary event
       controller.add(
@@ -227,14 +236,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify final statistics
-      expect(find.text('Checks sent: 2'), findsOneWidget);
-      expect(find.text('Replies received: 2'), findsOneWidget);
-      expect(find.text('Packet loss: 0%'), findsOneWidget);
-      expect(find.text('Total time: 1500.0 ms'), findsOneWidget);
-      expect(find.text('Min: 10.0 ms'), findsOneWidget);
-      expect(find.text('Avg: 15.0 ms'), findsOneWidget);
-      expect(find.text('Max: 20.0 ms'), findsOneWidget);
-      expect(find.text('Std dev: 5.0 ms'), findsOneWidget);
+      expect(find.text(l10n.pingSummarySent('2')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryReceived('2')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryPacketLoss('0%')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryTotalTime('1500.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMin('10.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryAvg('15.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryMax('20.0 ms')), findsOneWidget);
+      expect(find.text(l10n.pingSummaryStdDev('5.0 ms')), findsOneWidget);
     });
 
     testWidgets(
@@ -253,7 +262,7 @@ void main() {
           ),
         );
 
-        await tester.tap(find.text('Start check'));
+        await tester.tap(find.text(l10n.startCheck));
         await tester.pump();
 
         // Wait a tiny bit so elapsed stopwatch is > 0
@@ -277,10 +286,10 @@ void main() {
         await tester.pumpAndSettle();
 
         // Total time should not be '--'
-        expect(find.text('Total time: --'), findsNothing);
+        expect(find.text(l10n.pingSummaryTotalTime('--')), findsNothing);
         expect(find.byKey(WidgetKey.pingSummaryTotalTime.key), findsOneWidget);
-        expect(find.text('Checks sent: 4'), findsOneWidget);
-        expect(find.text('Replies received: 4'), findsOneWidget);
+        expect(find.text(l10n.pingSummarySent('4')), findsOneWidget);
+        expect(find.text(l10n.pingSummaryReceived('4')), findsOneWidget);
       });
     });
   });

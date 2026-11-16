@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
@@ -12,10 +13,9 @@ import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
-import 'package:vernet/values/tooltip_messages.dart';
 
 class HostScanWidget extends StatelessWidget {
   @override
@@ -30,9 +30,7 @@ class HostScanWidget extends StatelessWidget {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
-                content: Text(
-                  'Scan complete - ${_deviceCountLabel(deviceCount)} found',
-                ),
+                content: Text(_scanCompleteLabel(context.l10n, deviceCount)),
               ),
             );
         }
@@ -59,13 +57,17 @@ class HostScanWidget extends StatelessWidget {
                         ),
                         Text(
                           appSettings.gatewayIP.isNotEmpty
-                              ? 'Looking for devices connected through ${appSettings.gatewayIP}'
-                              : StringValue.loadingDevicesMessage,
+                              ? context.l10n.scanThroughGateway(
+                                  appSettings.gatewayIP,
+                                )
+                              : context.l10n.loadingDevicesMessage,
                           textAlign: TextAlign.center,
                         ),
                         if (percent > 0) ...[
                           const SizedBox(height: 8),
-                          Text('${percent.round()}% scanned'),
+                          Text(context.l10n.scanPercentDone(
+                            '${percent.round()}',
+                          )),
                         ],
                       ],
                     );
@@ -78,13 +80,13 @@ class HostScanWidget extends StatelessWidget {
             return _devicesWidget(context, value.activeHosts.toList(), true);
           },
           loadFailure: (value) {
-            return const Text('We could not finish looking for devices');
+            return Text(context.l10n.scanCouldNotFinish);
           },
           loadSuccess: (value) {
             return _devicesWidget(context, value.activeHosts.toList(), false);
           },
           error: (Error value) {
-            return const Text('Something went wrong while looking for devices');
+            return Text(context.l10n.scanWentWrong);
           },
         );
       },
@@ -102,9 +104,8 @@ class HostScanWidget extends StatelessWidget {
         AdaptiveListTile(
           title: Text(
             loading
-                ? 'Found ${activeHostList.length} connected devices so far'
-                : 'Scan complete - '
-                    '${_deviceCountLabel(activeHostList.length)} found',
+                ? _foundSoFarLabel(context.l10n, activeHostList.length)
+                : _scanCompleteLabel(context.l10n, activeHostList.length),
             textAlign: TextAlign.center,
           ),
           trailing: loading
@@ -139,8 +140,10 @@ class HostScanWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: Text(
                       value > 0
-                          ? 'Scanning ${(value * 100).round()}%'
-                          : 'Starting scan...',
+                          ? context.l10n.scanProgressPercent(
+                              '${(value * 100).round()}',
+                            )
+                          : context.l10n.scanStarting,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -165,16 +168,20 @@ class HostScanWidget extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        DeviceUtil.getDeviceMake(host) ?? 'Unknown device',
+                        DeviceUtil.makeLabel(
+                              context.l10n,
+                              DeviceUtil.getDeviceMake(host),
+                            ) ??
+                            context.l10n.unknownDevice,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (isCurrentDevice) ...[
                       const SizedBox(width: 8),
                       Chip(
-                        label: const Text(
-                          'This device',
-                          style: TextStyle(fontSize: 10),
+                        label: Text(
+                          context.l10n.scanThisDevice,
+                          style: const TextStyle(fontSize: 10),
                         ),
                         backgroundColor:
                             Theme.of(context).colorScheme.primaryContainer,
@@ -199,7 +206,7 @@ class HostScanWidget extends StatelessWidget {
                   children: [
                     if (host.macAddress != null && host.macAddress!.isNotEmpty)
                       IconButton(
-                        tooltip: TooltipMessages.wakeOnLan,
+                        tooltip: context.l10n.wakeOnLanTooltip,
                         icon: const Icon(Icons.power_settings_new),
                         onPressed: () {
                           Navigator.push(
@@ -212,8 +219,11 @@ class HostScanWidget extends StatelessWidget {
                                           host.internetAddress,
                                         ) ??
                                         WakeOnLanService.defaultBroadcast,
-                                initialLabel:
-                                    DeviceUtil.getDeviceMake(host) ?? '',
+                                initialLabel: DeviceUtil.makeLabel(
+                                      context.l10n,
+                                      DeviceUtil.getDeviceMake(host),
+                                    ) ??
+                                    '',
                               ),
                             ),
                           );
@@ -223,7 +233,7 @@ class HostScanWidget extends StatelessWidget {
                       key: isCurrentDevice
                           ? WidgetKey.thisDeviceTileIconButton.key
                           : null,
-                      tooltip: TooltipMessages.currentDevicePortScan,
+                      tooltip: context.l10n.devicePortScanTooltip,
                       icon: const Icon(Icons.radar),
                       onPressed: () {
                         Navigator.push(
@@ -245,8 +255,8 @@ class HostScanWidget extends StatelessWidget {
                     ),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Device address copied'),
+                    SnackBar(
+                      content: Text(context.l10n.scanDeviceAddressCopied),
                     ),
                   );
                 },
@@ -325,5 +335,10 @@ class HostScanWidget extends StatelessWidget {
   }
 }
 
-String _deviceCountLabel(int count) =>
-    '$count ${count == 1 ? 'device' : 'devices'}';
+/// "1 devices found" reads wrong in every language, so the singular case has
+/// its own string instead of an interpolated count.
+String _scanCompleteLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.scanCompleteOne : l10n.scanCompleteMany('$count');
+
+String _foundSoFarLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.scanFoundSoFarOne : l10n.scanFoundSoFar('$count');

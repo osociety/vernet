@@ -6,15 +6,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/helper/app_settings.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/store_links.dart';
 
-Widget _wrap(Widget child) => ChangeNotifierProvider<DarkThemeProvider>(
+import '../helpers/test_helpers.dart';
+
+Widget _wrap(Widget child, {Locale locale = const Locale('en')}) =>
+    ChangeNotifierProvider<DarkThemeProvider>(
       create: (_) => DarkThemeProvider(),
-      child: MaterialApp(home: child),
+      child: MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: child,
+      ),
     );
 
 /// The guidance the page renders on the machine running the test, which is
@@ -22,6 +31,7 @@ Widget _wrap(Widget child) => ChangeNotifierProvider<DarkThemeProvider>(
 UpdateGuidance get _hostGuidance => UpdatesPage.guidanceFor(
       os: Platform.operatingSystem,
       isStoreBuild: kStoreBuild,
+      l10n: l10nEn(),
     );
 
 void main() {
@@ -137,6 +147,7 @@ void main() {
       final guidance = UpdatesPage.guidanceFor(
         os: 'linux',
         isStoreBuild: false,
+        l10n: l10nEn(),
       );
 
       expect(guidance.hasBeta, isTrue);
@@ -148,6 +159,7 @@ void main() {
       final guidance = UpdatesPage.guidanceFor(
         os: 'android',
         isStoreBuild: true,
+        l10n: l10nEn(),
       );
 
       expect(guidance.betaLinkUrl, playBetaOptInUrl);
@@ -158,6 +170,7 @@ void main() {
       final guidance = UpdatesPage.guidanceFor(
         os: 'android',
         isStoreBuild: false,
+        l10n: l10nEn(),
       );
 
       expect(guidance.betaLinkUrl, isNot(contains('play.google.com')));
@@ -169,6 +182,7 @@ void main() {
         final guidance = UpdatesPage.guidanceFor(
           os: os,
           isStoreBuild: false,
+          l10n: l10nEn(),
         );
         expect(guidance.hasBeta, isFalse, reason: '$os has no beta track');
         expect(guidance.copyCommand, isNull, reason: '$os has no snapd');
@@ -180,6 +194,7 @@ void main() {
         final guidance = UpdatesPage.guidanceFor(
           os: os,
           isStoreBuild: true,
+          l10n: l10nEn(),
         );
         expect(guidance.autoUpdate, isNotEmpty, reason: os);
         expect(guidance.betaHowTo, isNotEmpty, reason: os);

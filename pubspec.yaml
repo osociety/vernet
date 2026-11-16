@@ -26,6 +26,9 @@ dependencies:
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
   flutter_local_notifications: ^23.0.0
+  # Delegates that provide the Material/Cupertino localization data gen-l10n relies on.
+  flutter_localizations:
+    sdk: flutter
   # Native splash screen plugin
   flutter_native_splash: ^2.4.8
   # A flutter plugin for getting the local timezone of the OS.
@@ -38,7 +41,8 @@ dependencies:
   http: ^1.6.0
   # Convenient code generator for get_it
   injectable: ^3.0.0
-  intl: any
+  # Must stay compatible with the version flutter_localizations pins.
+  intl: ^0.20.3
   # An easy way to create a new isolate, keep it running and communicate with it.
   isolate_contactor: ^4.1.0
   # Discover network info and configure themselves accordingly
@@ -114,6 +118,9 @@ msix_config:
   capabilities: internetClient, location
 
 flutter:
+
+  # Runs flutter gen-l10n into lib/l10n on build; see l10n.yaml.
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

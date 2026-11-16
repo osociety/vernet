@@ -7,11 +7,16 @@ import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
+import 'package:vernet/pages/network_score/score_display.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
+
+/// Spliced into a localized factor template to find where its placeholders
+/// begin; see [_NetworkScoreDetailViewState._hasFactor].
+const String _factorSentinel = '\u0000';
 
 class NetworkScoreDetailPage extends StatelessWidget {
   const NetworkScoreDetailPage({super.key, required this.initialScore});
@@ -50,10 +55,11 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
           computing: () => true,
           orElse: () => false,
         );
+        final l10n = context.l10n;
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(StringValue.networkScoreTitle),
+            title: Text(context.l10n.networkScoreTitle),
             actions: [
               IconButton(
                 icon: isComputing
@@ -64,7 +70,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                             AdaptiveCircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.refresh),
-                tooltip: 'Refresh score',
+                tooltip: l10n.scoreRefreshTooltip,
                 onPressed: isComputing ? null : () => _refreshScore(context),
               ),
             ],
@@ -87,6 +93,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
   Widget _buildOverallScoreSection(
       BuildContext context, NetworkScore currentScore, bool isComputing) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final scoreColor = _getScoreColor(currentScore.overallScore, colors);
 
     return Container(
@@ -108,7 +115,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
             _ScoreGauge(score: currentScore.overallScore, color: scoreColor),
           const SizedBox(height: 16),
           Text(
-            _getScoreLevelText(currentScore.level),
+            _getScoreLevelText(context, currentScore.level),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: scoreColor,
@@ -116,7 +123,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
           ),
           const SizedBox(height: 8),
           Text(
-            _getScoreDescription(currentScore.level),
+            _getScoreDescription(context, currentScore.level),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -124,7 +131,11 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Last computed: ${DateFormat('MMM d, y · h:mm a').format(currentScore.computedAt)}',
+            l10n.scoreLastComputed(
+              DateFormat.yMMMd(l10n.localeName)
+                  .add_jm()
+                  .format(currentScore.computedAt),
+            ),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: colors.onSurfaceVariant.withAlpha(180),
                 ),
@@ -141,12 +152,13 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
   Widget _buildDimensionsSection(
       BuildContext context, NetworkScore currentScore) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Score Breakdown',
+          l10n.scoreBreakdown,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -199,7 +211,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    dimension.name,
+                    scoreDimensionName(context.l10n, dimension.name),
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -232,6 +244,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     List<String> factors,
     ColorScheme colors,
   ) {
+    final l10n = context.l10n;
     final parsedFactors = _parseFactorsWithPoints(factors);
     final gainedPoints = parsedFactors.where((f) => f.points > 0).toList();
     final deductedPoints = parsedFactors.where((f) => f.points < 0).toList();
@@ -242,7 +255,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
       children: [
         if (gainedPoints.isNotEmpty) ...[
           Text(
-            "What's good",
+            l10n.scoreFactorsGood,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Colors.green,
                   fontWeight: FontWeight.w600,
@@ -260,7 +273,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         ],
         if (deductedPoints.isNotEmpty) ...[
           Text(
-            'What needs improvement',
+            l10n.scoreFactorsImprove,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colors.error,
                   fontWeight: FontWeight.w600,
@@ -277,7 +290,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         ],
         if (neutralPoints.isNotEmpty) ...[
           Text(
-            'Info',
+            l10n.scoreFactorsInfo,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: colors.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
@@ -296,33 +309,44 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
   }
 
   List<_ParsedFactor> _parseFactorsWithPoints(List<String> factors) {
-    return factors.map((factor) {
-      final regex =
-          RegExp(r'\(([^)]*?(-?\d+)\s*points?)\)', caseSensitive: false);
-      final match = regex.firstMatch(factor);
+    // Advice is localized, so the deduction is split off with the word the
+    // advice itself uses instead of a hardcoded `points`.
+    final unit = RegExp.escape(context.l10n.scorePointsUnit);
+    final inParens = RegExp(
+      '\\(([^)]*?(-?\\d+)\\s*$unit?)\\)',
+      caseSensitive: false,
+    );
+    final bare = RegExp('(-\\d+)\\s*$unit?', caseSensitive: false);
 
+    return factors.map((factor) {
+      final match = inParens.firstMatch(factor);
       if (match != null) {
-        final points = int.parse(match.group(2)!);
         return _ParsedFactor(
-          text: factor.replaceAll(regex, '').trim(),
-          points: points,
+          text: factor.replaceAll(inParens, '').trim(),
+          points: int.parse(match.group(2)!),
         );
       }
 
-      // Check for patterns like "-50 points" or "-12 points"
-      final simpleRegex = RegExp(r'(-\d+)\s*points?', caseSensitive: false);
-      final simpleMatch = simpleRegex.firstMatch(factor);
-
+      final simpleMatch = bare.firstMatch(factor);
       if (simpleMatch != null) {
-        final points = int.parse(simpleMatch.group(1)!);
         return _ParsedFactor(
-          text: factor.replaceAll(simpleRegex, '').trim(),
-          points: points,
+          text: factor.replaceAll(bare, '').trim(),
+          points: int.parse(simpleMatch.group(1)!),
         );
       }
 
       return _ParsedFactor(text: factor, points: 0);
     }).toList();
+  }
+
+  /// Factors are localized advice lines, so a condition is recognised by the
+  /// start of its own line rather than by an English fragment. Passing the
+  /// sentinel as the placeholder gives back the template up to the first hole,
+  /// which is the part every generated line starts with.
+  bool _hasFactor(List<String> factors, String template) {
+    final cut = template.indexOf(_factorSentinel);
+    final needle = (cut < 0 ? template : template.substring(0, cut)).trim();
+    return factors.any((factor) => factor.contains(needle));
   }
 
   Widget _buildFactorItemWithPoints(
@@ -393,12 +417,13 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
   Widget _buildImproveScoreSection(
       BuildContext context, NetworkScore currentScore) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Improve Your Score',
+          l10n.scoreImproveTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -408,10 +433,10 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         if (currentScore.security.value < 100)
           _ActionTile(
             icon: Icons.wifi_find,
-            title: 'Run Network Scan',
+            title: l10n.scoreActionScanTitle,
             subtitle: currentScore.security.value < 50
-                ? 'Critical: Identify unknown devices on your network'
-                : 'Discover devices and assess security',
+                ? l10n.scoreActionScanCritical
+                : l10n.scoreActionScanSubtitle,
             color: colors.primary,
             onTap: () => _navigateAndRefresh(context, HostScanPage()),
           ),
@@ -419,8 +444,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         if (currentScore.health.value < 100)
           _ActionTile(
             icon: Icons.wifi,
-            title: 'Check Wi-Fi Connection',
-            subtitle: _getHealthActionSubtitle(currentScore.health),
+            title: l10n.scoreActionWifiTitle,
+            subtitle: _getHealthActionSubtitle(context, currentScore.health),
             color: Colors.green,
             onTap: () => _showHealthTips(context),
           ),
@@ -428,8 +453,11 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         if (currentScore.reliability.value < 100) ...[
           _ActionTile(
             icon: Icons.monitor_heart,
-            title: 'Monitor Servers',
-            subtitle: _getReliabilityActionSubtitle(currentScore.reliability),
+            title: l10n.scoreActionMonitorTitle,
+            subtitle: _getReliabilityActionSubtitle(
+              context,
+              currentScore.reliability,
+            ),
             color: colors.secondary,
             onTap: () =>
                 _navigateAndRefresh(context, const ServerCheckerPage()),
@@ -442,10 +470,10 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         if (currentScore.speed.value < 100)
           _ActionTile(
             icon: Icons.speed,
-            title: 'Test Internet Speed',
+            title: l10n.scoreActionSpeedTitle,
             subtitle: currentScore.speed.value < 30
-                ? 'Run a speed test to measure your connection'
-                : 'Improve download/upload performance',
+                ? l10n.scoreActionSpeedLow
+                : l10n.scoreActionSpeedNormal,
             color: Colors.amber,
             onTap: () => _runSpeedTest(context),
           ),
@@ -453,8 +481,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         if (currentScore.vulnerabilities.value < 100)
           _ActionTile(
             icon: Icons.security,
-            title: 'Review Security',
-            subtitle: 'Address vulnerabilities to improve score',
+            title: l10n.scoreActionReviewTitle,
+            subtitle: l10n.scoreActionReviewSubtitle,
             color: colors.error,
             onTap: () => _navigateAndRefresh(context, HostScanPage()),
           ),
@@ -462,39 +490,41 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     );
   }
 
-  String _getHealthActionSubtitle(DimensionScore health) {
+  String _getHealthActionSubtitle(BuildContext context, DimensionScore health) {
+    final l10n = context.l10n;
     final factors = health.factors;
-    if (factors.any((f) => f.contains('No internet connection'))) {
-      return 'Check your internet connection';
+    if (_hasFactor(factors, l10n.scoreHealthNoInternet)) {
+      return l10n.scoreHealthSubNoInternet;
     }
-    if (factors.any((f) => f.contains('Weak Wi-Fi signal'))) {
-      return 'Move closer to router or reduce obstacles';
+    if (_hasFactor(factors, l10n.scoreHealthWeakSignal(_factorSentinel))) {
+      return l10n.scoreHealthSubWeakSignal;
     }
-    if (factors.any((f) => f.contains('No gateway'))) {
-      return 'Check router connection';
+    if (_hasFactor(factors, l10n.scoreHealthNoGateway)) {
+      return l10n.scoreHealthSubNoGateway;
     }
-    if (factors.any((f) => f.contains('High latency'))) {
-      return 'Reduce network congestion';
+    if (_hasFactor(factors, l10n.scoreHealthLatencyHigh(_factorSentinel))) {
+      return l10n.scoreHealthSubLatency;
     }
-    return 'Optimize your network connection';
+    return l10n.scoreHealthSubDefault;
   }
 
-  String _getReliabilityActionSubtitle(DimensionScore reliability) {
+  String _getReliabilityActionSubtitle(
+      BuildContext context, DimensionScore reliability) {
+    final l10n = context.l10n;
     final factors = reliability.factors;
-    if (factors.any((f) => f.contains('No monitors configured'))) {
-      return 'Add monitors to track network uptime';
+    if (_hasFactor(factors, l10n.scoreReliabilityNoMonitors)) {
+      return l10n.scoreReliabilitySubNoMonitors;
     }
-    if (factors.any((f) => f.contains('Missing:'))) {
-      return 'Add required monitors for full score';
+    if (_hasFactor(factors, l10n.scoreReliabilityMissingRouter) ||
+        _hasFactor(factors, l10n.scoreReliabilityMissingInternet)) {
+      return l10n.scoreReliabilitySubMissing;
     }
-    if (factors.any((f) => f.contains('High average latency'))) {
-      return 'Improve server response times';
-    }
-    return 'Track reliability of important services';
+    return l10n.scoreReliabilitySubDefault;
   }
 
   Future<void> _quickAddMonitor(
       BuildContext context, ServerMonitor monitor) async {
+    final l10n = context.l10n;
     final service = ServerMonitorService();
     final newMonitor = ServerMonitor(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -508,7 +538,9 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${monitor.name} added'),
+          content: Text(
+            l10n.scoreMonitorAdded(monitorDisplayName(l10n, monitor.name)),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -516,25 +548,26 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
   }
 
   void _showHealthTips(BuildContext context) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Wi-Fi Health Tips'),
-        content: const Column(
+        title: Text(l10n.scoreHealthTipsTitle),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('• Move closer to your router'),
-            Text('• Reduce physical obstacles'),
-            Text('• Avoid interference from other devices'),
-            Text('• Check for network congestion'),
-            Text('• Restart your router if needed'),
+            Text(l10n.scoreHealthTipCloser),
+            Text(l10n.scoreHealthTipObstacles),
+            Text(l10n.scoreHealthTipInterference),
+            Text(l10n.scoreHealthTipCongestion),
+            Text(l10n.scoreHealthTipRestart),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
+            child: Text(l10n.commonGotIt),
           ),
         ],
       ),
@@ -564,6 +597,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     NetworkScore score,
     ColorScheme colors,
   ) {
+    final l10n = context.l10n;
     final decay = int.tryParse(score.metadata['stalenessDecay'] ?? '0') ?? 0;
     final reason = score.metadata['stalenessReason'] ?? '';
     final lastComputed = score.metadata['lastComputed'] ?? '';
@@ -591,7 +625,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Score reduced due to age',
+                  l10n.scoreCardStale,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Colors.amber,
                         fontWeight: FontWeight.w600,
@@ -606,7 +640,11 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
                 ),
                 if (lastComputedTime != null)
                   Text(
-                    'Last fresh score: ${DateFormat('MMM d, h:mm a').format(lastComputedTime)}',
+                    l10n.scoreLastFresh(
+                      DateFormat.MMMd(l10n.localeName)
+                          .add_jm()
+                          .format(lastComputedTime),
+                    ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colors.onSurfaceVariant.withAlpha(180),
                           fontSize: 11,
@@ -650,29 +688,31 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
     }
   }
 
-  String _getScoreLevelText(ScoreLevel level) {
+  String _getScoreLevelText(BuildContext context, ScoreLevel level) {
+    final l10n = context.l10n;
     switch (level) {
       case ScoreLevel.good:
-        return 'Good';
+        return l10n.scoreLevelGood;
       case ScoreLevel.moderate:
-        return 'Moderate';
+        return l10n.scoreLevelModerate;
       case ScoreLevel.poor:
-        return 'Needs Attention';
+        return l10n.scoreLevelPoor;
       case ScoreLevel.unknown:
-        return 'Unknown';
+        return l10n.scoreLevelUnknown;
     }
   }
 
-  String _getScoreDescription(ScoreLevel level) {
+  String _getScoreDescription(BuildContext context, ScoreLevel level) {
+    final l10n = context.l10n;
     switch (level) {
       case ScoreLevel.good:
-        return 'Your network is performing well across all dimensions.';
+        return l10n.scoreLevelDescGood;
       case ScoreLevel.moderate:
-        return 'Some areas of your network could use improvement.';
+        return l10n.scoreLevelDescModerate;
       case ScoreLevel.poor:
-        return 'Your network has issues that should be addressed.';
+        return l10n.scoreLevelDescPoor;
       case ScoreLevel.unknown:
-        return 'Run network tools to get your score.';
+        return l10n.scoreLevelDescUnknown;
     }
   }
 
@@ -729,7 +769,7 @@ class _ScoreGauge extends StatelessWidget {
                     ),
               ),
               Text(
-                'out of 100',
+                context.l10n.scoreOutOf100,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: color.withAlpha(180),
                     ),
@@ -832,7 +872,7 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
 
       missing.add(ServerMonitor(
         id: '',
-        name: 'Local Router',
+        name: kLocalRouterSuggestion,
         host: gatewayIp,
         type: ServerCheckType.icmp,
       ));
@@ -866,6 +906,7 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
     }
 
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -883,7 +924,7 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
               Icon(Icons.bolt, color: colors.secondary, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Quick Add Required Monitors',
+                l10n.scoreQuickAddTitle,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colors.onSecondaryContainer,
@@ -893,7 +934,7 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Add these monitors to get full reliability score:',
+            l10n.scoreQuickAddSubtitle,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: colors.onSecondaryContainer.withAlpha(200),
                 ),
@@ -927,7 +968,7 @@ class _QuickAddMonitorsSectionState extends State<_QuickAddMonitorsSection> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  monitor.name,
+                                  monitorDisplayName(l10n, monitor.name),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleSmall

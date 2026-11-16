@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog_action.dart';
+import 'package:vernet/utils/localization.dart';
 
 /// Where the user chose to pick up the new version.
 enum UpdateChannel { github, store }
@@ -28,25 +29,18 @@ class UpdateChannelDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final store = storeLabel;
     return AdaptiveDialog(
-      title: const Text('Where to get the update'),
+      title: Text(l10n.updateChannelTitle),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'GitHub carries a new version the day it ships, so it is the '
-            'fastest way to get features and fixes.',
-          ),
+          Text(l10n.updateChannelGithubBody),
           const SizedBox(height: 12),
-          Text(
-            store == null
-                ? 'Stores get it later: every release has to be tested and '
-                    'published by hand, and the store reviews it again before '
-                    'it reaches you.'
-                : '$store gets it only once that release is tested, published '
-                    'and approved there, which can take a few days.',
-          ),
+          Text(store == null
+              ? l10n.updateChannelStoresBody
+              : l10n.updateChannelStoreBody(store)),
         ],
       ),
       actions: [

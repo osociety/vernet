@@ -3,8 +3,8 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vernet/models/wake_on_lan_target.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class WakeOnLanPage extends StatefulWidget {
   const WakeOnLanPage({
@@ -117,8 +117,11 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       }
       setState(() {
         _sending = false;
-        _status =
-            'Wake packet sent to ${result.macAddress} via ${result.ipv4Address}:${result.port}';
+        _status = context.l10n.wakeOnLanSent(
+          result.macAddress,
+          result.ipv4Address,
+          '${result.port}',
+        );
       });
     } on WakeOnLanException catch (e) {
       if (!mounted) {
@@ -135,7 +138,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       }
       setState(() {
         _sending = false;
-        _status = 'Could not send the wake packet.';
+        _status = context.l10n.wakeOnLanErrorSend;
         _statusIsError = true;
       });
     }
@@ -162,7 +165,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       }
       setState(() {
         _saved = saved;
-        _status = 'Saved ${saved.first.label}';
+        _status = context.l10n.wakeOnLanSaved(saved.first.label);
         _statusIsError = false;
       });
     } on WakeOnLanException catch (e) {
@@ -199,9 +202,10 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringValue.wakeOnLanPageTitle),
+        title: Text(context.l10n.wakeOnLanPageTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
@@ -217,25 +221,25 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
                     TextFormField(
                       key: WidgetKey.wakeOnLanLabelField.key,
                       controller: _labelController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'Name (optional)',
-                        hintText: 'Office PC',
+                        labelText: l10n.wakeOnLanNameLabel,
+                        hintText: l10n.wakeOnLanNameHint,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
                       key: WidgetKey.wakeOnLanMacField.key,
                       controller: _macController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'MAC address',
+                        labelText: l10n.wakeOnLanMacLabel,
                         hintText: 'AA:BB:CC:DD:EE:FF',
                       ),
                       validator: (value) {
                         final mac = WakeOnLanService.normalizeMac(value ?? '');
                         if (mac.replaceAll(':', '').length != 12) {
-                          return 'Enter a MAC address like AA:BB:CC:DD:EE:FF';
+                          return l10n.wakeOnLanMacFormat;
                         }
                         return null;
                       },
@@ -244,9 +248,9 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
                     TextFormField(
                       key: WidgetKey.wakeOnLanIpField.key,
                       controller: _ipController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'Broadcast address',
+                        labelText: l10n.wakeOnLanBroadcastLabel,
                         hintText: WakeOnLanService.defaultBroadcast,
                       ),
                     ),
@@ -255,14 +259,14 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
                       key: WidgetKey.wakeOnLanPortField.key,
                       controller: _portController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'UDP port',
+                        labelText: l10n.wakeOnLanPortLabel,
                       ),
                       validator: (value) {
                         final port = int.tryParse(value?.trim() ?? '');
                         if (port == null || port < 0 || port > 65535) {
-                          return 'Enter a port between 0 and 65535';
+                          return l10n.wakeOnLanPortHint;
                         }
                         return null;
                       },
@@ -271,9 +275,9 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
                     TextFormField(
                       key: WidgetKey.wakeOnLanPasswordField.key,
                       controller: _passwordController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        labelText: 'SecureON password (optional)',
+                        labelText: l10n.wakeOnLanPasswordLabel,
                         hintText: '00:11:22:33:44:55',
                       ),
                     ),
@@ -286,20 +290,23 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
                           key: WidgetKey.wakeOnLanSendButton.key,
                           onPressed: _sending ? null : _send,
                           icon: const Icon(Icons.power_settings_new),
-                          label:
-                              Text(_sending ? 'Sending…' : 'Send wake packet'),
+                          label: Text(
+                            _sending
+                                ? l10n.wakeOnLanSending
+                                : l10n.wakeOnLanSend,
+                          ),
                         ),
                         OutlinedButton.icon(
                           key: WidgetKey.wakeOnLanSaveButton.key,
                           onPressed: _save,
                           icon: const Icon(Icons.bookmark_add),
-                          label: const Text('Save device'),
+                          label: Text(l10n.wakeOnLanSave),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Sends a Wake-on-LAN magic packet on your local network. The computer must have WoL enabled in firmware and in the OS.',
+                      l10n.wakeOnLanExplainer,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -319,10 +326,10 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
               ),
             ),
           if (_saved.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Text(
-                StringValue.wakeOnLanEmptyPlaceholder,
+                context.l10n.wakeOnLanEmptyPlaceholder,
                 textAlign: TextAlign.center,
               ),
             )
@@ -334,6 +341,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
   }
 
   Widget _savedTile(WakeOnLanTarget target) {
+    final l10n = context.l10n;
     return Card(
       child: AdaptiveListTile(
         leading: const Icon(Icons.computer),
@@ -344,7 +352,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              tooltip: 'Wake this device',
+              tooltip: l10n.wakeOnLanWakeThis,
               icon: const Icon(Icons.power_settings_new),
               onPressed: () async {
                 _fillFrom(target);
@@ -352,7 +360,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
               },
             ),
             IconButton(
-              tooltip: 'Remove saved device',
+              tooltip: l10n.wakeOnLanRemove,
               icon: const Icon(Icons.delete_outline),
               onPressed: () => _delete(target),
             ),

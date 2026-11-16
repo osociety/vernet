@@ -8,7 +8,7 @@ void main() {
       final metrics = WifiNetworkMetrics.noReading();
 
       expect(metrics.rawRssi, isNull);
-      expect(metrics.statusMessage, isNot(contains('Disconnected')));
+      expect(metrics.quality, WifiSignalQuality.noReading);
     });
 
     test('nothing claims a signal value it does not have', () {
@@ -46,19 +46,21 @@ void main() {
       expect(WifiRepository.convertRssiToLevel(-100), 0);
     });
 
-    test('getDiagnosticString returns accurate diagnostic descriptions', () {
-      expect(WifiRepository.getDiagnosticString(-50), 'Excellent');
-      expect(WifiRepository.getDiagnosticString(-55), 'Excellent');
-      expect(WifiRepository.getDiagnosticString(-60), 'Good');
-      expect(WifiRepository.getDiagnosticString(-67), 'Good');
-      expect(WifiRepository.getDiagnosticString(-68), 'Fair');
-      expect(WifiRepository.getDiagnosticString(-75), 'Fair');
-      expect(WifiRepository.getDiagnosticString(-78), 'Fair');
-      expect(WifiRepository.getDiagnosticString(-79), 'Weak');
-      expect(WifiRepository.getDiagnosticString(-90), 'Weak');
+    test('getSignalQuality names the band of each dBm reading', () {
+      // The bands are the same ones convertRssiToLevel scores above, so the
+      // bars and the words can never disagree.
+      expect(WifiRepository.getSignalQuality(-50), WifiSignalQuality.excellent);
+      expect(WifiRepository.getSignalQuality(-55), WifiSignalQuality.excellent);
+      expect(WifiRepository.getSignalQuality(-60), WifiSignalQuality.good);
+      expect(WifiRepository.getSignalQuality(-67), WifiSignalQuality.good);
+      expect(WifiRepository.getSignalQuality(-68), WifiSignalQuality.fair);
+      expect(WifiRepository.getSignalQuality(-75), WifiSignalQuality.fair);
+      expect(WifiRepository.getSignalQuality(-78), WifiSignalQuality.fair);
+      expect(WifiRepository.getSignalQuality(-79), WifiSignalQuality.weak);
+      expect(WifiRepository.getSignalQuality(-90), WifiSignalQuality.weak);
       expect(
-        WifiRepository.getDiagnosticString(-95),
-        'Critically Low',
+        WifiRepository.getSignalQuality(-95),
+        WifiSignalQuality.criticallyLow,
       );
     });
   });

@@ -4,6 +4,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vernet/ui/semantic_colors.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
 class WifiPromptSheet extends StatelessWidget {
@@ -19,6 +20,7 @@ class WifiPromptSheet extends StatelessWidget {
   }
 
   Future<void> _openWifiSettings(BuildContext context) async {
+    final l10n = context.l10n;
     try {
       if (Platform.isAndroid) {
         // Android: Use android_intent_plus to open WiFi settings
@@ -30,9 +32,9 @@ class WifiPromptSheet extends StatelessWidget {
         // iOS: Show message (App Store restrictions prevent direct settings access)
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please go to Settings > Wi-Fi to connect'),
-              duration: Duration(seconds: 3),
+            SnackBar(
+              content: Text(l10n.wifiPromptIosHint),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -57,9 +59,9 @@ class WifiPromptSheet extends StatelessWidget {
         // Unknown platform
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please open WiFi settings manually'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(l10n.wifiPromptManualHint),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -68,9 +70,9 @@ class WifiPromptSheet extends StatelessWidget {
       // If opening settings fails, show a message
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please open WiFi settings manually'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(l10n.wifiPromptManualHint),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -80,6 +82,7 @@ class WifiPromptSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return SafeArea(
       child: Padding(
@@ -105,7 +108,7 @@ class WifiPromptSheet extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Not connected to Wi-Fi',
+                l10n.wifiPromptTitle,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -113,8 +116,7 @@ class WifiPromptSheet extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Network scanning works best on Wi-Fi. '
-                'Connect to your local network to discover devices.',
+                l10n.wifiPromptBody,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colors.onSurface.withValues(alpha: 0.7),
                     ),
@@ -133,7 +135,7 @@ class WifiPromptSheet extends StatelessWidget {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: const Text('Open Wi-Fi Settings'),
+                  child: Text(l10n.wifiPromptOpenSettings),
                 ),
               ),
               const SizedBox(height: 8),
@@ -145,7 +147,7 @@ class WifiPromptSheet extends StatelessWidget {
                     // Don't persist dismissal - prompt should show again if no WiFi
                     if (context.mounted) Navigator.of(context).pop();
                   },
-                  child: const Text('Continue anyway'),
+                  child: Text(l10n.wifiPromptContinue),
                 ),
               ),
             ],

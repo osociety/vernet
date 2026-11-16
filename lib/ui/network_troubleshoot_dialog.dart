@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
+import 'package:vernet/utils/localization.dart';
 
 class NetworkTroubleshootDialog extends StatelessWidget {
   const NetworkTroubleshootDialog({
@@ -169,7 +170,7 @@ class NetworkTroubleshootDialog extends StatelessWidget {
           if (status.troubleshootingSteps.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text(
-              'Troubleshooting Steps',
+              context.l10n.netStepsHeading,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colors.primary,
@@ -265,7 +266,7 @@ class _WideDesktopDialog extends StatelessWidget {
                 child: TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
-                    'Close',
+                    context.l10n.commonClose,
                     style: TextStyle(color: colors.primary),
                   ),
                 ),

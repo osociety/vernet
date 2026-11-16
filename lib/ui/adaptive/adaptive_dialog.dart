@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/utils/localization.dart';
 
 class AdaptiveDialog extends StatelessWidget {
   const AdaptiveDialog({
@@ -21,6 +22,7 @@ class AdaptiveDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
     final platform = Theme.of(context).platform;
+    final l10n = context.l10n;
     return platform == TargetPlatform.iOS || platform == TargetPlatform.macOS
         ? CupertinoTheme(
             data: CupertinoThemeData(
@@ -38,9 +40,7 @@ class AdaptiveDialog extends StatelessWidget {
                       () {
                         Navigator.pop(context);
                       },
-                  child: const Text(
-                    'Close',
-                  ),
+                  child: Text(l10n.commonClose),
                 ),
                 ...actions,
               ],
@@ -55,7 +55,7 @@ class AdaptiveDialog extends StatelessWidget {
                     () {
                       Navigator.pop(context);
                     },
-                child: const Text('Close'),
+                child: Text(l10n.commonClose),
               ),
               ...actions,
             ],

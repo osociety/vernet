@@ -3,10 +3,12 @@ import 'package:vernet/models/network_connection_status.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/models/wifi_info.dart';
+import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/server_monitor_service.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 @injectable
 class NetworkScoreService {
@@ -95,26 +97,29 @@ class NetworkScoreService {
     }
 
     final decay = ((hoursSinceLastComputation - 2) * 5).clamp(0, 30);
-    final reason =
-        'Score is ${hoursSinceLastComputation}h old (-$decay points for staleness)';
+    final reason = appStrings().scoreStaleReason(
+      '$hoursSinceLastComputation',
+      '$decay',
+    );
     return _StalenessInfo(decay: decay, reason: reason);
   }
 
   Future<DimensionScore> _computeSecurityDimension() async {
     const name = 'Security';
+    final l10n = appStrings();
     final factors = <String>[];
     var score = 100;
 
     try {
       final recentScans = await scanRepository.getRecentScans(limit: 5);
       if (recentScans.isEmpty) {
-        return const DimensionScore(
+        return DimensionScore(
           name: name,
           value: 50,
-          description: 'Run a network scan to assess security',
+          description: l10n.scoreSecurityNoScansDesc,
           factors: [
-            '✗ No network scans found -50 points',
-            'Tip: Run a network scan from the home screen to discover devices and assess security',
+            l10n.scoreSecurityNoScans,
+            l10n.scoreSecurityNoScansTip,
           ],
         );
       }
@@ -138,16 +143,15 @@ class NetworkScoreService {
       if (unknownDeviceCount > 0) {
         final deduction = unknownDeviceCount * 5;
         score -= deduction;
-        factors.add(
-            '✗ $unknownDeviceCount unidentified device(s) on network (-$deduction points)');
-        factors.add(
-            'Tip: Identify unknown devices or run network scan to refresh device list');
+        factors.add(l10n.scoreSecurityUnknownDevices(
+            '$unknownDeviceCount', '$deduction'));
+        factors.add(l10n.scoreSecurityUnknownTip);
       } else {
-        factors.add('✓ All ${devices.length} device(s) identified');
+        factors.add(l10n.scoreSecurityAllIdentified('${devices.length}'));
       }
 
       if (latestScan.onGoing == true) {
-        factors.add('~ Scan in progress - results may be incomplete');
+        factors.add(l10n.scoreSecurityScanRunning);
       }
 
       score = score.clamp(0, 100);
@@ -156,25 +160,24 @@ class NetworkScoreService {
         name: name,
         value: score,
         description: _securityDescription(score),
-        factors: factors.isEmpty
-            ? ['✓ All devices identified - network appears secure']
-            : factors,
+        factors: factors.isEmpty ? [l10n.scoreSecuritySecure] : factors,
       );
     } on Object {
-      return const DimensionScore(
+      return DimensionScore(
         name: name,
         value: 50,
-        description: 'Unable to assess security',
-        factors: ['✗ Error reading scan data - try running a new network scan'],
+        description: l10n.scoreSecurityUnable,
+        factors: [l10n.scoreSecurityError],
       );
     }
   }
 
   String _securityDescription(int score) {
-    if (score >= 80) return 'Your network security looks good';
-    if (score >= 60) return 'Some security concerns detected';
-    if (score >= 40) return 'Security issues need attention';
-    return 'Significant security risks detected';
+    final l10n = appStrings();
+    if (score >= 80) return l10n.scoreSecurityDescGood;
+    if (score >= 60) return l10n.scoreSecurityDescConcerns;
+    if (score >= 40) return l10n.scoreSecurityDescIssues;
+    return l10n.scoreSecurityDescRisks;
   }
 
   DimensionScore _computeHealthDimension({
@@ -182,18 +185,16 @@ class NetworkScoreService {
     NetworkConnectionStatus? connectivityStatus,
   }) {
     const name = 'Health';
+    final l10n = appStrings();
     final factors = <String>[];
     var score = 0;
 
     if (wifiInfo == null) {
-      return const DimensionScore(
+      return DimensionScore(
         name: name,
         value: 0,
-        description: 'Connect to Wi-Fi to assess network health',
-        factors: [
-          'No Wi-Fi connection detected',
-          'Tip: Connect to a Wi-Fi network to see health score',
-        ],
+        description: l10n.scoreHealthNoWifiDesc,
+        factors: [l10n.scoreHealthNoWifi, l10n.scoreHealthNoWifiTip],
       );
     }
 
@@ -201,77 +202,73 @@ class NetworkScoreService {
       return DimensionScore(
         name: name,
         value: 20,
-        description: 'Wi-Fi connection unstable',
+        description: l10n.scoreHealthUnstableDesc,
         factors: [
-          'Invalid IP address assigned (${wifiInfo.ip})',
-          'Connection may be unstable or not fully established',
-          'Tip: Try disconnecting and reconnecting to Wi-Fi',
+          l10n.scoreHealthInvalidIp(wifiInfo.ip),
+          l10n.scoreHealthUnstableNote,
+          l10n.scoreHealthReconnectTip,
         ],
       );
     }
 
     score += 25;
-    factors.add('✓ Valid IP address (${wifiInfo.ip})');
+    factors.add(l10n.scoreHealthValidIp(wifiInfo.ip));
 
     final signalLevel = wifiInfo.metrics.normalizedLevel;
     if (signalLevel >= 3) {
       score += 25;
-      factors.add('✓ Strong Wi-Fi signal (${wifiInfo.metrics.statusMessage})');
+      factors.add(
+          l10n.scoreHealthStrongSignal(wifiInfo.metrics.quality.label(l10n)));
     } else if (signalLevel >= 2) {
       score += 15;
       factors.add(
-          '~ Moderate Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -10 points');
-      factors.add(
-          'Tip: Move closer to router or reduce obstacles for better signal');
+          l10n.scoreHealthModerateSignal(wifiInfo.metrics.quality.label(l10n)));
+      factors.add(l10n.scoreHealthStrongSignalTip);
     } else if (signalLevel >= 1) {
       score += 5;
       factors.add(
-          '~ Weak Wi-Fi signal (${wifiInfo.metrics.statusMessage}) -20 points');
-      factors.add('Tip: Move closer to router or check for interference');
+          l10n.scoreHealthWeakSignal(wifiInfo.metrics.quality.label(l10n)));
+      factors.add(l10n.scoreHealthWeakSignalTip);
     } else {
-      factors.add('✗ Very weak or no signal -25 points');
-      factors.add('Tip: Check Wi-Fi connection and move closer to router');
+      factors.add(l10n.scoreHealthNoSignal);
+      factors.add(l10n.scoreHealthNoSignalTip);
     }
 
     if (wifiInfo.gatewayIp.isNotEmpty && wifiInfo.gatewayIp != '0.0.0.0') {
       score += 20;
       if (wifiInfo.isCustomGateway) {
-        factors.add('✓ Custom gateway configured (${wifiInfo.gatewayIp})');
+        factors.add(l10n.scoreHealthCustomGateway(wifiInfo.gatewayIp));
       } else {
-        factors.add('✓ Gateway reachable (${wifiInfo.gatewayIp})');
+        factors.add(l10n.scoreHealthGateway(wifiInfo.gatewayIp));
       }
     } else {
-      factors.add('✗ No gateway detected -20 points');
-      factors.add('Tip: Check router connection and network settings');
+      factors.add(l10n.scoreHealthNoGateway);
+      factors.add(l10n.scoreHealthNoGatewayTip);
     }
 
     if (connectivityStatus != null) {
       if (connectivityStatus.isConnected) {
         score += 30;
-        factors.add('✓ Internet connection active');
+        factors.add(l10n.scoreHealthInternetOn);
         if (connectivityStatus.latency != null) {
           final latencyMs = connectivityStatus.latency!.inMilliseconds;
           if (latencyMs < 100) {
-            factors.add(
-                '✓ Low latency (${latencyMs}ms) - excellent for gaming/video calls');
+            factors.add(l10n.scoreHealthLatencyLow('$latencyMs'));
           } else if (latencyMs < 300) {
-            factors.add(
-                '~ Moderate latency (${latencyMs}ms) - acceptable for most uses');
+            factors.add(l10n.scoreHealthLatencyModerate('$latencyMs'));
           } else {
-            factors.add(
-                '~ High latency (${latencyMs}ms) - may affect real-time applications');
+            factors.add(l10n.scoreHealthLatencyHigh('$latencyMs'));
           }
         }
       } else if (connectivityStatus.isChecking) {
         score += 10;
-        factors.add('~ Checking internet connectivity...');
+        factors.add(l10n.scoreHealthChecking);
       } else {
-        factors.add('✗ No internet connection -30 points');
-        factors.add(
-            'Tip: Check router and modem, verify internet service is active');
+        factors.add(l10n.scoreHealthNoInternet);
+        factors.add(l10n.scoreHealthNoInternetTip);
       }
     } else {
-      factors.add('? Internet status unknown');
+      factors.add(l10n.scoreHealthStatusUnknown);
     }
 
     score = score.clamp(0, 100);
@@ -285,27 +282,29 @@ class NetworkScoreService {
   }
 
   String _healthDescription(int score) {
-    if (score >= 80) return 'Network health is excellent';
-    if (score >= 60) return 'Network health is good';
-    if (score >= 40) return 'Network health needs attention';
-    return 'Network health is poor';
+    final l10n = appStrings();
+    if (score >= 80) return l10n.scoreHealthDescExcellent;
+    if (score >= 60) return l10n.scoreHealthDescGood;
+    if (score >= 40) return l10n.scoreHealthDescAttention;
+    return l10n.scoreHealthDescPoor;
   }
 
   Future<DimensionScore> _computeReliabilityDimension() async {
     const name = 'Reliability';
+    final l10n = appStrings();
     final factors = <String>[];
 
     try {
       final monitors = await serverMonitorService.loadMonitors();
       if (monitors.isEmpty) {
-        return const DimensionScore(
+        return DimensionScore(
           name: name,
           value: 0,
-          description: 'Add monitors to track reliability',
+          description: l10n.scoreReliabilityNoMonitorsDesc,
           factors: [
-            '✗ No monitors configured -100 points',
-            'Add ICMP monitor to local router',
-            'Add HTTPS monitor to internet server (e.g., google.com)',
+            l10n.scoreReliabilityNoMonitors,
+            l10n.scoreReliabilityAddRouter,
+            l10n.scoreReliabilityAddInternet,
           ],
         );
       }
@@ -318,10 +317,10 @@ class NetworkScoreService {
           m.type == ServerCheckType.https || m.type == ServerCheckType.http);
 
       if (!hasRouterMonitor) {
-        factors.add('✗ Missing: ICMP monitor to local router');
+        factors.add(l10n.scoreReliabilityMissingRouter);
       }
       if (!hasUpstreamMonitor) {
-        factors.add('✗ Missing: HTTPS monitor to internet server');
+        factors.add(l10n.scoreReliabilityMissingInternet);
       }
 
       var totalUptimePercent = 0.0;
@@ -341,11 +340,8 @@ class NetworkScoreService {
         return DimensionScore(
           name: name,
           value: 30,
-          description: 'No monitoring history yet',
-          factors: [
-            ...factors,
-            '~ Monitors configured but no data collected yet -70 points',
-          ],
+          description: l10n.scoreReliabilityNoHistoryDesc,
+          factors: [...factors, l10n.scoreReliabilityNoHistory],
         );
       }
 
@@ -355,17 +351,17 @@ class NetworkScoreService {
       // Cap score based on required monitor types
       if (!hasRouterMonitor && !hasUpstreamMonitor) {
         score = score > 50 ? 50 : score;
-        factors
-            .add('✗ Score capped at 50: Add both router and internet monitors');
+        factors.add(l10n.scoreReliabilityCap50);
       } else if (!hasRouterMonitor || !hasUpstreamMonitor) {
         score = score > 75 ? 75 : score;
-        factors.add(
-            '✗ Score capped at 75: Add missing monitor type for full score');
+        factors.add(l10n.scoreReliabilityCap75);
       }
 
       score = score.clamp(0, 100);
-      factors.insert(0,
-          '✓ ${avgUptime.toStringAsFixed(1)}% uptime across $monitorCount monitor(s)');
+      factors.insert(
+          0,
+          l10n.scoreReliabilityUptime(
+              avgUptime.toStringAsFixed(1), '$monitorCount'));
 
       return DimensionScore(
         name: name,
@@ -374,37 +370,36 @@ class NetworkScoreService {
         factors: factors,
       );
     } on Object {
-      return const DimensionScore(
+      return DimensionScore(
         name: name,
         value: 0,
-        description: 'Unable to assess reliability',
-        factors: ['✗ Error reading monitor data'],
+        description: l10n.scoreReliabilityUnable,
+        factors: [l10n.scoreReliabilityError],
       );
     }
   }
 
   String _reliabilityDescription(int score) {
-    if (score >= 80) return 'Network reliability is excellent';
-    if (score >= 60) return 'Network reliability is good';
-    if (score >= 40) return 'Network reliability is inconsistent';
-    return 'Network reliability is poor';
+    final l10n = appStrings();
+    if (score >= 80) return l10n.scoreReliabilityDescExcellent;
+    if (score >= 60) return l10n.scoreReliabilityDescGood;
+    if (score >= 40) return l10n.scoreReliabilityDescInconsistent;
+    return l10n.scoreReliabilityDescPoor;
   }
 
   Future<DimensionScore> _computeSpeedDimension() async {
     const name = 'Speed';
+    final l10n = appStrings();
     final factors = <String>[];
 
     try {
       final snapshot = await scoreRepository.loadSpeedSnapshot();
       if (snapshot == null) {
-        return const DimensionScore(
+        return DimensionScore(
           name: name,
           value: 30,
-          description: 'Run a speed test to assess performance',
-          factors: [
-            'No speed test results found',
-            'Tip: Run a speed test from the network score page to measure your connection',
-          ],
+          description: l10n.scoreSpeedNoResultDesc,
+          factors: [l10n.scoreSpeedNoResult, l10n.scoreSpeedNoResultTip],
         );
       }
 
@@ -418,68 +413,64 @@ class NetworkScoreService {
       if (downloadMbps >= 100) {
         score += 30;
         factors.add(
-            '✓ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (excellent)');
+            l10n.scoreSpeedDownloadExcellent(downloadMbps.toStringAsFixed(1)));
       } else if (downloadMbps >= 50) {
         score += 25;
         factors
-            .add('✓ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (good)');
+            .add(l10n.scoreSpeedDownloadGood(downloadMbps.toStringAsFixed(1)));
       } else if (downloadMbps >= 25) {
         score += 18;
         factors.add(
-            '~ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (moderate) -12 points');
-        factors.add('Tip: For HD streaming, aim for 25+ Mbps');
+            l10n.scoreSpeedDownloadModerate(downloadMbps.toStringAsFixed(1)));
+        factors.add(l10n.scoreSpeedHdTip);
       } else if (downloadMbps >= 10) {
         score += 10;
-        factors.add(
-            '~ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (slow) -20 points');
-        factors.add('Tip: Contact ISP about upgrading your plan');
+        factors
+            .add(l10n.scoreSpeedDownloadSlow(downloadMbps.toStringAsFixed(1)));
+        factors.add(l10n.scoreSpeedIspTip);
       } else {
         score += 4;
         factors.add(
-            '✗ Download: ${downloadMbps.toStringAsFixed(1)} Mbps (very slow) -26 points');
-        factors.add(
-            'Tip: Check for background downloads, restart router, or contact ISP');
+            l10n.scoreSpeedDownloadVerySlow(downloadMbps.toStringAsFixed(1)));
+        factors.add(l10n.scoreSpeedBackgroundTip);
       }
 
       // Upload speed scoring (max 15 points)
       if (uploadMbps >= 20) {
         score += 15;
         factors
-            .add('✓ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (excellent)');
+            .add(l10n.scoreSpeedUploadExcellent(uploadMbps.toStringAsFixed(1)));
       } else if (uploadMbps >= 10) {
         score += 12;
-        factors.add('✓ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (good)');
+        factors.add(l10n.scoreSpeedUploadGood(uploadMbps.toStringAsFixed(1)));
       } else if (uploadMbps >= 5) {
         score += 8;
-        factors.add(
-            '~ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (moderate) -7 points');
-        factors.add('Tip: For video calls, aim for 5+ Mbps upload');
+        factors
+            .add(l10n.scoreSpeedUploadModerate(uploadMbps.toStringAsFixed(1)));
+        factors.add(l10n.scoreSpeedVideoCallTip);
       } else {
         score += 3;
-        factors.add(
-            '✗ Upload: ${uploadMbps.toStringAsFixed(1)} Mbps (slow) -12 points');
-        factors.add('Tip: Limit uploads during important calls or contact ISP');
+        factors.add(l10n.scoreSpeedUploadSlow(uploadMbps.toStringAsFixed(1)));
+        factors.add(l10n.scoreSpeedUploadLimitTip);
       }
 
       // Latency scoring (max 15 points)
       if (latencyMs < 20) {
         score += 15;
-        factors.add(
-            '✓ Latency: ${latencyMs.toStringAsFixed(0)}ms (excellent for gaming)');
+        factors
+            .add(l10n.scoreSpeedLatencyExcellent(latencyMs.toStringAsFixed(0)));
       } else if (latencyMs < 50) {
         score += 12;
-        factors.add('✓ Latency: ${latencyMs.toStringAsFixed(0)}ms (good)');
+        factors.add(l10n.scoreSpeedLatencyGood(latencyMs.toStringAsFixed(0)));
       } else if (latencyMs < 100) {
         score += 8;
-        factors.add(
-            '~ Latency: ${latencyMs.toStringAsFixed(0)}ms (moderate) -7 points');
-        factors.add('Tip: High latency affects gaming and video calls');
+        factors
+            .add(l10n.scoreSpeedLatencyModerate(latencyMs.toStringAsFixed(0)));
+        factors.add(l10n.scoreSpeedLatencyTip);
       } else {
         score += 3;
-        factors.add(
-            '✗ Latency: ${latencyMs.toStringAsFixed(0)}ms (high) -12 points');
-        factors.add(
-            'Tip: Use wired connection, reduce network congestion, or contact ISP');
+        factors.add(l10n.scoreSpeedLatencyHigh(latencyMs.toStringAsFixed(0)));
+        factors.add(l10n.scoreSpeedWiredTip);
       }
 
       // Ping data scoring (max 10 points)
@@ -488,21 +479,20 @@ class NetworkScoreService {
         // Packet loss (max 5 points)
         if (pingSnapshot.packetLossPercent == 0) {
           score += 5;
-          factors.add('✓ No packet loss');
+          factors.add(l10n.scoreSpeedNoPacketLoss);
         } else if (pingSnapshot.packetLossPercent < 1) {
           score += 3;
-          factors.add(
-              '~ Minimal packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%)');
+          factors.add(l10n.scoreSpeedLossMinimal(
+              pingSnapshot.packetLossPercent.toStringAsFixed(1)));
         } else if (pingSnapshot.packetLossPercent < 5) {
           score += 1;
-          factors.add(
-              '~ Some packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%) -4 points');
-          factors.add('Tip: Check Wi-Fi signal strength and router placement');
+          factors.add(l10n.scoreSpeedLossSome(
+              pingSnapshot.packetLossPercent.toStringAsFixed(1)));
+          factors.add(l10n.scoreSpeedWifiTip);
         } else {
-          factors.add(
-              '✗ High packet loss (${pingSnapshot.packetLossPercent.toStringAsFixed(1)}%) -5 points');
-          factors.add(
-              'Tip: Network congestion or hardware issues - restart router');
+          factors.add(l10n.scoreSpeedLossHigh(
+              pingSnapshot.packetLossPercent.toStringAsFixed(1)));
+          factors.add(l10n.scoreSpeedCongestionTip);
         }
 
         // Jitter (max 5 points)
@@ -510,53 +500,50 @@ class NetworkScoreService {
           final jitter = pingSnapshot.jitterMs!;
           if (jitter < 5) {
             score += 5;
-            factors.add(
-                '✓ Jitter: ${jitter.toStringAsFixed(1)}ms (stable connection)');
+            factors.add(l10n.scoreSpeedJitterStable(jitter.toStringAsFixed(1)));
           } else if (jitter < 15) {
             score += 3;
-            factors
-                .add('✓ Jitter: ${jitter.toStringAsFixed(1)}ms (acceptable)');
+            factors.add(
+                l10n.scoreSpeedJitterAcceptable(jitter.toStringAsFixed(1)));
           } else if (jitter < 30) {
             score += 1;
-            factors.add(
-                '~ Jitter: ${jitter.toStringAsFixed(1)}ms (variable) -4 points');
-            factors.add('Tip: High jitter affects video/voice quality');
-          } else {
-            factors.add(
-                '✗ Jitter: ${jitter.toStringAsFixed(1)}ms (unstable) -5 points');
             factors
-                .add('Tip: Use wired connection or reduce network congestion');
+                .add(l10n.scoreSpeedJitterVariable(jitter.toStringAsFixed(1)));
+            factors.add(l10n.scoreSpeedJitterVoiceTip);
+          } else {
+            factors
+                .add(l10n.scoreSpeedJitterUnstable(jitter.toStringAsFixed(1)));
+            factors.add(l10n.scoreSpeedJitterWiredTip);
           }
         }
       } else if (snapshot.packetLossPercent != null) {
         // Fallback to NDT7 packet loss if ping snapshot not available
         if (snapshot.packetLossPercent! == 0) {
           score += 5;
-          factors.add('✓ No packet loss (M-Lab)');
+          factors.add(l10n.scoreSpeedNoLossMlab);
         } else if (snapshot.packetLossPercent! < 1) {
           score += 3;
-          factors.add(
-              '~ Minimal packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab)');
+          factors.add(l10n.scoreSpeedLossMinimalMlab(
+              snapshot.packetLossPercent!.toStringAsFixed(1)));
         } else if (snapshot.packetLossPercent! < 5) {
           score += 1;
-          factors.add(
-              '~ Some packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -4 points');
+          factors.add(l10n.scoreSpeedLossSomeMlab(
+              snapshot.packetLossPercent!.toStringAsFixed(1)));
         } else {
-          factors.add(
-              '✗ High packet loss (${snapshot.packetLossPercent!.toStringAsFixed(1)}%, M-Lab) -5 points');
+          factors.add(l10n.scoreSpeedLossHighMlab(
+              snapshot.packetLossPercent!.toStringAsFixed(1)));
         }
       } else {
         // No ping data available - show missing points
-        factors.add('✗ No ping data available -10 points');
-        factors.add(
-            'Tip: Run a connectivity check to measure packet loss and jitter');
+        factors.add(l10n.scoreSpeedNoPingData);
+        factors.add(l10n.scoreSpeedNoPingDataTip);
       }
 
       // Add test provider info
       if (snapshot.testProvider == 'mlab') {
-        factors.add('ℹ Measured via M-Lab NDT7 protocol');
+        factors.add(l10n.scoreSpeedMeasuredMlab);
         if (snapshot.serverLocation != null) {
-          factors.add('📍 Server: ${snapshot.serverLocation}');
+          factors.add(l10n.scoreSpeedServerAt(snapshot.serverLocation!));
         }
       }
 
@@ -574,80 +561,79 @@ class NetworkScoreService {
         factors: factors,
       );
     } on Object {
-      return const DimensionScore(
+      return DimensionScore(
         name: name,
         value: 30,
-        description: 'Unable to assess speed',
-        factors: [
-          'Error reading speed data',
-          'Tip: Try running a new speed test',
-        ],
+        description: l10n.scoreSpeedUnable,
+        factors: [l10n.scoreSpeedError, l10n.scoreSpeedErrorTip],
       );
     }
   }
 
   String _speedDescription(int score) {
-    if (score >= 80) return 'Network speed is excellent';
-    if (score >= 60) return 'Network speed is good';
-    if (score >= 40) return 'Network speed is moderate';
-    return 'Network speed needs improvement';
+    final l10n = appStrings();
+    if (score >= 80) return l10n.scoreSpeedDescExcellent;
+    if (score >= 60) return l10n.scoreSpeedDescGood;
+    if (score >= 40) return l10n.scoreSpeedDescModerate;
+    return l10n.scoreSpeedDescImprove;
   }
 
   DimensionScore _computeVulnerabilitiesDimension(DimensionScore security) {
     const name = 'Vulnerabilities';
+    final l10n = appStrings();
 
     if (security.value >= 95) {
       // Near-perfect security - minimal baseline risk
-      return const DimensionScore(
+      return DimensionScore(
         name: name,
         value: 98,
-        description: 'Excellent security posture',
+        description: l10n.scoreVulnExcellentDesc,
         factors: [
-          '✓ Strong security posture detected',
-          '✓ All network devices identified',
-          '✓ No obvious vulnerabilities found',
-          '~ Minimal baseline risk: -2 points (theoretical)',
+          l10n.scoreVulnStrongPosture,
+          l10n.scoreVulnAllIdentified,
+          l10n.scoreVulnNoVulnerabilities,
+          l10n.scoreVulnMinimalBaseline,
         ],
       );
     } else if (security.value >= 80) {
       // Good security - small baseline risk
-      return const DimensionScore(
+      return DimensionScore(
         name: name,
         value: 95,
-        description: 'Low vulnerability risk',
+        description: l10n.scoreVulnLowDesc,
         factors: [
-          '✓ Strong security posture detected',
-          '✓ All network devices identified',
-          '✓ No obvious vulnerabilities found',
-          '~ Small baseline risk: -5 points (theoretical)',
+          l10n.scoreVulnStrongPosture,
+          l10n.scoreVulnAllIdentified,
+          l10n.scoreVulnNoVulnerabilities,
+          l10n.scoreVulnSmallBaseline,
         ],
       );
     } else if (security.value >= 50) {
       return DimensionScore(
         name: name,
         value: 60,
-        description: 'Some vulnerabilities detected',
+        description: l10n.scoreVulnSomeDesc,
         factors: [
-          '~ Moderate security score (${security.value}/100) -35 points',
-          '~ Some devices on network not fully identified',
-          'Tip: Run a network scan to identify all devices',
-          "Tip: Review unknown devices and verify they're authorized",
+          l10n.scoreVulnModerateScore('${security.value}'),
+          l10n.scoreVulnPartialIdentification,
+          l10n.scoreVulnScanTip,
+          l10n.scoreVulnReviewTip,
         ],
       );
     } else {
       return DimensionScore(
         name: name,
         value: 30,
-        description: 'Vulnerabilities require attention',
+        description: l10n.scoreVulnAttentionDesc,
         factors: [
-          '✗ Low security score (${security.value}/100) -65 points',
-          '✗ Unknown devices detected on network',
-          '✗ Potential exposed services',
-          'Action required:',
-          '• Run a network scan immediately to discover all devices',
-          '• Identify and verify all unknown devices',
-          '• Run a port scan to check for exposed services',
-          '• Consider enabling device trust features',
+          l10n.scoreVulnLowScore('${security.value}'),
+          l10n.scoreVulnUnknownDevices,
+          l10n.scoreVulnExposedServices,
+          l10n.scoreVulnActionRequired,
+          l10n.scoreVulnActionScan,
+          l10n.scoreVulnActionVerify,
+          l10n.scoreVulnActionPorts,
+          l10n.scoreVulnActionTrust,
         ],
       );
     }

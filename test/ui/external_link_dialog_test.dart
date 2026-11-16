@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/external_link_dialog.dart';
 
@@ -23,6 +24,24 @@ void main() {
 
   group('ExternalLinkWarningDialog', () {
     late MockUrlLauncherPlatform mockPlatform;
+
+    Future<void> pumpShell(
+      WidgetTester tester, {
+      Locale locale = const Locale('en'),
+    }) async {
+      // Use showAdaptiveDialog directly in the test.
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const Scaffold(body: SizedBox()),
+          ),
+        ),
+      );
+    }
 
     setUp(() {
       mockPlatform = MockUrlLauncherPlatform();
@@ -48,15 +67,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       const url = 'https://example.com';
 
-      // Use showAdaptiveDialog directly in the test.
-      await tester.pumpWidget(
-        ChangeNotifierProvider<DarkThemeProvider>(
-          create: (_) => DarkThemeProvider(),
-          child: const MaterialApp(
-            home: Scaffold(body: SizedBox()),
-          ),
-        ),
-      );
+      await pumpShell(tester);
       final BuildContext context = tester.element(find.byType(Scaffold));
       showAdaptiveDialog(
         context: context,
@@ -72,6 +83,22 @@ void main() {
 
       verify(() => mockPlatform.canLaunch(url)).called(1);
       verify(() => mockPlatform.launchUrl(url, any())).called(1);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('asks in German', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await pumpShell(tester, locale: const Locale('de'));
+      showAdaptiveDialog(
+        context: tester.element(find.byType(Scaffold)),
+        builder: (context) =>
+            const ExternalLinkWarningDialog(link: 'https://example.com'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Diesen Link öffnen?'), findsOneWidget);
+      expect(find.text('Link öffnen'), findsOneWidget);
+      expect(find.text('Open this link?'), findsNothing);
       debugDefaultTargetPlatformOverride = null;
     });
   });

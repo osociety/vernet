@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -23,6 +24,8 @@ void main() {
     return ChangeNotifierProvider(
       create: (_) => DarkThemeProvider(),
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: DeviceDetailPage(device: device),
       ),
     );

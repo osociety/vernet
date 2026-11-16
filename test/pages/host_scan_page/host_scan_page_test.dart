@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -91,6 +92,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => Scaffold(
             body: Center(
@@ -144,6 +147,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => Scaffold(
             body: Center(
@@ -221,6 +226,8 @@ void main() {
       ChangeNotifierProvider<DarkThemeProvider>(
         create: (_) => DarkThemeProvider(),
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
             builder: (context) => Scaffold(
               body: Center(

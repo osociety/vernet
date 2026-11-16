@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/models/subnet_calculation.dart';
 import 'package:vernet/services/subnet_calculator_service.dart';
+import 'package:vernet/utils/localization.dart';
 
 class SubnetCalculatorPage extends StatefulWidget {
   const SubnetCalculatorPage({super.key});
@@ -39,24 +40,23 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('IP subnet calculator')),
+      appBar: AppBar(title: Text(context.l10n.subnetCalcTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(
-            'Calculate IPv4 or IPv6 subnet details from an address and prefix.',
-          ),
+          Text(context.l10n.subnetCalcSubtitle),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
             keyboardType: TextInputType.url,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _calculate(),
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'IP address / prefix',
-              hintText: '192.168.1.10/24 or 2001:db8::1/64',
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: l10n.subnetCalcFieldLabel,
+              hintText: l10n.subnetCalcFieldHint,
             ),
           ),
           const SizedBox(height: 12),
@@ -65,7 +65,7 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
             child: ElevatedButton.icon(
               onPressed: _calculate,
               icon: const Icon(Icons.calculate),
-              label: const Text('Calculate'),
+              label: Text(l10n.subnetCalcRun),
             ),
           ),
           if (_error != null) ...[
@@ -85,15 +85,46 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
   }
 
   Widget _resultCard(BuildContext context, SubnetCalculation result) {
-    final rows = <(String, String)>[
-      ('IP version', result.ipVersion),
-      ('Network address', result.networkAddress),
-      ('Subnet mask', result.subnetMask),
+    final l10n = context.l10n;
+    // The tooltip names the row in the objective case, which German spells
+    // differently from the label, so each row carries its own copy text.
+    final rows = <(String, String, String)>[
+      (
+        l10n.subnetCalcIpVersion,
+        l10n.subnetCalcCopyIpVersion,
+        result.ipVersion
+      ),
+      (
+        l10n.subnetCalcNetworkAddress,
+        l10n.subnetCalcCopyNetworkAddress,
+        result.networkAddress,
+      ),
+      (
+        l10n.subnetCalcSubnetMask,
+        l10n.subnetCalcCopySubnetMask,
+        result.subnetMask
+      ),
       if (result.broadcastAddress != null)
-        ('Broadcast address', result.broadcastAddress!),
-      ('First address', result.firstAddress),
-      ('Last address', result.lastAddress),
-      ('Addresses in subnet', result.addressCount),
+        (
+          l10n.subnetCalcBroadcastAddress,
+          l10n.subnetCalcCopyBroadcastAddress,
+          result.broadcastAddress!,
+        ),
+      (
+        l10n.subnetCalcFirstAddress,
+        l10n.subnetCalcCopyFirstAddress,
+        result.firstAddress,
+      ),
+      (
+        l10n.subnetCalcLastAddress,
+        l10n.subnetCalcCopyLastAddress,
+        result.lastAddress
+      ),
+      (
+        l10n.subnetCalcAddressCount,
+        l10n.subnetCalcCopyAddressCount,
+        result.addressCount,
+      ),
     ];
     return Card(
       child: Padding(
@@ -111,14 +142,14 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
                 contentPadding: EdgeInsets.zero,
                 dense: true,
                 title: Text(row.$1),
-                subtitle: SelectableText(row.$2),
+                subtitle: SelectableText(row.$3),
                 trailing: IconButton(
-                  tooltip: 'Copy ${row.$1.toLowerCase()}',
+                  tooltip: row.$2,
                   icon: const Icon(Icons.copy, size: 18),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: row.$2));
+                    Clipboard.setData(ClipboardData(text: row.$3));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${row.$1} copied')),
+                      SnackBar(content: Text(l10n.subnetCalcCopied(row.$1))),
                     );
                   },
                 ),

@@ -4,10 +4,21 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
+import 'package:vernet/utils/localization.dart';
+
+/// Name the quick-add suggestion stores for the gateway. The row keeps this
+/// token in the database so existing monitors stay stable; the UI translates
+/// it through [monitorDisplayName].
+const String kLocalRouterSuggestion = 'Local Router';
+
+/// The suggestion token is English, everything the user sees is not.
+String monitorDisplayName(AppLocalizations l10n, String name) =>
+    name == kLocalRouterSuggestion ? l10n.serverCheckerLocalRouter : name;
 
 class ServerCheckerPage extends StatefulWidget {
   const ServerCheckerPage({super.key, this.service, this.onServerDown});
@@ -84,7 +95,9 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${monitor.name} added'),
+          content: Text(context.l10n.serverCheckerAdded(
+            monitorDisplayName(context.l10n, monitor.name),
+          )),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -110,7 +123,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
 
       suggestions.add(ServerMonitor(
         id: '',
-        name: 'Local Router',
+        name: kLocalRouterSuggestion,
         host: gatewayIp,
         type: ServerCheckType.icmp,
       ));
@@ -219,11 +232,11 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Server checker')),
+        appBar: AppBar(title: Text(context.l10n.serverCheckerTitle)),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _addMonitor,
           icon: const Icon(Icons.add),
-          label: const Text('Add server'),
+          label: Text(context.l10n.serverCheckerAdd),
         ),
         body: _monitors.isEmpty ? _buildEmptyState() : _buildMonitorList(),
       );
@@ -231,11 +244,11 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
   Widget _buildEmptyState() {
     final suggested = _suggestedMonitors;
     if (suggested.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Text(
-            'Add a server to monitor reachability, response time, and downtime.',
+            context.l10n.serverCheckerEmpty,
             textAlign: TextAlign.center,
           ),
         ),
@@ -245,13 +258,13 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
       children: [
-        const Text(
-          'Quick Add',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        Text(
+          context.l10n.serverCheckerQuickAdd,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Text(
-          'Add these monitors to track network reliability:',
+          context.l10n.serverCheckerQuickAddHint,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 16),
@@ -263,7 +276,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                       : Icons.language,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: Text(monitor.name),
+                title: Text(monitorDisplayName(context.l10n, monitor.name)),
                 subtitle: Text(
                     '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
                 trailing: IconButton(
@@ -277,7 +290,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
         const SizedBox(height: 16),
         Center(
           child: Text(
-            'Or add a custom server using the + button below',
+            context.l10n.serverCheckerCustomHint,
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -291,6 +304,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 88),
       itemCount: _monitors.length,
       itemBuilder: (context, index) {
+        final l10n = context.l10n;
         final monitor = _monitors[index];
         final history = _histories[monitor.id] ?? [];
         final latest = _latest[monitor.id];
@@ -323,7 +337,7 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(monitor.name,
+                        Text(monitorDisplayName(context.l10n, monitor.name),
                             style: Theme.of(context).textTheme.titleMedium),
                         Text(
                             '${monitor.type.name.toUpperCase()} · ${monitor.host}'),
@@ -331,14 +345,14 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Edit server',
+                    tooltip: context.l10n.serverCheckerEdit,
                     onPressed: () => _editMonitor(monitor),
                     icon: const Icon(Icons.edit_outlined),
                   ),
                   IconButton(
                     tooltip: _running.contains(monitor.id)
-                        ? 'Stop monitoring'
-                        : 'Start monitoring',
+                        ? context.l10n.serverCheckerStop
+                        : context.l10n.serverCheckerStart,
                     onPressed: () => _running.contains(monitor.id)
                         ? _stop(monitor.id)
                         : _start(monitor),
@@ -347,14 +361,15 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                         : Icons.play_arrow),
                   ),
                   IconButton(
-                    tooltip: 'Delete server',
+                    tooltip: context.l10n.serverCheckerDelete,
                     onPressed: () => _delete(monitor),
                     icon: const Icon(Icons.delete_outline),
                   ),
                 ]),
                 if (latest != null)
                   Text(
-                    '${latest.isUp ? 'Reachable' : 'Unreachable'} · ${latest.message} · ${_formatLatency(latest.latency)}',
+                    '${latest.isUp ? context.l10n.serverCheckerReachable : context.l10n.serverCheckerUnreachable}'
+                    ' · ${latest.message} · ${_formatLatency(context.l10n, latest.latency)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 const SizedBox(height: 10),
@@ -368,13 +383,17 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
                   spacing: 18,
                   runSpacing: 4,
                   children: [
-                    Text('Checks: ${history.length}'),
-                    Text('Outages: $outages'),
+                    Text(l10n.serverCheckerChecks('${history.length}')),
+                    Text(l10n.serverCheckerOutages('$outages')),
                     Text(uptime == null
-                        ? 'Uptime: —'
-                        : 'Uptime: ${uptime.toStringAsFixed(1)}%'),
-                    Text('Downtime: ${_formatDuration(downtime)}'),
-                    Text('Every ${monitor.intervalSeconds}s'),
+                        ? l10n.serverCheckerUptimeNone
+                        : l10n.serverCheckerUptime(uptime.toStringAsFixed(1))),
+                    Text(l10n.serverCheckerDowntime(
+                      _formatDuration(l10n, downtime),
+                    )),
+                    Text(l10n.serverCheckerEverySecondsShort(
+                      '${monitor.intervalSeconds}',
+                    )),
                   ],
                 ),
               ],
@@ -404,13 +423,17 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
     return outages;
   }
 
-  String _formatLatency(Duration? latency) =>
-      latency == null ? '—' : '${latency.inMilliseconds} ms';
+  String _formatLatency(AppLocalizations l10n, Duration? latency) =>
+      latency == null
+          ? '—'
+          : l10n.serverCheckerLatencyMs('${latency.inMilliseconds}');
 
-  String _formatDuration(Duration duration) {
+  String _formatDuration(AppLocalizations l10n, Duration duration) {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
-    return hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
+    return hours > 0
+        ? l10n.serverCheckerDurationHoursMinutes('$hours', '$minutes')
+        : l10n.serverCheckerDurationMinutes('$minutes');
   }
 }
 
@@ -490,32 +513,34 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
     super.dispose();
   }
 
-  String? _required(String? value) =>
-      value == null || value.trim().isEmpty ? 'Required' : null;
+  String? _required(String? value) => value == null || value.trim().isEmpty
+      ? context.l10n.commonRequired
+      : null;
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Add server'),
+        title: Text(context.l10n.serverCheckerAdd),
         content: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               TextFormField(
                 controller: _name,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: context.l10n.commonName),
                 validator: _required,
               ),
               TextFormField(
                 controller: _host,
-                decoration: const InputDecoration(
-                  labelText: 'Host or URL',
-                  hintText: 'example.com or 192.168.1.1',
+                decoration: InputDecoration(
+                  labelText: context.l10n.serverCheckerHostLabel,
+                  hintText: context.l10n.serverCheckerHostHint,
                 ),
                 validator: _required,
               ),
               DropdownButtonFormField<ServerCheckType>(
                 initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Check type'),
+                decoration: InputDecoration(
+                    labelText: context.l10n.serverCheckerTypeLabel),
                 items: ServerCheckType.values
                     .map((type) => DropdownMenuItem(
                           value: type,
@@ -528,11 +553,12 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
                 TextFormField(
                   controller: _port,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'TCP port'),
+                  decoration: InputDecoration(
+                      labelText: context.l10n.serverCheckerTcpPort),
                   validator: (value) {
                     final port = int.tryParse(value ?? '');
                     return port == null || port < 1 || port > 65535
-                        ? 'Enter a port from 1 to 65535'
+                        ? context.l10n.serverCheckerPortRange
                         : null;
                   },
                 ),
@@ -540,19 +566,23 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
                   _type == ServerCheckType.https)
                 TextFormField(
                   controller: _text,
-                  decoration: const InputDecoration(
-                    labelText: 'Expected page text (optional)',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.serverCheckerExpectedText,
                   ),
                 ),
               DropdownButtonFormField<int>(
                 initialValue: _interval,
-                decoration: const InputDecoration(labelText: 'Check interval'),
+                decoration: InputDecoration(
+                  labelText: context.l10n.serverCheckerInterval,
+                ),
                 items: const [15, 30, 60, 300]
                     .map((seconds) => DropdownMenuItem(
                           value: seconds,
                           child: Text(seconds < 60
-                              ? 'Every $seconds seconds'
-                              : 'Every ${seconds ~/ 60} minutes'),
+                              ? context.l10n
+                                  .serverCheckerEverySeconds('$seconds')
+                              : context.l10n.serverCheckerEveryMinutes(
+                                  '${seconds ~/ 60}')),
                         ))
                     .toList(),
                 onChanged: (value) => setState(() => _interval = value!),
@@ -563,7 +593,7 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -585,8 +615,9 @@ class _AddMonitorDialogState extends State<_AddMonitorDialog> {
                 ),
               );
             },
-            child: Text(
-                widget.monitor == null ? 'Save and start' : 'Save changes'),
+            child: Text(widget.monitor == null
+                ? context.l10n.serverCheckerSaveAndStart
+                : context.l10n.serverCheckerSaveChanges),
           ),
         ],
       );

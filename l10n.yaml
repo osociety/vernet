@@ -1,0 +1,9 @@
+# flutter gen-l10n reads this. Flutter 3.50 dropped the synthetic-package option, so
+# the generated Dart lands next to the ARB files and is gitignored the same way
+# *.g.dart and *.freezed.dart are. flutter-bootstrap runs gen-l10n before the
+# format and analyze steps, so CI always has it.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

@@ -1,3 +1,5 @@
+import 'package:vernet/utils/app_strings.dart';
+
 enum ScoreLevel {
   good,
   moderate,
@@ -22,7 +24,7 @@ class DimensionScore {
   factory DimensionScore.unknown(String name) => DimensionScore(
         name: name,
         value: 50,
-        description: 'Not enough data to assess',
+        description: appStrings().scoreNotEnoughData,
       );
 
   factory DimensionScore.fromJson(Map<String, dynamic> json) => DimensionScore(

@@ -8,14 +8,20 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 import '../../settings/test_utils.dart';
 
+/// The resource bundle the test device renders: these suites run in English.
+final _en = AppLocalizationsEn();
+
+/// Google rotates the edge hostname a PTR query returns, so these suites want
+/// the shape of an answer rather than one specific answer.
+final _edgeHostname = RegExp(r'\.1e100\.net$');
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -45,13 +51,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
-        'Find a device name',
+        _en.navFindDeviceName,
         tester,
         find,
       );
 
       expect(
-        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        find.text(_en.reverseDnsLookupEmptyPlaceholder),
         findsOneWidget,
       );
 
@@ -66,12 +72,12 @@ void main() {
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      final resultText = find.text("maa03s29-in-f14.1e100.net");
+      final resultText = find.textContaining(_edgeHostname);
 
       expect(resultText, findsOneWidget);
       await tester.tap(resultText);
       await tester.pumpAndSettle();
-      expect(find.text('Device name copied'), findsOneWidget);
+      expect(find.text(_en.reverseDnsNameCopied), findsOneWidget);
     });
 
     testWidgets('tap on the reverse DNS lookup button, verify error returned',
@@ -81,13 +87,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
-        'Find a device name',
+        _en.navFindDeviceName,
         tester,
         find,
       );
 
       expect(
-        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        find.text(_en.reverseDnsLookupEmptyPlaceholder),
         findsOneWidget,
       );
 
@@ -101,7 +107,7 @@ void main() {
       await tester.tap(submitButton);
       await tester.pumpAndSettle();
       expect(
-        find.text('That does not look like a valid device address'),
+        find.text(_en.reverseDnsInvalidAddress),
         findsOneWidget,
       );
     });
@@ -114,13 +120,13 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
-        'Find a device name',
+        _en.navFindDeviceName,
         tester,
         find,
       );
 
       expect(
-        find.text(StringValue.reverseDnsLookupEmptyPlaceholder),
+        find.text(_en.reverseDnsLookupEmptyPlaceholder),
         findsOneWidget,
       );
 
@@ -133,7 +139,10 @@ void main() {
       final submitButton = find.byKey(WidgetKey.basePageSubmitButton.key);
       await tester.tap(submitButton);
       await tester.pumpAndSettle();
-      expect(find.text('maa03s29-in-f14.1e100.net'), findsOneWidget);
+      // The page answers every lookup with `_edgeHostname` while
+      // `globals.testingActive` is set, so this cannot assert the not-found
+      // message: the fake returns before the resolver is ever asked.
+      expect(find.textContaining(_edgeHostname), findsOneWidget);
     });
   });
 }

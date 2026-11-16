@@ -9,6 +9,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
@@ -19,7 +20,6 @@ import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 import '../settings/test_utils.dart';
 import '../wifi_test/wifi_test_runner.dart' show clearDatabase;
@@ -123,6 +123,8 @@ Future<ScanData?> _waitForScanToFinish() async {
   return null;
 }
 
+/// The resource bundle the test device renders: these suites run in English.
+final _en = AppLocalizationsEn();
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -158,9 +160,9 @@ void main() {
       await _pumpApp(tester);
       await _openHistoryFromHome(tester);
 
-      expect(find.text(StringValue.scanHistoryEmptyTitle), findsOneWidget);
+      expect(find.text(_en.scanHistoryEmptyTitle), findsOneWidget);
       expect(
-        find.text(StringValue.scanHistoryEmptyPlaceholder),
+        find.text(_en.scanHistoryEmptyPlaceholder),
         findsOneWidget,
       );
 
@@ -172,13 +174,13 @@ void main() {
       );
 
       await tester.tap(
-        find.widgetWithText(FilledButton, StringValue.scanHistoryRefresh),
+        find.widgetWithText(FilledButton, _en.scanHistoryRefresh),
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Network 192.168.0'), findsOneWidget);
       expect(find.text('SCAN ACTIVITY'), findsOneWidget);
-      expect(find.text(StringValue.scanHistoryEmptyTitle), findsNothing);
+      expect(find.text(_en.scanHistoryEmptyTitle), findsNothing);
     });
 
     testWidgets('desktop history lists newest scans first with activity stats',
@@ -253,7 +255,7 @@ void main() {
       expect(find.text('45s'), findsOneWidget);
       expect(find.text('2d ago'), findsOneWidget);
       expect(find.text('5h ago'), findsOneWidget);
-      expect(find.text('just now'), findsWidgets);
+      expect(find.text(_en.timeJustNow), findsWidgets);
 
       final ongoingY = tester.getTopLeft(find.text('Network 10.0.0')).dy;
       final midY = tester.getTopLeft(find.text('Network 172.16.0')).dy;
@@ -331,7 +333,7 @@ void main() {
       expect(find.text('2 devices'), findsOneWidget);
       expect(find.text('1 device'), findsOneWidget);
       expect(find.text('2d ago'), findsOneWidget);
-      expect(find.text('just now'), findsWidgets);
+      expect(find.text(_en.timeJustNow), findsWidgets);
       expect(find.text('Completed'), findsOneWidget);
       expect(find.text('In progress'), findsOneWidget);
     });
@@ -368,15 +370,15 @@ void main() {
       await _openHistoryFromHome(tester);
       await _openScanReport(tester, '192.168.0');
 
-      expect(find.text(StringValue.scanReportTitle), findsOneWidget);
+      expect(find.text(_en.scanReportTitle), findsOneWidget);
       expect(find.text('Network 192.168.0'), findsOneWidget);
-      expect(find.text(StringValue.scanReportCompleted), findsWidgets);
+      expect(find.text(_en.scanReportCompleted), findsWidgets);
       expect(find.text('2 devices found'), findsOneWidget);
 
       expect(find.text('SCAN WINDOW'), findsOneWidget);
-      expect(find.text(StringValue.scanReportStarted), findsOneWidget);
-      expect(find.text(StringValue.scanReportEnded), findsOneWidget);
-      expect(find.text(StringValue.scanReportDuration), findsOneWidget);
+      expect(find.text(_en.scanReportStarted), findsOneWidget);
+      expect(find.text(_en.scanReportEnded), findsOneWidget);
+      expect(find.text(_en.scanReportDuration), findsOneWidget);
       expect(find.text('1m 20s'), findsOneWidget);
 
       expect(find.text('DEVICE'), findsOneWidget);
@@ -401,7 +403,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DeviceDetailPage), findsOneWidget);
-      expect(find.text(StringValue.deviceDetailPageTitle), findsOneWidget);
+      expect(find.text(_en.deviceDetailPageTitle), findsOneWidget);
       expect(find.text('192.168.0.5'), findsWidgets);
 
       await tester.pageBack();
@@ -482,10 +484,10 @@ void main() {
       await _openHistoryFromHome(tester);
       await _openScanReport(tester, '10.0.0');
 
-      expect(find.text(StringValue.scanReportInProgress), findsWidgets);
-      expect(find.text(StringValue.scanReportStillRunning), findsOneWidget);
+      expect(find.text(_en.scanReportInProgress), findsWidgets);
+      expect(find.text(_en.scanReportStillRunning), findsOneWidget);
       expect(find.text('1 device found'), findsOneWidget);
-      expect(find.text(StringValue.scanReportDuration), findsNothing);
+      expect(find.text(_en.scanReportDuration), findsNothing);
       expect(find.text('Device Three'), findsOneWidget);
     });
 
@@ -505,9 +507,8 @@ void main() {
       await _openScanReport(tester, '172.16.0');
 
       expect(find.text('0 devices found'), findsOneWidget);
-      expect(find.text(StringValue.scanReportNoDevices), findsOneWidget);
-      expect(
-          find.text(StringValue.scanReportDiscoveredDevices), findsOneWidget);
+      expect(find.text(_en.scanReportNoDevices), findsOneWidget);
+      expect(find.text(_en.scanReportDiscoveredDevices), findsOneWidget);
       expect(find.byType(AdaptiveListTile), findsNothing);
     });
 
@@ -547,7 +548,7 @@ void main() {
       expect(find.text(_devicesFoundLabel(devices.length)), findsOneWidget);
 
       if (devices.isEmpty) {
-        expect(find.text(StringValue.scanReportNoDevices), findsOneWidget);
+        expect(find.text(_en.scanReportNoDevices), findsOneWidget);
         return;
       }
 

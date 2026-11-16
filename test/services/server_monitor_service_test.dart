@@ -8,6 +8,7 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/services/server_monitor_service.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 void main() {
   late ServerMonitorService service;
@@ -136,7 +137,7 @@ void main() {
 
       expect(result.isUp, isTrue);
       expect(result.latency, const Duration(milliseconds: 7));
-      expect(result.message, 'ICMP reply received');
+      expect(result.message, appStrings().serverCheckerIcmpReply);
     });
 
     test('ICMP reports a missing reply as unreachable', () async {
@@ -150,7 +151,7 @@ void main() {
       ));
 
       expect(result.isUp, isFalse);
-      expect(result.message, 'No ICMP reply');
+      expect(result.message, appStrings().serverCheckerNoIcmpReply);
     });
 
     test('ICMP probe errors become failed results', () async {
@@ -330,7 +331,7 @@ void main() {
       ));
 
       expect(result.isUp, isFalse);
-      expect(result.message, 'Expected text was not found');
+      expect(result.message, appStrings().serverCheckerTextNotFound);
     });
 
     test('HTTP treats non-success status codes as down', () async {
@@ -373,7 +374,8 @@ void main() {
       ));
 
       expect(result.isUp, isTrue);
-      expect(result.message, 'TCP port ${server.port} is open');
+      expect(
+          result.message, appStrings().serverCheckerTcpOpen('${server.port}'));
     });
 
     test('closed TCP ports return a failed result rather than throwing',

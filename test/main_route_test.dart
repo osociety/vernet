@@ -10,6 +10,7 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/location_consent_page.dart';
+import 'package:vernet/pages/onboarding/language_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
 void main() {
@@ -58,6 +59,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.byType(TabBarPage), findsOneWidget);
+    });
+
+    testWidgets('MyApp with the language stage shows LanguagePage',
+        (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: const MyApp(OnboardingStage.language),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byType(LanguagePage), findsOneWidget);
     });
 
     testWidgets('MyApp with allowed=false shows LocationConsentPage',

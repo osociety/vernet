@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/base_settings_dialog.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class PingCountDialog extends StatefulWidget {
   const PingCountDialog({super.key});
@@ -13,12 +13,12 @@ class PingCountDialog extends StatefulWidget {
 class _PingCountDialogState extends BaseSettingsDialog<PingCountDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.pingCount;
+    return context.l10n.pingCount;
   }
 
   @override
   String getHintText() {
-    return StringValue.pingCountDesc;
+    return context.l10n.pingCountDesc;
   }
 
   @override
@@ -36,14 +36,14 @@ class _PingCountDialogState extends BaseSettingsDialog<PingCountDialog> {
 
   @override
   String? validate(String? value) {
-    if (value == null) return 'Please enter a value';
+    if (value == null) return context.l10n.settingsValueRequired;
     try {
       final int val = int.parse(value);
       if (val < 1) {
-        return 'Should be a natural number';
+        return context.l10n.settingsNaturalNumber;
       }
     } catch (e) {
-      return 'Must be a number';
+      return context.l10n.settingsMustBeNumber;
     }
     return null;
   }

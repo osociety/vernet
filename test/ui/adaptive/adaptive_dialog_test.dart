@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/adaptive/adaptive_dialog.dart';
+import '../../helpers/test_helpers.dart';
 
 void main() {
   Widget createWidgetUnderTest({
@@ -12,11 +14,15 @@ void main() {
     List<Widget> actions = const [],
     VoidCallback? onClose,
     TargetPlatform platform = TargetPlatform.android,
+    Locale locale = const Locale('en'),
   }) {
     return ChangeNotifierProvider<DarkThemeProvider>(
       create: (_) => DarkThemeProvider(),
       child: MaterialApp(
         theme: ThemeData(platform: platform),
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Builder(builder: (context) {
             return TextButton(
@@ -51,7 +57,17 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
     expect(find.text('T'), findsOneWidget);
     expect(find.text('C'), findsOneWidget);
-    expect(find.text('Close'), findsOneWidget);
+    expect(find.text(l10nEn().commonClose), findsOneWidget);
+  });
+
+  testWidgets('AdaptiveDialog labels the dismiss action in German',
+      (tester) async {
+    await tester.pumpWidget(createWidgetUnderTest(locale: const Locale('de')));
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10nDe().commonClose), findsOneWidget);
   });
 
   testWidgets('AdaptiveDialog shows CupertinoAlertDialog on iOS',

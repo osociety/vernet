@@ -1,0 +1,3966 @@
+{
+  "@@locale": "en",
+  "firstSubnet": "Start of device search",
+  "@firstSubnet": {
+    "description": "Settings row title for the first host of the scanned range."
+  },
+  "firstSubnetDesc": "Choose the first number to check when looking for devices nearby",
+  "@firstSubnetDesc": {
+    "description": "Settings row subtitle for the first host of the scanned range."
+  },
+  "lastSubnet": "End of device search",
+  "@lastSubnet": {
+    "description": "Settings row title for the last host of the scanned range."
+  },
+  "lastSubnetDesc": "Choose the last number to check when looking for devices nearby",
+  "@lastSubnetDesc": {
+    "description": "Settings row subtitle for the last host of the scanned range."
+  },
+  "socketTimeout": "Wait time for a check",
+  "@socketTimeout": {
+    "description": "Settings row title for the socket timeout duration."
+  },
+  "socketTimeoutDesc": "How long to wait for a device or service to respond",
+  "@socketTimeoutDesc": {
+    "description": "Settings row subtitle for the socket timeout duration."
+  },
+  "pingCount": "Number of connection checks",
+  "@pingCount": {
+    "description": "Settings row title for the ping repeat count."
+  },
+  "pingCountDesc": "How many times to check whether a website or device responds",
+  "@pingCountDesc": {
+    "description": "Settings row subtitle for the ping repeat count."
+  },
+  "customSubnet": "Search a different network",
+  "@customSubnet": {
+    "description": "Settings row title for overriding the scanned network."
+  },
+  "customSubnetDesc": "Use this only if you want to look for devices on another local network",
+  "@customSubnetDesc": {
+    "description": "Settings row subtitle for overriding the scanned network."
+  },
+  "customSubnetHint": "e.g., 10.0.0.1",
+  "@customSubnetHint": {
+    "description": "Input hint showing the expected IPv4 format for a custom network."
+  },
+  "customSubnetInvalid": "Enter a valid IPv4 address, like 10.0.0.1. Leave empty to use your current network.",
+  "@customSubnetInvalid": {
+    "description": "Validation error for a malformed custom network address."
+  },
+  "customSubnetNotUsableHost": "This looks like a network or broadcast address. Enter a device or router address, like 10.0.0.1.",
+  "@customSubnetNotUsableHost": {
+    "description": "Validation error when the entered address cannot be a host."
+  },
+  "hostScanPageTitle": "Find devices",
+  "@hostScanPageTitle": {
+    "description": "App bar title of the local network scan page."
+  },
+  "previousScansTitle": "Previous scans",
+  "@previousScansTitle": {
+    "description": "App bar title of the scan history list."
+  },
+  "scanReportTitle": "Scan report",
+  "@scanReportTitle": {
+    "description": "App bar title of a single saved scan report."
+  },
+  "scanHistoryEmptyPlaceholder": "No previous scans yet.\nRun a scan to see its report here.",
+  "@scanHistoryEmptyPlaceholder": {
+    "description": "Empty state shown when no scan has been run yet. Two lines."
+  },
+  "scanHistoryEmptyTitle": "No scans yet",
+  "@scanHistoryEmptyTitle": {
+    "description": "Heading of the empty scan history state."
+  },
+  "scanHistoryRefresh": "Refresh",
+  "@scanHistoryRefresh": {
+    "description": "Button label that reloads the scan history list."
+  },
+  "scanHistoryLoadError": "We could not load previous scans.",
+  "@scanHistoryLoadError": {
+    "description": "Error shown when the scan history cannot be read from storage."
+  },
+  "scanHistoryOverviewTitle": "Scan activity",
+  "@scanHistoryOverviewTitle": {
+    "description": "Heading of the aggregate statistics panel above the history list."
+  },
+  "scanHistoryScansLabel": "Scans",
+  "@scanHistoryScansLabel": {
+    "description": "Statistic label for the number of scans run."
+  },
+  "scanHistoryDevicesFoundLabel": "Devices found",
+  "@scanHistoryDevicesFoundLabel": {
+    "description": "Statistic label for the total number of devices found across scans."
+  },
+  "scanHistoryLatestScanLabel": "Latest scan",
+  "@scanHistoryLatestScanLabel": {
+    "description": "Statistic label for the most recent scan."
+  },
+  "scanHistoryDevicesPerScanLabel": "Recent devices per scan",
+  "@scanHistoryDevicesPerScanLabel": {
+    "description": "Chart title for devices found per recent scan."
+  },
+  "scanHistoryListTitle": "Scan history",
+  "@scanHistoryListTitle": {
+    "description": "Heading of the saved scans table."
+  },
+  "scanHistoryNetworkColumn": "Network",
+  "@scanHistoryNetworkColumn": {
+    "description": "Table column header for the scanned network."
+  },
+  "scanHistoryStartedColumn": "Started",
+  "@scanHistoryStartedColumn": {
+    "description": "Table column header for the scan start time."
+  },
+  "scanHistoryDurationColumn": "Duration",
+  "@scanHistoryDurationColumn": {
+    "description": "Table column header for how long the scan took."
+  },
+  "scanHistoryDevicesColumn": "Devices",
+  "@scanHistoryDevicesColumn": {
+    "description": "Table column header for the device count of a scan."
+  },
+  "scanHistoryStatusColumn": "Status",
+  "@scanHistoryStatusColumn": {
+    "description": "Table column header for whether a scan finished or is running."
+  },
+  "scanReportCompleted": "Completed",
+  "@scanReportCompleted": {
+    "description": "Status label for a finished scan."
+  },
+  "scanReportInProgress": "In progress",
+  "@scanReportInProgress": {
+    "description": "Status label for a scan still running."
+  },
+  "scanReportDiscoveredDevices": "Discovered devices",
+  "@scanReportDiscoveredDevices": {
+    "description": "Section heading listing the devices a scan found."
+  },
+  "scanReportNoDevices": "No devices in this scan.",
+  "@scanReportNoDevices": {
+    "description": "Empty state for a report with no discovered devices."
+  },
+  "scanReportLoadError": "We could not load this report.",
+  "@scanReportLoadError": {
+    "description": "Error shown when a single scan report cannot be read."
+  },
+  "scanReportScanWindow": "Scan window",
+  "@scanReportScanWindow": {
+    "description": "Detail label for the time range a scan covered."
+  },
+  "scanReportStarted": "Started",
+  "@scanReportStarted": {
+    "description": "Detail label for when the scan began."
+  },
+  "scanReportEnded": "Ended",
+  "@scanReportEnded": {
+    "description": "Detail label for when the scan finished."
+  },
+  "scanReportStillRunning": "Still running",
+  "@scanReportStillRunning": {
+    "description": "Value shown in the ended field of a running scan."
+  },
+  "scanReportDuration": "Duration",
+  "@scanReportDuration": {
+    "description": "Detail label for how long the scan took."
+  },
+  "scanReportDeviceColumn": "Device",
+  "@scanReportDeviceColumn": {
+    "description": "Table column header for the device name."
+  },
+  "scanReportVendorColumn": "Vendor",
+  "@scanReportVendorColumn": {
+    "description": "Table column header for the MAC address vendor."
+  },
+  "scanReportIpColumn": "IP address",
+  "@scanReportIpColumn": {
+    "description": "Table column header for the IP address."
+  },
+  "scanReportMacColumn": "MAC address",
+  "@scanReportMacColumn": {
+    "description": "Table column header for the MAC address."
+  },
+  "scanReportDeviceLabel": "Device",
+  "@scanReportDeviceLabel": {
+    "description": "Singular label for one discovered device."
+  },
+  "scanReportDevicesLabel": "Devices",
+  "@scanReportDevicesLabel": {
+    "description": "Plural label for discovered devices."
+  },
+  "unknownDevice": "Unknown device",
+  "@unknownDevice": {
+    "description": "Name shown when a device reports no hostname."
+  },
+  "loadingDevicesMessage": "Looking for devices connected to your local network",
+  "@loadingDevicesMessage": {
+    "description": "Progress message shown while a scan runs."
+  },
+  "dnsLookupEmptyPlaceholder": "No results yet.\nThe addresses for this website will appear here.",
+  "@dnsLookupEmptyPlaceholder": {
+    "description": "Empty state of the DNS lookup result list. Two lines."
+  },
+  "reverseDnsLookupEmptyPlaceholder": "No name found yet.\nThe device name will appear here.",
+  "@reverseDnsLookupEmptyPlaceholder": {
+    "description": "Empty state of the reverse DNS lookup result. Two lines."
+  },
+  "neighborDiscoveryPageTitle": "Switch neighbors",
+  "@neighborDiscoveryPageTitle": {
+    "description": "App bar title of the CDP/LLDP neighbor discovery page."
+  },
+  "neighborDiscoveryEmptyPlaceholder": "No neighbors yet.\nQuery a switch or paste CDP/LLDP CLI output to see ports and platforms.",
+  "@neighborDiscoveryEmptyPlaceholder": {
+    "description": "Empty state of the neighbor list. Two lines."
+  },
+  "wakeOnLanPageTitle": "Wake a device",
+  "@wakeOnLanPageTitle": {
+    "description": "App bar title of the Wake-on-LAN page."
+  },
+  "wakeOnLanEmptyPlaceholder": "No saved devices yet.\nEnter a MAC address and send a wake packet, or save a computer you use often.",
+  "@wakeOnLanEmptyPlaceholder": {
+    "description": "Empty state of the saved Wake-on-LAN targets. Two lines."
+  },
+  "deviceDetailPageTitle": "Device details",
+  "@deviceDetailPageTitle": {
+    "description": "App bar title of the per-device detail page."
+  },
+  "signalStrengthUnit": "dBm",
+  "@signalStrengthUnit": {
+    "description": "Unit suffix for the signal strength reading. Usually left untranslated."
+  },
+  "networkScoreTitle": "Network Score",
+  "@networkScoreTitle": {
+    "description": "App bar title of the network score detail page."
+  },
+  "languageTitle": "Language",
+  "@languageTitle": {
+    "description": "Settings row title for the app language."
+  },
+  "languageDesc": "Choose the language Vernet uses",
+  "@languageDesc": {
+    "description": "Settings row subtitle for the app language."
+  },
+  "languageSystemDefault": "System default ({language})",
+  "@languageSystemDefault": {
+    "description": "Entry in the language picker that follows the operating system language. {language} is what that language calls itself, such as English or Deutsch.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Sidebar destination that opens the home dashboard."
+  },
+  "navYourNetwork": "Your network",
+  "@navYourNetwork": {
+    "description": "Compact app bar title for the home dashboard; the sidebar says navHome instead."
+  },
+  "navScanNetwork": "Scan your network",
+  "@navScanNetwork": {
+    "description": "Sidebar destination that runs a host scan."
+  },
+  "navCheckWebsite": "Check a website",
+  "@navCheckWebsite": {
+    "description": "Sidebar destination that pings a host."
+  },
+  "navMonitorServer": "Monitor server",
+  "@navMonitorServer": {
+    "description": "Sidebar destination that watches a server over time."
+  },
+  "navFindSecurityGaps": "Find security gaps",
+  "@navFindSecurityGaps": {
+    "description": "Sidebar destination that scans ports."
+  },
+  "navFindWebsiteAddresses": "Find website addresses",
+  "@navFindWebsiteAddresses": {
+    "description": "Sidebar destination for a forward DNS lookup."
+  },
+  "navFindDeviceName": "Find a device name",
+  "@navFindDeviceName": {
+    "description": "Sidebar destination for a reverse DNS lookup."
+  },
+  "navSubnetCalculator": "Subnet calculator",
+  "@navSubnetCalculator": {
+    "description": "Sidebar destination that calculates subnet ranges."
+  },
+  "navFindSwitch": "Find switch",
+  "@navFindSwitch": {
+    "description": "Sidebar destination that discovers CDP/LLDP neighbours on a switch."
+  },
+  "navWakeOnLan": "Wake on LAN",
+  "@navWakeOnLan": {
+    "description": "Sidebar destination that sends magic packets. A protocol name; usually left as-is."
+  },
+  "navSupport": "Support Vernet",
+  "@navSupport": {
+    "description": "Sidebar destination and settings row that open the donation page."
+  },
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Footer row of the sidebar, pinned below the destinations."
+  },
+  "themeTitle": "Theme",
+  "@themeTitle": {
+    "description": "Settings row title for the appearance preference."
+  },
+  "themeDialogTitle": "Choose app appearance",
+  "@themeDialogTitle": {
+    "description": "Title of the appearance dialog."
+  },
+  "themeSystem": "Follow system",
+  "@themeSystem": {
+    "description": "Appearance option that tracks the operating system."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Dark appearance option."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Light appearance option."
+  },
+  "inAppInternetTitle": "In-App Internet",
+  "@inAppInternetTitle": {
+    "description": "Settings row that lets Vernet make its own outbound requests instead of skipping the network checks entirely."
+  },
+  "whatsNewTitle": "What's new",
+  "@whatsNewTitle": {
+    "description": "Settings row that opens the changelog."
+  },
+  "supportVernetDesc": "Donations, stars and ratings",
+  "@supportVernetDesc": {
+    "description": "Settings row subtitle under navSupport."
+  },
+  "updatesTitle": "Updates & beta",
+  "@updatesTitle": {
+    "description": "Settings row that opens the update channel page."
+  },
+  "updatesDesc": "Channel, automatic updates, pre-release builds",
+  "@updatesDesc": {
+    "description": "Settings row subtitle under updatesTitle."
+  },
+  "rateAppTitle": "Rate Vernet",
+  "@rateAppTitle": {
+    "description": "Settings row shown only in the Play build."
+  },
+  "rateAppDesc": "Opens Google Play",
+  "@rateAppDesc": {
+    "description": "Subtitle under rateAppTitle."
+  },
+  "aboutTitle": "About",
+  "@aboutTitle": {
+    "description": "Settings row that opens the about dialog."
+  },
+  "reportIssuesTitle": "Report Issues",
+  "@reportIssuesTitle": {
+    "description": "Row inside the about dialog that opens the issue tracker."
+  },
+  "donateTitle": "Donate",
+  "@donateTitle": {
+    "description": "Row inside the about dialog that opens the donation page."
+  },
+  "sourceCodeTitle": "Source Code",
+  "@sourceCodeTitle": {
+    "description": "Row inside the about dialog that opens the repository."
+  },
+  "madeInIndia": "Made with ❤️ in India",
+  "@madeInIndia": {
+    "description": "Credit line at the bottom of the about dialog."
+  },
+  "languagePageTitle": "Which language should Vernet use?",
+  "@languagePageTitle": {
+    "description": "Title of the first-launch language page."
+  },
+  "languagePageDesc": "Vernet follows your system language by default. You can change this later in Settings.",
+  "@languagePageDesc": {
+    "description": "Subtitle of the first-launch language page."
+  },
+  "languageContinue": "Continue",
+  "@languageContinue": {
+    "description": "Button that stores the first-launch language choice and moves on to the walkthrough."
+  },
+  "onboardingDiscoverTitle": "Discover Devices",
+  "@onboardingDiscoverTitle": {
+    "description": "First walkthrough page: headline for local device discovery."
+  },
+  "onboardingDiscoverDesc": "Scan your local network to find every connected device and inspect open ports.",
+  "@onboardingDiscoverDesc": {
+    "description": "Body text of the device discovery walkthrough page."
+  },
+  "onboardingSecurityTitle": "Find Security Gaps",
+  "@onboardingSecurityTitle": {
+    "description": "Second walkthrough page: headline for the port scan."
+  },
+  "onboardingSecurityDesc": "Identify open ports and potential vulnerabilities on your network.",
+  "@onboardingSecurityDesc": {
+    "description": "Body text of the security walkthrough page."
+  },
+  "onboardingSpeedTitle": "Test Internet Speed",
+  "@onboardingSpeedTitle": {
+    "description": "Third walkthrough page: headline for the speed test."
+  },
+  "onboardingSpeedDesc": "Measure download and upload speeds powered by M-Lab NDT7.",
+  "@onboardingSpeedDesc": {
+    "description": "Body text of the speed test walkthrough page."
+  },
+  "onboardingDnsTitle": "DNS & Diagnostics",
+  "@onboardingDnsTitle": {
+    "description": "Fourth walkthrough page: headline for DNS lookups. An initialism; usually left as-is."
+  },
+  "onboardingDnsDesc": "Look up DNS records, ping hosts, and diagnose connectivity issues.",
+  "@onboardingDnsDesc": {
+    "description": "Body text of the DNS walkthrough page."
+  },
+  "walkthroughSkip": "Skip",
+  "@walkthroughSkip": {
+    "description": "Text button that ends the walkthrough early."
+  },
+  "walkthroughNext": "Next",
+  "@walkthroughNext": {
+    "description": "Button that advances to the next walkthrough page."
+  },
+  "getStarted": "Get Started",
+  "@getStarted": {
+    "description": "Button that finishes the walkthrough, and the desktop consent button."
+  },
+  "consentReadyTitle": "Ready to go",
+  "@consentReadyTitle": {
+    "description": "Consent page headline on platforms that need no location permission."
+  },
+  "consentLocationTitle": "Why location access?",
+  "@consentLocationTitle": {
+    "description": "Consent page headline asking permission on mobile and Windows."
+  },
+  "consentBulletWifiName": "Shows your Wi-Fi network name",
+  "@consentBulletWifiName": {
+    "description": "First reason listed for the location permission."
+  },
+  "consentBulletAndroidScan": "Enables accurate network scanning on Android",
+  "@consentBulletAndroidScan": {
+    "description": "Second reason listed for the location permission."
+  },
+  "consentBulletPrivacy": "Your location never leaves your device",
+  "@consentBulletPrivacy": {
+    "description": "Third reason listed for the location permission. A privacy claim; translate exactly."
+  },
+  "consentDesktopNote": "Vernet can scan your network without location access on this platform.",
+  "@consentDesktopNote": {
+    "description": "Explanatory line on platforms that need no location permission."
+  },
+  "consentDeniedHint": "Permission was previously denied. Open device settings to grant it.",
+  "@consentDeniedHint": {
+    "description": "Warning shown when the location permission is permanently denied."
+  },
+  "consentAllowLocation": "Allow location access",
+  "@consentAllowLocation": {
+    "description": "Primary consent button that requests the location permission."
+  },
+  "consentOpenSettings": "Open Settings",
+  "@consentOpenSettings": {
+    "description": "Consent button that opens the device settings when permission was denied."
+  },
+  "consentContinueWithout": "Continue without it",
+  "@consentContinueWithout": {
+    "description": "Secondary consent button that skips the permission request."
+  },
+  "baseAddressRequired": "Please enter a website or address",
+  "@baseAddressRequired": {
+    "description": "Validation error shown when the address field of a tool page is left empty."
+  },
+  "tryAWebsite": "Try a website",
+  "@tryAWebsite": {
+    "description": "Heading of the suggestion chips under a tool page input field."
+  },
+  "startCheck": "Start check",
+  "@startCheck": {
+    "description": "Button that begins a connection check."
+  },
+  "stopCheck": "Stop",
+  "@stopCheck": {
+    "description": "Button that stops a running connection check."
+  },
+  "pingPageTitle": "Check connection",
+  "@pingPageTitle": {
+    "description": "App bar title of the ping page."
+  },
+  "pingFieldHint": "Enter a website or device address",
+  "@pingFieldHint": {
+    "description": "Input hint of the ping page address field."
+  },
+  "pingResultsEmpty": "Connection results will appear here",
+  "@pingResultsEmpty": {
+    "description": "Empty state of the ping result list before a check has run."
+  },
+  "pingSummarySent": "Checks sent: {count}",
+  "@pingSummarySent": {
+    "description": "Summary line counting the checks a ping run sent.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryReceived": "Replies received: {count}",
+  "@pingSummaryReceived": {
+    "description": "Summary line counting the replies a ping run received.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryPacketLoss": "Packet loss: {value}",
+  "@pingSummaryPacketLoss": {
+    "description": "Summary line showing the percentage of replies a ping run lost.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryTotalTime": "Total time: {value}",
+  "@pingSummaryTotalTime": {
+    "description": "Summary line showing how long a ping run took.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryMin": "Min: {value}",
+  "@pingSummaryMin": {
+    "description": "Summary label for the fastest ping reply.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryAvg": "Avg: {value}",
+  "@pingSummaryAvg": {
+    "description": "Summary label for the average ping reply time.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryMax": "Max: {value}",
+  "@pingSummaryMax": {
+    "description": "Summary label for the slowest ping reply.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "pingSummaryStdDev": "Std dev: {value}",
+  "@pingSummaryStdDev": {
+    "description": "Summary label for the spread of the ping reply times.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dnsPageTitle": "Find website addresses",
+  "@dnsPageTitle": {
+    "description": "App bar title of the forward DNS lookup page."
+  },
+  "dnsFieldHint": "Enter a website name",
+  "@dnsFieldHint": {
+    "description": "Input hint of the forward DNS lookup field."
+  },
+  "dnsFindAddresses": "Find addresses",
+  "@dnsFindAddresses": {
+    "description": "Button that runs a forward DNS lookup."
+  },
+  "dnsAddressCopied": "Website address copied",
+  "@dnsAddressCopied": {
+    "description": "Confirmation after copying a resolved address to the clipboard."
+  },
+  "dnsAddressType": "Address type: {value}",
+  "@dnsAddressType": {
+    "description": "Detail line naming the kind of a resolved address.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dnsIsLinkLocal": "Local network address: {value}",
+  "@dnsIsLinkLocal": {
+    "description": "Detail line saying whether a resolved address is on the local network.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dnsIsLoopback": "This device: {value}",
+  "@dnsIsLoopback": {
+    "description": "Detail line saying whether a resolved address points back at this device.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dnsIsMulticast": "Group address: {value}",
+  "@dnsIsMulticast": {
+    "description": "Detail line saying whether a resolved address is a multicast group.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "valueYes": "Yes",
+  "@valueYes": {
+    "description": "Affirmative value shown for a yes or no detail row."
+  },
+  "valueNo": "No",
+  "@valueNo": {
+    "description": "Negative value shown for a yes or no detail row."
+  },
+  "reverseDnsFieldHint": "Enter a device address",
+  "@reverseDnsFieldHint": {
+    "description": "Input hint of the reverse DNS lookup field."
+  },
+  "reverseDnsFindName": "Find name",
+  "@reverseDnsFindName": {
+    "description": "Button that runs a reverse DNS lookup."
+  },
+  "reverseDnsPageTitle": "Find device name",
+  "@reverseDnsPageTitle": {
+    "description": "App bar title of the reverse DNS lookup page."
+  },
+  "reverseDnsNameCopied": "Device name copied",
+  "@reverseDnsNameCopied": {
+    "description": "Confirmation after copying a device name to the clipboard."
+  },
+  "reverseDnsNotFound": "We could not find a name for that address",
+  "@reverseDnsNotFound": {
+    "description": "Message shown when a reverse DNS lookup returns nothing."
+  },
+  "reverseDnsInvalidAddress": "That does not look like a valid device address",
+  "@reverseDnsInvalidAddress": {
+    "description": "Message shown when the reverse DNS input is not an address."
+  },
+  "homeNetworkOverview": "NETWORK OVERVIEW",
+  "@homeNetworkOverview": {
+    "description": "Heading above the home dashboard, set in small caps by the layout"
+  },
+  "homeDashboardSubtitle": "A live view of your Wi-Fi and internet connection.",
+  "@homeDashboardSubtitle": {
+    "description": "Subtitle under the home dashboard heading"
+  },
+  "homeRefreshDashboard": "Refresh dashboard",
+  "@homeRefreshDashboard": {
+    "description": "Tooltip for the reload button on the home dashboard"
+  },
+  "homeWifiConnection": "WI-FI CONNECTION",
+  "@homeWifiConnection": {
+    "description": "Heading of the Wi-Fi panel on the home dashboard, rendered in small caps"
+  },
+  "homeWifiRouter": "WI-FI ROUTER",
+  "@homeWifiRouter": {
+    "description": "Node label in the connection path diagram, rendered in small caps"
+  },
+  "homeThisDevice": "THIS DEVICE",
+  "@homeThisDevice": {
+    "description": "Node label in the connection path diagram, rendered in small caps"
+  },
+  "homeInternet": "INTERNET",
+  "@homeInternet": {
+    "description": "Node label in the connection path diagram, rendered in small caps"
+  },
+  "homeConnectionPath": "CONNECTION PATH",
+  "@homeConnectionPath": {
+    "description": "Heading of the connection path diagram, rendered in small caps"
+  },
+  "homeSpeedTestPanel": "SPEED TEST",
+  "@homeSpeedTestPanel": {
+    "description": "Heading of the speed test panel on the home dashboard, rendered in small caps"
+  },
+  "homeSignalStrength": "Signal strength",
+  "@homeSignalStrength": {
+    "description": "Label above the Wi-Fi signal reading on the home dashboard"
+  },
+  "homeMeasuringSignal": "Measuring signal…",
+  "@homeMeasuringSignal": {
+    "description": "Placeholder shown while the Wi-Fi signal reading is being taken"
+  },
+  "homeStatusChecking": "CHECKING…",
+  "@homeStatusChecking": {
+    "description": "Status pill on the Wi-Fi panel while the connection is being probed, rendered in small caps"
+  },
+  "homeStatusConnected": "CONNECTED",
+  "@homeStatusConnected": {
+    "description": "Status pill on the Wi-Fi panel when the device is on the network, rendered in small caps"
+  },
+  "homeStatusNotConnected": "NOT CONNECTED",
+  "@homeStatusNotConnected": {
+    "description": "Status pill on the Wi-Fi panel when the device is off the network, rendered in small caps"
+  },
+  "homeDeviceIp": "DEVICE IP",
+  "@homeDeviceIp": {
+    "description": "Label for the device's own IP address on the home dashboard, rendered in small caps"
+  },
+  "homeGateway": "GATEWAY",
+  "@homeGateway": {
+    "description": "Label for the router address on the home dashboard, rendered in small caps"
+  },
+  "homeAccessPoint": "ACCESS POINT",
+  "@homeAccessPoint": {
+    "description": "Label for the access point MAC address on the home dashboard, rendered in small caps"
+  },
+  "homeCustomBadge": "CUSTOM",
+  "@homeCustomBadge": {
+    "description": "Small badge marking a gateway address the user typed in by hand"
+  },
+  "homeLocationHint": "Allow location access to show the Wi-Fi name.",
+  "@homeLocationHint": {
+    "description": "Hint on the Wi-Fi panel when location permission is missing on Android or iOS"
+  },
+  "homeScanningNetwork": "Scanning your network…",
+  "@homeScanningNetwork": {
+    "description": "Label of the main button while a device scan is running"
+  },
+  "devicesFoundMany": "{count} devices found",
+  "homeDownload": "Download",
+  "@homeDownload": {
+    "description": "Row label for download speed"
+  },
+  "homeUpload": "Upload",
+  "@homeUpload": {
+    "description": "Row label for upload speed"
+  },
+  "homeLatency": "Latency",
+  "@homeLatency": {
+    "description": "Row label for round-trip delay"
+  },
+  "homeRunNewTest": "Run New Test",
+  "@homeRunNewTest": {
+    "description": "Button on the speed test panel once a result is stored"
+  },
+  "homeStartSpeedTest": "Start Speed Test",
+  "@homeStartSpeedTest": {
+    "description": "Button on the speed test panel before the first result"
+  },
+  "homeViewLastResult": "View last result",
+  "@homeViewLastResult": {
+    "description": "Tooltip for the history icon on the speed test panel"
+  },
+  "netStatusTooltip": "Network status: {label}. Tap to view details.",
+  "@netStatusTooltip": {
+    "description": "Tooltip on a connection path segment; label is Connected, Disconnected or Checking…",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "netConnected": "Connected",
+  "@netConnected": {
+    "description": "Short state label used on the connection path"
+  },
+  "netDisconnected": "Disconnected",
+  "@netDisconnected": {
+    "description": "Short state label used on the connection path"
+  },
+  "netChecking": "Checking…",
+  "@netChecking": {
+    "description": "Short state label used on the connection path"
+  },
+  "netUnavailable": "Unavailable",
+  "@netUnavailable": {
+    "description": "Placeholder where an address or reading could not be determined"
+  },
+  "netInterfaceLan": "LAN / Local Interface",
+  "@netInterfaceLan": {
+    "description": "Name used for the active interface when it is not Wi-Fi"
+  },
+  "netValueNotAssigned": "Not assigned",
+  "@netValueNotAssigned": {
+    "description": "Value for an address the device does not have"
+  },
+  "netValueUnreachable": "Unreachable",
+  "@netValueUnreachable": {
+    "description": "Value for internet status that could not be reached"
+  },
+  "netValueCustomSubnet": "{gateway} (custom subnet)",
+  "@netValueCustomSubnet": {
+    "description": "Gateway value marked as manually configured; gateway is an IP address",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "netValueDisconnectedFromLocal": "Disconnected from local network",
+  "@netValueDisconnectedFromLocal": {
+    "description": "Value describing the local link state"
+  },
+  "netValueHostUnreachable": "Host unreachable / No response",
+  "@netValueHostUnreachable": {
+    "description": "Value describing a failed connection probe"
+  },
+  "netDetailDeviceIp": "Device IP",
+  "@netDetailDeviceIp": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailGatewayIp": "Gateway IP",
+  "@netDetailGatewayIp": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailInterface": "Interface",
+  "@netDetailInterface": {
+    "description": "Row label in the connection details dialog naming the network interface in use"
+  },
+  "netDetailAccessPointBssid": "Access Point (BSSID)",
+  "@netDetailAccessPointBssid": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailSignalStrength": "Signal Strength",
+  "@netDetailSignalStrength": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailWifiInterfaceStatus": "Wi-Fi / Interface Status",
+  "@netDetailWifiInterfaceStatus": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailInternetStatus": "Internet Status",
+  "@netDetailInternetStatus": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailTargetHost": "Target Host",
+  "@netDetailTargetHost": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailLocalStatus": "Local Status",
+  "@netDetailLocalStatus": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailTestTarget": "Test Target",
+  "@netDetailTestTarget": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailPingLatency": "Ping Latency",
+  "@netDetailPingLatency": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netDetailConnectionStatus": "Connection Status",
+  "@netDetailConnectionStatus": {
+    "description": "Row label in the connection details dialog"
+  },
+  "netTitleDeviceConnected": "Device Connected to Router",
+  "@netTitleDeviceConnected": {
+    "description": "Title of the device-to-router check when it succeeds"
+  },
+  "netSummaryConnectedVia": "Connected via {interface}",
+  "@netSummaryConnectedVia": {
+    "description": "One-line result of the device-to-router check; interface is Wi-Fi, an SSID or LAN / Local Interface",
+    "placeholders": {
+      "interface": {
+        "type": "String"
+      }
+    }
+  },
+  "netDescDeviceConnected": "Your device has a valid local IP address and is successfully communicating with your local router/gateway.",
+  "@netDescDeviceConnected": {
+    "description": "Explanation in the device-to-router details dialog"
+  },
+  "netTitleDeviceDisconnected": "Device Disconnected from Router",
+  "@netTitleDeviceDisconnected": {
+    "description": "Title of the device-to-router check when it fails"
+  },
+  "netSummaryNoActiveLocal": "No active connection to local network",
+  "@netSummaryNoActiveLocal": {
+    "description": "One-line result of the device-to-router check when it fails"
+  },
+  "netDescDeviceDisconnected": "Your device does not have an active IP address or connection to a local network interface or Wi-Fi router.",
+  "@netDescDeviceDisconnected": {
+    "description": "Explanation in the device-to-router details dialog"
+  },
+  "netStepWifiOrEthernetOn": "Ensure Wi-Fi or Ethernet is turned on in your device settings.",
+  "@netStepWifiOrEthernetOn": {
+    "description": "Troubleshooting step in the connection details dialog"
+  },
+  "netStepCorrectNetwork": "Verify you are connected to the correct Wi-Fi network and entered the right password.",
+  "@netStepCorrectNetwork": {
+    "description": "Troubleshooting step in the connection details dialog"
+  },
+  "netStepRouterPowered": "Check if your router or access point is powered on and within range.",
+  "@netStepRouterPowered": {
+    "description": "Troubleshooting step in the connection details dialog"
+  },
+  "netStepReconnectInterface": "Restart your device network interface or reconnect to the network.",
+  "@netStepReconnectInterface": {
+    "description": "Troubleshooting step in the connection details dialog"
+  },
+  "netTitleCheckingDeviceToRouter": "Checking Device to Router Link",
+  "@netTitleCheckingDeviceToRouter": {
+    "description": "Title while the local link check is running"
+  },
+  "netSummaryCheckingWifiInterface": "Checking Wi-Fi / interface…",
+  "@netSummaryCheckingWifiInterface": {
+    "description": "One-line result while the local link check is running"
+  },
+  "netDescCheckingDeviceToRouter": "Detecting your local network interface and verifying the connection to your Wi-Fi router or gateway.",
+  "@netDescCheckingDeviceToRouter": {
+    "description": "Explanation shown while the local link check is running"
+  },
+  "netTitleWaitingWifi": "Waiting for Wi-Fi Connection…",
+  "@netTitleWaitingWifi": {
+    "description": "Title while the internet check waits for the local link"
+  },
+  "netSummaryWaitingWifi": "Waiting for Wi-Fi / LAN connection…",
+  "@netSummaryWaitingWifi": {
+    "description": "One-line result while the internet check waits for the local link"
+  },
+  "netDescWaitingWifi": "We must first establish a connection to your Wi-Fi router or local network interface before checking internet connectivity.",
+  "@netDescWaitingWifi": {
+    "description": "Explanation shown while the internet check waits for the local link"
+  },
+  "netTitleCheckingInternet": "Checking Internet Connection…",
+  "@netTitleCheckingInternet": {
+    "description": "Title while the internet check is running"
+  },
+  "netSummaryCheckingInternet": "Checking connection to internet…",
+  "@netSummaryCheckingInternet": {
+    "description": "One-line result while the internet check is running"
+  },
+  "netDescCheckingInternet": "Testing connection between your router and internet hosts.",
+  "@netDescCheckingInternet": {
+    "description": "Explanation shown while the internet check is running"
+  },
+  "netTitleInternetUnreachable": "Internet Unreachable (No Local Link)",
+  "@netTitleInternetUnreachable": {
+    "description": "Title when the internet cannot be checked because there is no local link"
+  },
+  "netSummaryNotConnectedRouter": "Not connected to Wi-Fi / router",
+  "@netSummaryNotConnectedRouter": {
+    "description": "One-line result when there is no local link"
+  },
+  "netDescNoLocalLink": "Your device is not connected to any Wi-Fi router or local network interface. An active local network connection is required before internet connectivity can be checked.",
+  "@netDescNoLocalLink": {
+    "description": "Explanation when there is no local link"
+  },
+  "netStepConnectWifiOrCable": "Connect to a Wi-Fi network or plug in an Ethernet cable.",
+  "@netStepConnectWifiOrCable": {
+    "description": "Troubleshooting step shown when there is no local link"
+  },
+  "netStepWifiEnabledSettings": "Verify that Wi-Fi is enabled in your device settings.",
+  "@netStepWifiEnabledSettings": {
+    "description": "Troubleshooting step shown when there is no local link"
+  },
+  "netStepTestedAutomatically": "Once connected to the router, internet connectivity will be tested automatically.",
+  "@netStepTestedAutomatically": {
+    "description": "Troubleshooting step shown when there is no local link"
+  },
+  "netSummaryDeviceNotConnectedRouter": "Device is not connected to router",
+  "@netSummaryDeviceNotConnectedRouter": {
+    "description": "One-line result when the local link is missing during the internet check"
+  },
+  "netDescNoLocalLinkCheck": "Because this device is disconnected from your local router or network interface, it cannot verify the internet connection.",
+  "@netDescNoLocalLinkCheck": {
+    "description": "Explanation when the local link is missing during the internet check"
+  },
+  "netStepFirstConnectLocal": "First connect your device to your local Wi-Fi or Ethernet network.",
+  "@netStepFirstConnectLocal": {
+    "description": "Troubleshooting step when the local link is missing"
+  },
+  "netStepInternetCheckAgain": "Once connected to the router, test the internet connection again.",
+  "@netStepInternetCheckAgain": {
+    "description": "Troubleshooting step when the local link is missing"
+  },
+  "netTitleCheckSkippedTestMode": "Internet Check Skipped (Test Mode)",
+  "@netTitleCheckSkippedTestMode": {
+    "description": "Title shown only while automated tests run"
+  },
+  "netSummaryProbesDisabledTests": "Network probes disabled in tests",
+  "@netSummaryProbesDisabledTests": {
+    "description": "One-line result shown only while automated tests run"
+  },
+  "netDescProbesDisabledTests": "Real network probes are skipped during automated tests to avoid timeouts.",
+  "@netDescProbesDisabledTests": {
+    "description": "Explanation shown only while automated tests run"
+  },
+  "netTitleRouterConnected": "Router Connected to Internet",
+  "@netTitleRouterConnected": {
+    "description": "Title when the internet check succeeds"
+  },
+  "netSummaryInternetReachableMs": "Internet reachable ({value} ms)",
+  "@netSummaryInternetReachableMs": {
+    "description": "One-line result of a successful internet check including ping latency",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "netSummaryInternetReachable": "Internet reachable",
+  "@netSummaryInternetReachable": {
+    "description": "One-line result of a successful internet check without a latency reading"
+  },
+  "netDescRouterConnected": "Successfully reached internet servers ({target}). Your router has an active WAN connection to your Internet Service Provider.",
+  "@netDescRouterConnected": {
+    "description": "Explanation when the internet check succeeds; target is a host name",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "netTitleRouterDisconnected": "Router Disconnected from Internet",
+  "@netTitleRouterDisconnected": {
+    "description": "Title when the internet check fails"
+  },
+  "netSummaryUnableToReachServers": "Unable to reach internet servers",
+  "@netSummaryUnableToReachServers": {
+    "description": "One-line result when the internet check fails"
+  },
+  "netDescRouterDisconnected": "We were unable to reach internet servers ({target}). Your device is connected to the router, but the router cannot access the internet.",
+  "@netDescRouterDisconnected": {
+    "description": "Explanation when the internet check fails; target is a host name",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "netStepCheckWAN": "Check if the broadband, fiber, or DSL cable is securely plugged into your router WAN port.",
+  "@netStepCheckWAN": {
+    "description": "Troubleshooting step when the router has no internet"
+  },
+  "netStepPowerCycle": "Restart or power-cycle your modem and Wi-Fi router (unplug power for 30 seconds).",
+  "@netStepPowerCycle": {
+    "description": "Troubleshooting step when the router has no internet"
+  },
+  "netStepIspOutage": "Verify that your Internet Service Provider (ISP) is not experiencing a service outage.",
+  "@netStepIspOutage": {
+    "description": "Troubleshooting step when the router has no internet"
+  },
+  "netStepPppoeDns": "Check if your router requires PPPoE login or has DNS configuration errors.",
+  "@netStepPppoeDns": {
+    "description": "Troubleshooting step when the router has no internet"
+  },
+  "signalExcellent": "Excellent",
+  "@signalExcellent": {
+    "description": "Wi-Fi signal quality band"
+  },
+  "signalGood": "Good",
+  "@signalGood": {
+    "description": "Wi-Fi signal quality band"
+  },
+  "signalFair": "Fair",
+  "@signalFair": {
+    "description": "Wi-Fi signal quality band"
+  },
+  "signalWeak": "Weak",
+  "@signalWeak": {
+    "description": "Wi-Fi signal quality band"
+  },
+  "signalCriticallyLow": "Critically Low",
+  "@signalCriticallyLow": {
+    "description": "Wi-Fi signal quality band"
+  },
+  "signalNoReading": "Signal unavailable",
+  "@signalNoReading": {
+    "description": "Shown when the hardware answered nothing about signal strength"
+  },
+  "signalDisconnected": "Disconnected / Unknown State",
+  "@signalDisconnected": {
+    "description": "Shown when there is no Wi-Fi association to measure"
+  },
+  "signalLocationMissing": "Missing Required Location Permissions",
+  "@signalLocationMissing": {
+    "description": "Shown on mobile when location permission blocks the signal reading"
+  },
+  "scanThroughGateway": "Looking for devices connected through {gateway}",
+  "@scanThroughGateway": {
+    "description": "Progress text on the device list while a scan runs; gateway is an IP address",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "scanPercentDone": "{percent}% scanned",
+  "@scanPercentDone": {
+    "description": "Progress counter under the spinner on the device list",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scanCouldNotFinish": "We could not finish looking for devices",
+  "@scanCouldNotFinish": {
+    "description": "Failure message on the device list"
+  },
+  "scanWentWrong": "Something went wrong while looking for devices",
+  "@scanWentWrong": {
+    "description": "Error message on the device list"
+  },
+  "scanFoundSoFar": "Found {count} connected devices so far",
+  "@scanFoundSoFar": {
+    "description": "Heading of the device list while the scan is still running",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "scanFoundSoFarOne": "Found 1 connected device so far",
+  "@scanFoundSoFarOne": {
+    "description": "Heading of the device list while the scan is still running, singular"
+  },
+  "scanCompleteMany": "Scan complete - {count} devices found",
+  "@scanCompleteMany": {
+    "description": "Heading and alert shown when a device scan finishes",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "scanCompleteOne": "Scan complete - 1 device found",
+  "@scanCompleteOne": {
+    "description": "Heading and alert shown when a device scan finishes, singular"
+  },
+  "scanProgressPercent": "Scanning {percent}%",
+  "@scanProgressPercent": {
+    "description": "Progress text under the scan progress bar",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scanStarting": "Starting scan...",
+  "@scanStarting": {
+    "description": "Progress text before the scan has reported any progress"
+  },
+  "scanThisDevice": "This device",
+  "@scanThisDevice": {
+    "description": "Chip marking the phone or computer running Vernet"
+  },
+  "scanDeviceAddressCopied": "Device address copied",
+  "@scanDeviceAddressCopied": {
+    "description": "Confirmation after copying a device address to the clipboard"
+  },
+  "netInterfaceWifi": "Wi-Fi",
+  "@netInterfaceWifi": {
+    "description": "Name of the wireless interface shown in connection status details."
+  },
+  "netInterfaceWifiNamed": "Wi-Fi ({name})",
+  "@netInterfaceWifiNamed": {
+    "description": "Wireless interface named after the network it is joined to.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "netInterfaceNone": "None",
+  "@netInterfaceNone": {
+    "description": "Interface type when no local link is active."
+  },
+  "devicesFoundOne": "1 device found",
+  "portScanTitle": "Find security gaps",
+  "@portScanTitle": {
+    "description": "App bar title of the port scan page."
+  },
+  "portScanTabWebsites": "Common websites",
+  "@portScanTabWebsites": {
+    "description": "Tab of well-known website targets."
+  },
+  "portScanTabRanges": "Custom Ranges",
+  "@portScanTabRanges": {
+    "description": "Tab of port ranges to choose from."
+  },
+  "portScanTabServices": "Common services",
+  "@portScanTabServices": {
+    "description": "Tab of common service ports, also the label of its radio button."
+  },
+  "portScanRadioRange": "Choose a range",
+  "@portScanRadioRange": {
+    "description": "Radio button that scans a port range."
+  },
+  "portScanRadioSingle": "One service",
+  "@portScanRadioSingle": {
+    "description": "Radio button that scans a single port."
+  },
+  "portScanRun": "Check",
+  "@portScanRun": {
+    "description": "Button that starts the port scan."
+  },
+  "portScanRunning": "Checking",
+  "@portScanRunning": {
+    "description": "Disabled button text while the port scan runs."
+  },
+  "portScanHintServiceNumber": "Enter a service number",
+  "@portScanHintServiceNumber": {
+    "description": "Hint of the single port field."
+  },
+  "portScanHintFirstServiceNumber": "First service number",
+  "@portScanHintFirstServiceNumber": {
+    "description": "Hint of the range start field."
+  },
+  "portScanHintLastServiceNumber": "Last service number",
+  "@portScanHintLastServiceNumber": {
+    "description": "Hint of the range end field."
+  },
+  "portScanHintTarget": "Enter a website or device address",
+  "@portScanHintTarget": {
+    "description": "Hint of the scan target field."
+  },
+  "portScanErrorServiceNumberEmpty": "Please enter a service number",
+  "@portScanErrorServiceNumberEmpty": {
+    "description": "Validation error for an empty port field."
+  },
+  "portScanErrorServiceNumberRange": "Enter a number from 0 to 65535",
+  "@portScanErrorServiceNumberRange": {
+    "description": "Validation error for a port outside the valid range."
+  },
+  "portScanErrorNotANumber": "Please enter a number",
+  "@portScanErrorNotANumber": {
+    "description": "Validation error for a non-numeric port."
+  },
+  "portScanErrorTargetEmpty": "Please enter a website or device address",
+  "@portScanErrorTargetEmpty": {
+    "description": "Validation error for an empty target field."
+  },
+  "portScanRangeKnown": "0-1024 (known)",
+  "@portScanRangeKnown": {
+    "description": "Chip that fills in the well-known port range."
+  },
+  "portScanRangeShort": "0-100 (short)",
+  "@portScanRangeShort": {
+    "description": "Chip that fills in a short port range."
+  },
+  "portScanRangeVeryShort": "0-10 (very short)",
+  "@portScanRangeVeryShort": {
+    "description": "Chip that fills in the first ten ports."
+  },
+  "portScanRangeFull": "0-65535 (Full)",
+  "@portScanRangeFull": {
+    "description": "Chip that fills in every port."
+  },
+  "portScanChipFtpData": "20 (FTP Data)",
+  "@portScanChipFtpData": {
+    "description": "Chip that scans the FTP data port."
+  },
+  "portScanChipFtpControl": "21 (FTP Control)",
+  "@portScanChipFtpControl": {
+    "description": "Chip that scans the FTP control port."
+  },
+  "portScanChipSsh": "22 (SSH)",
+  "@portScanChipSsh": {
+    "description": "Chip that scans the SSH port."
+  },
+  "portScanChipHttp": "80 (HTTP)",
+  "@portScanChipHttp": {
+    "description": "Chip that scans the HTTP port."
+  },
+  "portScanChipHttps": "443 (HTTPS)",
+  "@portScanChipHttps": {
+    "description": "Chip that scans the HTTPS port."
+  },
+  "portScanEmptyResults": "Security check results will appear here.\nReachable services may be worth reviewing.",
+  "@portScanEmptyResults": {
+    "description": ""
+  },
+  "portScanNoneFoundSnackbar": "Security check complete: no reachable services found",
+  "@portScanNoneFoundSnackbar": {
+    "description": "Snackbar shown when the scan finished with no open port."
+  },
+  "portScanFoundOne": "Security check complete: found 1 reachable service. Review anything you do not recognize.",
+  "@portScanFoundOne": {
+    "description": ""
+  },
+  "portScanFoundMany": "Security check complete: found {count} reachable services. Review anything you do not recognize.",
+  "@portScanFoundMany": {
+    "description": "",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "portScanFinding": "Finding: {desc}",
+  "@portScanFinding": {
+    "description": "Row title naming the service behind an open port.",
+    "placeholders": {
+      "desc": {
+        "type": "String"
+      }
+    }
+  },
+  "portScanListLoadError": "We could not load the service list.\nPlease try again later.",
+  "@portScanListLoadError": {
+    "description": ""
+  },
+  "portScanLoading": "Getting things ready...",
+  "@portScanLoading": {
+    "description": ""
+  },
+  "subnetCalcTitle": "IP subnet calculator",
+  "@subnetCalcTitle": {
+    "description": "App bar title of the subnet calculator."
+  },
+  "subnetCalcSubtitle": "Calculate IPv4 or IPv6 subnet details from an address and prefix.",
+  "@subnetCalcSubtitle": {
+    "description": "Intro line of the subnet calculator."
+  },
+  "subnetCalcFieldLabel": "IP address / prefix",
+  "@subnetCalcFieldLabel": {
+    "description": "Label of the subnet calculator input."
+  },
+  "subnetCalcFieldHint": "192.168.1.10/24 or 2001:db8::1/64",
+  "@subnetCalcFieldHint": {
+    "description": "Example values shown inside the subnet calculator input."
+  },
+  "subnetCalcRun": "Calculate",
+  "@subnetCalcRun": {
+    "description": "Button that runs the subnet calculation."
+  },
+  "subnetCalcIpVersion": "IP version",
+  "@subnetCalcIpVersion": {
+    "description": "Row naming the address family of the result."
+  },
+  "subnetCalcNetworkAddress": "Network address",
+  "@subnetCalcNetworkAddress": {
+    "description": "Row naming the network address."
+  },
+  "subnetCalcSubnetMask": "Subnet mask",
+  "@subnetCalcSubnetMask": {
+    "description": "Row naming the subnet mask."
+  },
+  "subnetCalcBroadcastAddress": "Broadcast address",
+  "@subnetCalcBroadcastAddress": {
+    "description": "Row naming the broadcast address."
+  },
+  "subnetCalcFirstAddress": "First address",
+  "@subnetCalcFirstAddress": {
+    "description": "Row naming the first usable address."
+  },
+  "subnetCalcLastAddress": "Last address",
+  "@subnetCalcLastAddress": {
+    "description": "Row naming the last usable address."
+  },
+  "subnetCalcAddressCount": "Addresses in subnet",
+  "@subnetCalcAddressCount": {
+    "description": "Row naming how many addresses the subnet holds."
+  },
+  "subnetCalcCopyIpVersion": "Copy IP version",
+  "@subnetCalcCopyIpVersion": {
+    "description": "Tooltip of the copy button on the IP version row."
+  },
+  "subnetCalcCopyNetworkAddress": "Copy network address",
+  "@subnetCalcCopyNetworkAddress": {
+    "description": "Tooltip of the copy button on the network address row."
+  },
+  "subnetCalcCopySubnetMask": "Copy subnet mask",
+  "@subnetCalcCopySubnetMask": {
+    "description": "Tooltip of the copy button on the subnet mask row."
+  },
+  "subnetCalcCopyBroadcastAddress": "Copy broadcast address",
+  "@subnetCalcCopyBroadcastAddress": {
+    "description": "Tooltip of the copy button on the broadcast address row."
+  },
+  "subnetCalcCopyFirstAddress": "Copy first address",
+  "@subnetCalcCopyFirstAddress": {
+    "description": "Tooltip of the copy button on the first address row."
+  },
+  "subnetCalcCopyLastAddress": "Copy last address",
+  "@subnetCalcCopyLastAddress": {
+    "description": "Tooltip of the copy button on the last address row."
+  },
+  "subnetCalcCopyAddressCount": "Copy addresses in subnet",
+  "@subnetCalcCopyAddressCount": {
+    "description": "Tooltip of the copy button on the address count row."
+  },
+  "subnetCalcCopied": "{label} copied",
+  "@subnetCalcCopied": {
+    "description": "Snackbar after a result row was copied to the clipboard.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "subnetCalcErrorNoPrefix": "Enter an IP address followed by a prefix, such as 192.168.1.10/24.",
+  "@subnetCalcErrorNoPrefix": {
+    "description": "Error for input without a usable prefix."
+  },
+  "subnetCalcErrorPrefixNotNumber": "The prefix must be a number.",
+  "@subnetCalcErrorPrefixNotNumber": {
+    "description": "Error for a non-numeric prefix."
+  },
+  "subnetCalcErrorAddressInvalid": "Enter a valid IPv4 or IPv6 address.",
+  "@subnetCalcErrorAddressInvalid": {
+    "description": "Error for an address that cannot be parsed."
+  },
+  "subnetCalcErrorIpv4PrefixRange": "IPv4 prefixes must be between 0 and 32.",
+  "@subnetCalcErrorIpv4PrefixRange": {
+    "description": "Error for an out-of-range IPv4 prefix."
+  },
+  "subnetCalcErrorIpv6PrefixRange": "IPv6 prefixes must be between 0 and 128.",
+  "@subnetCalcErrorIpv6PrefixRange": {
+    "description": "Error for an out-of-range IPv6 prefix."
+  },
+  "wakeOnLanMacFormat": "Enter a MAC address like AA:BB:CC:DD:EE:FF",
+  "@wakeOnLanMacFormat": {
+    "description": "Hint and validation error naming the MAC address format."
+  },
+  "wakeOnLanErrorBroadcast": "Enter a valid IPv4 broadcast address",
+  "@wakeOnLanErrorBroadcast": {
+    "description": "Validation error for the broadcast address."
+  },
+  "wakeOnLanErrorPortRange": "Port must be between 0 and 65535",
+  "@wakeOnLanErrorPortRange": {
+    "description": "Validation error for the UDP port."
+  },
+  "wakeOnLanErrorSecureOn": "SecureON password must look like a MAC address",
+  "@wakeOnLanErrorSecureOn": {
+    "description": "Validation error for the SecureON password."
+  },
+  "wakeOnLanErrorRepeat": "Send the packet at least once",
+  "@wakeOnLanErrorRepeat": {
+    "description": "Validation error for a repeat count below one."
+  },
+  "wakeOnLanErrorNoNetwork": "Could not send the wake packet on this network",
+  "@wakeOnLanErrorNoNetwork": {
+    "description": "Error when the socket could not send the packet."
+  },
+  "wakeOnLanErrorSend": "Could not send the wake packet.",
+  "@wakeOnLanErrorSend": {
+    "description": "Fallback error when sending the packet fails."
+  },
+  "wakeOnLanSent": "Wake packet sent to {mac} via {ip}:{port}",
+  "@wakeOnLanSent": {
+    "description": "Status after a magic packet was sent.",
+    "placeholders": {
+      "mac": {
+        "type": "String"
+      },
+      "ip": {
+        "type": "String"
+      },
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "wakeOnLanSaved": "Saved {label}",
+  "@wakeOnLanSaved": {
+    "description": "Status after a wake target was saved.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "wakeOnLanNameLabel": "Name (optional)",
+  "@wakeOnLanNameLabel": {
+    "description": "Label of the saved-target name field."
+  },
+  "wakeOnLanNameHint": "Office PC",
+  "@wakeOnLanNameHint": {
+    "description": "Example shown in the name field."
+  },
+  "wakeOnLanMacLabel": "MAC address",
+  "@wakeOnLanMacLabel": {
+    "description": "Label of the MAC address field."
+  },
+  "wakeOnLanBroadcastLabel": "Broadcast address",
+  "@wakeOnLanBroadcastLabel": {
+    "description": "Label of the broadcast address field."
+  },
+  "wakeOnLanPortLabel": "UDP port",
+  "@wakeOnLanPortLabel": {
+    "description": "Label of the UDP port field."
+  },
+  "wakeOnLanPortHint": "Enter a port between 0 and 65535",
+  "@wakeOnLanPortHint": {
+    "description": "Hint of the UDP port field."
+  },
+  "wakeOnLanPasswordLabel": "SecureON password (optional)",
+  "@wakeOnLanPasswordLabel": {
+    "description": "Label of the SecureON password field."
+  },
+  "wakeOnLanSend": "Send wake packet",
+  "@wakeOnLanSend": {
+    "description": "Button that sends the magic packet."
+  },
+  "wakeOnLanSending": "Sending…",
+  "@wakeOnLanSending": {
+    "description": "Button text while the packet is sent."
+  },
+  "wakeOnLanSave": "Save device",
+  "@wakeOnLanSave": {
+    "description": "Button that stores the target for later."
+  },
+  "wakeOnLanExplainer": "Sends a Wake-on-LAN magic packet on your local network. The computer must have WoL enabled in firmware and in the OS.",
+  "@wakeOnLanExplainer": {
+    "description": "Explainer under the wake-on-lan form."
+  },
+  "wakeOnLanWakeThis": "Wake this device",
+  "@wakeOnLanWakeThis": {
+    "description": "Tooltip of the wake action on a saved target."
+  },
+  "wakeOnLanRemove": "Remove saved device",
+  "@wakeOnLanRemove": {
+    "description": "Tooltip of the remove action on a saved target."
+  },
+  "neighborErrorNoResult": "No CDP/LLDP neighbors were reported. SNMP may be denied, or discovery is disabled on this device.",
+  "@neighborErrorNoResult": {
+    "description": "Error when the switch answered with no neighbors."
+  },
+  "neighborFailed": "Neighbor discovery failed.",
+  "@neighborFailed": {
+    "description": "Fallback error of a neighbor query."
+  },
+  "neighborCliEmpty": "No neighbors found in that output. Paste show cdp/lldp neighbors detail.",
+  "@neighborCliEmpty": {
+    "description": "Error when the pasted CLI output held no neighbor."
+  },
+  "neighborSwitchAddressLabel": "Switch address",
+  "@neighborSwitchAddressLabel": {
+    "description": "Label of the switch address field."
+  },
+  "neighborErrorSwitchAddress": "Enter a switch address",
+  "@neighborErrorSwitchAddress": {
+    "description": "Validation error for an empty switch address."
+  },
+  "neighborCommunityLabel": "SNMP community",
+  "@neighborCommunityLabel": {
+    "description": "Label of the SNMP community field."
+  },
+  "neighborAsking": "Asking the switch…",
+  "@neighborAsking": {
+    "description": "Button text while the SNMP walk runs."
+  },
+  "neighborFind": "Find neighbors",
+  "@neighborFind": {
+    "description": "Button that queries the switch."
+  },
+  "neighborExplainer": "Queries the switch with SNMP for CDP and LLDP neighbor tables. This is the same data as show cdp/lldp neighbors.",
+  "@neighborExplainer": {
+    "description": "Explainer under the neighbor query form."
+  },
+  "neighborCliTitle": "Paste switch CLI output",
+  "@neighborCliTitle": {
+    "description": "Title of the CLI paste section."
+  },
+  "neighborCliSubtitle": "Use this when SNMP is not available",
+  "@neighborCliSubtitle": {
+    "description": "Subtitle of the CLI paste section."
+  },
+  "neighborCliHint": "show cdp neighbors detail\nor show lldp neighbors detail",
+  "@neighborCliHint": {
+    "description": "Example command shown in the CLI paste field."
+  },
+  "neighborReadCli": "Read CLI output",
+  "@neighborReadCli": {
+    "description": "Button that parses the pasted CLI output."
+  },
+  "neighborManagementIp": "Management IP: {ip}",
+  "@neighborManagementIp": {
+    "description": "Neighbor row line naming the management address.",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborSwitchPort": "Switch port: {port}",
+  "@neighborSwitchPort": {
+    "description": "Neighbor row line naming the local switch port.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborRemoteInterface": "Remote interface: {port}",
+  "@neighborRemoteInterface": {
+    "description": "Neighbor row line naming the remote interface.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborVlan": "VLAN {vlan}",
+  "@neighborVlan": {
+    "description": "Neighbor row line naming the VLAN.",
+    "placeholders": {
+      "vlan": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborPortClipboard": "port {port}",
+  "@neighborPortClipboard": {
+    "description": "Part of the text copied from a neighbor row.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborPortScanTooltip": "Look for reachable services",
+  "@neighborPortScanTooltip": {
+    "description": "Tooltip of the port scan shortcut on a neighbor."
+  },
+  "neighborCopied": "Neighbor details copied",
+  "@neighborCopied": {
+    "description": "Snackbar after copying a neighbor row."
+  },
+  "neighborErrorChooseProtocol": "Choose CDP, LLDP, or both",
+  "@neighborErrorChooseProtocol": {
+    "description": "Error when neither protocol is selected."
+  },
+  "neighborErrorNoReply": "No SNMP reply from {host}. Check the address, community, and that SNMP is allowed.",
+  "@neighborErrorNoReply": {
+    "description": "Error when the switch did not answer in time.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborErrorUnreachable": "Could not reach {host} over SNMP.",
+  "@neighborErrorUnreachable": {
+    "description": "Error when the switch refused the SNMP connection.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "neighborWarnInterface": "Interface names or speeds were not available.",
+  "@neighborWarnInterface": {
+    "description": "Warning when the interface MIBs could not be walked."
+  },
+  "neighborWarnCdpTimeout": "CDP table did not respond (common on non-Cisco gear).",
+  "@neighborWarnCdpTimeout": {
+    "description": "Warning when the CDP MIB timed out."
+  },
+  "neighborWarnCdpRead": "CDP neighbors could not be read.",
+  "@neighborWarnCdpRead": {
+    "description": "Warning when reading the CDP MIB failed."
+  },
+  "neighborWarnLldpPartial": "Some LLDP details (VLAN or management IP) were missing.",
+  "@neighborWarnLldpPartial": {
+    "description": "Warning when an optional LLDP MIB failed."
+  },
+  "neighborWarnLldpTimeout": "LLDP table did not respond.",
+  "@neighborWarnLldpTimeout": {
+    "description": "Warning when the LLDP MIB timed out."
+  },
+  "neighborWarnLldpRead": "LLDP neighbors could not be read.",
+  "@neighborWarnLldpRead": {
+    "description": "Warning when reading the LLDP MIB failed."
+  },
+  "wifiPromptTitle": "Not connected to Wi-Fi",
+  "@wifiPromptTitle": {
+    "description": "Title of the Wi-Fi prompt dialog."
+  },
+  "wifiPromptBody": "Network scanning works best on Wi-Fi. Connect to your local network to discover devices.",
+  "@wifiPromptBody": {
+    "description": "Body of the Wi-Fi prompt dialog."
+  },
+  "wifiPromptOpenSettings": "Open Wi-Fi Settings",
+  "@wifiPromptOpenSettings": {
+    "description": "Button that jumps to the system Wi-Fi settings."
+  },
+  "wifiPromptContinue": "Continue anyway",
+  "@wifiPromptContinue": {
+    "description": "Button that closes the Wi-Fi prompt."
+  },
+  "wifiPromptIosHint": "Please go to Settings > Wi-Fi to connect",
+  "@wifiPromptIosHint": {
+    "description": "Snackbar on iOS, where the app cannot open Wi-Fi settings."
+  },
+  "wifiPromptManualHint": "Please open WiFi settings manually",
+  "@wifiPromptManualHint": {
+    "description": "Snackbar when the settings screen could not be opened."
+  },
+  "tryAgain": "Try again",
+  "@tryAgain": {
+    "description": "Button that repeats a failed action."
+  },
+  "scanHistoryNetwork": "Network {gateway}",
+  "@scanHistoryNetwork": {
+    "description": "Heading naming the network a scan covered.",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "timeJustNow": "Just now",
+  "@timeJustNow": {
+    "description": "Relative timestamp for something under a minute old."
+  },
+  "timeMinutesAgo": "{count}m ago",
+  "@timeMinutesAgo": {
+    "description": "Relative timestamp in minutes.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "timeHoursAgo": "{count}h ago",
+  "@timeHoursAgo": {
+    "description": "Relative timestamp in hours.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "timeDaysAgo": "{count}d ago",
+  "@timeDaysAgo": {
+    "description": "Relative timestamp in days.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "timeUnknown": "unknown time",
+  "@timeUnknown": {
+    "description": "Stands in for a timestamp the record does not have."
+  },
+  "durationSeconds": "{seconds}s",
+  "@durationSeconds": {
+    "description": "Scan duration shorter than a minute.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutesSeconds": "{minutes}m {seconds}s",
+  "@durationMinutesSeconds": {
+    "description": "Scan duration of a minute or more.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceMakeRouterGateway": "Router/Gateway",
+  "@deviceMakeRouterGateway": {
+    "description": "Name given to the device that routes the local network."
+  },
+  "deviceTypeServer": "Server",
+  "@deviceTypeServer": {
+    "description": "Device type inferred from open ports."
+  },
+  "deviceTypeLinuxServer": "Linux Server",
+  "@deviceTypeLinuxServer": {
+    "description": "Device type inferred from open ports."
+  },
+  "deviceTypeWindowsPc": "Windows PC",
+  "@deviceTypeWindowsPc": {
+    "description": "Device type inferred from open ports."
+  },
+  "deviceTypeLinuxUnixDevice": "Linux/Unix Device",
+  "@deviceTypeLinuxUnixDevice": {
+    "description": "Device type inferred from open ports."
+  },
+  "deviceTypeWebDevice": "Web Device",
+  "@deviceTypeWebDevice": {
+    "description": "Device type inferred from open ports."
+  },
+  "deviceTypeIotDevice": "IoT Device",
+  "@deviceTypeIotDevice": {
+    "description": "Device type inferred from open ports."
+  },
+  "deviceTypeRemoteDisplay": "Remote Display",
+  "@deviceTypeRemoteDisplay": {
+    "description": "Device type inferred from a VNC port."
+  },
+  "deviceTypeUnknownDevice": "Unknown Device",
+  "@deviceTypeUnknownDevice": {
+    "description": "Device type when no port pattern matched."
+  },
+  "monthShort1": "Jan",
+  "@monthShort1": {
+    "description": "Short month name 1 used in scan dates."
+  },
+  "monthShort2": "Feb",
+  "@monthShort2": {
+    "description": "Short month name 2 used in scan dates."
+  },
+  "monthShort3": "Mar",
+  "@monthShort3": {
+    "description": "Short month name 3 used in scan dates."
+  },
+  "monthShort4": "Apr",
+  "@monthShort4": {
+    "description": "Short month name 4 used in scan dates."
+  },
+  "monthShort5": "May",
+  "@monthShort5": {
+    "description": "Short month name 5 used in scan dates."
+  },
+  "monthShort6": "Jun",
+  "@monthShort6": {
+    "description": "Short month name 6 used in scan dates."
+  },
+  "monthShort7": "Jul",
+  "@monthShort7": {
+    "description": "Short month name 7 used in scan dates."
+  },
+  "monthShort8": "Aug",
+  "@monthShort8": {
+    "description": "Short month name 8 used in scan dates."
+  },
+  "monthShort9": "Sep",
+  "@monthShort9": {
+    "description": "Short month name 9 used in scan dates."
+  },
+  "monthShort10": "Oct",
+  "@monthShort10": {
+    "description": "Short month name 10 used in scan dates."
+  },
+  "monthShort11": "Nov",
+  "@monthShort11": {
+    "description": "Short month name 11 used in scan dates."
+  },
+  "monthShort12": "Dec",
+  "@monthShort12": {
+    "description": "Short month name 12 used in scan dates."
+  },
+  "deviceDetailDeviceType": "Device type",
+  "@deviceDetailDeviceType": {
+    "description": "Row naming the kind of device the scan inferred."
+  },
+  "deviceCountOne": "1 device",
+  "@deviceCountOne": {
+    "description": "Singular count of devices in a scan.",
+    "placeholders": {}
+  },
+  "deviceCountMany": "{count} devices",
+  "@deviceCountMany": {
+    "description": "Count of devices in a scan.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@devicesFoundMany": {
+    "description": "Count of devices a scan reported.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@devicesFoundOne": {
+    "description": "Singular of the reported device count."
+  },
+  "commonGoBack": "Go Back",
+  "@commonGoBack": {
+    "description": "Back button, on the unavailable speed-test screen and on the first onboarding step."
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Dismiss button on an informational dialog."
+  },
+  "speedTestTitle": "Speed Test",
+  "@speedTestTitle": {
+    "description": "Title of the speed test page."
+  },
+  "speedTestUnavailableTitle": "Speed Test Unavailable",
+  "@speedTestUnavailableTitle": {
+    "description": "Heading shown when the speed test cannot run."
+  },
+  "speedTestPoweredBy": "Powered by Measurement Lab (M-Lab)",
+  "@speedTestPoweredBy": {
+    "description": "Attribution link under the speed test."
+  },
+  "speedTestTermsHint": "Tap for terms & privacy info",
+  "@speedTestTermsHint": {
+    "description": "Hint below the M-Lab attribution."
+  },
+  "speedTestServerLabel": "Test Server",
+  "@speedTestServerLabel": {
+    "description": "Label above the selected M-Lab server."
+  },
+  "speedTestNoServers": "No servers available",
+  "@speedTestNoServers": {
+    "description": "Shown when no M-Lab server was found."
+  },
+  "speedTestServerAt": "Server: {server}",
+  "@speedTestServerAt": {
+    "description": "Server location in the results banner.",
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "speedTestPacketLoss": "Packet Loss: {percent}%",
+  "@speedTestPacketLoss": {
+    "description": "Packet loss in the results banner.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "speedTestOverTime": "Speed Over Time",
+  "@speedTestOverTime": {
+    "description": "Heading of the speed graph."
+  },
+  "speedTestGraphEmpty": "Start the test to see speed graph",
+  "@speedTestGraphEmpty": {
+    "description": "Placeholder inside the empty speed graph."
+  },
+  "speedTestMbps": "{value} Mbps",
+  "@speedTestMbps": {
+    "description": "Speed value with its unit.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "speedTestMbpsDownload": "Mbps Download",
+  "@speedTestMbpsDownload": {
+    "description": "Caption under the headline download number."
+  },
+  "speedTestUnitMbps": "Mbps",
+  "@speedTestUnitMbps": {
+    "description": "Unit shown after a speed value."
+  },
+  "speedTestWarmingUp": "Warming up...",
+  "@speedTestWarmingUp": {
+    "description": "Shown while the measurement warms up."
+  },
+  "speedTestMetricUpload": "Upload",
+  "@speedTestMetricUpload": {
+    "description": "Caption of the upload metric card."
+  },
+  "speedTestMetricLatency": "Latency",
+  "@speedTestMetricLatency": {
+    "description": "Caption of the latency metric card."
+  },
+  "speedTestMetricRetrans": "Retrans",
+  "@speedTestMetricRetrans": {
+    "description": "Caption of the retransmission metric card."
+  },
+  "speedTestWhatYouCanDo": "What you can do",
+  "@speedTestWhatYouCanDo": {
+    "description": "Heading of the capability chips."
+  },
+  "speedRatingExcellent": "Excellent",
+  "@speedRatingExcellent": {
+    "description": "Top speed rating band."
+  },
+  "speedRatingGreat": "Great",
+  "@speedRatingGreat": {
+    "description": "Speed rating band below excellent."
+  },
+  "speedRatingGood": "Good",
+  "@speedRatingGood": {
+    "description": "Middle speed rating band."
+  },
+  "speedRatingFair": "Fair",
+  "@speedRatingFair": {
+    "description": "Low speed rating band."
+  },
+  "speedRatingSlow": "Slow",
+  "@speedRatingSlow": {
+    "description": "Poor speed rating band."
+  },
+  "speedRatingVerySlow": "Very Slow",
+  "@speedRatingVerySlow": {
+    "description": "Bottom speed rating band."
+  },
+  "speedCapMusic": "Music",
+  "@speedCapMusic": {
+    "description": "Capability unlocked by the measured speed."
+  },
+  "speedCapVideoCalls": "Video calls",
+  "@speedCapVideoCalls": {
+    "description": "Capability unlocked by the measured speed."
+  },
+  "speedCapHdStreaming": "HD streaming",
+  "@speedCapHdStreaming": {
+    "description": "Capability unlocked by the measured speed."
+  },
+  "speedCapGaming": "Gaming",
+  "@speedCapGaming": {
+    "description": "Capability unlocked by the measured speed."
+  },
+  "speedCap4kStreaming": "4K streaming",
+  "@speedCap4kStreaming": {
+    "description": "Capability unlocked by the measured speed."
+  },
+  "speedCapFastUploads": "Fast uploads",
+  "@speedCapFastUploads": {
+    "description": "Capability unlocked by the measured speed."
+  },
+  "speedTestConsentTitle": "I agree to the data policy",
+  "@speedTestConsentTitle": {
+    "description": "Checkbox label for the M-Lab data policy."
+  },
+  "speedTestConsentSubtitle": "Includes retention and publication of IP addresses",
+  "@speedTestConsentSubtitle": {
+    "description": "Explanation under the data policy checkbox."
+  },
+  "speedTestStart": "Start Test",
+  "@speedTestStart": {
+    "description": "Button that begins the speed test."
+  },
+  "speedTestAgain": "Test Again",
+  "@speedTestAgain": {
+    "description": "Button that repeats a finished speed test."
+  },
+  "speedTestMlabTitle": "Measurement Lab (M-Lab)",
+  "@speedTestMlabTitle": {
+    "description": "Title of the attribution dialog."
+  },
+  "speedTestMlabIntro": "Speed tests are powered by M-Lab's NDT7 protocol, providing accurate and standardized internet measurements.",
+  "@speedTestMlabIntro": {
+    "description": "Body of the attribution dialog."
+  },
+  "speedTestMlabAboutTitle": "About M-Lab",
+  "@speedTestMlabAboutTitle": {
+    "description": "Section heading in the attribution dialog."
+  },
+  "speedTestMlabAboutBody": "Measurement Lab (M-Lab) is a research initiative that provides open internet measurement data. Learn more about their mission and data practices.",
+  "@speedTestMlabAboutBody": {
+    "description": "Section body in the attribution dialog."
+  },
+  "speedTestMlabWebsite": "M-Lab Website",
+  "@speedTestMlabWebsite": {
+    "description": "Link tile title."
+  },
+  "speedTestPrivacyPolicy": "Privacy Policy",
+  "@speedTestPrivacyPolicy": {
+    "description": "Link tile title."
+  },
+  "speedTestPrivacySubtitle": "How M-Lab handles your data",
+  "@speedTestPrivacySubtitle": {
+    "description": "Link tile subtitle."
+  },
+  "speedTestTermsOfService": "Terms of Service",
+  "@speedTestTermsOfService": {
+    "description": "Link tile title."
+  },
+  "speedTestTermsSubtitle": "Usage terms and conditions",
+  "@speedTestTermsSubtitle": {
+    "description": "Link tile subtitle."
+  },
+  "speedTestNdtAbout": "About NDT Test",
+  "@speedTestNdtAbout": {
+    "description": "Link tile title."
+  },
+  "speedTestNdtSubtitle": "Technical documentation",
+  "@speedTestNdtSubtitle": {
+    "description": "Link tile subtitle."
+  },
+  "speedTestNoServersError": "No test servers available. Please check your connection.",
+  "@speedTestNoServersError": {
+    "description": "Error when the test starts without servers."
+  },
+  "speedTestFailed": "Speed test failed. Please try again later.",
+  "@speedTestFailed": {
+    "description": "Generic speed test error."
+  },
+  "speedTestBusy": "Sorry, it looks like the Internet speed test is experiencing high demand. Please try again later.",
+  "@speedTestBusy": {
+    "description": "Error when the connection to the test server fails."
+  },
+  "speedTestNetworkFailed": "Network connection failed. Please check your internet connection and try again.",
+  "@speedTestNetworkFailed": {
+    "description": "Error when the network drops mid-test."
+  },
+  "speedTestLookupFailedDetail": "Could not find test servers: {detail}",
+  "@speedTestLookupFailedDetail": {
+    "description": "Server lookup error including the technical detail.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "speedTestLookupFailed": "Could not find test servers. Check your connection.",
+  "@speedTestLookupFailed": {
+    "description": "Server lookup error without detail."
+  },
+  "speedTestMetricDownload": "Download",
+  "@speedTestMetricDownload": {
+    "description": "Caption of the download metric card."
+  },
+  "commonName": "Name",
+  "@commonName": {
+    "description": "Label of a free-text name field."
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Button that discards a dialog."
+  },
+  "commonRequired": "Required",
+  "@commonRequired": {
+    "description": "Validation error for an empty required field."
+  },
+  "serverCheckerTitle": "Server checker",
+  "@serverCheckerTitle": {
+    "description": "Title of the server checker page."
+  },
+  "serverCheckerAdd": "Add server",
+  "@serverCheckerAdd": {
+    "description": "Button and dialog title for a new monitor."
+  },
+  "serverCheckerEmpty": "Add a server to monitor reachability, response time, and downtime.",
+  "@serverCheckerEmpty": {
+    "description": "Empty state of the server checker."
+  },
+  "serverCheckerQuickAdd": "Quick Add",
+  "@serverCheckerQuickAdd": {
+    "description": "Heading of the suggested monitors."
+  },
+  "serverCheckerQuickAddHint": "Add these monitors to track network reliability:",
+  "@serverCheckerQuickAddHint": {
+    "description": "Subtext under the suggested monitors."
+  },
+  "serverCheckerCustomHint": "Or add a custom server using the + button below",
+  "@serverCheckerCustomHint": {
+    "description": "Footer of the suggested-monitors list."
+  },
+  "serverCheckerLocalRouter": "Local Router",
+  "@serverCheckerLocalRouter": {
+    "description": "Suggested monitor for the gateway address."
+  },
+  "serverCheckerAdded": "{name} added",
+  "@serverCheckerAdded": {
+    "description": "Confirmation after a monitor is created.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerEdit": "Edit server",
+  "@serverCheckerEdit": {
+    "description": "Tooltip on the edit action."
+  },
+  "serverCheckerStop": "Stop monitoring",
+  "@serverCheckerStop": {
+    "description": "Tooltip that pauses a monitor."
+  },
+  "serverCheckerStart": "Start monitoring",
+  "@serverCheckerStart": {
+    "description": "Tooltip that resumes a monitor."
+  },
+  "serverCheckerDelete": "Delete server",
+  "@serverCheckerDelete": {
+    "description": "Tooltip on the delete action."
+  },
+  "serverCheckerReachable": "Reachable",
+  "@serverCheckerReachable": {
+    "description": "Result label when a check succeeds."
+  },
+  "serverCheckerUnreachable": "Unreachable",
+  "@serverCheckerUnreachable": {
+    "description": "Result label when a check fails."
+  },
+  "serverCheckerChecks": "Checks: {count}",
+  "@serverCheckerChecks": {
+    "description": "Number of checks in the history.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerOutages": "Outages: {count}",
+  "@serverCheckerOutages": {
+    "description": "Number of outages in the history.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerUptimeNone": "Uptime: —",
+  "@serverCheckerUptimeNone": {
+    "description": "Uptime row before enough data exists."
+  },
+  "serverCheckerUptime": "Uptime: {percent}%",
+  "@serverCheckerUptime": {
+    "description": "Uptime percentage of a monitor.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerDowntime": "Downtime: {duration}",
+  "@serverCheckerDowntime": {
+    "description": "Accumulated downtime of a monitor.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerEverySecondsShort": "Every {seconds}s",
+  "@serverCheckerEverySecondsShort": {
+    "description": "Check interval shown as a short duration.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerLatencyMs": "{milliseconds} ms",
+  "@serverCheckerLatencyMs": {
+    "description": "A latency reading in milliseconds.",
+    "placeholders": {
+      "milliseconds": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerDurationHoursMinutes": "{hours}h {minutes}m",
+  "@serverCheckerDurationHoursMinutes": {
+    "description": "A duration spanning hours.",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerDurationMinutes": "{minutes}m",
+  "@serverCheckerDurationMinutes": {
+    "description": "A duration under an hour.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerHostLabel": "Host or URL",
+  "@serverCheckerHostLabel": {
+    "description": "Label of the host field."
+  },
+  "serverCheckerTypeLabel": "Check type",
+  "@serverCheckerTypeLabel": {
+    "description": "Label of the check type dropdown."
+  },
+  "serverCheckerTcpPort": "TCP port",
+  "@serverCheckerTcpPort": {
+    "description": "Label of the port field."
+  },
+  "serverCheckerPortRange": "Enter a port from 1 to 65535",
+  "@serverCheckerPortRange": {
+    "description": "Validation error for an invalid port."
+  },
+  "serverCheckerExpectedText": "Expected page text (optional)",
+  "@serverCheckerExpectedText": {
+    "description": "Label of the response body matcher."
+  },
+  "serverCheckerInterval": "Check interval",
+  "@serverCheckerInterval": {
+    "description": "Label of the interval dropdown."
+  },
+  "serverCheckerEverySeconds": "Every {seconds} seconds",
+  "@serverCheckerEverySeconds": {
+    "description": "Interval option below a minute.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerEveryMinutes": "Every {minutes} minutes",
+  "@serverCheckerEveryMinutes": {
+    "description": "Interval option of whole minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerSaveAndStart": "Save and start",
+  "@serverCheckerSaveAndStart": {
+    "description": "Confirm button for a new monitor."
+  },
+  "serverCheckerSaveChanges": "Save changes",
+  "@serverCheckerSaveChanges": {
+    "description": "Confirm button for an existing monitor."
+  },
+  "serverCheckerNoIcmpReply": "No ICMP reply",
+  "@serverCheckerNoIcmpReply": {
+    "description": "Result message when a ping times out."
+  },
+  "serverCheckerIcmpReply": "ICMP reply received",
+  "@serverCheckerIcmpReply": {
+    "description": "Result message when a ping answers."
+  },
+  "serverCheckerTcpOpen": "TCP port {port} is open",
+  "@serverCheckerTcpOpen": {
+    "description": "Result message for a reachable port.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "serverCheckerTextNotFound": "Expected text was not found",
+  "@serverCheckerTextNotFound": {
+    "description": "Result message when the body does not match."
+  },
+  "serverCheckerHttpStatus": "HTTP {status}",
+  "@serverCheckerHttpStatus": {
+    "description": "Result message carrying the HTTP status code.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "notifScanChannelName": "Device scans",
+  "@notifScanChannelName": {
+    "description": "Name of the scan notification channel."
+  },
+  "notifScanChannelDesc": "Notifications about device searches",
+  "@notifScanChannelDesc": {
+    "description": "Description of the scan notification channel."
+  },
+  "notifViewAction": "View",
+  "@notifViewAction": {
+    "description": "Action button on a notification."
+  },
+  "notifViewScanAction": "View scan",
+  "@notifViewScanAction": {
+    "description": "iOS notification category action."
+  },
+  "notifViewScanPlaceholder": "Placeholder",
+  "@notifViewScanPlaceholder": {
+    "description": "Hint in the notification text input action."
+  },
+  "notifLinuxAction": "Open notification",
+  "@notifLinuxAction": {
+    "description": "Default action on a Linux notification."
+  },
+  "notifScanDoneTitle": "Device search complete",
+  "@notifScanDoneTitle": {
+    "description": "Title of the scan-complete notification."
+  },
+  "notifScanDoneBody": "Vernet finished looking for devices on your network",
+  "@notifScanDoneBody": {
+    "description": "Body of the scan notification when the count is unknown."
+  },
+  "notifScanFoundBody": "Scan complete - found {count} on your network",
+  "@notifScanFoundBody": {
+    "description": "Body of the scan-complete notification with the device count.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "notifServerChannelName": "Server alerts",
+  "@notifServerChannelName": {
+    "description": "Name of the server alert channel."
+  },
+  "notifServerChannelDesc": "Alerts when a monitored server is unreachable",
+  "@notifServerChannelDesc": {
+    "description": "Description of the server alert channel."
+  },
+  "notifServerDownTitle": "Server is unreachable",
+  "@notifServerDownTitle": {
+    "description": "Title of a server outage notification."
+  },
+  "notifServerDownBody": "{server} is down",
+  "@notifServerDownBody": {
+    "description": "Body of a server outage notification.",
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDetailUnknownDevice": "Unknown device",
+  "@deviceDetailUnknownDevice": {
+    "description": "Fallback device name."
+  },
+  "deviceDetailCopyIp": "Copy IP address",
+  "@deviceDetailCopyIp": {
+    "description": "Tooltip on the header copy button."
+  },
+  "deviceDetailIpAddress": "IP address",
+  "@deviceDetailIpAddress": {
+    "description": "Row label for the device address."
+  },
+  "deviceDetailNetworkInfo": "Network information",
+  "@deviceDetailNetworkInfo": {
+    "description": "Heading of the network info card."
+  },
+  "deviceDetailMacAddress": "MAC address",
+  "@deviceDetailMacAddress": {
+    "description": "Row label for the hardware address."
+  },
+  "deviceDetailVendor": "Vendor",
+  "@deviceDetailVendor": {
+    "description": "Row label for the MAC vendor lookup."
+  },
+  "deviceDetailHostname": "Hostname",
+  "@deviceDetailHostname": {
+    "description": "Row label for the resolved name."
+  },
+  "deviceDetailMdnsName": "mDNS name",
+  "@deviceDetailMdnsName": {
+    "description": "Row label for the local service name."
+  },
+  "deviceDetailGateway": "Gateway",
+  "@deviceDetailGateway": {
+    "description": "Row label for the default gateway."
+  },
+  "deviceDetailCopyLabel": "Copy {label}",
+  "@deviceDetailCopyLabel": {
+    "description": "Tooltip that copies a labelled value.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDetailCopied": "{label} copied",
+  "@deviceDetailCopied": {
+    "description": "Confirmation after a value is copied.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDetailActions": "Actions",
+  "@deviceDetailActions": {
+    "description": "Heading of the action buttons card."
+  },
+  "deviceDetailFullScan": "Full port scan",
+  "@deviceDetailFullScan": {
+    "description": "Button opening the full port scan."
+  },
+  "deviceDetailQuickScan": "Quick scan",
+  "@deviceDetailQuickScan": {
+    "description": "Button running the common-port scan."
+  },
+  "deviceDetailScanning": "Scanning...",
+  "@deviceDetailScanning": {
+    "description": "Label while the quick scan runs."
+  },
+  "deviceDetailPing": "Ping",
+  "@deviceDetailPing": {
+    "description": "Button opening the connectivity check."
+  },
+  "deviceDetailOpenPortsCount": "Open ports ({count})",
+  "@deviceDetailOpenPortsCount": {
+    "description": "Heading of the stored open-port list.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDetailOpenPorts": "Open ports",
+  "@deviceDetailOpenPorts": {
+    "description": "Heading of the quick-scan result card."
+  },
+  "deviceDetailQuickScanHint": "Tap \"Quick scan\" to check for common open ports on this device.",
+  "@deviceDetailQuickScanHint": {
+    "description": "Empty state of the quick-scan card."
+  },
+  "deviceDetailNoOpenPorts": "No open ports found on common services.",
+  "@deviceDetailNoOpenPorts": {
+    "description": "Quick-scan result with nothing open."
+  },
+  "deviceDetailFoundPortsOne": "Found 1 open port",
+  "@deviceDetailFoundPortsOne": {
+    "description": "Summary after a quick scan."
+  },
+  "deviceDetailFoundPortsMany": "Found {count} open ports",
+  "@deviceDetailFoundPortsMany": {
+    "description": "Summary after a quick scan.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceDetailUnknownService": "Unknown service",
+  "@deviceDetailUnknownService": {
+    "description": "Port with no known service name."
+  },
+  "deviceDetailPortNumber": "Port {port}",
+  "@deviceDetailPortNumber": {
+    "description": "Fallback label for an unlisted port.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "portDescFtp": "FTP - File Transfer Protocol",
+  "@portDescFtp": {
+    "description": "Service behind ports 20 and 21."
+  },
+  "portDescSsh": "SSH - Secure Shell",
+  "@portDescSsh": {
+    "description": "Service behind port 22."
+  },
+  "portDescTelnet": "Telnet - Remote login",
+  "@portDescTelnet": {
+    "description": "Service behind port 23."
+  },
+  "portDescSmtp": "SMTP - Email sending",
+  "@portDescSmtp": {
+    "description": "Service behind port 25."
+  },
+  "portDescDns": "DNS - Domain Name System",
+  "@portDescDns": {
+    "description": "Service behind port 53."
+  },
+  "portDescHttp": "HTTP - Web server",
+  "@portDescHttp": {
+    "description": "Service behind port 80."
+  },
+  "portDescPop3": "POP3 - Email retrieval",
+  "@portDescPop3": {
+    "description": "Service behind port 110."
+  },
+  "portDescImap": "IMAP - Email retrieval",
+  "@portDescImap": {
+    "description": "Service behind port 143."
+  },
+  "portDescSnmp": "SNMP - Network management",
+  "@portDescSnmp": {
+    "description": "Service behind port 161."
+  },
+  "portDescHttps": "HTTPS - Secure web server",
+  "@portDescHttps": {
+    "description": "Service behind port 443."
+  },
+  "portDescSmb": "SMB - Windows file sharing",
+  "@portDescSmb": {
+    "description": "Service behind port 445."
+  },
+  "portDescSmtpSubmission": "SMTP - Email submission",
+  "@portDescSmtpSubmission": {
+    "description": "Service behind port 587."
+  },
+  "portDescIpp": "IPP - Internet Printing Protocol",
+  "@portDescIpp": {
+    "description": "Service behind port 631."
+  },
+  "portDescImaps": "IMAPS - Secure email retrieval",
+  "@portDescImaps": {
+    "description": "Service behind port 993."
+  },
+  "portDescPop3s": "POP3S - Secure email retrieval",
+  "@portDescPop3s": {
+    "description": "Service behind port 995."
+  },
+  "portDescMysql": "MySQL - Database server",
+  "@portDescMysql": {
+    "description": "Service behind port 3306."
+  },
+  "portDescRdp": "RDP - Remote Desktop Protocol",
+  "@portDescRdp": {
+    "description": "Service behind port 3389."
+  },
+  "portDescPostgres": "PostgreSQL - Database server",
+  "@portDescPostgres": {
+    "description": "Service behind port 5432."
+  },
+  "portDescVnc": "VNC - Virtual Network Computing",
+  "@portDescVnc": {
+    "description": "Service behind port 5900."
+  },
+  "portDescHttpAlt": "HTTP-Alt - Alternative web server",
+  "@portDescHttpAlt": {
+    "description": "Service behind port 8080."
+  },
+  "portDescHttpsAlt": "HTTPS-Alt - Alternative secure web",
+  "@portDescHttpsAlt": {
+    "description": "Service behind port 8443."
+  },
+  "portDescJetDirect": "JetDirect - Network printer",
+  "@portDescJetDirect": {
+    "description": "Service behind port 9100."
+  },
+  "deviceDetailWakeOnLan": "Wake on LAN",
+  "@deviceDetailWakeOnLan": {
+    "description": "Button opening the Wake-on-LAN page."
+  },
+  "scoreStaleReason": "Score is {hours}h old (-{points} points for staleness)",
+  "@scoreStaleReason": {
+    "description": "Staleness warning naming the age of the cached score and the points taken off it.",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityNoScansDesc": "Run a network scan to assess security",
+  "@scoreSecurityNoScansDesc": {
+    "description": "Security dimension description when no scan exists yet."
+  },
+  "scoreSecurityNoScans": "✗ No network scans found -50 points",
+  "@scoreSecurityNoScans": {
+    "description": "Security factor listing the missing scan and its deduction."
+  },
+  "scoreSecurityNoScansTip": "Tip: Run a network scan from the home screen to discover devices and assess security",
+  "@scoreSecurityNoScansTip": {
+    "description": "Advice shown beside the missing-scan factor."
+  },
+  "scoreSecurityUnknownDevices": "✗ {count} unidentified device(s) on network (-{points} points)",
+  "@scoreSecurityUnknownDevices": {
+    "description": "Security factor counting devices with neither a MAC nor a name.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityUnknownTip": "Tip: Identify unknown devices or run network scan to refresh device list",
+  "@scoreSecurityUnknownTip": {
+    "description": "Advice shown when devices are unidentified."
+  },
+  "scoreSecurityAllIdentified": "✓ All {count} device(s) identified",
+  "@scoreSecurityAllIdentified": {
+    "description": "Security factor confirming every device is known.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityScanRunning": "~ Scan in progress - results may be incomplete",
+  "@scoreSecurityScanRunning": {
+    "description": "Security factor warning that the latest scan has not finished."
+  },
+  "scoreSecuritySecure": "✓ All devices identified - network appears secure",
+  "@scoreSecuritySecure": {
+    "description": "Fallback security factor when nothing was deducted."
+  },
+  "scoreSecurityUnable": "Unable to assess security",
+  "@scoreSecurityUnable": {
+    "description": "Security description after a read failure."
+  },
+  "scoreSecurityError": "✗ Error reading scan data - try running a new network scan",
+  "@scoreSecurityError": {
+    "description": "Security factor after the scan data could not be read."
+  },
+  "scoreSecurityDescGood": "Your network security looks good",
+  "@scoreSecurityDescGood": {
+    "description": "Security description at 80 points or above."
+  },
+  "scoreSecurityDescConcerns": "Some security concerns detected",
+  "@scoreSecurityDescConcerns": {
+    "description": "Security description between 60 and 79 points."
+  },
+  "scoreSecurityDescIssues": "Security issues need attention",
+  "@scoreSecurityDescIssues": {
+    "description": "Security description between 40 and 59 points."
+  },
+  "scoreSecurityDescRisks": "Significant security risks detected",
+  "@scoreSecurityDescRisks": {
+    "description": "Security description below 40 points."
+  },
+  "scoreHealthNoWifiDesc": "Connect to Wi-Fi to assess network health",
+  "@scoreHealthNoWifiDesc": {
+    "description": "Health description when no Wi-Fi info is available."
+  },
+  "scoreHealthNoWifi": "No Wi-Fi connection detected",
+  "@scoreHealthNoWifi": {
+    "description": "Health factor stating there is no Wi-Fi."
+  },
+  "scoreHealthNoWifiTip": "Tip: Connect to a Wi-Fi network to see health score",
+  "@scoreHealthNoWifiTip": {
+    "description": "Advice shown when there is no Wi-Fi."
+  },
+  "scoreHealthUnstableDesc": "Wi-Fi connection unstable",
+  "@scoreHealthUnstableDesc": {
+    "description": "Health description for an incomplete Wi-Fi association."
+  },
+  "scoreHealthInvalidIp": "Invalid IP address assigned ({ip})",
+  "@scoreHealthInvalidIp": {
+    "description": "Health factor naming the unusable address.",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthUnstableNote": "Connection may be unstable or not fully established",
+  "@scoreHealthUnstableNote": {
+    "description": "Second line of the invalid-address factor."
+  },
+  "scoreHealthReconnectTip": "Tip: Try disconnecting and reconnecting to Wi-Fi",
+  "@scoreHealthReconnectTip": {
+    "description": "Advice shown for an unstable connection."
+  },
+  "scoreHealthValidIp": "✓ Valid IP address ({ip})",
+  "@scoreHealthValidIp": {
+    "description": "Health factor confirming the assigned address.",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthStrongSignal": "✓ Strong Wi-Fi signal ({quality})",
+  "@scoreHealthStrongSignal": {
+    "description": "Health factor for a strong signal, naming its quality label.",
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthModerateSignal": "~ Moderate Wi-Fi signal ({quality}) -10 points",
+  "@scoreHealthModerateSignal": {
+    "description": "Health factor for a moderate signal and its deduction.",
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthStrongSignalTip": "Tip: Move closer to router or reduce obstacles for better signal",
+  "@scoreHealthStrongSignalTip": {
+    "description": "Advice shown for a moderate signal."
+  },
+  "scoreHealthWeakSignal": "~ Weak Wi-Fi signal ({quality}) -20 points",
+  "@scoreHealthWeakSignal": {
+    "description": "Health factor for a weak signal and its deduction.",
+    "placeholders": {
+      "quality": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthWeakSignalTip": "Tip: Move closer to router or check for interference",
+  "@scoreHealthWeakSignalTip": {
+    "description": "Advice shown for a weak signal."
+  },
+  "scoreHealthNoSignal": "✗ Very weak or no signal -25 points",
+  "@scoreHealthNoSignal": {
+    "description": "Health factor for an absent signal and its deduction."
+  },
+  "scoreHealthNoSignalTip": "Tip: Check Wi-Fi connection and move closer to router",
+  "@scoreHealthNoSignalTip": {
+    "description": "Advice shown when there is no signal."
+  },
+  "scoreHealthCustomGateway": "✓ Custom gateway configured ({gateway})",
+  "@scoreHealthCustomGateway": {
+    "description": "Health factor for a gateway the user set by hand.",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthGateway": "✓ Gateway reachable ({gateway})",
+  "@scoreHealthGateway": {
+    "description": "Health factor for the discovered gateway.",
+    "placeholders": {
+      "gateway": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthNoGateway": "✗ No gateway detected -20 points",
+  "@scoreHealthNoGateway": {
+    "description": "Health factor for a missing gateway and its deduction."
+  },
+  "scoreHealthNoGatewayTip": "Tip: Check router connection and network settings",
+  "@scoreHealthNoGatewayTip": {
+    "description": "Advice shown when no gateway was found."
+  },
+  "scoreHealthInternetOn": "✓ Internet connection active",
+  "@scoreHealthInternetOn": {
+    "description": "Health factor confirming internet access."
+  },
+  "scoreHealthLatencyLow": "✓ Low latency ({ms}ms) - excellent for gaming/video calls",
+  "@scoreHealthLatencyLow": {
+    "description": "Health factor for a latency under 100 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthLatencyModerate": "~ Moderate latency ({ms}ms) - acceptable for most uses",
+  "@scoreHealthLatencyModerate": {
+    "description": "Health factor for a latency between 100 and 299 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthLatencyHigh": "~ High latency ({ms}ms) - may affect real-time applications",
+  "@scoreHealthLatencyHigh": {
+    "description": "Health factor for a latency of 300 ms or more.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthChecking": "~ Checking internet connectivity...",
+  "@scoreHealthChecking": {
+    "description": "Health factor while the connectivity check runs."
+  },
+  "scoreHealthNoInternet": "✗ No internet connection -30 points",
+  "@scoreHealthNoInternet": {
+    "description": "Health factor for missing internet access and its deduction."
+  },
+  "scoreHealthNoInternetTip": "Tip: Check router and modem, verify internet service is active",
+  "@scoreHealthNoInternetTip": {
+    "description": "Advice shown when there is no internet."
+  },
+  "scoreHealthStatusUnknown": "? Internet status unknown",
+  "@scoreHealthStatusUnknown": {
+    "description": "Health factor when connectivity has not been checked."
+  },
+  "scoreHealthDescExcellent": "Network health is excellent",
+  "@scoreHealthDescExcellent": {
+    "description": "Health description at 80 points or above."
+  },
+  "scoreHealthDescGood": "Network health is good",
+  "@scoreHealthDescGood": {
+    "description": "Health description between 60 and 79 points."
+  },
+  "scoreHealthDescAttention": "Network health needs attention",
+  "@scoreHealthDescAttention": {
+    "description": "Health description between 40 and 59 points."
+  },
+  "scoreHealthDescPoor": "Network health is poor",
+  "@scoreHealthDescPoor": {
+    "description": "Health description below 40 points."
+  },
+  "scoreReliabilityNoMonitorsDesc": "Add monitors to track reliability",
+  "@scoreReliabilityNoMonitorsDesc": {
+    "description": "Reliability description when no monitor exists."
+  },
+  "scoreReliabilityNoMonitors": "✗ No monitors configured -100 points",
+  "@scoreReliabilityNoMonitors": {
+    "description": "Reliability factor for an empty monitor list."
+  },
+  "scoreReliabilityAddRouter": "Add ICMP monitor to local router",
+  "@scoreReliabilityAddRouter": {
+    "description": "Reliability advice naming the missing router monitor."
+  },
+  "scoreReliabilityAddInternet": "Add HTTPS monitor to internet server (e.g., google.com)",
+  "@scoreReliabilityAddInternet": {
+    "description": "Reliability advice naming the missing upstream monitor."
+  },
+  "scoreReliabilityMissingRouter": "✗ Missing: ICMP monitor to local router",
+  "@scoreReliabilityMissingRouter": {
+    "description": "Reliability factor listing the absent router monitor."
+  },
+  "scoreReliabilityMissingInternet": "✗ Missing: HTTPS monitor to internet server",
+  "@scoreReliabilityMissingInternet": {
+    "description": "Reliability factor listing the absent upstream monitor."
+  },
+  "scoreReliabilityNoHistoryDesc": "No monitoring history yet",
+  "@scoreReliabilityNoHistoryDesc": {
+    "description": "Reliability description when monitors have never run."
+  },
+  "scoreReliabilityNoHistory": "~ Monitors configured but no data collected yet -70 points",
+  "@scoreReliabilityNoHistory": {
+    "description": "Reliability factor for monitors without history."
+  },
+  "scoreReliabilityCap50": "✗ Score capped at 50: Add both router and internet monitors",
+  "@scoreReliabilityCap50": {
+    "description": "Reliability factor explaining the cap when both monitor types are missing."
+  },
+  "scoreReliabilityCap75": "✗ Score capped at 75: Add missing monitor type for full score",
+  "@scoreReliabilityCap75": {
+    "description": "Reliability factor explaining the cap when one monitor type is missing."
+  },
+  "scoreReliabilityUptime": "✓ {uptime}% uptime across {count} monitor(s)",
+  "@scoreReliabilityUptime": {
+    "description": "Leading reliability factor with the average uptime.",
+    "placeholders": {
+      "uptime": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreReliabilityUnable": "Unable to assess reliability",
+  "@scoreReliabilityUnable": {
+    "description": "Reliability description after a read failure."
+  },
+  "scoreReliabilityError": "✗ Error reading monitor data",
+  "@scoreReliabilityError": {
+    "description": "Reliability factor after monitor data could not be read."
+  },
+  "scoreReliabilityDescExcellent": "Network reliability is excellent",
+  "@scoreReliabilityDescExcellent": {
+    "description": "Reliability description at 80 points or above."
+  },
+  "scoreReliabilityDescGood": "Network reliability is good",
+  "@scoreReliabilityDescGood": {
+    "description": "Reliability description between 60 and 79 points."
+  },
+  "scoreReliabilityDescInconsistent": "Network reliability is inconsistent",
+  "@scoreReliabilityDescInconsistent": {
+    "description": "Reliability description between 40 and 59 points."
+  },
+  "scoreReliabilityDescPoor": "Network reliability is poor",
+  "@scoreReliabilityDescPoor": {
+    "description": "Reliability description below 40 points."
+  },
+  "scoreSpeedNoResultDesc": "Run a speed test to assess performance",
+  "@scoreSpeedNoResultDesc": {
+    "description": "Speed description when no test has run."
+  },
+  "scoreSpeedNoResult": "No speed test results found",
+  "@scoreSpeedNoResult": {
+    "description": "Speed factor stating there is no result."
+  },
+  "scoreSpeedNoResultTip": "Tip: Run a speed test from the network score page to measure your connection",
+  "@scoreSpeedNoResultTip": {
+    "description": "Advice shown when no test has run."
+  },
+  "scoreSpeedDownloadExcellent": "✓ Download: {mbps} Mbps (excellent)",
+  "@scoreSpeedDownloadExcellent": {
+    "description": "Speed factor for a download of 100 Mbps or more.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadGood": "✓ Download: {mbps} Mbps (good)",
+  "@scoreSpeedDownloadGood": {
+    "description": "Speed factor for a download between 50 and 99 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadModerate": "~ Download: {mbps} Mbps (moderate) -12 points",
+  "@scoreSpeedDownloadModerate": {
+    "description": "Speed factor for a download between 25 and 49 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadSlow": "~ Download: {mbps} Mbps (slow) -20 points",
+  "@scoreSpeedDownloadSlow": {
+    "description": "Speed factor for a download between 10 and 24 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedDownloadVerySlow": "✗ Download: {mbps} Mbps (very slow) -26 points",
+  "@scoreSpeedDownloadVerySlow": {
+    "description": "Speed factor for a download under 10 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedHdTip": "Tip: For HD streaming, aim for 25+ Mbps",
+  "@scoreSpeedHdTip": {
+    "description": "Advice shown for a moderate download."
+  },
+  "scoreSpeedIspTip": "Tip: Contact ISP about upgrading your plan",
+  "@scoreSpeedIspTip": {
+    "description": "Advice shown for a slow download."
+  },
+  "scoreSpeedBackgroundTip": "Tip: Check for background downloads, restart router, or contact ISP",
+  "@scoreSpeedBackgroundTip": {
+    "description": "Advice shown for a very slow download."
+  },
+  "scoreSpeedUploadExcellent": "✓ Upload: {mbps} Mbps (excellent)",
+  "@scoreSpeedUploadExcellent": {
+    "description": "Speed factor for an upload of 20 Mbps or more.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUploadGood": "✓ Upload: {mbps} Mbps (good)",
+  "@scoreSpeedUploadGood": {
+    "description": "Speed factor for an upload between 10 and 19 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUploadModerate": "~ Upload: {mbps} Mbps (moderate) -7 points",
+  "@scoreSpeedUploadModerate": {
+    "description": "Speed factor for an upload between 5 and 9 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUploadSlow": "✗ Upload: {mbps} Mbps (slow) -12 points",
+  "@scoreSpeedUploadSlow": {
+    "description": "Speed factor for an upload under 5 Mbps.",
+    "placeholders": {
+      "mbps": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedVideoCallTip": "Tip: For video calls, aim for 5+ Mbps upload",
+  "@scoreSpeedVideoCallTip": {
+    "description": "Advice shown for a moderate upload."
+  },
+  "scoreSpeedUploadLimitTip": "Tip: Limit uploads during important calls or contact ISP",
+  "@scoreSpeedUploadLimitTip": {
+    "description": "Advice shown for a slow upload."
+  },
+  "scoreSpeedLatencyExcellent": "✓ Latency: {ms}ms (excellent for gaming)",
+  "@scoreSpeedLatencyExcellent": {
+    "description": "Speed factor for a latency under 20 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyGood": "✓ Latency: {ms}ms (good)",
+  "@scoreSpeedLatencyGood": {
+    "description": "Speed factor for a latency between 20 and 49 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyModerate": "~ Latency: {ms}ms (moderate) -7 points",
+  "@scoreSpeedLatencyModerate": {
+    "description": "Speed factor for a latency between 50 and 99 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyHigh": "✗ Latency: {ms}ms (high) -12 points",
+  "@scoreSpeedLatencyHigh": {
+    "description": "Speed factor for a latency of 100 ms or more.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLatencyTip": "Tip: High latency affects gaming and video calls",
+  "@scoreSpeedLatencyTip": {
+    "description": "Advice shown for a moderate latency."
+  },
+  "scoreSpeedWiredTip": "Tip: Use wired connection, reduce network congestion, or contact ISP",
+  "@scoreSpeedWiredTip": {
+    "description": "Advice shown for a high latency."
+  },
+  "scoreSpeedNoPacketLoss": "✓ No packet loss",
+  "@scoreSpeedNoPacketLoss": {
+    "description": "Speed factor for a clean ping run."
+  },
+  "scoreSpeedLossMinimal": "~ Minimal packet loss ({percent}%)",
+  "@scoreSpeedLossMinimal": {
+    "description": "Speed factor for packet loss under one percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossSome": "~ Some packet loss ({percent}%) -4 points",
+  "@scoreSpeedLossSome": {
+    "description": "Speed factor for packet loss between one and five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossHigh": "✗ High packet loss ({percent}%) -5 points",
+  "@scoreSpeedLossHigh": {
+    "description": "Speed factor for packet loss above five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedWifiTip": "Tip: Check Wi-Fi signal strength and router placement",
+  "@scoreSpeedWifiTip": {
+    "description": "Advice shown for some packet loss."
+  },
+  "scoreSpeedCongestionTip": "Tip: Network congestion or hardware issues - restart router",
+  "@scoreSpeedCongestionTip": {
+    "description": "Advice shown for heavy packet loss."
+  },
+  "scoreSpeedJitterStable": "✓ Jitter: {ms}ms (stable connection)",
+  "@scoreSpeedJitterStable": {
+    "description": "Speed factor for jitter under 5 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterAcceptable": "✓ Jitter: {ms}ms (acceptable)",
+  "@scoreSpeedJitterAcceptable": {
+    "description": "Speed factor for jitter between 5 and 14 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterVariable": "~ Jitter: {ms}ms (variable) -4 points",
+  "@scoreSpeedJitterVariable": {
+    "description": "Speed factor for jitter between 15 and 29 ms.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterUnstable": "✗ Jitter: {ms}ms (unstable) -5 points",
+  "@scoreSpeedJitterUnstable": {
+    "description": "Speed factor for jitter of 30 ms or more.",
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedJitterVoiceTip": "Tip: High jitter affects video/voice quality",
+  "@scoreSpeedJitterVoiceTip": {
+    "description": "Advice shown for variable jitter."
+  },
+  "scoreSpeedJitterWiredTip": "Tip: Use wired connection or reduce network congestion",
+  "@scoreSpeedJitterWiredTip": {
+    "description": "Advice shown for unstable jitter."
+  },
+  "scoreSpeedNoLossMlab": "✓ No packet loss (M-Lab)",
+  "@scoreSpeedNoLossMlab": {
+    "description": "Packet-loss factor measured by the speed test instead of ping."
+  },
+  "scoreSpeedLossMinimalMlab": "~ Minimal packet loss ({percent}%, M-Lab)",
+  "@scoreSpeedLossMinimalMlab": {
+    "description": "Speed-test packet loss under one percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossSomeMlab": "~ Some packet loss ({percent}%, M-Lab) -4 points",
+  "@scoreSpeedLossSomeMlab": {
+    "description": "Speed-test packet loss between one and five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedLossHighMlab": "✗ High packet loss ({percent}%, M-Lab) -5 points",
+  "@scoreSpeedLossHighMlab": {
+    "description": "Speed-test packet loss above five percent.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedNoPingData": "✗ No ping data available -10 points",
+  "@scoreSpeedNoPingData": {
+    "description": "Speed factor for a missing connectivity check."
+  },
+  "scoreSpeedNoPingDataTip": "Tip: Run a connectivity check to measure packet loss and jitter",
+  "@scoreSpeedNoPingDataTip": {
+    "description": "Advice shown when ping data is missing."
+  },
+  "scoreSpeedMeasuredMlab": "ℹ Measured via M-Lab NDT7 protocol",
+  "@scoreSpeedMeasuredMlab": {
+    "description": "Speed factor naming the test provider."
+  },
+  "scoreSpeedServerAt": "📍 Server: {server}",
+  "@scoreSpeedServerAt": {
+    "description": "Speed factor naming the test server location.",
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSpeedUnable": "Unable to assess speed",
+  "@scoreSpeedUnable": {
+    "description": "Speed description after a read failure."
+  },
+  "scoreSpeedError": "Error reading speed data",
+  "@scoreSpeedError": {
+    "description": "Speed factor after the snapshot could not be read."
+  },
+  "scoreSpeedErrorTip": "Tip: Try running a new speed test",
+  "@scoreSpeedErrorTip": {
+    "description": "Advice shown after a read failure."
+  },
+  "scoreSpeedDescExcellent": "Network speed is excellent",
+  "@scoreSpeedDescExcellent": {
+    "description": "Speed description at 80 points or above."
+  },
+  "scoreSpeedDescGood": "Network speed is good",
+  "@scoreSpeedDescGood": {
+    "description": "Speed description between 60 and 79 points."
+  },
+  "scoreSpeedDescModerate": "Network speed is moderate",
+  "@scoreSpeedDescModerate": {
+    "description": "Speed description between 40 and 59 points."
+  },
+  "scoreSpeedDescImprove": "Network speed needs improvement",
+  "@scoreSpeedDescImprove": {
+    "description": "Speed description below 40 points."
+  },
+  "scoreVulnExcellentDesc": "Excellent security posture",
+  "@scoreVulnExcellentDesc": {
+    "description": "Vulnerability description when security is near perfect."
+  },
+  "scoreVulnStrongPosture": "✓ Strong security posture detected",
+  "@scoreVulnStrongPosture": {
+    "description": "Vulnerability factor confirming a strong posture."
+  },
+  "scoreVulnAllIdentified": "✓ All network devices identified",
+  "@scoreVulnAllIdentified": {
+    "description": "Vulnerability factor confirming every device is known."
+  },
+  "scoreVulnNoVulnerabilities": "✓ No obvious vulnerabilities found",
+  "@scoreVulnNoVulnerabilities": {
+    "description": "Vulnerability factor for a clean scan."
+  },
+  "scoreVulnMinimalBaseline": "~ Minimal baseline risk: -2 points (theoretical)",
+  "@scoreVulnMinimalBaseline": {
+    "description": "Vulnerability factor for the unavoidable baseline risk."
+  },
+  "scoreVulnLowDesc": "Low vulnerability risk",
+  "@scoreVulnLowDesc": {
+    "description": "Vulnerability description for a good security score."
+  },
+  "scoreVulnSmallBaseline": "~ Small baseline risk: -5 points (theoretical)",
+  "@scoreVulnSmallBaseline": {
+    "description": "Vulnerability factor for a slightly larger baseline risk."
+  },
+  "scoreVulnSomeDesc": "Some vulnerabilities detected",
+  "@scoreVulnSomeDesc": {
+    "description": "Vulnerability description for a middling security score."
+  },
+  "scoreVulnModerateScore": "~ Moderate security score ({value}/100) -35 points",
+  "@scoreVulnModerateScore": {
+    "description": "Vulnerability factor carrying the security score through.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnPartialIdentification": "~ Some devices on network not fully identified",
+  "@scoreVulnPartialIdentification": {
+    "description": "Vulnerability factor for unknown devices."
+  },
+  "scoreVulnScanTip": "Tip: Run a network scan to identify all devices",
+  "@scoreVulnScanTip": {
+    "description": "Advice shown with partial identification."
+  },
+  "scoreVulnReviewTip": "Tip: Review unknown devices and verify they're authorized",
+  "@scoreVulnReviewTip": {
+    "description": "Second advice shown with partial identification."
+  },
+  "scoreVulnAttentionDesc": "Vulnerabilities require attention",
+  "@scoreVulnAttentionDesc": {
+    "description": "Vulnerability description for a poor security score."
+  },
+  "scoreVulnLowScore": "✗ Low security score ({value}/100) -65 points",
+  "@scoreVulnLowScore": {
+    "description": "Vulnerability factor for a low security score.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnUnknownDevices": "✗ Unknown devices detected on network",
+  "@scoreVulnUnknownDevices": {
+    "description": "Vulnerability factor warning about unknown devices."
+  },
+  "scoreVulnExposedServices": "✗ Potential exposed services",
+  "@scoreVulnExposedServices": {
+    "description": "Vulnerability factor warning about exposed services."
+  },
+  "scoreVulnActionRequired": "Action required:",
+  "@scoreVulnActionRequired": {
+    "description": "Heading above the list of remediation steps."
+  },
+  "scoreVulnActionScan": "• Run a network scan immediately to discover all devices",
+  "@scoreVulnActionScan": {
+    "description": "First remediation step."
+  },
+  "scoreVulnActionVerify": "• Identify and verify all unknown devices",
+  "@scoreVulnActionVerify": {
+    "description": "Second remediation step."
+  },
+  "scoreVulnActionPorts": "• Run a port scan to check for exposed services",
+  "@scoreVulnActionPorts": {
+    "description": "Third remediation step."
+  },
+  "scoreVulnActionTrust": "• Consider enabling device trust features",
+  "@scoreVulnActionTrust": {
+    "description": "Fourth remediation step."
+  },
+  "scoreDimSecurity": "Security",
+  "@scoreDimSecurity": {
+    "description": "Display name of the security dimension."
+  },
+  "scoreDimHealth": "Health",
+  "@scoreDimHealth": {
+    "description": "Display name of the network health dimension."
+  },
+  "scoreDimReliability": "Reliability",
+  "@scoreDimReliability": {
+    "description": "Display name of the reliability dimension."
+  },
+  "scoreDimSpeed": "Speed",
+  "@scoreDimSpeed": {
+    "description": "Display name of the speed dimension."
+  },
+  "scoreDimVulnerabilities": "Vulnerabilities",
+  "@scoreDimVulnerabilities": {
+    "description": "Display name of the vulnerability dimension."
+  },
+  "scoreNotEnoughData": "Not enough data to assess",
+  "@scoreNotEnoughData": {
+    "description": "Description for a dimension built without data."
+  },
+  "scoreCardLabel": "NETWORK SCORE",
+  "@scoreCardLabel": {
+    "description": "Uppercase eyebrow label on every state of the network score card."
+  },
+  "scoreCardTapToAssess": "Tap to assess your network",
+  "@scoreCardTapToAssess": {
+    "description": "Subtitle of the score card before the first computation."
+  },
+  "scoreCardComputing": "Computing your network score...",
+  "@scoreCardComputing": {
+    "description": "Subtitle while the score is being computed."
+  },
+  "scoreCardStale": "Score reduced due to age",
+  "@scoreCardStale": {
+    "description": "Note on the card and detail page when staleness decay lowered the score."
+  },
+  "scoreCardError": "Unable to compute score. Tap to retry.",
+  "@scoreCardError": {
+    "description": "Subtitle when the score computation failed; tapping retries."
+  },
+  "scoreCardDescGood": "Your network is in good shape",
+  "@scoreCardDescGood": {
+    "description": "Card subtitle for a good overall score."
+  },
+  "scoreCardDescModerate": "Some areas need attention",
+  "@scoreCardDescModerate": {
+    "description": "Card subtitle for a moderate overall score."
+  },
+  "scoreCardDescPoor": "Network issues detected",
+  "@scoreCardDescPoor": {
+    "description": "Card subtitle for a poor overall score."
+  },
+  "scoreCardDescUnknown": "Score not yet computed",
+  "@scoreCardDescUnknown": {
+    "description": "Card subtitle when no score exists yet."
+  },
+  "scoreChipSecurity": "SEC",
+  "@scoreChipSecurity": {
+    "description": "Three-letter chip for the Security dimension on the card."
+  },
+  "scoreChipHealth": "HLT",
+  "@scoreChipHealth": {
+    "description": "Three-letter chip for the Health dimension on the card; abbreviation of scoreDimHealth."
+  },
+  "scoreChipReliability": "REL",
+  "@scoreChipReliability": {
+    "description": "Three-letter chip for the Reliability dimension on the card; abbreviation of scoreDimReliability."
+  },
+  "scoreChipSpeed": "SPD",
+  "@scoreChipSpeed": {
+    "description": "Three-letter chip for the Speed dimension on the card; abbreviation of scoreDimSpeed."
+  },
+  "scoreChipVulnerabilities": "VUL",
+  "@scoreChipVulnerabilities": {
+    "description": "Three-letter chip for the Vulnerabilities dimension on the card; abbreviation of scoreDimVulnerabilities."
+  },
+  "scorePointsUnit": "points",
+  "@scorePointsUnit": {
+    "description": "Word that follows a score deduction in a factor line; the detail page parses it to split the number out of the text."
+  },
+  "scoreRefreshTooltip": "Refresh score",
+  "@scoreRefreshTooltip": {
+    "description": "Tooltip of the app-bar refresh action on the score detail page."
+  },
+  "scoreBreakdown": "Score Breakdown",
+  "@scoreBreakdown": {
+    "description": "Heading of the per-dimension list on the detail page."
+  },
+  "scoreFactorsGood": "What's good",
+  "@scoreFactorsGood": {
+    "description": "Group heading for factors that added points."
+  },
+  "scoreFactorsImprove": "What needs improvement",
+  "@scoreFactorsImprove": {
+    "description": "Group heading for factors that deducted points."
+  },
+  "scoreFactorsInfo": "Info",
+  "@scoreFactorsInfo": {
+    "description": "Group heading for neutral factors without points."
+  },
+  "scoreLastComputed": "Last computed: {time}",
+  "@scoreLastComputed": {
+    "description": "Timestamp under the overall score.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreLastFresh": "Last fresh score: {time}",
+  "@scoreLastFresh": {
+    "description": "Timestamp inside the staleness warning.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreImproveTitle": "Improve Your Score",
+  "@scoreImproveTitle": {
+    "description": "Heading of the remediation section."
+  },
+  "scoreActionScanTitle": "Run Network Scan",
+  "@scoreActionScanTitle": {
+    "description": "Remediation card that opens the host scan."
+  },
+  "scoreActionScanCritical": "Critical: Identify unknown devices on your network",
+  "@scoreActionScanCritical": {
+    "description": "Subtitles for the host-scan remediation card."
+  },
+  "scoreActionScanSubtitle": "Discover devices and assess security",
+  "@scoreActionScanSubtitle": {
+    "description": "Subtitles for the host-scan remediation card."
+  },
+  "scoreActionWifiTitle": "Check Wi-Fi Connection",
+  "@scoreActionWifiTitle": {
+    "description": "Remediation card that opens the Wi-Fi health tips."
+  },
+  "scoreActionMonitorTitle": "Monitor Servers",
+  "@scoreActionMonitorTitle": {
+    "description": "Remediation card that opens the server checker."
+  },
+  "scoreActionSpeedTitle": "Test Internet Speed",
+  "@scoreActionSpeedTitle": {
+    "description": "Remediation card that opens the speed test."
+  },
+  "scoreActionSpeedLow": "Run a speed test to measure your connection",
+  "@scoreActionSpeedLow": {
+    "description": "Subtitles for the speed-test remediation card."
+  },
+  "scoreActionSpeedNormal": "Improve download/upload performance",
+  "@scoreActionSpeedNormal": {
+    "description": "Subtitles for the speed-test remediation card."
+  },
+  "scoreActionReviewTitle": "Review Security",
+  "@scoreActionReviewTitle": {
+    "description": "Remediation card for the vulnerabilities dimension."
+  },
+  "scoreActionReviewSubtitle": "Address vulnerabilities to improve score",
+  "@scoreActionReviewSubtitle": {
+    "description": "Subtitles for the vulnerabilities remediation card."
+  },
+  "scoreHealthSubNoInternet": "Check your internet connection",
+  "@scoreHealthSubNoInternet": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubWeakSignal": "Move closer to router or reduce obstacles",
+  "@scoreHealthSubWeakSignal": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubNoGateway": "Check router connection",
+  "@scoreHealthSubNoGateway": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubLatency": "Reduce network congestion",
+  "@scoreHealthSubLatency": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreHealthSubDefault": "Optimize your network connection",
+  "@scoreHealthSubDefault": {
+    "description": "Subtitles under the Wi-Fi remediation card, chosen by the worst health factor."
+  },
+  "scoreReliabilitySubNoMonitors": "Add monitors to track network uptime",
+  "@scoreReliabilitySubNoMonitors": {
+    "description": "Subtitles under the server-monitor remediation card, chosen by the worst reliability factor."
+  },
+  "scoreReliabilitySubMissing": "Add required monitors for full score",
+  "@scoreReliabilitySubMissing": {
+    "description": "Subtitles under the server-monitor remediation card, chosen by the worst reliability factor."
+  },
+  "scoreReliabilitySubDefault": "Track reliability of important services",
+  "@scoreReliabilitySubDefault": {
+    "description": "Subtitles under the server-monitor remediation card, chosen by the worst reliability factor."
+  },
+  "scoreMonitorAdded": "{name} added",
+  "@scoreMonitorAdded": {
+    "description": "Snackbar after a quick-add monitor is saved.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreHealthTipsTitle": "Wi-Fi Health Tips",
+  "@scoreHealthTipsTitle": {
+    "description": "Title of the Wi-Fi tips dialog from the remediation card."
+  },
+  "scoreHealthTipCloser": "• Move closer to your router",
+  "@scoreHealthTipCloser": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipObstacles": "• Reduce physical obstacles",
+  "@scoreHealthTipObstacles": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipInterference": "• Avoid interference from other devices",
+  "@scoreHealthTipInterference": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipCongestion": "• Check for network congestion",
+  "@scoreHealthTipCongestion": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "scoreHealthTipRestart": "• Restart your router if needed",
+  "@scoreHealthTipRestart": {
+    "description": "Bullets in the Wi-Fi tips dialog."
+  },
+  "commonGotIt": "Got it",
+  "@scoreHealthTipsDismiss": {
+    "description": "Dismiss action of the Wi-Fi tips dialog."
+  },
+  "scoreLevelGood": "Good",
+  "@scoreLevelGood": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelModerate": "Moderate",
+  "@scoreLevelModerate": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelPoor": "Needs Attention",
+  "@scoreLevelPoor": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelUnknown": "Unknown",
+  "@scoreLevelUnknown": {
+    "description": "Overall score level heading on the detail page."
+  },
+  "scoreLevelDescGood": "Your network is performing well across all dimensions.",
+  "@scoreLevelDescGood": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreLevelDescModerate": "Some areas of your network could use improvement.",
+  "@scoreLevelDescModerate": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreLevelDescPoor": "Your network has issues that should be addressed.",
+  "@scoreLevelDescPoor": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreLevelDescUnknown": "Run network tools to get your score.",
+  "@scoreLevelDescUnknown": {
+    "description": "Overall score descriptions on the detail page."
+  },
+  "scoreOutOf100": "out of 100",
+  "@scoreOutOf100": {
+    "description": "Caption under the number in the score gauge."
+  },
+  "scoreQuickAddTitle": "Quick Add Required Monitors",
+  "@scoreQuickAddTitle": {
+    "description": "Heading of the reliability quick-add block."
+  },
+  "scoreQuickAddSubtitle": "Add these monitors to get full reliability score:",
+  "@scoreQuickAddSubtitle": {
+    "description": "Explanation of the reliability quick-add block."
+  },
+  "scoreComputeFailed": "Failed to compute score: {error}",
+  "@scoreComputeFailed": {
+    "description": "Bloc failure message for a failed computation.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreRefreshFailed": "Failed to refresh score: {error}",
+  "@scoreRefreshFailed": {
+    "description": "Bloc failure message for a failed refresh.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreUpdateFailed": "Failed to update score: {error}",
+  "@scoreUpdateFailed": {
+    "description": "Bloc failure message for a failed update.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updatesReleaseChannel": "Release channel",
+  "@updatesReleaseChannel": {
+    "description": "Heading above the stable/beta radio card."
+  },
+  "updatesHowArrive": "How updates reach you",
+  "@updatesHowArrive": {
+    "description": "Heading of the per-platform update guidance card. Tests assert this string."
+  },
+  "updatesBetaDisclaimer": "Choosing beta makes Vernet report a pre-release as an update. Beta builds are tested on real networks by volunteers, so a scan can break until it is reported and fixed.",
+  "@updatesBetaDisclaimer": {
+    "description": "Warning under the release channel card."
+  },
+  "updatesCheckingStable": "Checking the stable releases.",
+  "@updatesCheckingStable": {
+    "description": "Caption on the version card when the stable channel is selected."
+  },
+  "updatesCheckingBeta": "Checking the beta releases.",
+  "@updatesCheckingBeta": {
+    "description": "Caption on the version card when the beta channel is selected."
+  },
+  "updatesCheckButton": "Check for updates",
+  "@updatesCheckButton": {
+    "description": "Action that runs an update check from the updates page."
+  },
+  "updatesChannelStable": "Stable",
+  "@updatesChannelStable": {
+    "description": "Release channel radio title."
+  },
+  "updatesChannelStableDesc": "Only versions that were promoted by hand",
+  "@updatesChannelStableDesc": {
+    "description": "Release channel radio subtitle."
+  },
+  "updatesChannelBeta": "Beta",
+  "@updatesChannelBeta": {
+    "description": "Release channel radio title."
+  },
+  "updatesChannelBetaDesc": "Include the newest pre-release",
+  "@updatesChannelBetaDesc": {
+    "description": "Release channel radio subtitle."
+  },
+  "updatesAutomaticHeading": "Automatic updates",
+  "@updatesAutomaticHeading": {
+    "description": "Heading inside the update guidance card."
+  },
+  "updatesBetaTestingHeading": "Beta testing",
+  "@updatesBetaTestingHeading": {
+    "description": "Heading inside the update guidance card."
+  },
+  "updatesCannotChangeNote": "Vernet cannot change any of that from inside the app.",
+  "@updatesCannotChangeNote": {
+    "description": "Closing note of the update guidance card."
+  },
+  "updatesCopyTooltip": "Copy",
+  "@updatesCopyTooltip": {
+    "description": "Tooltip of the button that copies the snap command."
+  },
+  "updatesCommandCopied": "Command copied",
+  "@updatesCommandCopied": {
+    "description": "Snackbar after copying the snap command."
+  },
+  "updatesPlayAuto": "Play updates Vernet by itself while \"Update apps automatically\" is on in the Play app.",
+  "@updatesPlayAuto": {
+    "description": "Guidance for the Google Play build: what keeps it current."
+  },
+  "updatesPlayBetaHow": "Beta builds go to a Play test track first. Joining it switches this install over and you keep updating through Play.",
+  "@updatesPlayBetaHow": {
+    "description": "Guidance for the Google Play build: how to get betas."
+  },
+  "updatesPlayBetaLink": "Join the beta on Google Play",
+  "@updatesPlayBetaLink": {
+    "description": "Link label on the Google Play build."
+  },
+  "updatesFdroidAuto": "F-Droid refreshes its index and updates Vernet with it unless automatic updates are turned off.",
+  "@updatesFdroidAuto": {
+    "description": "Guidance for an F-Droid install: what keeps it current."
+  },
+  "updatesFdroidBetaHow": "F-Droid only publishes stable. Pre-release APKs are on GitHub and are built to install beside this one.",
+  "@updatesFdroidBetaHow": {
+    "description": "Guidance for an F-Droid install: how to get betas. Tests assert that this mentions F-Droid."
+  },
+  "updatesFdroidBetaLink": "Pre-release APKs on GitHub",
+  "@updatesFdroidBetaLink": {
+    "description": "Link label on an F-Droid install."
+  },
+  "updatesSnapAuto": "snapd refreshes a snap on its own, a couple of times a day, from whichever channel it was installed from.",
+  "@updatesSnapAuto": {
+    "description": "Guidance for the snap build: what keeps it current."
+  },
+  "updatesSnapBetaHow": "The channel belongs to snapd, not to Vernet, so this command has to be run once yourself.",
+  "@updatesSnapBetaHow": {
+    "description": "Guidance for the snap build: how to get betas; followed by the command itself."
+  },
+  "updatesSnapLink": "Vernet in the Snap Store",
+  "@updatesSnapLink": {
+    "description": "Link label on the snap build."
+  },
+  "updatesMicrosoftAuto": "The Microsoft Store updates Vernet by itself unless automatic app updates are off in the Store app.",
+  "@updatesMicrosoftAuto": {
+    "description": "Guidance for the Microsoft Store build: what keeps it current."
+  },
+  "updatesMicrosoftBetaHow": "There is no beta track for Windows. The only way to run a build early is the GitHub pre-release zip or .msixbundle.",
+  "@updatesMicrosoftBetaHow": {
+    "description": "Guidance for the Microsoft Store build: why there is no switch."
+  },
+  "updatesPreReleaseLink": "Pre-release builds on GitHub",
+  "@updatesPreReleaseLink": {
+    "description": "Link label where a beta means downloading a GitHub pre-release."
+  },
+  "updatesNoStoreAuto": "This platform has no store build, so nothing updates Vernet for you.",
+  "@updatesNoStoreAuto": {
+    "description": "Guidance on a platform with no store build: what keeps it current."
+  },
+  "updatesNoBetaHow": "There is no beta channel here. A pre-release has to be downloaded and installed by hand.",
+  "@updatesNoBetaHow": {
+    "description": "Guidance on a platform without a beta channel."
+  },
+  "updatesReleasesLink": "Releases on GitHub",
+  "@updatesReleasesLink": {
+    "description": "Link label on a platform with no store build."
+  },
+  "updatesAvailable": "A newer version is available",
+  "@updatesAvailable": {
+    "description": "Snackbar when the update check finds a release."
+  },
+  "updatesGetUpdate": "Get update",
+  "@updatesGetUpdate": {
+    "description": "Snackbar action that opens the store or the release page."
+  },
+  "updatesUpToDate": "You are using the latest version",
+  "@updatesUpToDate": {
+    "description": "Snackbar when a manual check finds nothing newer."
+  },
+  "updatesNeedInternet": "Allow internet access in Settings to check for updates.",
+  "@updatesNeedInternet": {
+    "description": "Snackbar when a check was skipped because networking is off."
+  },
+  "donateIntroAds": "Vernet is free and open source under Apache-2.0, with no paid features. Donations pay for the devices, testing and development time behind every release.",
+  "@donateIntroAds": {
+    "description": "Intro of the support page on the Android build, which carries ads and so cannot claim to be ad-free."
+  },
+  "donateIntroNoAds": "Vernet is free and open source under Apache-2.0, with no ads and no paid features. Donations pay for the devices, testing and development time behind every release.",
+  "@donateIntroNoAds": {
+    "description": "Intro of the support page on every build without ads."
+  },
+  "donateLiberapayTitle": "Donate on Liberapay",
+  "@donateLiberapayTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateLiberapayDesc": "Recurring or one-time, by card, SEPA or PayPal",
+  "@donateLiberapayDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateKofiTitle": "Buy me a coffee on Ko-fi",
+  "@donateKofiTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateKofiDesc": "One-time payment, no account needed",
+  "@donateKofiDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateStarTitle": "Star Vernet on GitHub",
+  "@donateStarTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateStarDesc": "Costs nothing, and it helps others find the app",
+  "@donateStarDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateRatePlayTitle": "Rate Vernet on Google Play",
+  "@donateRatePlayTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateRatePlayDesc": "Ratings are how a free app gets discovered",
+  "@donateRatePlayDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateRateStoreTitle": "Review Vernet on the Microsoft Store",
+  "@donateRateStoreTitle": {
+    "description": "Titles on the support page channels."
+  },
+  "donateRateStoreDesc": "Reviews are how a Store app gets found",
+  "@donateRateStoreDesc": {
+    "description": "Subtitles on the support page channels."
+  },
+  "donateCommunityNote": "Reporting bugs and answering discussions are support too — the app is maintained by one person who reads them.",
+  "@donateCommunityNote": {
+    "description": "Closing note of the support page."
+  },
+  "whatsNewDialogTitle": "What's New",
+  "@whatsNewDialogTitle": {
+    "description": "Title of the release-notes dialog."
+  },
+  "whatsNewEmpty": "No release notes available for this version.",
+  "@whatsNewEmpty": {
+    "description": "Body of the release-notes dialog when the running version has no entry."
+  },
+  "changelogLinuxDatabaseIncluded": "Linux downloads carry the database library they need",
+  "@changelogLinuxDatabaseIncluded": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogNothingElseChanged": "Nothing changed for Android, macOS and Windows in this release",
+  "@changelogNothingElseChanged": {
+    "description": "What's New release-note bullet."
+  },
+  "commonCouldNotLaunch": "Could not launch {url}",
+  "@commonCouldNotLaunch": {
+    "description": "Error text when the operating system refuses to open a link.",
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "updateChannelTitle": "Where to get the update",
+  "@updateChannelTitle": {
+    "description": "Title of the dialog that asks whether to update from GitHub or the store."
+  },
+  "updateChannelGithubBody": "GitHub carries a new version the day it ships, so it is the fastest way to get features and fixes.",
+  "@updateChannelGithubBody": {
+    "description": "Body of the update-channel dialog, explaining why GitHub is first."
+  },
+  "updateChannelStoresBody": "Stores get it later: every release has to be tested and published by hand, and the store reviews it again before it reaches you.",
+  "@updateChannelStoresBody": {
+    "description": "Body of the update-channel dialog for a platform whose store is not named."
+  },
+  "updateChannelStoreBody": "{store} gets it only once that release is tested, published and approved there, which can take a few days.",
+  "@updateChannelStoreBody": {
+    "description": "Body of the update-channel dialog naming this platform's store.",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "devicePortScanTooltip": "Look for reachable services on this device",
+  "@devicePortScanTooltip": {
+    "description": "Tooltip on the port-scan button in the device list."
+  },
+  "wakeOnLanTooltip": "Send a Wake-on-LAN packet to this device",
+  "@wakeOnLanTooltip": {
+    "description": "Tooltip on the wake button in the device list."
+  },
+  "serverCheckerHostHint": "example.com or 192.168.1.1",
+  "@serverCheckerHostHint": {
+    "description": "Example shown inside the host field when adding a monitored server."
+  },
+  "externalLinkTitle": "Open this link?",
+  "@externalLinkTitle": {
+    "description": "Title of the warning shown before an outside link is opened."
+  },
+  "externalLinkOpen": "Open link",
+  "@externalLinkOpen": {
+    "description": "Button that lets the dialog hand the link to the browser."
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Label of the button that applies a settings dialog."
+  },
+  "deviceTypePrinter": "Printer",
+  "@deviceTypePrinter": {
+    "description": "Device type the scanner infers from IPP or JetDirect ports."
+  },
+  "deviceTypeNas": "NAS",
+  "@deviceTypeNas": {
+    "description": "Device type the scanner infers from FTP plus SMB ports."
+  },
+  "settingsValueRequired": "Please enter a value",
+  "@settingsValueRequired": {
+    "description": "Form error shown when a settings field is left empty."
+  },
+  "settingsNaturalNumber": "Should be a natural number",
+  "@settingsNaturalNumber": {
+    "description": "Form error shown when a settings value is zero or negative."
+  },
+  "settingsValueNaturalNumber": "Value must be a natural number",
+  "@settingsValueNaturalNumber": {
+    "description": "Form error shown when a subnet range value is zero or negative."
+  },
+  "settingsMustBeNumber": "Must be a number",
+  "@settingsMustBeNumber": {
+    "description": "Form error shown when a numeric settings value cannot be parsed."
+  },
+  "settingsAfterStart": "Choose a value after the search start",
+  "@settingsAfterStart": {
+    "description": "Form error shown when the last host of a scan range is below the first host."
+  },
+  "settingsBeforeEnd": "Choose a value before the search end",
+  "@settingsBeforeEnd": {
+    "description": "Form error shown when the first host of a scan range is above the last host."
+  },
+  "netStepsHeading": "Troubleshooting Steps",
+  "@netStepsHeading": {
+    "description": "Heading above the fix-it list in the connection details dialog."
+  }
+}

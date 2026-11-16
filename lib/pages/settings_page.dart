@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/onboarding/whats_new_page.dart';
 import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
@@ -15,9 +17,10 @@ import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/ping_count_dialog.dart';
 import 'package:vernet/ui/settings_dialog/socket_timeout_dialog.dart';
 import 'package:vernet/ui/settings_dialog/theme_dialog.dart';
+import 'package:vernet/utils/app_strings.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
-import 'package:vernet/values/strings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -30,14 +33,20 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
+    final localeChange = Provider.of<LocaleProvider>(context);
+    final l10n = context.l10n;
     return SingleChildScrollView(
       child: Column(
         children: [
           Card(
             child: ListTile(
               key: WidgetKey.changeThemeTile.key,
-              title: const Text('Theme'),
-              subtitle: Text(themeChange.themePref.name),
+              title: Text(l10n.themeTitle),
+              subtitle: Text(switch (themeChange.themePref) {
+                ThemePreference.system => l10n.themeSystem,
+                ThemePreference.dark => l10n.themeDark,
+                ThemePreference.light => l10n.themeLight,
+              }),
               onTap: () async {
                 await showDialog(
                   context: context,
@@ -50,7 +59,35 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Card(
             child: ListTile(
-              title: const Text('In-App Internet'),
+              key: WidgetKey.languageTile.key,
+              title: Text(l10n.languageTitle),
+              subtitle: Text(l10n.languageDesc),
+              trailing: DropdownButton<Locale?>(
+                value: localeChange.locale,
+                underline: const SizedBox.shrink(),
+                items: [
+                  // No value means follow the system language.
+                  DropdownMenuItem(
+                    child: Text(
+                      l10n.languageSystemDefault(
+                        languageName(systemDefaultLocale()),
+                      ),
+                    ),
+                  ),
+                  ...AppLocalizations.supportedLocales.map(
+                    (locale) => DropdownMenuItem(
+                      value: locale,
+                      child: Text(languageName(locale)),
+                    ),
+                  ),
+                ],
+                onChanged: (locale) => localeChange.locale = locale,
+              ),
+            ),
+          ),
+          Card(
+            child: ListTile(
+              title: Text(l10n.inAppInternetTitle),
               trailing: Switch(
                 key: WidgetKey.inAppInternetSwitch.key,
                 value: appSettings.inAppInternet,
@@ -65,8 +102,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.firstSubnetTile.key,
-              title: const Text(StringValue.firstSubnet),
-              subtitle: const Text(StringValue.firstSubnetDesc),
+              title: Text(l10n.firstSubnet),
+              subtitle: Text(l10n.firstSubnetDesc),
               trailing: Text(
                 '${appSettings.firstSubnet}',
                 style: Theme.of(context)
@@ -87,8 +124,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.lastSubnetTile.key,
-              title: const Text(StringValue.lastSubnet),
-              subtitle: const Text(StringValue.lastSubnetDesc),
+              title: Text(l10n.lastSubnet),
+              subtitle: Text(l10n.lastSubnetDesc),
               trailing: Text(
                 '${appSettings.lastSubnet}',
                 style: Theme.of(context)
@@ -109,8 +146,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.socketTimeoutTile.key,
-              title: const Text(StringValue.socketTimeout),
-              subtitle: const Text(StringValue.socketTimeoutdesc),
+              title: Text(l10n.socketTimeout),
+              subtitle: Text(l10n.socketTimeoutDesc),
               trailing: Text(
                 '${appSettings.socketTimeout} ms',
                 style: Theme.of(context)
@@ -131,8 +168,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.pingCountTile.key,
-              title: const Text(StringValue.pingCount),
-              subtitle: const Text(StringValue.pingCountDesc),
+              title: Text(l10n.pingCount),
+              subtitle: Text(l10n.pingCountDesc),
               trailing: Text(
                 '${appSettings.pingCount}',
                 style: Theme.of(context)
@@ -153,8 +190,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: ListTile(
               key: WidgetKey.customSubnetTile.key,
-              title: const Text(StringValue.customSubnet),
-              subtitle: const Text(StringValue.customSubnetDesc),
+              title: Text(l10n.customSubnet),
+              subtitle: Text(l10n.customSubnetDesc),
               trailing: Text(
                 appSettings.customSubnet,
                 style: Theme.of(context)
@@ -175,7 +212,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: AdaptiveListTile(
               key: WidgetKey.whatsNewSettingsTile.key,
-              title: const Text("What's new"),
+              title: Text(l10n.whatsNewTitle),
               trailing: Icon(
                 Icons.chevron_right,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -186,8 +223,8 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             child: AdaptiveListTile(
               key: WidgetKey.donateSettingsTile.key,
-              title: const Text('Support Vernet'),
-              subtitle: const Text('Donations, stars and ratings'),
+              title: Text(l10n.navSupport),
+              subtitle: Text(l10n.supportVernetDesc),
               trailing: Icon(
                 Icons.chevron_right,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -206,9 +243,8 @@ class _SettingsPageState extends State<SettingsPage> {
             Card(
               child: AdaptiveListTile(
                 key: WidgetKey.updateSettingsTile.key,
-                title: const Text('Updates & beta'),
-                subtitle: const Text('Channel, automatic updates, pre-release '
-                    'builds'),
+                title: Text(l10n.updatesTitle),
+                subtitle: Text(l10n.updatesDesc),
                 trailing: Icon(
                   Icons.chevron_right,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -227,8 +263,8 @@ class _SettingsPageState extends State<SettingsPage> {
             Card(
               child: AdaptiveListTile(
                 key: WidgetKey.rateAppTile.key,
-                title: const Text('Rate Vernet'),
-                subtitle: const Text('Opens Google Play'),
+                title: Text(l10n.rateAppTitle),
+                subtitle: Text(l10n.rateAppDesc),
                 trailing: Icon(
                   Icons.star_border,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -238,7 +274,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           Card(
             child: ListTile(
-              title: const Text('About'),
+              title: Text(l10n.aboutTitle),
               onTap: () async {
                 final info = await PackageInfo.fromPlatform();
                 if (!context.mounted) return;
@@ -250,14 +286,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.bug_report),
-                      title: const Text('Report Issues'),
+                      title: Text(l10n.reportIssuesTitle),
                       onTap: () {
                         launchURLWithWarning(context, _issueUrl);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.favorite),
-                      title: const Text('Donate'),
+                      title: Text(l10n.donateTitle),
                       onTap: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).push(
@@ -269,14 +305,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.code),
-                      title: const Text('Source Code'),
+                      title: Text(l10n.sourceCodeTitle),
                       onTap: () {
                         launchURLWithWarning(context, _srcUrl);
                       },
                     ),
-                    const ListTile(
+                    ListTile(
                       title: Text(
-                        'Made with ❤️ in India',
+                        l10n.madeInIndia,
                         textAlign: TextAlign.center,
                       ),
                     ),

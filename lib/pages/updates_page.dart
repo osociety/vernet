@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:vernet/api/update_checker.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/adaptive_radio.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/store_links.dart';
@@ -32,6 +34,9 @@ class UpdateGuidance {
 
   /// The one step that moves this install onto beta.
   final String betaHowTo;
+
+  /// Both are resolved through the language the page renders in, which is why
+  /// [guidanceFor] takes the bundle instead of holding const prose.
   final String? betaLinkLabel;
   final String? betaLinkUrl;
 
@@ -56,58 +61,48 @@ class UpdatesPage extends StatefulWidget {
   static UpdateGuidance guidanceFor({
     required String os,
     required bool isStoreBuild,
+    required AppLocalizations l10n,
   }) {
     switch (os) {
       case 'android':
         return isStoreBuild
-            ? const UpdateGuidance(
+            ? UpdateGuidance(
                 hasBeta: true,
-                autoUpdate: 'Play updates Vernet by itself while "Update apps '
-                    'automatically" is on in the Play app.',
-                betaHowTo: 'Beta builds go to a Play test track first. Joining '
-                    'it switches this install over and you keep updating '
-                    'through Play.',
-                betaLinkLabel: 'Join the beta on Google Play',
+                autoUpdate: l10n.updatesPlayAuto,
+                betaHowTo: l10n.updatesPlayBetaHow,
+                betaLinkLabel: l10n.updatesPlayBetaLink,
                 betaLinkUrl: playBetaOptInUrl,
               )
-            : const UpdateGuidance(
+            : UpdateGuidance(
                 hasBeta: true,
-                autoUpdate: 'F-Droid refreshes its index and updates Vernet '
-                    'with it unless automatic updates are turned off.',
-                betaHowTo: 'F-Droid only publishes stable. Pre-release APKs '
-                    'are on GitHub and are built to install beside this one.',
-                betaLinkLabel: 'Pre-release APKs on GitHub',
+                autoUpdate: l10n.updatesFdroidAuto,
+                betaHowTo: l10n.updatesFdroidBetaHow,
+                betaLinkLabel: l10n.updatesFdroidBetaLink,
                 betaLinkUrl: githubReleasesUrl,
               );
       case 'linux':
-        return const UpdateGuidance(
+        return UpdateGuidance(
           hasBeta: true,
-          autoUpdate: 'snapd refreshes a snap on its own, a couple of times a '
-              'day, from whichever channel it was installed from.',
-          betaHowTo: 'The channel belongs to snapd, not to Vernet, so this '
-              'command has to be run once yourself.',
-          betaLinkLabel: 'Vernet in the Snap Store',
+          autoUpdate: l10n.updatesSnapAuto,
+          betaHowTo: l10n.updatesSnapBetaHow,
+          betaLinkLabel: l10n.updatesSnapLink,
           betaLinkUrl: snapStoreListingUrl,
           copyCommand: 'sudo snap refresh vernet --channel=beta',
         );
       case 'windows':
-        return const UpdateGuidance(
+        return UpdateGuidance(
           hasBeta: false,
-          autoUpdate: 'The Microsoft Store updates Vernet by itself unless '
-              'automatic app updates are off in the Store app.',
-          betaHowTo: 'There is no beta track for Windows. The only way to run '
-              'a build early is the GitHub pre-release zip or .msixbundle.',
-          betaLinkLabel: 'Pre-release builds on GitHub',
+          autoUpdate: l10n.updatesMicrosoftAuto,
+          betaHowTo: l10n.updatesMicrosoftBetaHow,
+          betaLinkLabel: l10n.updatesPreReleaseLink,
           betaLinkUrl: githubReleasesUrl,
         );
       default:
-        return const UpdateGuidance(
+        return UpdateGuidance(
           hasBeta: false,
-          autoUpdate: 'This platform has no store build, so nothing updates '
-              'Vernet for you.',
-          betaHowTo: 'There is no beta channel here. A pre-release has to be '
-              'downloaded and installed by hand.',
-          betaLinkLabel: 'Releases on GitHub',
+          autoUpdate: l10n.updatesNoStoreAuto,
+          betaHowTo: l10n.updatesNoBetaHow,
+          betaLinkLabel: l10n.updatesReleasesLink,
           betaLinkUrl: githubReleasesUrl,
         );
     }
@@ -149,12 +144,14 @@ class _UpdatesPageState extends State<UpdatesPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final guidance = UpdatesPage.guidanceFor(
       os: Platform.operatingSystem,
       isStoreBuild: kStoreBuild,
+      l10n: l10n,
     );
     return Scaffold(
-      appBar: AppBar(title: const Text('Updates & beta')),
+      appBar: AppBar(title: Text(l10n.updatesTitle)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
@@ -164,23 +161,20 @@ class _UpdatesPageState extends State<UpdatesPage> {
               _versionCard(context),
               if (guidance.hasBeta) ...[
                 const SizedBox(height: 16),
-                Text('Release channel',
+                Text(l10n.updatesReleaseChannel,
                     style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 4),
                 _channelCard(context),
               ],
               const SizedBox(height: 16),
-              Text('How updates reach you',
+              Text(l10n.updatesHowArrive,
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 4),
               _guidanceCard(context, guidance),
               if (guidance.hasBeta) ...[
                 const SizedBox(height: 12),
                 Text(
-                  'Choosing beta makes Vernet report a pre-release as an '
-                  'update. Beta builds are tested on real networks by '
-                  'volunteers, so a scan can break until it is reported and '
-                  'fixed.',
+                  l10n.updatesBetaDisclaimer,
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
@@ -195,6 +189,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
   }
 
   Widget _versionCard(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -209,7 +204,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Checking the ${_beta ? 'beta' : 'stable'} releases.',
+              _beta ? l10n.updatesCheckingBeta : l10n.updatesCheckingStable,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
@@ -218,7 +213,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
               key: WidgetKey.checkForUpdatesButton.key,
               onPressed: () => checkForUpdates(context, showIfNoUpdate: true),
               icon: const Icon(Icons.refresh),
-              label: const Text('Check for updates'),
+              label: Text(l10n.updatesCheckButton),
             ),
           ],
         ),
@@ -227,13 +222,14 @@ class _UpdatesPageState extends State<UpdatesPage> {
   }
 
   Widget _channelCard(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       child: Column(
         children: [
           AdaptiveListTile(
             key: WidgetKey.updateStableTile.key,
-            title: const Text('Stable'),
-            subtitle: const Text('Only versions that were promoted by hand'),
+            title: Text(l10n.updatesChannelStable),
+            subtitle: Text(l10n.updatesChannelStableDesc),
             trailing: AdaptiveRadioButton<bool>(
               value: false,
               groupValue: _beta,
@@ -245,8 +241,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
           ),
           AdaptiveListTile(
             key: WidgetKey.updateBetaTile.key,
-            title: const Text('Beta'),
-            subtitle: const Text('Include the newest pre-release'),
+            title: Text(l10n.updatesChannelBeta),
+            subtitle: Text(l10n.updatesChannelBetaDesc),
             trailing: AdaptiveRadioButton<bool>(
               value: true,
               groupValue: _beta,
@@ -263,18 +259,20 @@ class _UpdatesPageState extends State<UpdatesPage> {
 
   Widget _guidanceCard(BuildContext context, UpdateGuidance guidance) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Automatic updates',
+            Text(l10n.updatesAutomaticHeading,
                 style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 4),
             Text(guidance.autoUpdate),
             const SizedBox(height: 12),
-            Text('Beta testing', style: Theme.of(context).textTheme.titleSmall),
+            Text(l10n.updatesBetaTestingHeading,
+                style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 4),
             Text(guidance.betaHowTo),
             if (guidance.copyCommand != null) ...[
@@ -294,7 +292,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
             ],
             const SizedBox(height: 8),
             Text(
-              'Vernet cannot change any of that from inside the app.',
+              l10n.updatesCannotChangeNote,
               style: Theme.of(context)
                   .textTheme
                   .bodySmall
@@ -307,6 +305,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
   }
 
   Widget _commandRow(BuildContext context, String command) {
+    final l10n = context.l10n;
     return Row(
       children: [
         Expanded(
@@ -324,13 +323,13 @@ class _UpdatesPageState extends State<UpdatesPage> {
         ),
         IconButton(
           key: WidgetKey.updateCopyCommandButton.key,
-          tooltip: 'Copy',
+          tooltip: l10n.updatesCopyTooltip,
           icon: const Icon(Icons.copy),
           onPressed: () async {
             await Clipboard.setData(ClipboardData(text: command));
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Command copied')),
+              SnackBar(content: Text(l10n.updatesCommandCopied)),
             );
           },
         ),

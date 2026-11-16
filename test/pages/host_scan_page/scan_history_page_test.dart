@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
@@ -93,6 +94,8 @@ void main() {
     await tester.pumpWidget(
       wrapWithDarkThemeProvider(
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: ScanHistoryPage(
             scanRepository: scanRepo,
             deviceRepository: deviceRepo,
@@ -220,6 +223,8 @@ void main() {
     await tester.pumpWidget(
       wrapWithDarkThemeProvider(
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: ScanHistoryPage(
             scanRepository: ScanRepository(emptyService),
             deviceRepository: DeviceRepository(emptyService),

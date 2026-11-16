@@ -2,29 +2,29 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:vernet/models/subnet_calculation.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 class SubnetCalculatorService {
   const SubnetCalculatorService();
 
   SubnetCalculation calculate(String input) {
+    final l10n = appStrings();
     final value = input.trim();
     final slash = value.lastIndexOf('/');
     if (slash <= 0 || slash == value.length - 1) {
-      throw const FormatException(
-        'Enter an IP address followed by a prefix, such as 192.168.1.10/24.',
-      );
+      throw FormatException(l10n.subnetCalcErrorNoPrefix);
     }
 
     final addressText = value.substring(0, slash).trim();
     final prefixText = value.substring(slash + 1).trim();
     final prefix = int.tryParse(prefixText);
     if (prefix == null) {
-      throw const FormatException('The prefix must be a number.');
+      throw FormatException(l10n.subnetCalcErrorPrefixNotNumber);
     }
 
     final address = InternetAddress.tryParse(addressText);
     if (address == null) {
-      throw const FormatException('Enter a valid IPv4 or IPv6 address.');
+      throw FormatException(l10n.subnetCalcErrorAddressInvalid);
     }
 
     if (address.type == InternetAddressType.IPv4) {
@@ -33,12 +33,13 @@ class SubnetCalculatorService {
     if (address.type == InternetAddressType.IPv6) {
       return _calculateIpv6(address.rawAddress, prefix);
     }
-    throw const FormatException('Enter a valid IPv4 or IPv6 address.');
+    throw FormatException(l10n.subnetCalcErrorAddressInvalid);
   }
 
   SubnetCalculation _calculateIpv4(List<int> bytes, int prefix) {
+    final l10n = appStrings();
     if (prefix < 0 || prefix > 32) {
-      throw const FormatException('IPv4 prefixes must be between 0 and 32.');
+      throw FormatException(l10n.subnetCalcErrorIpv4PrefixRange);
     }
     final address = _toBigInt(bytes);
     final all = (BigInt.one << 32) - BigInt.one;
@@ -63,8 +64,9 @@ class SubnetCalculatorService {
   }
 
   SubnetCalculation _calculateIpv6(List<int> bytes, int prefix) {
+    final l10n = appStrings();
     if (prefix < 0 || prefix > 128) {
-      throw const FormatException('IPv6 prefixes must be between 0 and 128.');
+      throw FormatException(l10n.subnetCalcErrorIpv6PrefixRange);
     }
     final address = _toBigInt(bytes);
     final all = (BigInt.one << 128) - BigInt.one;

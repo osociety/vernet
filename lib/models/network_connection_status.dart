@@ -1,3 +1,5 @@
+import 'package:vernet/utils/app_strings.dart';
+
 enum NetworkConnectionState {
   connected,
   disconnected,
@@ -39,8 +41,8 @@ class NetworkConnectionStatus {
   bool get isChecking => state == NetworkConnectionState.checking;
 
   String get label => switch (state) {
-        NetworkConnectionState.connected => 'Connected',
-        NetworkConnectionState.disconnected => 'Disconnected',
-        NetworkConnectionState.checking => 'Checking…',
+        NetworkConnectionState.connected => appStrings().netConnected,
+        NetworkConnectionState.disconnected => appStrings().netDisconnected,
+        NetworkConnectionState.checking => appStrings().netChecking,
       };
 }

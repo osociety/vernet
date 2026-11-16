@@ -3,12 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/utils/device_util.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class ScanHistoryPage extends StatefulWidget {
   const ScanHistoryPage({
@@ -58,10 +59,10 @@ class _ScanHistoryPageState extends State<ScanHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(StringValue.previousScansTitle),
+        title: Text(context.l10n.previousScansTitle),
         actions: [
           IconButton(
-            tooltip: StringValue.scanHistoryRefresh,
+            tooltip: context.l10n.scanHistoryRefresh,
             onPressed: _reload,
             icon: const Icon(Icons.refresh),
           ),
@@ -75,7 +76,7 @@ class _ScanHistoryPageState extends State<ScanHistoryPage> {
           }
           if (snapshot.hasError) {
             return _MessageView(
-              message: StringValue.scanHistoryLoadError,
+              message: context.l10n.scanHistoryLoadError,
               onRetry: _reload,
             );
           }
@@ -150,7 +151,7 @@ class _ScanActivityOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            StringValue.scanHistoryOverviewTitle.toUpperCase(),
+            context.l10n.scanHistoryOverviewTitle.toUpperCase(),
             style: textTheme.labelSmall?.copyWith(
               color: colors.onSurfaceVariant,
               letterSpacing: 1.2,
@@ -163,22 +164,22 @@ class _ScanActivityOverview extends StatelessWidget {
             children: [
               Expanded(
                 child: _OverviewStat(
-                  label: StringValue.scanHistoryScansLabel,
+                  label: context.l10n.scanHistoryScansLabel,
                   value: '${summaries.length}',
                 ),
               ),
               const _OverviewDivider(),
               Expanded(
                 child: _OverviewStat(
-                  label: StringValue.scanHistoryDevicesFoundLabel,
+                  label: context.l10n.scanHistoryDevicesFoundLabel,
                   value: '$totalDevices',
                 ),
               ),
               const _OverviewDivider(),
               Expanded(
                 child: _OverviewStat(
-                  label: StringValue.scanHistoryLatestScanLabel,
-                  value: _relativeTime(latestScan),
+                  label: context.l10n.scanHistoryLatestScanLabel,
+                  value: _relativeTime(context.l10n, latestScan),
                 ),
               ),
             ],
@@ -191,7 +192,7 @@ class _ScanActivityOverview extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    StringValue.scanHistoryDevicesPerScanLabel,
+                    context.l10n.scanHistoryDevicesPerScanLabel,
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -274,7 +275,7 @@ class _ScanActivityBars extends StatelessWidget {
 
     return Semantics(
       label:
-          '${StringValue.scanHistoryDevicesPerScanLabel}: ${counts.join(', ')}',
+          '${context.l10n.scanHistoryDevicesPerScanLabel}: ${counts.join(', ')}',
       excludeSemantics: true,
       child: SizedBox(
         height: 34,
@@ -335,7 +336,7 @@ class _ScanHistoryPanel extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    StringValue.scanHistoryListTitle,
+                    context.l10n.scanHistoryListTitle,
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -389,7 +390,7 @@ class _ScanTableHeader extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 52),
               child: Text(
-                StringValue.scanHistoryNetworkColumn.toUpperCase(),
+                context.l10n.scanHistoryNetworkColumn.toUpperCase(),
                 style: style,
               ),
             ),
@@ -397,28 +398,28 @@ class _ScanTableHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              StringValue.scanHistoryStartedColumn.toUpperCase(),
+              context.l10n.scanHistoryStartedColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              StringValue.scanHistoryDurationColumn.toUpperCase(),
+              context.l10n.scanHistoryDurationColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              StringValue.scanHistoryDevicesColumn.toUpperCase(),
+              context.l10n.scanHistoryDevicesColumn.toUpperCase(),
               style: style,
             ),
           ),
           SizedBox(
             width: 104,
             child: Text(
-              StringValue.scanHistoryStatusColumn.toUpperCase(),
+              context.l10n.scanHistoryStatusColumn.toUpperCase(),
               style: style,
             ),
           ),
@@ -441,7 +442,8 @@ class _DesktopScanRow extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final scan = summary.scan;
     final inProgress = scan.onGoing == true;
-    final duration = _formatDuration(scan.startTime, scan.endTime);
+    final duration =
+        _formatDuration(context.l10n, scan.startTime, scan.endTime);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -459,13 +461,13 @@ class _DesktopScanRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Network ${scan.gatewayIp}',
+                          context.l10n.scanHistoryNetwork(scan.gatewayIp),
                           style: textTheme.titleSmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          _relativeTime(scan.startTime),
+                          _relativeTime(context.l10n, scan.startTime),
                           style: textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
@@ -479,7 +481,7 @@ class _DesktopScanRow extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Text(
-                _formatTimestamp(scan.startTime),
+                _formatTimestamp(context.l10n, scan.startTime),
                 style: textTheme.bodyMedium,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -534,10 +536,11 @@ class _MobileScanRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scan = summary.scan;
     final inProgress = scan.onGoing == true;
-    final duration = _formatDuration(scan.startTime, scan.endTime);
+    final duration =
+        _formatDuration(context.l10n, scan.startTime, scan.endTime);
     return AdaptiveListTile(
       leading: _ScanAvatar(inProgress: inProgress),
-      title: Text('Network ${scan.gatewayIp}'),
+      title: Text(context.l10n.scanHistoryNetwork(scan.gatewayIp)),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 6),
         child: Wrap(
@@ -546,11 +549,11 @@ class _MobileScanRow extends StatelessWidget {
           children: [
             _MetaChip(
               icon: Icons.schedule,
-              label: _relativeTime(scan.startTime),
+              label: _relativeTime(context.l10n, scan.startTime),
             ),
             _MetaChip(
               icon: Icons.devices_other,
-              label: _deviceCountLabel(summary.deviceCount),
+              label: _deviceCountLabel(context.l10n, summary.deviceCount),
             ),
             if (duration.isNotEmpty)
               _MetaChip(icon: Icons.timer_outlined, label: duration),
@@ -650,14 +653,14 @@ class _HistoryEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              StringValue.scanHistoryEmptyTitle,
+              context.l10n.scanHistoryEmptyTitle,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              StringValue.scanHistoryEmptyPlaceholder,
+              context.l10n.scanHistoryEmptyPlaceholder,
               textAlign: TextAlign.center,
               style: textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
@@ -667,7 +670,7 @@ class _HistoryEmptyState extends StatelessWidget {
             FilledButton.tonalIcon(
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh),
-              label: const Text(StringValue.scanHistoryRefresh),
+              label: Text(context.l10n.scanHistoryRefresh),
             ),
           ],
         ),
@@ -704,7 +707,7 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(StringValue.scanReportTitle)),
+      appBar: AppBar(title: Text(context.l10n.scanReportTitle)),
       body: FutureBuilder<List<DeviceData>>(
         future: _devicesFuture,
         builder: (context, snapshot) {
@@ -712,7 +715,7 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return const Center(child: Text(StringValue.scanReportLoadError));
+            return Center(child: Text(context.l10n.scanReportLoadError));
           }
           final devices = snapshot.data ?? const <DeviceData>[];
           return _ResponsiveBody(
@@ -806,7 +809,8 @@ class _ScanSummaryCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final inProgress = scan.onGoing == true;
-    final duration = _formatDuration(scan.startTime, scan.endTime);
+    final duration =
+        _formatDuration(context.l10n, scan.startTime, scan.endTime);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -826,14 +830,14 @@ class _ScanSummaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Network ${scan.gatewayIp}',
+                      context.l10n.scanHistoryNetwork(scan.gatewayIp),
                       style: textTheme.titleLarge,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       inProgress
-                          ? StringValue.scanReportInProgress
-                          : StringValue.scanReportCompleted,
+                          ? context.l10n.scanReportInProgress
+                          : context.l10n.scanReportCompleted,
                       style: textTheme.bodySmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
@@ -849,7 +853,7 @@ class _ScanSummaryCard extends StatelessWidget {
           Center(child: _ScanRadar(deviceCount: deviceCount)),
           const SizedBox(height: 16),
           Text(
-            '${_deviceCountLabel(deviceCount)} found',
+            _devicesFoundLabel(context.l10n, deviceCount),
             textAlign: TextAlign.center,
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
@@ -857,7 +861,7 @@ class _ScanSummaryCard extends StatelessWidget {
           Divider(color: colors.outlineVariant),
           const SizedBox(height: 12),
           Text(
-            StringValue.scanReportScanWindow.toUpperCase(),
+            context.l10n.scanReportScanWindow.toUpperCase(),
             style: textTheme.labelSmall?.copyWith(
               color: colors.onSurfaceVariant,
               letterSpacing: 1.2,
@@ -867,20 +871,20 @@ class _ScanSummaryCard extends StatelessWidget {
           const SizedBox(height: 8),
           _ScanTimelineRow(
             icon: Icons.play_arrow_rounded,
-            label: StringValue.scanReportStarted,
-            value: _formatTimestamp(scan.startTime),
+            label: context.l10n.scanReportStarted,
+            value: _formatTimestamp(context.l10n, scan.startTime),
           ),
           _ScanTimelineRow(
             icon: Icons.stop_rounded,
-            label: StringValue.scanReportEnded,
+            label: context.l10n.scanReportEnded,
             value: scan.endTime == null
-                ? StringValue.scanReportStillRunning
-                : _formatTimestamp(scan.endTime),
+                ? context.l10n.scanReportStillRunning
+                : _formatTimestamp(context.l10n, scan.endTime),
           ),
           if (duration.isNotEmpty)
             _ScanTimelineRow(
               icon: Icons.timer_outlined,
-              label: StringValue.scanReportDuration,
+              label: context.l10n.scanReportDuration,
               value: duration,
             ),
         ],
@@ -899,7 +903,7 @@ class _ScanRadar extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Semantics(
-      label: '${_deviceCountLabel(deviceCount)} found',
+      label: _devicesFoundLabel(context.l10n, deviceCount),
       excludeSemantics: true,
       child: SizedBox(
         width: 196,
@@ -929,8 +933,8 @@ class _ScanRadar extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   (deviceCount == 1
-                          ? StringValue.scanReportDeviceLabel
-                          : StringValue.scanReportDevicesLabel)
+                          ? context.l10n.scanReportDeviceLabel
+                          : context.l10n.scanReportDevicesLabel)
                       .toUpperCase(),
                   style: textTheme.labelSmall?.copyWith(
                     color: colors.onSurfaceVariant,
@@ -1089,7 +1093,7 @@ class _DeviceResultsPanel extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    StringValue.scanReportDiscoveredDevices,
+                    context.l10n.scanReportDiscoveredDevices,
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -1111,8 +1115,8 @@ class _DeviceResultsPanel extends StatelessWidget {
                     color: colors.onSurfaceVariant,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    StringValue.scanReportNoDevices,
+                  Text(
+                    context.l10n.scanReportNoDevices,
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -1163,7 +1167,7 @@ class _DeviceTableHeader extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 52),
               child: Text(
-                StringValue.scanReportDeviceColumn.toUpperCase(),
+                context.l10n.scanReportDeviceColumn.toUpperCase(),
                 style: style,
               ),
             ),
@@ -1171,21 +1175,21 @@ class _DeviceTableHeader extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Text(
-              StringValue.scanReportVendorColumn.toUpperCase(),
+              context.l10n.scanReportVendorColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
-              StringValue.scanReportIpColumn.toUpperCase(),
+              context.l10n.scanReportIpColumn.toUpperCase(),
               style: style,
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
-              StringValue.scanReportMacColumn.toUpperCase(),
+              context.l10n.scanReportMacColumn.toUpperCase(),
               style: style,
             ),
           ),
@@ -1225,8 +1229,11 @@ class _DesktopDeviceRow extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      DeviceUtil.getDeviceMake(device) ??
-                          StringValue.unknownDevice,
+                      DeviceUtil.makeLabel(
+                            context.l10n,
+                            DeviceUtil.getDeviceMake(device),
+                          ) ??
+                          context.l10n.unknownDevice,
                       style: textTheme.titleSmall,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1289,7 +1296,11 @@ class _MobileDeviceRow extends StatelessWidget {
     return AdaptiveListTile(
       leading: _DeviceAvatar(device: device),
       title: Text(
-        DeviceUtil.getDeviceMake(device) ?? StringValue.unknownDevice,
+        DeviceUtil.makeLabel(
+              context.l10n,
+              DeviceUtil.getDeviceMake(device),
+            ) ??
+            context.l10n.unknownDevice,
       ),
       subtitle: Text(subtitle),
       onTap: onTap,
@@ -1373,8 +1384,8 @@ class _StatusChip extends StatelessWidget {
           Flexible(
             child: Text(
               inProgress
-                  ? StringValue.scanReportInProgress
-                  : StringValue.scanReportCompleted,
+                  ? context.l10n.scanReportInProgress
+                  : context.l10n.scanReportCompleted,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context)
@@ -1405,7 +1416,7 @@ class _MessageView extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: const Text('Try again')),
+            TextButton(onPressed: onRetry, child: Text(context.l10n.tryAgain)),
           ],
         ),
       ),
@@ -1420,59 +1431,62 @@ class _ScanSummary {
   final int deviceCount;
 }
 
-String _deviceCountLabel(int count) =>
-    '$count ${count == 1 ? 'device' : 'devices'}';
+String _devicesFoundLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.devicesFoundOne : l10n.devicesFoundMany('$count');
 
-String _relativeTime(DateTime? value) {
+String _deviceCountLabel(AppLocalizations l10n, int count) =>
+    count == 1 ? l10n.deviceCountOne : l10n.deviceCountMany('$count');
+
+String _relativeTime(AppLocalizations l10n, DateTime? value) {
   if (value == null) {
     return '—';
   }
   final local = value.toLocal();
   final difference = DateTime.now().difference(local);
   if (difference.isNegative || difference.inMinutes < 1) {
-    return 'just now';
+    return l10n.timeJustNow;
   }
   if (difference.inHours < 1) {
-    return '${difference.inMinutes}m ago';
+    return l10n.timeMinutesAgo('${difference.inMinutes}');
   }
   if (difference.inDays < 1) {
-    return '${difference.inHours}h ago';
+    return l10n.timeHoursAgo('${difference.inHours}');
   }
   if (difference.inDays < 7) {
-    return '${difference.inDays}d ago';
+    return l10n.timeDaysAgo('${difference.inDays}');
   }
-  return _formatShortDate(local);
+  return _formatShortDate(l10n, local);
 }
 
-String _formatShortDate(DateTime value) {
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+String _formatShortDate(AppLocalizations l10n, DateTime value) {
+  final months = [
+    l10n.monthShort1,
+    l10n.monthShort2,
+    l10n.monthShort3,
+    l10n.monthShort4,
+    l10n.monthShort5,
+    l10n.monthShort6,
+    l10n.monthShort7,
+    l10n.monthShort8,
+    l10n.monthShort9,
+    l10n.monthShort10,
+    l10n.monthShort11,
+    l10n.monthShort12,
   ];
   final year = value.year == DateTime.now().year ? '' : ' ${value.year}';
   return '${value.day} ${months[value.month - 1]}$year';
 }
 
-String _formatTimestamp(DateTime? value) {
+String _formatTimestamp(AppLocalizations l10n, DateTime? value) {
   if (value == null) {
-    return 'unknown time';
+    return l10n.timeUnknown;
   }
   final local = value.toLocal();
   return '${local.year}-${_twoDigits(local.month)}-${_twoDigits(local.day)} '
       '${_twoDigits(local.hour)}:${_twoDigits(local.minute)}';
 }
 
-String _formatDuration(DateTime? start, DateTime? end) {
+String _formatDuration(AppLocalizations l10n, DateTime? start, DateTime? end) {
   if (start == null || end == null) {
     return '';
   }
@@ -1481,9 +1495,9 @@ String _formatDuration(DateTime? start, DateTime? end) {
     return '';
   }
   if (seconds < 60) {
-    return '${seconds}s';
+    return l10n.durationSeconds('$seconds');
   }
-  return '${seconds ~/ 60}m ${seconds % 60}s';
+  return l10n.durationMinutesSeconds('${seconds ~/ 60}', '${seconds % 60}');
 }
 
 String _twoDigits(int value) => value.toString().padLeft(2, '0');

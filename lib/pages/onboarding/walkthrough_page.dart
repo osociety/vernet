@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/models/onboarding_step.dart';
 import 'package:vernet/pages/location_consent_page.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 import 'package:vernet/values/onboarding_content.dart';
 
 class WalkthroughPage extends StatefulWidget {
-  const WalkthroughPage({super.key});
+  const WalkthroughPage({super.key, this.backBuilder});
+
+  /// Route for the back button, supplied when the tour follows the language
+  /// step. Null hides the button, which is what a resumed install gets: there
+  /// the language choice is already behind it.
+  final WidgetBuilder? backBuilder;
 
   @override
   State<WalkthroughPage> createState() => _WalkthroughPageState();
@@ -16,8 +23,11 @@ class _WalkthroughPageState extends State<WalkthroughPage> {
   final _controller = PageController();
   int _currentPage = 0;
 
-  static const int _stepCount = 4;
   static const double _contentMaxWidth = 480;
+
+  /// The tour is built from the active locale, so its page count comes from the
+  /// steps rather than a constant that a future fifth step would silently break.
+  List<OnboardingStep> get _steps => onboardingSteps(context.l10n);
 
   @override
   void dispose() {
@@ -40,7 +50,7 @@ class _WalkthroughPageState extends State<WalkthroughPage> {
   }
 
   void _nextPage() {
-    if (_currentPage < _stepCount - 1) {
+    if (_currentPage < _steps.length - 1) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -53,29 +63,46 @@ class _WalkthroughPageState extends State<WalkthroughPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final steps = _steps;
+    final isLastStep = _currentPage == steps.length - 1;
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextButton(
-                  key: WidgetKey.walkthroughSkipButton.key,
-                  onPressed: _complete,
-                  child: const Text('Skip'),
-                ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  // Only on the first step: backing out of a later one is what
+                  // swiping back does, and that stays inside the tour.
+                  if (widget.backBuilder != null && _currentPage == 0)
+                    TextButton.icon(
+                      key: WidgetKey.walkthroughBackButton.key,
+                      onPressed: () => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: widget.backBuilder!),
+                      ),
+                      icon: const Icon(Icons.arrow_back),
+                      label: Text(l10n.commonGoBack),
+                    ),
+                  const Spacer(),
+                  TextButton(
+                    key: WidgetKey.walkthroughSkipButton.key,
+                    onPressed: _complete,
+                    child: Text(l10n.walkthroughSkip),
+                  ),
+                ],
               ),
             ),
             Expanded(
               child: PageView.builder(
                 controller: _controller,
-                itemCount: _stepCount,
+                itemCount: steps.length,
                 onPageChanged: (page) => setState(() => _currentPage = page),
                 itemBuilder: (context, index) {
-                  final step = kOnboardingSteps[index];
+                  final step = steps[index];
                   return _AnimatedStepPage(
                     controller: _controller,
                     index: index,
@@ -96,17 +123,17 @@ class _WalkthroughPageState extends State<WalkthroughPage> {
                   children: [
                     _PageIndicator(
                       key: WidgetKey.walkthroughPageIndicator.key,
-                      count: _stepCount,
+                      count: steps.length,
                       current: _currentPage,
                       color: colors.primary,
                     ),
                     FilledButton(
-                      key: _currentPage == _stepCount - 1
+                      key: isLastStep
                           ? WidgetKey.walkthroughGetStartedButton.key
                           : WidgetKey.walkthroughNextButton.key,
                       onPressed: _nextPage,
                       child: Text(
-                        _currentPage == _stepCount - 1 ? 'Get Started' : 'Next',
+                        isLastStep ? l10n.getStarted : l10n.walkthroughNext,
                       ),
                     ),
                   ],

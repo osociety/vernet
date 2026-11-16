@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:vernet/helper/consent_loader.dart';
 import 'package:vernet/helper/onboarding_service.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/semantic_colors.dart';
+import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
 class LocationConsentPage extends StatefulWidget {
@@ -61,33 +63,27 @@ class _LocationConsentPageState extends State<LocationConsentPage>
   bool get _isDesktopOnly =>
       !Platform.isAndroid && !Platform.isIOS && !Platform.isWindows;
 
-  String get _rationaleTitle {
-    if (_isDesktopOnly) return 'Ready to go';
-    return 'Why location access?';
-  }
+  String _rationaleTitle(AppLocalizations l10n) =>
+      _isDesktopOnly ? l10n.consentReadyTitle : l10n.consentLocationTitle;
 
-  List<String> get _rationaleBullets {
-    if (_isDesktopOnly) {
-      return [
-        'Vernet can scan your network without location access on this platform.',
-      ];
-    }
-    return [
-      'Shows your Wi-Fi network name',
-      'Enables accurate network scanning on Android',
-      'Your location never leaves your device',
-    ];
-  }
+  List<String> _rationaleBullets(AppLocalizations l10n) => _isDesktopOnly
+      ? [l10n.consentDesktopNote]
+      : [
+          l10n.consentBulletWifiName,
+          l10n.consentBulletAndroidScan,
+          l10n.consentBulletPrivacy,
+        ];
 
-  String get _primaryButtonLabel {
-    if (_isDesktopOnly) return 'Get Started';
-    if (_permissionStatus.isPermanentlyDenied) return 'Open Settings';
-    return 'Allow location access';
+  String _primaryButtonLabel(AppLocalizations l10n) {
+    if (_isDesktopOnly) return l10n.getStarted;
+    if (_permissionStatus.isPermanentlyDenied) return l10n.consentOpenSettings;
+    return l10n.consentAllowLocation;
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: Center(
@@ -103,7 +99,7 @@ class _LocationConsentPageState extends State<LocationConsentPage>
                   child: Column(
                     children: [
                       const SizedBox(height: 40),
-                      const Text('Made with \u2764\uFE0F in India'),
+                      Text(l10n.madeInIndia),
                       const SizedBox(height: 15),
                       Text(
                         'Vernet',
@@ -133,14 +129,14 @@ class _LocationConsentPageState extends State<LocationConsentPage>
                       ),
                       const SizedBox(height: 32),
                       Text(
-                        _rationaleTitle,
+                        _rationaleTitle(l10n),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),
-                      ..._rationaleBullets.map(
+                      ..._rationaleBullets(l10n).map(
                         (text) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
@@ -168,8 +164,7 @@ class _LocationConsentPageState extends State<LocationConsentPage>
                       if (_permissionStatus.isPermanentlyDenied) ...[
                         const SizedBox(height: 16),
                         Text(
-                          'Permission was previously denied. '
-                          'Open device settings to grant it.',
+                          l10n.consentDeniedHint,
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: colors.warning,
@@ -193,7 +188,7 @@ class _LocationConsentPageState extends State<LocationConsentPage>
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : Text(_primaryButtonLabel),
+                              : Text(_primaryButtonLabel(l10n)),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -201,7 +196,7 @@ class _LocationConsentPageState extends State<LocationConsentPage>
                         TextButton(
                           key: WidgetKey.locationConsentSkipButton.key,
                           onPressed: _isLoading ? null : () => _navigate(),
-                          child: const Text('Continue without it'),
+                          child: Text(l10n.consentContinueWithout),
                         ),
                       const SizedBox(height: 24),
                     ],

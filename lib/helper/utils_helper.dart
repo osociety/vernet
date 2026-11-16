@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/ui/external_link_dialog.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 Future<void> launchURL(String url) async {
   if (await canLaunchUrlString(url)) {
     await launchUrlString(url);
   } else {
-    throw 'Could not launch $url';
+    throw appStrings().commonCouldNotLaunch(url);
   }
 }
 
@@ -31,12 +33,12 @@ Future<int?> getCurrentScanId() async {
 
 /// Formats a timestamp as relative age, falling back to an absolute
 /// date-time once it is older than a day.
-String formatTimestamp(DateTime timestamp) {
+String formatTimestamp(AppLocalizations l10n, DateTime timestamp) {
   final now = DateTime.now();
   final diff = now.difference(timestamp);
 
-  if (diff.inSeconds < 60) return 'Just now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-  if (diff.inHours < 24) return '${diff.inHours}h ago';
-  return DateFormat('MMM d, h:mm a').format(timestamp);
+  if (diff.inSeconds < 60) return l10n.timeJustNow;
+  if (diff.inMinutes < 60) return l10n.timeMinutesAgo('${diff.inMinutes}');
+  if (diff.inHours < 24) return l10n.timeHoursAgo('${diff.inHours}');
+  return DateFormat.MMMd(l10n.localeName).add_jm().format(timestamp);
 }

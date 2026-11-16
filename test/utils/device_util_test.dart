@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/utils/device_util.dart';
 
+import '../helpers/test_helpers.dart';
+
 DeviceData _device({
   String internetAddress = '192.168.0.2',
   String currentIp = '192.168.0.10',
@@ -109,6 +111,59 @@ void main() {
       final device = _device();
 
       expect(DeviceUtil.getIconData(device), Icons.devices);
+    });
+  });
+
+  // The stored vocabulary stays English so the icon lookup and old scan rows
+  // keep matching; only what the screen shows is translated.
+  group('DeviceUtil.typeLabel', () {
+    test('translates the device types the app invents', () {
+      expect(DeviceUtil.typeLabel(l10nDe(), 'Printer'),
+          l10nDe().deviceTypePrinter);
+      expect(
+        DeviceUtil.typeLabel(l10nDe(), 'Printer'),
+        isNot(l10nEn().deviceTypePrinter),
+      );
+      expect(
+        DeviceUtil.typeLabel(l10nDe(), 'Windows PC'),
+        l10nDe().deviceTypeWindowsPc,
+      );
+      expect(
+        DeviceUtil.typeLabel(l10nDe(), 'Linux/Unix Device'),
+        l10nDe().deviceTypeLinuxUnixDevice,
+      );
+    });
+
+    test('maps both spellings of the unknown-device token', () {
+      expect(
+        DeviceUtil.typeLabel(l10nDe(), 'Unknown Device'),
+        l10nDe().deviceTypeUnknownDevice,
+      );
+      expect(
+        DeviceUtil.typeLabel(l10nDe(), 'Unknown device'),
+        l10nDe().unknownDevice,
+      );
+    });
+
+    test('passes a name the network reported straight through', () {
+      expect(
+          DeviceUtil.typeLabel(l10nDe(), 'Kitchen Speaker'), 'Kitchen Speaker');
+      expect(DeviceUtil.typeLabel(l10nEn(), 'NAS'), 'NAS');
+    });
+  });
+
+  group('DeviceUtil.makeLabel', () {
+    test('routes the invented make through the bundle', () {
+      expect(
+        DeviceUtil.makeLabel(l10nDe(), 'Router/Gateway'),
+        l10nDe().deviceMakeRouterGateway,
+      );
+      expect(
+          DeviceUtil.makeLabel(l10nDe(), 'Server'), l10nDe().deviceTypeServer);
+    });
+
+    test('keeps a missing make missing', () {
+      expect(DeviceUtil.makeLabel(l10nDe(), null), isNull);
     });
   });
 }

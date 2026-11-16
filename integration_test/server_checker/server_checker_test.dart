@@ -61,7 +61,7 @@ void main() {
     });
 
     await tester.pumpWidget(
-      const MaterialApp(home: ServerCheckerPage()),
+      TestUtils.wrapWithLocalizations(child: const ServerCheckerPage()),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Add server'));
@@ -97,8 +97,8 @@ void main() {
     await tester.runAsync(reservation.close);
     final alerts = <String>[];
 
-    await tester.pumpWidget(MaterialApp(
-      home: ServerCheckerPage(
+    await tester.pumpWidget(TestUtils.wrapWithLocalizations(
+      child: ServerCheckerPage(
         onServerDown: (name) async => alerts.add(name),
       ),
     ));
@@ -131,7 +131,7 @@ void main() {
     }
 
     await tester.pumpWidget(
-      const MaterialApp(home: ServerCheckerPage()),
+      TestUtils.wrapWithLocalizations(child: const ServerCheckerPage()),
     );
     await tester.pumpAndSettle();
 

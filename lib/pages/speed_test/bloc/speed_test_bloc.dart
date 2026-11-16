@@ -6,6 +6,7 @@ import 'package:vernet/models/ndt7_result.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/speedtest/ndt7_service.dart';
+import 'package:vernet/utils/app_strings.dart';
 
 part 'speed_test_event.dart';
 part 'speed_test_state.dart';
@@ -46,7 +47,7 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       _StartTest event, Emitter<SpeedTestState> emit) async {
     if (state.bestServers == null || state.bestServers!.isEmpty) {
       emit(state.copyWith(
-        fetchError: 'No test servers available. Please check your connection.',
+        fetchError: appStrings().speedTestNoServersError,
       ));
       return;
     }
@@ -111,8 +112,9 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
   }
 
   String _buildUserFriendlyError(Object? error) {
+    final l10n = appStrings();
     if (error == null) {
-      return 'Speed test failed. Please try again later.';
+      return l10n.speedTestFailed;
     }
 
     final errorStr = error.toString().toLowerCase();
@@ -122,16 +124,16 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
         errorStr.contains('connection failed') ||
         errorStr.contains('websocket') ||
         errorStr.contains('all servers')) {
-      return 'Sorry, it looks like the Internet speed test is experiencing high demand. Please try again later.';
+      return l10n.speedTestBusy;
     }
 
     // Network errors
     if (errorStr.contains('network error') || errorStr.contains('socket')) {
-      return 'Network connection failed. Please check your internet connection and try again.';
+      return l10n.speedTestNetworkFailed;
     }
 
     // Generic fallback
-    return 'Speed test failed. Please try again later.';
+    return l10n.speedTestFailed;
   }
 
   void _onToggleServerInfo(
@@ -170,12 +172,12 @@ class SpeedTestBloc extends Bloc<SpeedTestEvent, SpeedTestState> {
       ));
     } on Ndt7Exception catch (e) {
       emit(state.copyWith(
-        fetchError: 'Could not find test servers: ${e.message}',
+        fetchError: appStrings().speedTestLookupFailedDetail(e.message),
         isLoading: false,
       ));
     } catch (e) {
       emit(state.copyWith(
-        fetchError: 'Could not find test servers. Check your connection.',
+        fetchError: appStrings().speedTestLookupFailed,
         isLoading: false,
       ));
     }

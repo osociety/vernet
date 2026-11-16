@@ -153,8 +153,8 @@ Future<void> _runSpeedTest(WidgetTester tester) async {
 }
 
 Widget _hostScaffold() {
-  return MaterialApp(
-    home: Scaffold(
+  return TestUtils.wrapWithLocalizations(
+    child: Scaffold(
       body: Builder(
         builder: (context) => Center(
           child: ElevatedButton(
@@ -209,7 +209,8 @@ void main() {
       _installSpeedTestBloc(
         _FakeNdt7Service(discoveryGate: Completer<List<Ndt7Server>>()),
       );
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -217,7 +218,8 @@ void main() {
 
     testWidgets('speed test page shows main UI after loading', (tester) async {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
 
       await TestUtils.waitForWidget(tester, find.text('Test Server'));
       expect(find.text('Test City'), findsOneWidget);
@@ -230,7 +232,8 @@ void main() {
 
     testWidgets('speed test page displays M-Lab attribution', (tester) async {
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
 
       await TestUtils.waitForWidget(
         tester,
@@ -254,7 +257,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
 
       await _runSpeedTest(tester);
 
@@ -270,7 +274,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
 
       await _runSpeedTest(tester);
 
@@ -286,7 +291,8 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       _installSpeedTestBloc(_FakeNdt7Service(servers: _fakeServers));
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
 
       await _runSpeedTest(tester);
 
@@ -302,7 +308,8 @@ void main() {
     testWidgets('speed test page error state has go back button',
         (tester) async {
       _installSpeedTestBloc(_FakeNdt7Service(error: 'Locate API unreachable'));
-      await tester.pumpWidget(const MaterialApp(home: SpeedTestPage()));
+      await tester.pumpWidget(
+          TestUtils.wrapWithLocalizations(child: const SpeedTestPage()));
 
       await TestUtils.waitForWidget(
           tester, find.text('Speed Test Unavailable'));

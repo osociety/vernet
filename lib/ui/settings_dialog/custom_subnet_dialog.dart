@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/ui/base_settings_dialog.dart';
-import 'package:vernet/values/strings.dart';
+import 'package:vernet/utils/localization.dart';
 
 class CustomSubnetDialog extends StatefulWidget {
   const CustomSubnetDialog({super.key});
@@ -13,12 +13,12 @@ class CustomSubnetDialog extends StatefulWidget {
 class _CustomSubnetDialogState extends BaseSettingsDialog<CustomSubnetDialog> {
   @override
   String getDialogTitle() {
-    return StringValue.customSubnet;
+    return context.l10n.customSubnet;
   }
 
   @override
   String getHintText() {
-    return StringValue.customSubnetHint;
+    return context.l10n.customSubnetHint;
   }
 
   @override
@@ -47,14 +47,14 @@ class _CustomSubnetDialogState extends BaseSettingsDialog<CustomSubnetDialog> {
     final parts = input.split('.');
     if (parts.length != 4 ||
         parts.any((part) => part.isEmpty || int.tryParse(part) == null)) {
-      return StringValue.customSubnetInvalid;
+      return context.l10n.customSubnetInvalid;
     }
     final octets = parts.map(int.parse).toList();
     if (octets.any((octet) => octet < 0 || octet > 255)) {
-      return StringValue.customSubnetInvalid;
+      return context.l10n.customSubnetInvalid;
     }
     if (octets[3] == 0 || octets[3] == 255) {
-      return StringValue.customSubnetNotUsableHost;
+      return context.l10n.customSubnetNotUsableHost;
     }
     return null;
   }

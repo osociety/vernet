@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:vernet/helper/utils_helper.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/external_link_dialog.dart';
+import '../helpers/test_helpers.dart';
 
 class MockUrlLauncher extends Mock
     with MockPlatformInterfaceMixin
@@ -62,6 +64,8 @@ void main() {
         ChangeNotifierProvider<DarkThemeProvider>(
           create: (_) => DarkThemeProvider(),
           child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Builder(
                 builder: (context) => Center(
@@ -82,6 +86,24 @@ void main() {
 
       expect(find.byType(ExternalLinkWarningDialog), findsOneWidget);
       expect(find.textContaining('https://flutter.dev'), findsOneWidget);
+    });
+
+    testWidgets('formatTimestamp keeps the clock of its bundle',
+        (tester) async {
+      // Pumping installs the locale date symbols that DateFormat reads.
+      await tester.pumpWidget(
+        const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(body: SizedBox()),
+        ),
+      );
+
+      final now = DateTime.now();
+      final daysAgo = DateTime(now.year, now.month, now.day - 3, 14, 30);
+
+      expect(formatTimestamp(l10nEn(), daysAgo), contains('PM'));
+      expect(formatTimestamp(l10nDe(), daysAgo), isNot(contains('PM')));
     });
   });
 }
