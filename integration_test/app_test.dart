@@ -38,10 +38,10 @@ void main() {
   late ServerSocket server;
 
   setUp(() {
-    // The Linux leg of the CI matrix runs in a session whose language Vernet
-    // does not ship, and gen-l10n lists supportedLocales alphabetically, so
-    // Flutter's default resolution hands it German while macOS and Windows get
-    // English. The suites assert the English strings, so pin the language.
+    // The suites assert the English strings, so pin the language: a machine
+    // whose session language is German would otherwise render the whole app in
+    // German. The entry point resolves through the binding's locale list, so
+    // this pin is what the app reads, not just what Flutter falls back to.
     binding.platformDispatcher.localesTestValue = const [Locale('en')];
     SharedPreferences.setMockInitialValues({});
     AppSettings.instance.resetForTesting();
