@@ -23,3 +23,4 @@ Use this when a Vernet test fails locally or in CI, or when configuring an exist
 - Guard native plugin calls in tests where the platform implementation is unavailable.
 - Treat database lifecycle and cleanup as concurrency concerns; avoid parallel tests that share the same SQLite database.
 - After Dart/Flutter code changes, hot reload or hot restart an attached app when one is available.
+- A text assertion failing on one CI leg only is usually the resolved locale, not the platform — check the locale note in the `vernet-testing` skill before blaming the runner.
