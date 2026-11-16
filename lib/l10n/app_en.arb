@@ -3865,12 +3865,20 @@
   "@whatsNewEmpty": {
     "description": "Body of the release-notes dialog when the running version has no entry."
   },
-  "changelogLinuxDatabaseIncluded": "Linux downloads carry the database library they need",
-  "@changelogLinuxDatabaseIncluded": {
+  "changelogGermanTranslation": "Vernet now speaks German",
+  "@changelogGermanTranslation": {
     "description": "What's New release-note bullet."
   },
-  "changelogNothingElseChanged": "Nothing changed for Android, macOS and Windows in this release",
-  "@changelogNothingElseChanged": {
+  "changelogLanguageChoice": "Choose your language on first run or in Settings",
+  "@changelogLanguageChoice": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogLocaleDates": "Times and dates follow your language",
+  "@changelogLocaleDates": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogAndroidWifiSignal": "Wi-Fi signal reads more accurately on Android",
+  "@changelogAndroidWifiSignal": {
     "description": "What's New release-note bullet."
   },
   "commonCouldNotLaunch": "Could not launch {url}",

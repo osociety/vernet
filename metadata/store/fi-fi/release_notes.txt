@@ -1,1 +1,3 @@
-Vernet ei muutu Windowsissa tässä versiossa.
+Vernet on nyt käännetty kokonaan saksaksi.
+Valitse kieli ensimmäisellä Vernet-avauksella tai muuta se Asetuksissa.
+Kellonajat ja päivämäärät noudattavat kieltäsi.

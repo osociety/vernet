@@ -1,0 +1,5 @@
+Vernet gibt es jetzt vollständig auf Deutsch.
+Wähle deine Sprache beim ersten Öffnen von Vernet oder ändere sie in den Einstellungen.
+Uhrzeiten und Datumsangaben folgen deiner Sprache.
+Die WLAN-Signalstärke wird auf Android genauer erkannt.
+Fehlerbehebungen und Leistungsverbesserungen.

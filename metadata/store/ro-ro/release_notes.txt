@@ -1,1 +1,3 @@
-Nicio modificare pentru Vernet pe Windows în această versiune.
+Vernet este acum tradus complet în germană.
+Alegeți limba la prima deschidere a Vernet sau modificați-o în Setări.
+Orele și datele urmează limba dumneavoastră.

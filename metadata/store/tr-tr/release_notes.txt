@@ -1,1 +1,3 @@
-Bu sürümde Windows için Vernet'te değişiklik yok.
+Vernet artık tamamen Almanca olarak çevrildi.
+Dilinizi Vernet'i ilk açtığınızda veya Ayarlar'dan seçin.
+Saatler ve tarihler dilinizi takip eder.

@@ -1,1 +1,3 @@
-An Vernet für Windows hat sich in dieser Version nichts geändert.
+Vernet gibt es jetzt vollständig auf Deutsch.
+Wähle deine Sprache beim ersten Öffnen von Vernet oder ändere sie in den Einstellungen.
+Uhrzeiten und Datumsangaben folgen deiner Sprache.

@@ -75,7 +75,30 @@ jobs:
           test -s "$bundle"
           unzip -p "$bundle" base/manifest/AndroidManifest.xml \
             | grep -q 'com.google.android.gms.ads.APPLICATION_ID'
-          echo "Publishing $(du -h "$bundle" | cut -f1) to the ${{ inputs.track }} track."
+          # The store flavor appends -store to versionName (android/app/build.gradle),
+          # so the bundle carries the version it was built from. A run_id pointing at
+          # an older release would otherwise publish that older build under this
+          # release's listing text and changelog.
+          expected="$(grep -m1 '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)-store"
+          actual="$(unzip -p "$bundle" base/manifest/AndroidManifest.xml \
+            | strings | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-store' | sort -u)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::The bundle is version $actual but this release is $expected. Download the artifact from the run that built it."
+            exit 1
+          fi
+          echo "Publishing $(du -h "$bundle" | cut -f1) ($actual) to the ${{ inputs.track }} track."
+
+      # The listing tree is live copy from this point: the beta lane uploads it
+      # with the bundle, so a locale missing this build's changelog would ship an
+      # empty "What's new" and an over-long title would fail in the Console.
+      # Checked before Ruby, fastlane and any Play credential are touched.
+      - name: Install Dart
+        uses: dart-lang/setup-dart@v1.8.2
+        with:
+          sdk: stable
+
+      - name: Check the Play listing tree
+        run: dart run scripts/play_store_listing.dart --check
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1.221.0
