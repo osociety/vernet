@@ -177,11 +177,12 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       emit(const HostScanState.error());
       return await Future.error('Can not get wifi details');
     }
-    subnet = gatewayIp!.substring(0, gatewayIp!.lastIndexOf('.'));
-    if (subnet == null) {
+    final dotIndex = gatewayIp!.lastIndexOf('.');
+    if (dotIndex < 0) {
       emit(const HostScanState.error());
       return await Future.error('Can not get wifi details');
     }
+    subnet = gatewayIp!.substring(0, dotIndex);
     if (appSettings.runScanOnStartup) {
       add(const HostScanEvent.loadScan());
     } else {

@@ -37,7 +37,7 @@ class AppSettings {
   bool get runScanOnStartup => _runScanOnStartup;
   String get customSubnet => _customSubnet;
   bool get betaUpdates => _betaUpdates;
-  String get gatewayIP => _customSubnet.isNotEmpty
+  String get gatewayIP => _customSubnet.contains('.')
       ? _customSubnet.substring(0, _customSubnet.lastIndexOf('.'))
       : _customSubnet;
 
@@ -78,7 +78,9 @@ class AppSettings {
   }
 
   Future<bool> setCustomSubnet(String customSubnet) async {
-    _customSubnet = customSubnet;
+    // Trim at the write boundary as well, so a value saved by any caller
+    // (not only the settings dialog) can never reach the scan code padded.
+    _customSubnet = customSubnet.trim();
     return await (await SharedPreferences.getInstance())
         .setString(_customSubnetKey, _customSubnet);
   }

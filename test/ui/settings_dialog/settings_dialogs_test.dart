@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
@@ -113,6 +114,29 @@ void main() {
         SharedPreferences.setMockInitialValues({});
         await enterAndSubmit(tester, '');
         expect(find.byType(CustomSubnetDialog), findsNothing);
+      });
+
+      testWidgets('stores the subnet without the spaces around it',
+          (tester) async {
+        SharedPreferences.setMockInitialValues({});
+        AppSettings.instance.resetForTesting();
+
+        await enterAndSubmit(tester, ' 10.0.0.1 ');
+
+        expect(find.byType(CustomSubnetDialog), findsNothing);
+        expect(AppSettings.instance.customSubnet, '10.0.0.1');
+      });
+
+      testWidgets('clears the setting when only spaces are typed',
+          (tester) async {
+        SharedPreferences.setMockInitialValues({});
+        AppSettings.instance.resetForTesting();
+        await AppSettings.instance.setCustomSubnet('10.0.0.1');
+
+        await enterAndSubmit(tester, '   ');
+
+        expect(find.byType(CustomSubnetDialog), findsNothing);
+        expect(AppSettings.instance.customSubnet, isEmpty);
       });
     });
 

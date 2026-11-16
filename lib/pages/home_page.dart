@@ -32,6 +32,7 @@ import 'package:vernet/ui/network_troubleshoot_dialog.dart';
 import 'package:vernet/ui/timestamp_chip.dart';
 import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
+import 'package:vernet/utils/wifi_addresses.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -92,18 +93,22 @@ class _WifiDetailState extends State<HomePage> {
     } catch (e) {
       debugPrint('Unimplemented error $e');
     }
-    final gatewayIp = appSettings.customSubnet.isNotEmpty
-        ? appSettings.customSubnet
-        : (wifiGatewayIP ?? wifiIP) ?? '';
-    final isCustomGateway = appSettings.customSubnet.isNotEmpty;
+    // A saved custom subnet seeds "Search a different network"; it is not this
+    // device's router. Taking it as the gateway made the dashboard and the
+    // network score report the seed address as the router (#646).
+    final addresses = resolveWifiAddresses(
+      reportedGatewayIp: wifiGatewayIP,
+      wifiIp: wifiIP,
+      customSubnet: appSettings.customSubnet,
+    );
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
     final metrics = await WifiRepository.fetchWifiMetrics();
     final hasValidConnection =
         wifiIP != null && wifiIP != 'x.x.x.x' && wifiIP.isNotEmpty;
     _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, !hasValidConnection,
-        gatewayIp, isLocationOn, metrics,
-        isCustomGateway: isCustomGateway);
+        addresses.gatewayIp, isLocationOn, metrics,
+        scanSubnet: addresses.scanSubnet);
 
     if (appSettings.runScanOnStartup && wifiIP != null && !_hasRunStartupScan) {
       setState(() {
@@ -111,7 +116,7 @@ class _WifiDetailState extends State<HomePage> {
         scanRunning = true;
       });
       getIt<DeviceScannerService>()
-          .startNewScan(_wifiInfo!.subnet, wifiIP, gatewayIp)
+          .startNewScan(_wifiInfo!.subnet, wifiIP, _wifiInfo!.scanSubnet)
           .listen((device) {
         if (!mounted) return;
         devices[device.id] = device;
@@ -381,9 +386,7 @@ class _WifiDetailState extends State<HomePage> {
                       : (info.gatewayIp.isEmpty
                           ? l10n.netUnavailable
                           : info.gatewayIp),
-                  badge: !isChecking &&
-                          info.isCustomGateway &&
-                          info.gatewayIp.isNotEmpty
+                  badge: !isChecking && info.scanSubnet != info.gatewayIp
                       ? const _CustomValueBadge()
                       : null,
                 ),
@@ -743,9 +746,7 @@ class _WifiDetailState extends State<HomePage> {
             : (wifiInfo.gatewayIp.isEmpty
                 ? l10n.netUnavailable
                 : wifiInfo.gatewayIp),
-        badge: !isWifiChecking &&
-                wifiInfo.isCustomGateway &&
-                wifiInfo.gatewayIp.isNotEmpty
+        badge: !isWifiChecking && wifiInfo.scanSubnet != wifiInfo.gatewayIp
             ? const _CustomValueBadge()
             : null,
       ),
