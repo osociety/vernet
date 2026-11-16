@@ -263,17 +263,50 @@ class TestUtils {
       await tester.pump(const Duration(milliseconds: 100));
     }
 
-    if (target.evaluate().isEmpty || target.hitTestable().evaluate().isEmpty) {
-      await tester.scrollUntilVisible(
-        target,
-        scrollDistance,
-        scrollable: sidebarScrollable,
-      );
+    // Reveal the row by dragging toward the end of the list. This is the
+    // direction scrollUntilVisible() picks for a vertical list, done here
+    // because that helper ends in element(finder), which on a row that never
+    // got built throws "Bad state: No element" and says nothing about why.
+    for (var attempt = 0;
+        target.evaluate().isEmpty && attempt < 50;
+        attempt++) {
+      await tester.drag(sidebarScrollable, Offset(0, -scrollDistance));
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    if (target.evaluate().isEmpty) {
+      fail(
+          'Sidebar row "$label" was never built.${_describeShell(tester, find)}');
     }
     final item = target.last;
     await tester.ensureVisible(item);
     await tester.pump(const Duration(milliseconds: 300));
     return item;
+  }
+
+  /// The window and shell the suite is looking at, for a navigation failure.
+  ///
+  /// Desktop legs run in a window the suite does not size, so a sidebar row
+  /// can sit past the built region of the list; the row's absence is only
+  /// readable when the failure carries the geometry and the rows that did
+  /// build.
+  static String _describeShell(WidgetTester tester, CommonFinders find) {
+    final sidebar = find.byType(SidebarX);
+    if (sidebar.evaluate().isEmpty) {
+      return ' view=${tester.view.physicalSize}@${tester.view.devicePixelRatio}x'
+          ' drawer=${find.byIcon(Icons.menu).evaluate().isNotEmpty}'
+          ' no SidebarX is mounted, so the shell never rendered.';
+    }
+    final labels = find
+        .descendant(of: sidebar.first, matching: find.byType(Text))
+        .evaluate()
+        .map((element) => (element.widget as Text).data)
+        .whereType<String>()
+        .toList();
+    return ' view=${tester.view.physicalSize}@${tester.view.devicePixelRatio}x'
+        ' sidebar=${tester.getRect(sidebar.first)}'
+        ' drawer=${find.byIcon(Icons.menu).evaluate().isNotEmpty}'
+        ' builtLabels=$labels';
   }
 
   static Future<void> _openDrawerWhenCompact(
