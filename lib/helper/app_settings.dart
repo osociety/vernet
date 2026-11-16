@@ -37,7 +37,7 @@ class AppSettings {
   bool get runScanOnStartup => _runScanOnStartup;
   String get customSubnet => _customSubnet;
   bool get betaUpdates => _betaUpdates;
-  String get gatewayIP => _customSubnet.isNotEmpty
+  String get gatewayIP => _customSubnet.contains('.')
       ? _customSubnet.substring(0, _customSubnet.lastIndexOf('.'))
       : _customSubnet;
 
