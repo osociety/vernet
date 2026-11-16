@@ -47,7 +47,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapNavigationItem(
-        'Find website addresses',
+        _en.navFindWebsiteAddresses,
         tester,
         find,
       );
@@ -77,7 +77,7 @@ void main() {
       // window instead of waiting the animation out.
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.text('Website address copied'), findsOneWidget);
+      expect(find.text(_en.dnsAddressCopied), findsOneWidget);
     });
   });
 }
