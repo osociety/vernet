@@ -90,6 +90,15 @@ setUp(() async {
   runner is on `192.168.0.x` and a real scan finds nothing, while Linux and
   Windows sit on `10.1.0.0/24` and find devices. A test that branches on
   `deviceCount > 0` can only fail on the latter.
+- Text assertions are locale-dependent and the legs do not agree. gen-l10n
+  emits `supportedLocales` in ARB filename order, so `de` is first, and
+  `MaterialApp` sets no `localeResolutionCallback`, so a runner whose system
+  language the app does not ship renders German. That is why
+  `integration_test/app_test.dart` pins `localesTestValue` to `Locale('en')`.
+  Reproduce such a divergence on one machine by forcing
+  `tester.platformDispatcher.localesTestValue` in a throwaway widget test;
+  `flutter test` never shows it, because the unit runner ignores the host
+  locale.
 - Do not assert a widget type the page swaps by width. `ScanDetailPage` renders
   `_DesktopDeviceRow` at >=900px and `AdaptiveListTile` below; assert on text
   both layouts show, such as the device address or make.

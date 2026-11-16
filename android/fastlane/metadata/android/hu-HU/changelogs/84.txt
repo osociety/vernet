@@ -1,0 +1,5 @@
+A Vernet most már teljes egészében elérhető német nyelven.
+Az alkalmazás első megnyitásakor válassza ki a nyelvet, vagy módosítsa a Beállításokban.
+Az időpontok és dátumok a választott nyelvet követik.
+A Wi-Fi jelerőssége Androidon pontosabban mérhető.
+Hibajavítások és teljesítményjavítások.

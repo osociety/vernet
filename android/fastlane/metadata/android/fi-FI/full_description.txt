@@ -1,0 +1,22 @@
+Saat kotisi tai toimistosi verkon täyteen hallintaasi Vernetin avulla — ilmainen avoimen lähdekoodin työkalupaketti, joka antaa verkkotiedot suoraan sinulle.
+
+Onko kyseessä hidas yhteys, kuka tahansa Wi-Fiisi on kytketty vai laitteidesi tavoitettavuus, Vernet antaa selkeät ja helposti ymmärrettävät vastaukset — ilman teknillistä taustaa.
+
+🔍 Mitä verkossani on?
+Näe kaikki paikalliseen Wi-Fi-verkkoosi liitetyt laitteet IP-osoitteineen ja nimineen. Tarkalleen, kuka ja mikä yhteystäsi jakaa.
+
+📡 Toimiiko internetini?
+Tee ping-testi nähdäksesi, vastaako sivusto tai laite. Huomaat katkokset ja viiveet sekunneissa.
+
+⚡ Kuinka nopea yhteys minulla on?
+Mittaa todellinen lataus- ja lähetysnopeutesi sisään rakennetulla nopeustestillä. Saat tarkat tulokset poistumatta sovelluksesta.
+
+🔓 Mitä palveluita on auki?
+Skannaa laite avoimien porttien varalta ja näet, mitkä palvelut ovat tavoitettavissa — hyödyllistä verkon tietoturvan hahmottamisessa.
+
+🌐 Mitä tämän osoitteen takana on?
+Käytä sisään rakennettuja DNS-työkaluja verkkotunnusten hakuun, IP-osoitteiden selvittämiseen ja siihen, miten osoitteet kartoitetaan internetissä.
+
+✅ Ilmainen ja avoimen lähdekoodin
+Vernet on ilmainen ja avoimen lähdekoodin GitHubissa: https://github.com/osociety/vernet
+Tämä versio voi sisältää mainoksia. Mainoksattoman kokemuksen saat Vernetistä F-Droidissa.

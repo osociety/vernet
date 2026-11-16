@@ -1,0 +1,22 @@
+Prenez le contrôle de votre réseau domestique ou de bureau avec Vernet — une boîte à outils libre et gratuite qui met les informations réseau entre vos mains.
+
+Que vous cherchiez à réparer une connexion lente, à savoir qui est connecté à votre Wi-Fi ou à vérifier que vos appareils sont accessibles, Vernet vous donne des réponses claires et faciles à comprendre, sans connaissances techniques.
+
+🔍 Que contient mon réseau ?
+Voyez tous les appareils connectés à votre Wi-Fi local, avec leurs adresses IP et leurs noms. Sachez exactement qui et quoi partage votre connexion.
+
+📡 Mon internet fonctionne-t-il ?
+Lancez un test ping pour vérifier qu'un site ou un appareil répond. Repérez coupures et latences en quelques secondes.
+
+⚡ Quelle est la vitesse de ma connexion ?
+Mesurez vos débits réels en téléchargement et en envoi grâce au test de vitesse intégré. Obtenez des résultats précis sans quitter l'application.
+
+🔓 Quels services sont exposés ?
+Analysez un appareil à la recherche de ports ouverts pour voir quels services sont accessibles — utile pour évaluer la sécurité de votre réseau.
+
+🌐 Que se cache derrière cette adresse ?
+Utilisez les outils DNS intégrés pour rechercher des noms de domaine, résoudre des adresses IP et suivre la façon dont les adresses sont mappées sur internet.
+
+✅ Gratuit et open source
+Vernet est gratuit et open source sur GitHub : https://github.com/osociety/vernet
+Cette version peut contenir des annonces. Pour une expérience sans annonces, obtenez Vernet sur F-Droid.

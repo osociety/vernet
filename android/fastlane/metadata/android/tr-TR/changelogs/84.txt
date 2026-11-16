@@ -1,0 +1,5 @@
+Vernet artık tamamen Almanca'ya çevrildi.
+Uygulamayı ilk açtığınızda dilinizi seçin ya da Ayarlar'dan değiştirin.
+Saatler ve tarihler dilinizi izler.
+Android'de Wi-Fi sinyal gücü daha doğru okunur.
+Hata düzeltmeleri ve performans iyileştirmeleri.

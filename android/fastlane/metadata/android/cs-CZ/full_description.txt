@@ -1,0 +1,22 @@
+Se Vernet máte svou domácní nebo firemní síť plně pod kontrolou — je bezplatná open-source sada nástrojů, která vám informace o síti dá přímo do rukou.
+
+Ať už řešíte pomalé připojení, zjišťujete, kdo je připojený k vašemu Wi-Fi, nebo ověřujete dostupnost zařízení, Vernet odpovídá srozumitelně a bez nutnosti technických znalostí.
+
+🔍 Co je v mé síti?
+Zobrazte všechna zařízení připojená k vaší lokální Wi-Fi včetně jejich IP adres a názvů. Přesně uvidíte, kdo a co vaše připojení sdílí.
+
+📡 Funguje mi internet?
+Spusťte test ping a ověřte, zda webová stránka nebo zařízení odpovídá. Výpadky a prodlevy odhalíte během vteřin.
+
+⚡ Jak rychlé je mé připojení?
+Změřte skutečnou rychlost stahování a odesílání vestavěným testem rychlosti. Přesné výsledky získáte bez opuštění aplikace.
+
+🔓 Které služby jsou otevřené?
+Prohledejte zařízení a najděte otevřené porty — zjistíte, které služby jsou dostupné a jak na tom vaše síť je z pohledu zabezpečení.
+
+🌐 Co se skrývá za touto adresou?
+Vestavěné nástroje DNS vyhledají doménová jména, převedou IP adresy a ukážou, jak se adresy na internetu mapují.
+
+✅ Zdarma a open source
+Vernet je bezplatný a open-source na GitHubu: https://github.com/osociety/vernet
+Tento sestavení může obsahovat reklamy. Pokud je nechcete, nainstalujte Vernet z F-Droidu.

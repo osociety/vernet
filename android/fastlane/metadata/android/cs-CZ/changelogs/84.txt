@@ -1,0 +1,5 @@
+Vernet je teď kompletně přeložený do němčiny.
+Jazyk si vyberete při prvním otevření aplikace nebo ho změníte v Nastavení.
+Časy a data se řídí vaším jazykem.
+Síla signálu Wi-Fi se na Androidu zobrazuje přesněji.
+Opravy chyb a vylepšení výkonu.

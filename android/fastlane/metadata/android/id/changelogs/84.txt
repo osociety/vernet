@@ -1,0 +1,5 @@
+Vernet kini diterjemahkan sepenuhnya ke bahasa Jerman.
+Pilih bahasamu saat pertama kali membuka aplikasi, atau ubah di Pengaturan.
+Waktu dan tanggal mengikuti bahasamu.
+Kekuatan sinyal Wi-Fi terbaca lebih akurat di Android.
+Perbaikan bug dan peningkatan performa.

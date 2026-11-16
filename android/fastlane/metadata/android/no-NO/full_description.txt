@@ -1,0 +1,22 @@
+Ta kontrollen over hjemmenettverket eller nettverket på kontoret med Vernet — et gratis, åpen kildekode-verktøysett som gir deg innsikten rett i hendene.
+
+Enten du feilsøker en tilkobling, sjekker hvem som er på Wi-Fi-en, eller vil være sikker på at enhetene dine kan nås, gir Vernet deg klare og forståelige svar — uten teknisk bakgrunn.
+
+🔍 Hva er på nettverket mitt?
+Se alle enhetene som er tilkoblet det lokale Wi-Fi-nettet ditt, med IP-adresser og navn. Vet nøyaktig hvem og hva som deler tilkoblingen din.
+
+📡 Virker internett?
+Kjør en ping-test for å se om et nettsted eller en enhet svarer. Oppdag brudd og forsinkelser på sekunder.
+
+⚡ Hvor rask er tilkoblingen?
+Mål den faktiske nedlastings- og opplastingshastigheten med den innebygde hastighetstesten. Få nøyaktige resultater uten å forlate appen.
+
+🔓 Hvilke tjenester er eksponert?
+Søk etter åpne porter på en enhet og se hvilke tjenester som kan nås — nyttig for å forstå sikkerheten i nettverket ditt.
+
+🌐 Hva ligger bak denne adressen?
+Bruk de innebygde DNS-verktøyene til å slå opp domenenavn, løse IP-adresser og følge hvordan adresser er kartlagt på internett.
+
+✅ Gratis og åpen kildekode
+Vernet er gratis og åpen kildekode på GitHub: https://github.com/osociety/vernet
+Denne versjonen kan inneholde annonser. For en annonsefri opplevelse får du Vernet på F-Droid.

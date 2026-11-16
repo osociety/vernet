@@ -66,11 +66,16 @@ Non-obvious entries worth a second look:
 
 ## Constraints
 
-- `android/fastlane/metadata/android/` tracks **`en-US` only**, deliberately.
-  The other 28 languages are pasted into Play Console's bulk release-notes
-  editor by hand and are never committed. Do not add localized directories —
-  Fastlane would not upload them, and a stray `pt-BR/changelogs/` tree implies
-  a translation pipeline that does not exist.
+- `android/fastlane/metadata/android/` tracks **all 29 locales**, so every
+  release pushes each language's listing text and "What's new" from git; the
+  Console bulk editor is no longer the delivery path. Fastlane uploads every
+  non-hidden directory it finds there, which is why
+  `scripts/play_store_listing.dart --check` gates the tree before any Play
+  credential is used: a locale with no `changelogs/<build>.txt` ships an empty
+  note for that language, and a directory named outside the list above aborts
+  the release.
+- A new release therefore needs the changelog written into all 29 directories,
+  not just `en-US`. The checker reports every locale that is missing one.
 - One block per locale, one sentence per line. Do not rewrap, indent, or add
   blank lines inside a block; the editor splits on newlines.
 - Never state the app is ad-free on Android. The Play build serves ads via
