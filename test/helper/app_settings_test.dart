@@ -83,5 +83,11 @@ void main() {
       expect(edgeRange.first, 1);
       expect(edgeRange.last, 2);
     });
+
+    test('gatewayIP does not throw when customSubnet contains no dot',
+        () async {
+      await settings.setCustomSubnet('localhost');
+      expect(settings.gatewayIP, 'localhost');
+    });
   });
 }
