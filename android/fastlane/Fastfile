@@ -31,6 +31,9 @@ platform :android do
     # sync_image_upload skips the upload when Play already has those bytes.
     # Screenshots stay skipped: supply replaces the live set for a language
     # wholesale, and the committed ones would wipe the curated Console set.
+    # This metadata tree is shared with F-Droid through the root fastlane
+    # symlink, so nothing is deleted from it - supply uploads only what is inside
+    # images/, which is why the banner lives at en-US/featureGraphic.png.
     upload_to_play_store(track: 'beta',
     aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab',
     sync_image_upload: true,
