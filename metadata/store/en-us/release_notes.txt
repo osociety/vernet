@@ -1,1 +1,1 @@
-No changes to Vernet on Windows in this release.
+Vernet now speaks German. Choose your language in Settings, or let Vernet follow Windows.

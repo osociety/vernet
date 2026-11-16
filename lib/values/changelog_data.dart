@@ -2,7 +2,7 @@ import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/changelog_entry.dart';
 
 /// The version these notes describe: the `version:` in `pubspec.yaml`.
-const String changelogVersion = '1.6.4';
+const String changelogVersion = '1.7.0';
 
 /// Release notes for [changelogVersion], in the language [l10n] renders.
 ///
@@ -13,8 +13,10 @@ const String changelogVersion = '1.6.4';
 ChangelogEntry currentChangelog(AppLocalizations l10n) => ChangelogEntry(
       version: changelogVersion,
       changes: [
-        l10n.changelogLinuxDatabaseIncluded,
-        l10n.changelogNothingElseChanged,
+        l10n.changelogGermanTranslation,
+        l10n.changelogLanguageChoice,
+        l10n.changelogLocaleDates,
+        l10n.changelogAndroidWifiSignal,
       ],
     );
 

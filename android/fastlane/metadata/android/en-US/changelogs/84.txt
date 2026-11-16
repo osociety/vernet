@@ -1,0 +1,5 @@
+Vernet is now fully translated into German.
+Choose your language the first time you open the app, or change it in Settings.
+Times and dates follow your language.
+Wi-Fi signal strength reads more accurately on Android.
+Bug fixes and performance improvements.
