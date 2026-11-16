@@ -78,7 +78,9 @@ class AppSettings {
   }
 
   Future<bool> setCustomSubnet(String customSubnet) async {
-    _customSubnet = customSubnet;
+    // Trim at the write boundary as well, so a value saved by any caller
+    // (not only the settings dialog) can never reach the scan code padded.
+    _customSubnet = customSubnet.trim();
     return await (await SharedPreferences.getInstance())
         .setString(_customSubnetKey, _customSubnet);
   }
