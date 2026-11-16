@@ -1,0 +1,22 @@
+So Vernet máte domácu alebo kancelársku sieť plne pod kontrolou — je bezplatná open-source sada nástrojov, ktorá vám informácie o sieti dáva priamo do rúk.
+
+Či už riešite pomalé pripojenie, zisťujete, kto je pripojený k vašej Wi-Fi, alebo overujete dostupnosť zariadení, Vernet odpovedá jasne a zrozumiteľne — bez technických znalostí.
+
+🔍 Čo je v mojej sieti?
+Zobrazte všetky zariadenia pripojené k vašej lokálnej Wi-Fi spolu s ich IP adresami a názvami. Presne viete, kto a čo vaše pripojenie zdieľa.
+
+📡 Funguje mi internet?
+Spustite test ping a zistite, či webová stránka alebo zariadenie odpovedá. Výpadky a oneskorenia odhalíte behom sekúnd.
+
+⚡ Ako rýchle je moje pripojenie?
+Zmerajte skutočnú rýchlosť sťahovania a odosielania vstavaným testom rýchlosti. Presné výsledky získate bez opustenia aplikácie.
+
+🔓 Ktoré služby sú prístupné?
+Naskenujte zariadenie na otvorené porty a uvidíte, ktoré služby sú dostupné — užitočné pri hodnotení bezpečnosti vašej siete.
+
+🌐 Čo sa skrýva za touto adresou?
+Vstavané nástroje DNS vyhľadávajú doménové mená, prekladajú IP adresy a sledujú, ako sa adresy na internete mapujú.
+
+✅ Zadarmo a open-source
+Vernet je zadarmo a open-source na GitHube: https://github.com/osociety/vernet
+Toto zostavenie môže obsahovať reklamy. Bez reklám nájdete Vernet na F-Droid.

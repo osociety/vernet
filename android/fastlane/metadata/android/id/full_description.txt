@@ -1,0 +1,22 @@
+Kuasai jaringan rumah atau kantor Anda dengan Vernet — perangkat gratis dan sumber terbuka yang menempatkan wawasan jaringan di tangan Anda.
+
+Entah Anda sedang memperbaiki koneksi lambat, memeriksa siapa yang terhubung ke Wi-Fi Anda, atau memastikan perangkat Anda terjangkau, Vernet memberi jawaban yang jelas dan mudah dipahami — tanpa pengetahuan teknis.
+
+🔍 Apa saja di jaringan saya?
+Lihat semua perangkat yang terhubung ke Wi-Fi lokal Anda, beserta alamat IP dan namanya. Ketahui persis siapa dan apa yang berbagi koneksi Anda.
+
+📡 Apakah internet saya berfungsi?
+Jalankan tes ping untuk memeriksa apakah situs atau perangkat merespons. Temukan gangguan dan keterlambatan dalam hitungan detik.
+
+⚡ Seberapa cepat koneksi saya?
+Ukur kecepatan unduh dan unggah Anda yang sebenarnya dengan tes kecepatan bawaan. Dapatkan hasil akurat tanpa keluar dari aplikasi.
+
+🔓 Layanan apa yang terbuka?
+Pindai perangkat untuk mencari port terbuka dan lihat layanan mana yang terjangkau — berguna untuk memahami keamanan jaringan Anda.
+
+🌐 Apa di balik alamat ini?
+Gunakan alat DNS bawaan untuk mencari nama domain, menerjemahkan IP, dan menelusuri bagaimana alamat dipetakan di internet.
+
+✅ Gratis & sumber terbuka
+Vernet gratis dan sumber terbuka di GitHub: https://github.com/osociety/vernet
+Build ini mungkin berisi iklan. Untuk pengalaman tanpa iklan, dapatkan Vernet di F-Droid.

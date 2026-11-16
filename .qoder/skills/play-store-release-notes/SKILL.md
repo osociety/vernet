@@ -13,5 +13,6 @@ Edit that file rather than this one so Copilot and Qoder agents stay in
 sync.
 
 The load-bearing detail is the locale list: Play's tags are not Flutter's
-(`iw-IL`, `no-NO`, `es-419`), and only `en-US` is committed — the other 28
-languages exist solely in Play Console.
+(`iw-IL`, `no-NO`, `es-419`), and all 29 of them are committed under
+`android/fastlane/metadata/android/`, so a release publishes every language
+from git. `scripts/play_store_listing.dart --check` gates that tree.

@@ -1,0 +1,5 @@
+Vernet est désormais entièrement traduit en allemand.
+Choisissez votre langue à la première ouverture de l'application ou modifiez-la dans les Réglages.
+Les dates et heures suivent votre langue.
+La puissance du signal Wi-Fi est mesurée plus précisément sur Android.
+Corrections de bugs et améliorations des performances.

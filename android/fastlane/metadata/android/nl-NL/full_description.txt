@@ -1,0 +1,22 @@
+Neem de controle over je thuis- of kantoornetwerk met Vernet — een gratis, open-source toolkit die netwerkinformatie in je handen legt.
+
+Of je nu een trage verbinding oplost, kijkt wie er op je wifi zit, of controleert of je apparaten bereikbaar zijn: Vernet geeft duidelijke, begrijpelijke antwoorden — zonder technische kennis.
+
+🔍 Wat zit er in mijn netwerk?
+Zie elk apparaat dat met je lokale wifi is verbonden, met de IP-adressen en namen. Weet precies wie en wat je verbinding deelt.
+
+📡 Werkt mijn internet?
+Draai een ping-test om te zien of een website of apparaat reageert. Signaleer uitval en vertraging in seconden.
+
+⚡ Hoe snel is mijn verbinding?
+Meet je echte download- en uploadsnelheid met de ingebouwde snelheidstest. Krijg nauwkeurige resultaten zonder de app te verlaten.
+
+🔓 Welke services zijn blootgesteld?
+Scan een apparaat op open poorten om te zien welke services bereikbaar zijn — handig om de beveiliging van je netwerk te begrijpen.
+
+🌐 Wat zit achter dit adres?
+Gebruik de ingebouwde DNS-tools om domeinnamen op te zoeken, IP's op te lossen en te volgen hoe adressen op internet worden toegewezen.
+
+✅ Gratis & open source
+Vernet is gratis en open source op GitHub: https://github.com/osociety/vernet
+Deze build kan advertenties bevatten. Voor een advertentievrije ervaring haal je Vernet op F-Droid.

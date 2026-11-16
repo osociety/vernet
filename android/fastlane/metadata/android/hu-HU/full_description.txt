@@ -1,0 +1,22 @@
+Vernettel teljes ellenőrzése alatt tartja otthoni vagy irodai hálózatát — egy ingyenes, nyílt forráskódú eszköztár, amely a hálózati tudnivalókat a kezébe adja.
+
+Akár lassú kapcsolatot hibáztat, azt nézi, ki van fent a Wi-Fi-jén, vagy azt ellenőrzi, hogy eszközei elérhetők-e, a Vernet világos, könnyen érthető válaszokat ad — technikai tudás nélkül.
+
+🔍 Mi van a hálózatomon?
+Látja az összes helyi Wi-Fi-hálózatára kapcsolódó eszközt IP-címükkel és nevükkel. Pontosán tudja, ki és mi osztja a kapcsolatát.
+
+📡 Működik az internetem?
+Futtasson ping-tesztet, hogy megnézze, egy weboldal vagy eszköz válaszol-e. A kieséseket és késéseket másodpercek alatt észleli.
+
+⚡ Milyen gyors a kapcsolatom?
+A beépített sebességteszttel mérheti a valódi letöltési és feltöltési sebességet. Pontos eredmények az alkalmazás elhagyása nélkül.
+
+🔓 Milyen szolgáltatások érhetők el?
+Eszköz szkennelésével nyitott portokat keres, és látja, mely szolgáltatások érhetők el — hasznos a hálózat biztonsági helyzetének megértéséhez.
+
+🌐 Mi áll e cím mögött?
+A beépített DNS-eszközökkel domain neveket kereshet, IP-címeket oldhat meg, és követheti, hogyan vannak a címek az interneten leképezve.
+
+✅ Ingyenes és nyílt forráskódú
+A Vernet ingyenes és nyílt forráskódú a GitHubon: https://github.com/osociety/vernet
+Ez a build tartalmazhat hirdetéseket. Hirdetésmentes élményért szerezze be a Vernettet az F-Droidról.
