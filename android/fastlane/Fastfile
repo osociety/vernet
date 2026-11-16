@@ -21,16 +21,18 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Submit a new Beta Build to Crashlytics Beta"
+  desc "Submit the store build to the beta track with its listing text"
   lane :beta do
-    upload_to_play_store(skip_upload_metadata: true,
-    skip_upload_changelogs: true,
+    # The track stays beta: production is promoted by hand from the Console.
+    # Listing text and changelogs come from git, so a localized note publishes
+    # with the build instead of being pasted into the Console afterwards.
+    # Images and screenshots stay skipped - the committed copies are a snapshot
+    # from whenever they were last saved, and supply replaces the live set
+    # wholesale. scripts/play_store_listing.dart --check has to pass first.
+    upload_to_play_store(track: 'beta',
+    aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab',
     skip_upload_images: true,
-    skip_upload_screenshots: true,
-    track: 'beta', aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab')
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
+    skip_upload_screenshots: true)
   end
 
   desc "Submit a new Beta Build to Crashlytics Beta"
