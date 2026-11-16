@@ -133,11 +133,18 @@ class LldpParser {
     return null;
   }
 
+  /// Capabilities the remote says are enabled, as labels.
+  ///
+  /// The System Capabilities TLV is `chassis id subtype | chassis id |
+  /// supported (2) | enabled (2)`, and the chassis id length follows its
+  /// subtype, so the enabled bitmap is read from the end of the value. Bytes 2
+  /// and 3 sit inside a MAC or a name based chassis id, so reading them
+  /// reported invented capabilities such as DOCSIS.
   static String _capabilities(List<int> value) {
     if (value.length < 4) {
       return '';
     }
-    final enabled = (value[2] << 8) | value[3];
+    final enabled = (value[value.length - 2] << 8) | value[value.length - 1];
     const labels = {
       0x01: 'Other',
       0x02: 'Repeater',
