@@ -1,0 +1,22 @@
+Ev veya ofis ağınızın kontrolünü Vernet ile elinize alın — ağ bilgilerini doğrudan size veren ücretsiz, açık kaynaklı bir araç takımı.
+
+Yavaş bir bağlantıyı gideriyor, Wi-Fi ağınıza kimin bağlı olduğunu kontrol ediyor ya da cihazlarınıza erişilebildiğinden emin olmak istiyor olun, Vernet teknik bilgi gerektirmeden net ve anlaşılır yanıtlar verir.
+
+🔍 Ağımda ne var?
+Yerel Wi-Fi ağınıza bağlı tüm cihazları IP adresleri ve adlarıyla görün. Bağlantınızı kimin ve neyin paylaştığını tam olarak bilin.
+
+📡 İnternetim çalışıyor mu?
+Bir web sitesinin ya da cihazın yanıt verip vermediğini anlamak için ping testi çalıştırın. Kesintileri ve gecikmeleri saniyeler içinde fark edin.
+
+⚡ Bağlantım ne kadar hızlı?
+Yerleşik hız testiyle gerçek indirme ve yükleme hızınızı ölçün. Uygulamadan çıkmadan doğru sonuçlar alın.
+
+🔓 Hangi hizmetler açıkta?
+Bir cihazı açık portlar için tarayın ve hangi hizmetlere erişilebildiğini görün — ağınızın güvenlik durumunu anlamak için faydalıdır.
+
+🌐 Bu adresin arkasında ne var?
+Yerleşik DNS araçlarıyla alan adlarını sorgulayın, IP adreslerini çözümleyin ve internet üzerinde adreslerin nasıl eşlendiğini izleyin.
+
+✅ Ücretsiz ve açık kaynak
+Vernet GitHub üzerinde ücretsiz ve açık kaynaklıdır: https://github.com/osociety/vernet
+Bu sürüm reklam içerebilir. Reklamsız bir deneyim için Vernet'i F-Droid'den edinin.

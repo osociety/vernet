@@ -1,0 +1,5 @@
+Vernet is nu volledig in het Duits vertaald.
+Kies je taal bij het openen van de app, of wijzig het in Instellingen.
+Tijden en datums volgen je taal.
+De wifi-signaalsterkte wordt op Android nauwkeuriger weergegeven.
+Bugfixes en prestatieverbeteringen.

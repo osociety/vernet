@@ -1,0 +1,5 @@
+Vernet er nu fuldt oversat til tysk.
+Vælg dit sprog, første gang du åbner appen, eller skift det i Indstillinger.
+Tid og dato følger dit sprog.
+Wi-Fi-signalstyrke måles mere præcist på Android.
+Fejlretninger og forbedringer af ydeevnen.
