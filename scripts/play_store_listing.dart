@@ -9,9 +9,22 @@
 // no note for the build being released ships an empty one, and a title over Play's
 // 30 characters fails in the Console rather than here.
 //
-// Screenshots and the feature graphic stay out of the publish on purpose: the
-// committed images are a snapshot from whenever they were last saved, and
-// fastlane replaces the live set for a language wholesale.
+// A locale dir added for its listing text carries the note for the build being
+// released and nothing older. supply only ever reads `<build>.txt`, and the
+// GitHub release page is where earlier versions' notes live, so a new language is
+// never backfilled with the history `en-US` happens to hold — `en-US` keeps that
+// history because F-Droid maps every `<n>.txt` to that build's changelog.
+//
+// The tree is shared, not Play's own. The repository root carries a `fastlane`
+// symlink to `android/fastlane`, and fdroidserver reads the same locale dirs for
+// its listing: the text, the changelogs, the icon, the banner and the
+// screenshots. So no asset here is safe to delete to stop one store publishing it.
+// What Play receives is decided by placement: `images/icon.png` is the one image
+// the beta lane uploads, checked byte-for-byte against `assets/app_icon.png`
+// below; `featureGraphic.png` sits in the locale directory because F-Droid takes
+// graphics from anywhere in it while supply only looks in `images/`; and
+// `images/phoneScreenshots/` stays out of the publish, since supply replaces a
+// language's live screenshot set wholesale.
 //
 // `--check` is the gate CI runs before any Play credential is used.
 
@@ -37,6 +50,23 @@ const List<String> requiredFiles = [
 const String changelogDirectory = 'changelogs';
 const String fallbackChangelogFile = 'default.txt';
 
+/// The one image type that follows the app instead of being hand-uploaded.
+const String iconFile = 'icon.png';
+const String imagesDirectory = 'images';
+
+/// The shared store banner, which F-Droid reads and Play must not.
+const String featureGraphicFile = 'featureGraphic.png';
+
+/// The brand mark the committed Play icon has to be byte-identical with, so the
+/// listing icon cannot silently lag a logo change.
+const String appIconFile = 'assets/app_icon.png';
+
+/// The banner `android/fastlane/metadata/android/en-US/featureGraphic.png` holds
+/// for F-Droid. It must not sit in `images/`: supply uploads every image type it
+/// finds there, and this one is stale art nobody maintains as a Play asset.
+final RegExp featureGraphicInImages =
+    RegExp(r'^featureGraphic\.(png|jpe?g)$', caseSensitive: false);
+
 /// A directory fastlane would upload as one language.
 ///
 /// fastlane takes every non-hidden directory in the metadata tree, whatever it is
@@ -49,6 +79,8 @@ class PlayLocale {
     required this.changelogs,
     required this.hasChangelogDirectory,
     this.video,
+    this.iconBytes,
+    this.playUploadableFeatureGraphic = false,
   });
 
   final String locale;
@@ -63,6 +95,13 @@ class PlayLocale {
 
   /// The promo video URL, when one is committed.
   final String? video;
+
+  /// Raw bytes of `images/icon.png`, when one is committed. The icon is the only
+  /// image fastlane uploads, so its bytes are the app icon Play will serve.
+  final List<int>? iconBytes;
+
+  /// Whether `images/` holds a feature graphic, which fastlane would upload.
+  final bool playUploadableFeatureGraphic;
 }
 
 /// Reads the metadata tree, one entry per directory fastlane would publish.
@@ -96,12 +135,22 @@ PlayLocale _readLocale(Directory directory, String name) {
       changelogs[_baseName(entity.path)] = _trim(text);
     }
   }
+  final images =
+      Directory('${directory.path}${Platform.pathSeparator}$imagesDirectory');
+  final icon = File('${images.path}${Platform.pathSeparator}$iconFile');
+  final bannerInImages = images.existsSync() &&
+      images
+          .listSync()
+          .whereType<File>()
+          .any((file) => featureGraphicInImages.hasMatch(_baseName(file.path)));
   return PlayLocale(
     name,
     files: files,
     changelogs: changelogs,
     hasChangelogDirectory: changelogDir.existsSync(),
     video: files['video.txt'],
+    iconBytes: icon.existsSync() ? icon.readAsBytesSync() : null,
+    playUploadableFeatureGraphic: bannerInImages,
   );
 }
 
@@ -122,7 +171,15 @@ int buildNumberFromPubspec(String pubspec) {
 
 /// Every problem that would reach Play, in one report, so a contributor sees all
 /// of them from a single run.
-List<String> validateListingTree(List<PlayLocale> locales, int buildNumber) {
+/// [appIconBytes] is the brand mark the app actually ships with. When it is
+/// given, every committed listing icon has to be that same file, because Play
+/// keeps serving whatever icon it last received and a stale one is invisible in
+/// git.
+List<String> validateListingTree(
+  List<PlayLocale> locales,
+  int buildNumber, {
+  List<int>? appIconBytes,
+}) {
   final violations = <String>[];
   if (locales.isEmpty) {
     return ['no language directories under the Play metadata tree'];
@@ -148,6 +205,8 @@ List<String> validateListingTree(List<PlayLocale> locales, int buildNumber) {
     }
     _checkChangelog(locale, buildNumber, violations);
     _checkVideo(locale, violations);
+    _checkIcon(locale, appIconBytes, violations);
+    _checkFeatureGraphicPlacement(locale, violations);
   }
   return violations;
 }
@@ -219,6 +278,47 @@ void _checkVideo(PlayLocale locale, List<String> violations) {
   }
 }
 
+/// `featureGraphic.png` belongs one level up, in the locale directory: F-Droid
+/// ingests a graphic from anywhere in it, while supply only uploads what sits in
+/// `images/`. Left there, the next release republishes whatever banner the file
+/// happens to hold, which is how the pre-rebrand art nearly came back.
+void _checkFeatureGraphicPlacement(
+  PlayLocale locale,
+  List<String> violations,
+) {
+  if (!locale.playUploadableFeatureGraphic) return;
+  violations.add(
+    '${locale.locale}: a feature graphic in $imagesDirectory/ would upload to '
+    'Play, where only the icon is owned by git — move it to '
+    '${locale.locale}/$featureGraphicFile for F-Droid',
+  );
+}
+
+/// The icon is the one image fastlane uploads, and Play keeps serving the last
+/// one it received. A committed copy that is not the shipped brand mark means the
+/// logo changed and the listing did not.
+void _checkIcon(
+  PlayLocale locale,
+  List<int>? appIconBytes,
+  List<String> violations,
+) {
+  final icon = locale.iconBytes;
+  if (appIconBytes == null || icon == null) return;
+  if (_bytesEqual(icon, appIconBytes)) return;
+  violations.add(
+    '${locale.locale}: $imagesDirectory/$iconFile differs from $appIconFile, '
+    'so Play serves an icon the app no longer uses',
+  );
+}
+
+bool _bytesEqual(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
 /// The build number a changelog file names, or null for `default.txt` and any
 /// other file that is not a numbered note.
 int? _changelogBuild(String fileName) {
@@ -254,6 +354,7 @@ String _clip(String text) =>
 void main(List<String> args) {
   Directory metadata = Directory('android/fastlane/metadata/android');
   String pubspecPath = 'pubspec.yaml';
+  String appIconPath = appIconFile;
   for (var i = 0; i < args.length; i++) {
     switch (args[i]) {
       case '--check':
@@ -272,10 +373,18 @@ void main(List<String> args) {
           return;
         }
         pubspecPath = args[i];
+      case '--app-icon':
+        if (++i >= args.length) {
+          stderr.writeln('--app-icon needs a path');
+          exitCode = 64;
+          return;
+        }
+        appIconPath = args[i];
       default:
         stderr.writeln(
           'usage: dart run scripts/play_store_listing.dart '
-          '[--check] [--metadata <dir>] [--pubspec <file>]',
+          '[--check] [--metadata <dir>] [--pubspec <file>] '
+          '[--app-icon <file>]',
         );
         exitCode = 64;
         return;
@@ -295,7 +404,12 @@ void main(List<String> args) {
   for (final line in describeListingTree(locales, buildNumber)) {
     stdout.writeln(line);
   }
-  final violations = validateListingTree(locales, buildNumber);
+  final appIcon = File(appIconPath);
+  final violations = validateListingTree(
+    locales,
+    buildNumber,
+    appIconBytes: appIcon.existsSync() ? appIcon.readAsBytesSync() : null,
+  );
   if (violations.isEmpty) {
     stdout.writeln(
       '${locales.map((locale) => locale.locale).join(', ')}: Play listing tree '

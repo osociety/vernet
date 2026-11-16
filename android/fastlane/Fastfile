@@ -21,17 +21,22 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Submit the store build to the beta track with its listing text"
+  desc "Submit the store build to the beta track with its listing text and icon"
   lane :beta do
     # The track stays beta: production is promoted by hand from the Console.
-    # Listing text and changelogs come from git, so a localized note publishes
-    # with the build instead of being pasted into the Console afterwards.
-    # Images and screenshots stay skipped - the committed copies are a snapshot
-    # from whenever they were last saved, and supply replaces the live set
-    # wholesale. scripts/play_store_listing.dart --check has to pass first.
+    # Listing text, changelogs and the icon come from git, so a localized note
+    # publishes with the build instead of being pasted into the Console
+    # afterwards. scripts/play_store_listing.dart --check has to pass first -
+    # it fails when en-US/images/icon.png is not a copy of assets/app_icon.png.
+    # sync_image_upload skips the upload when Play already has those bytes.
+    # Screenshots stay skipped: supply replaces the live set for a language
+    # wholesale, and the committed ones would wipe the curated Console set.
+    # This metadata tree is shared with F-Droid through the root fastlane
+    # symlink, so nothing is deleted from it - supply uploads only what is inside
+    # images/, which is why the banner lives at en-US/featureGraphic.png.
     upload_to_play_store(track: 'beta',
     aab: '../build/app/outputs/bundle/storeRelease/app-store-release.aab',
-    skip_upload_images: true,
+    sync_image_upload: true,
     skip_upload_screenshots: true)
   end
 
