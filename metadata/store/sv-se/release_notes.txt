@@ -1,1 +1,3 @@
-Inget har ändrats för Vernet på Windows i den här versionen.
+Vernet är nu helt översatt till tyska.
+Välj ditt språk första gången du öppnar Vernet, eller ändra det i Inställningar.
+Tider och datum följer ditt språk.

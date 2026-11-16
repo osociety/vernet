@@ -1,1 +1,3 @@
-Không có thay đổi cho Vernet trên Windows trong bản phát hành này.
+Vernet giờ đã được dịch toàn bộ sang tiếng Đức.
+Hãy chọn ngôn ngữ khi mở Vernet lần đầu, hoặc thay đổi trong Cài đặt.
+Giờ và ngày tuân theo ngôn ngữ của bạn.

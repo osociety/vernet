@@ -1,1 +1,3 @@
-Er is in deze versie niets gewijzigd aan Vernet voor Windows.
+Vernet is nu volledig in het Duits vertaald.
+Kies je taal bij de eerste keer openen van Vernet, of wijzig deze in Instellingen.
+Tijden en datums volgen je taal.

@@ -1,1 +1,3 @@
-Tidak ada perubahan untuk Vernet di Windows pada rilis ini.
+Vernet kini diterjemahkan sepenuhnya ke bahasa Jerman.
+Pilih bahasa saat pertama kali membuka Vernet, atau ubah di Pengaturan.
+Waktu dan tanggal mengikuti bahasa Anda.

@@ -1,1 +1,3 @@
-Vernet gibt es jetzt auf Deutsch. Wähle deine Sprache in den Einstellungen oder folge Windows.
+Vernet gibt es jetzt vollständig auf Deutsch.
+Wähle deine Sprache beim ersten Öffnen von Vernet oder ändere sie in den Einstellungen.
+Uhrzeiten und Datumsangaben folgen deiner Sprache.

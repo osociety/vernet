@@ -1,1 +1,3 @@
-A Windowsos Vernet ebben a verzióban nem változott.
+A Vernet most németül is teljesen elérhető.
+A nyelvet a Vernet első megnyitásakor választhatja meg, vagy módosíthatja a Beállításokban.
+Az időpontok és dátumok a nyelvét követik.

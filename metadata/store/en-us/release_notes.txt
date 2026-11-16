@@ -1,1 +1,3 @@
-Vernet now speaks German. Choose your language in Settings, or let Vernet follow Windows.
+Vernet is now fully translated into German.
+Choose your language the first time you open Vernet, or change it in Settings.
+Times and dates follow your language.
