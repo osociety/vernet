@@ -9,9 +9,11 @@
 // no note for the build being released ships an empty one, and a title over Play's
 // 30 characters fails in the Console rather than here.
 //
-// Screenshots and the feature graphic stay out of the publish on purpose: the
-// committed images are a snapshot from whenever they were last saved, and
-// fastlane replaces the live set for a language wholesale.
+// The icon is the image this tree owns: `en-US/images/icon.png` is compared with
+// `assets/app_icon.png` below, so a logo change cannot ship to Play with the old
+// mark still on the listing. Screenshots and the feature graphic stay out of the
+// publish on purpose: the committed ones are a snapshot from whenever they were
+// last saved, and fastlane replaces the live set for a language wholesale.
 //
 // `--check` is the gate CI runs before any Play credential is used.
 
@@ -37,6 +39,14 @@ const List<String> requiredFiles = [
 const String changelogDirectory = 'changelogs';
 const String fallbackChangelogFile = 'default.txt';
 
+/// The one image type that follows the app instead of being hand-uploaded.
+const String iconFile = 'icon.png';
+const String imagesDirectory = 'images';
+
+/// The brand mark the committed Play icon has to be byte-identical with, so the
+/// listing icon cannot silently lag a logo change.
+const String appIconFile = 'assets/app_icon.png';
+
 /// A directory fastlane would upload as one language.
 ///
 /// fastlane takes every non-hidden directory in the metadata tree, whatever it is
@@ -49,6 +59,7 @@ class PlayLocale {
     required this.changelogs,
     required this.hasChangelogDirectory,
     this.video,
+    this.iconBytes,
   });
 
   final String locale;
@@ -63,6 +74,10 @@ class PlayLocale {
 
   /// The promo video URL, when one is committed.
   final String? video;
+
+  /// Raw bytes of `images/icon.png`, when one is committed. The icon is the only
+  /// image fastlane uploads, so its bytes are the app icon Play will serve.
+  final List<int>? iconBytes;
 }
 
 /// Reads the metadata tree, one entry per directory fastlane would publish.
@@ -96,12 +111,15 @@ PlayLocale _readLocale(Directory directory, String name) {
       changelogs[_baseName(entity.path)] = _trim(text);
     }
   }
+  final icon = File('${directory.path}${Platform.pathSeparator}$imagesDirectory'
+      '${Platform.pathSeparator}$iconFile');
   return PlayLocale(
     name,
     files: files,
     changelogs: changelogs,
     hasChangelogDirectory: changelogDir.existsSync(),
     video: files['video.txt'],
+    iconBytes: icon.existsSync() ? icon.readAsBytesSync() : null,
   );
 }
 
@@ -122,7 +140,15 @@ int buildNumberFromPubspec(String pubspec) {
 
 /// Every problem that would reach Play, in one report, so a contributor sees all
 /// of them from a single run.
-List<String> validateListingTree(List<PlayLocale> locales, int buildNumber) {
+/// [appIconBytes] is the brand mark the app actually ships with. When it is
+/// given, every committed listing icon has to be that same file, because Play
+/// keeps serving whatever icon it last received and a stale one is invisible in
+/// git.
+List<String> validateListingTree(
+  List<PlayLocale> locales,
+  int buildNumber, {
+  List<int>? appIconBytes,
+}) {
   final violations = <String>[];
   if (locales.isEmpty) {
     return ['no language directories under the Play metadata tree'];
@@ -148,6 +174,7 @@ List<String> validateListingTree(List<PlayLocale> locales, int buildNumber) {
     }
     _checkChangelog(locale, buildNumber, violations);
     _checkVideo(locale, violations);
+    _checkIcon(locale, appIconBytes, violations);
   }
   return violations;
 }
@@ -219,6 +246,31 @@ void _checkVideo(PlayLocale locale, List<String> violations) {
   }
 }
 
+/// The icon is the one image fastlane uploads, and Play keeps serving the last
+/// one it received. A committed copy that is not the shipped brand mark means the
+/// logo changed and the listing did not.
+void _checkIcon(
+  PlayLocale locale,
+  List<int>? appIconBytes,
+  List<String> violations,
+) {
+  final icon = locale.iconBytes;
+  if (appIconBytes == null || icon == null) return;
+  if (_bytesEqual(icon, appIconBytes)) return;
+  violations.add(
+    '${locale.locale}: $imagesDirectory/$iconFile differs from $appIconFile, '
+    'so Play serves an icon the app no longer uses',
+  );
+}
+
+bool _bytesEqual(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
 /// The build number a changelog file names, or null for `default.txt` and any
 /// other file that is not a numbered note.
 int? _changelogBuild(String fileName) {
@@ -254,6 +306,7 @@ String _clip(String text) =>
 void main(List<String> args) {
   Directory metadata = Directory('android/fastlane/metadata/android');
   String pubspecPath = 'pubspec.yaml';
+  String appIconPath = appIconFile;
   for (var i = 0; i < args.length; i++) {
     switch (args[i]) {
       case '--check':
@@ -272,10 +325,18 @@ void main(List<String> args) {
           return;
         }
         pubspecPath = args[i];
+      case '--app-icon':
+        if (++i >= args.length) {
+          stderr.writeln('--app-icon needs a path');
+          exitCode = 64;
+          return;
+        }
+        appIconPath = args[i];
       default:
         stderr.writeln(
           'usage: dart run scripts/play_store_listing.dart '
-          '[--check] [--metadata <dir>] [--pubspec <file>]',
+          '[--check] [--metadata <dir>] [--pubspec <file>] '
+          '[--app-icon <file>]',
         );
         exitCode = 64;
         return;
@@ -295,7 +356,12 @@ void main(List<String> args) {
   for (final line in describeListingTree(locales, buildNumber)) {
     stdout.writeln(line);
   }
-  final violations = validateListingTree(locales, buildNumber);
+  final appIcon = File(appIconPath);
+  final violations = validateListingTree(
+    locales,
+    buildNumber,
+    appIconBytes: appIcon.existsSync() ? appIcon.readAsBytesSync() : null,
+  );
   if (violations.isEmpty) {
     stdout.writeln(
       '${locales.map((locale) => locale.locale).join(', ')}: Play listing tree '

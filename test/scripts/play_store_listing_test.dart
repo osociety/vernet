@@ -13,6 +13,7 @@ void writeLocale(
   String fullDescription = 'Take control of your network.',
   Map<String, String> changelogs = const {'84.txt': 'New notes.'},
   String? video,
+  List<int>? icon,
 }) {
   final dir = Directory('${root.path}${Platform.pathSeparator}$locale')
     ..createSync(recursive: true);
@@ -23,6 +24,13 @@ void writeLocale(
   write('short_description.txt', '$shortDescription\n');
   write('full_description.txt', '$fullDescription\n');
   if (video != null) write('video.txt', video);
+  if (icon != null) {
+    final images = Directory(
+      '${dir.path}${Platform.pathSeparator}$imagesDirectory',
+    )..createSync();
+    File('${images.path}${Platform.pathSeparator}$iconFile')
+        .writeAsBytesSync(icon);
+  }
   if (changelogs.isEmpty) return;
   final notes = Directory('${dir.path}${Platform.pathSeparator}changelogs')
     ..createSync();
@@ -147,9 +155,51 @@ void main() {
     });
   });
 
+  // The icon is the one image the beta lane uploads, so a committed copy left
+  // behind by a logo change is what Play keeps serving to every user.
+  group('icon drift', () {
+    test('reads the committed icon', () {
+      writeLocale(root, 'en-US', icon: [1, 2, 3]);
+      expect(readListingTree(root).single.iconBytes, [1, 2, 3]);
+    });
+
+    test('accepts an icon that is the shipped brand mark', () {
+      writeLocale(root, 'en-US', icon: [9, 8, 7]);
+      expect(
+        validateListingTree(readListingTree(root), 84, appIconBytes: [9, 8, 7]),
+        isEmpty,
+      );
+    });
+
+    test('refuses an icon the app no longer uses', () {
+      writeLocale(root, 'en-US', icon: [1, 2, 3]);
+      final violations = validateListingTree(readListingTree(root), 84,
+          appIconBytes: [1, 2, 4]);
+      expect(violations, hasLength(1));
+      expect(
+        violations.single,
+        contains('images/icon.png differs from assets/app_icon.png'),
+      );
+    });
+
+    test('ignores a locale with no icon, which fastlane leaves untouched', () {
+      writeLocale(root, 'en-US');
+      expect(
+        validateListingTree(readListingTree(root), 84, appIconBytes: [1, 2, 3]),
+        isEmpty,
+      );
+    });
+
+    test('is not judged without the app icon to compare against', () {
+      writeLocale(root, 'en-US', icon: [1, 2, 3]);
+      expect(validateListingTree(readListingTree(root), 84), isEmpty);
+    });
+  });
+
   // The tree this repository publishes, checked the way CI does before any Play
-  // credential is used: a locale added without this build's changelog, or copy
-  // over a Play limit, fails here rather than blanking a live listing.
+  // credential is used: a locale added without this build's changelog, copy over
+  // a Play limit, or an icon behind the shipped brand mark fails here rather
+  // than blanking or misbranding a live listing.
   test('the committed listing tree is publishable for the release build', () {
     final metadata = Directory('android/fastlane/metadata/android');
     expect(metadata.existsSync(), isTrue,
@@ -160,6 +210,13 @@ void main() {
     final locales = readListingTree(metadata);
     expect(locales.map((locale) => locale.locale),
         containsAll(['en-US', 'de-DE']));
-    expect(validateListingTree(locales, build), isEmpty);
+    expect(
+      validateListingTree(
+        locales,
+        build,
+        appIconBytes: File(appIconFile).readAsBytesSync(),
+      ),
+      isEmpty,
+    );
   });
 }
