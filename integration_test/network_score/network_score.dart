@@ -104,8 +104,8 @@ void main() {
   group('Network Score Integration Tests', () {
     testWidgets('network score card displays initial state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        TestUtils.wrapWithLocalizations(
+          child: Scaffold(
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -136,8 +136,8 @@ void main() {
 
     testWidgets('network score card shows computing state', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        TestUtils.wrapWithLocalizations(
+          child: Scaffold(
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -190,8 +190,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
+        TestUtils.wrapWithLocalizations(
+          child: BlocProvider.value(
             value: getIt<NetworkScoreBloc>(),
             child: NetworkScoreDetailPage(initialScore: testScore),
           ),
@@ -223,8 +223,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
+        TestUtils.wrapWithLocalizations(
+          child: BlocProvider.value(
             value: getIt<NetworkScoreBloc>(),
             child: NetworkScoreDetailPage(initialScore: testScore),
           ),
@@ -256,8 +256,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        TestUtils.wrapWithLocalizations(
+          child: Scaffold(
             body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -324,8 +324,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
+        TestUtils.wrapWithLocalizations(
+          child: BlocProvider.value(
             value: getIt<NetworkScoreBloc>(),
             child: NetworkScoreDetailPage(initialScore: testScore),
           ),
@@ -360,8 +360,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
+        TestUtils.wrapWithLocalizations(
+          child: BlocProvider.value(
             value: getIt<NetworkScoreBloc>(),
             child: NetworkScoreDetailPage(initialScore: testScore),
           ),
@@ -390,8 +390,8 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: BlocProvider.value(
+        TestUtils.wrapWithLocalizations(
+          child: BlocProvider.value(
             value: getIt<NetworkScoreBloc>(),
             child: NetworkScoreDetailPage(initialScore: testScore),
           ),

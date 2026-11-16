@@ -42,7 +42,8 @@ void main() {
 }
 
 Future<void> _openCalculator(WidgetTester tester) async {
-  await tester.pumpWidget(const MaterialApp(home: SubnetCalculatorPage()));
+  await tester.pumpWidget(
+      TestUtils.wrapWithLocalizations(child: const SubnetCalculatorPage()));
   await tester.pumpAndSettle();
   expect(find.text('IP subnet calculator'), findsOneWidget);
   expect(find.text('IP address / prefix'), findsOneWidget);

@@ -2,9 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sidebarx/sidebarx.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/values/keys.dart';
 
 class TestUtils {
+  /// [child] as the home of a MaterialApp carrying the app's real
+  /// localization delegates.
+  ///
+  /// `context.l10n` throws when the delegates are absent, so a suite that pumps
+  /// a page directly instead of driving `MyApp` has to supply them itself.
+  static Widget wrapWithLocalizations({
+    required Widget child,
+    Locale locale = const Locale('en'),
+  }) =>
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: child,
+      );
+
   static void configureAndroidChannelMocks() {
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;

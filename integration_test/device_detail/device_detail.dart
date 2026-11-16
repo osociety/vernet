@@ -62,8 +62,8 @@ void main() {
   Widget buildTestApp({DeviceData device = testDevice}) {
     return ChangeNotifierProvider(
       create: (_) => DarkThemeProvider(),
-      child: MaterialApp(
-        home: DeviceDetailPage(device: device),
+      child: TestUtils.wrapWithLocalizations(
+        child: DeviceDetailPage(device: device),
       ),
     );
   }

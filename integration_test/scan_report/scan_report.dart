@@ -255,7 +255,7 @@ void main() {
       expect(find.text('45s'), findsOneWidget);
       expect(find.text('2d ago'), findsOneWidget);
       expect(find.text('5h ago'), findsOneWidget);
-      expect(find.text('just now'), findsWidgets);
+      expect(find.text(_en.timeJustNow), findsWidgets);
 
       final ongoingY = tester.getTopLeft(find.text('Network 10.0.0')).dy;
       final midY = tester.getTopLeft(find.text('Network 172.16.0')).dy;
@@ -333,7 +333,7 @@ void main() {
       expect(find.text('2 devices'), findsOneWidget);
       expect(find.text('1 device'), findsOneWidget);
       expect(find.text('2d ago'), findsOneWidget);
-      expect(find.text('just now'), findsWidgets);
+      expect(find.text(_en.timeJustNow), findsWidgets);
       expect(find.text('Completed'), findsOneWidget);
       expect(find.text('In progress'), findsOneWidget);
     });
