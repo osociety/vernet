@@ -9,6 +9,11 @@
 // no note for the build being released ships an empty one, and a title over Play's
 // 30 characters fails in the Console rather than here.
 //
+// A locale dir added for its listing text carries the note for the build being
+// released and nothing older. supply only ever reads `<build>.txt`, and the
+// GitHub release page is where earlier versions' notes live, so a new language is
+// never backfilled with the history `en-US` happens to hold.
+//
 // The icon is the image this tree owns: `en-US/images/icon.png` is compared with
 // `assets/app_icon.png` below, so a logo change cannot ship to Play with the old
 // mark still on the listing. Screenshots and the feature graphic stay out of the
