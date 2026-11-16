@@ -76,7 +76,10 @@ abstract class BaseSettingsDialog<T extends StatefulWidget> extends State<T> {
         key: WidgetKey.settingsSubmitButton.key,
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            onSubmit(_controller.text);
+            // Validators read the trimmed value, so save the same value back.
+            // A subnet typed as " 10.0.0.1 " otherwise validated and then
+            // stored its spaces, which no scan could parse.
+            onSubmit(_controller.text.trim());
             Navigator.pop(context);
           }
         },
