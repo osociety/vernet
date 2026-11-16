@@ -287,7 +287,7 @@ so discards any listing text staged before it. Both legs share the
 that is already live, which is why the first publication had to happen in
 Partner Center.
 
-The listing is assembled rather than stored. `metadata/store/<locale>/` holds
+The listing is assembled rather than stored. `msstore/<locale>/` holds
 one directory per language — `title.txt`, `description.txt`, `features.txt`,
 `keywords.txt`, `release_notes.txt`, and `short_description.txt` when that
 field is written — and `dart run scripts/ms_store_listing.dart` overlays those
@@ -298,6 +298,13 @@ script enforces the Store's per-field limits, repairs the placeholder price a
 free product is captured with, and reports each field it changes by size, so a
 public CI log shows what moved without copying the listing into it.
 
+The tree is named `msstore/` at the repository root rather than
+`metadata/store/`, because F-Droid builds this same checkout and fdroidserver
+scans `build/<package>/metadata/<locale>`, copying any text it finds there over
+the listing it read from fastlane. A `metadata/` directory here would quietly
+turn the Windows prose into the Android listing, whose summary limit is 80
+characters, and `pending/` would arrive there as languages no store serves.
+
 An update replaces the whole submission, so a locale that git does not declare
 is carried through from the capture rather than dropped, and a locale in git
 that the product does not serve is refused until it is enabled in Partner
@@ -305,9 +312,9 @@ Center — Store listing > Add/remove languages — with `allow_new_locales` say
 that has happened. The workflow has three modes: `get` captures the live
 submission and uploads a redacted copy, which is the cheapest way to read what
 the Store actually serves; `stage` writes the overlay into the pending draft;
-`update` stages and then commits it. A push to `metadata/store/**` on main only
+`update` stages and then commits it. A push to `msstore/**` on main only
 ever stages, so the release pipeline — or a deliberate `mode=update` dispatch —
-is what reaches shoppers. The checked-in `metadata/metadata.json` capture this
+is what reaches shoppers. The checked-in `metadata.json` capture this
 replaced went stale against the release that followed it, and a run publishing a
 listing whose package set no longer matched was a rollback waiting to happen.
 

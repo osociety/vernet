@@ -341,4 +341,25 @@ void main() {
       reason: 'a directory named pending is not a locale tag',
     );
   });
+
+  // F-Droid builds this same checkout, and fdroidserver scans
+  // `build/<package>/metadata/<locale>` for listing text, copying whatever it
+  // finds over what it read from fastlane. A listing tree under the repository's
+  // `metadata/` would therefore become F-Droid's English name and summary, with
+  // Windows prose that is three times the 80 characters that store allows.
+  test('the committed tree stays out of the path F-Droid scans', () {
+    expect(
+      Directory('metadata').existsSync(),
+      isFalse,
+      reason:
+          'a root metadata/ directory is a second, ungoverned F-Droid listing',
+    );
+
+    final committed = Directory(defaultListingsDirectory);
+    expect(committed.existsSync(), isTrue,
+        reason: 'run from the repository root');
+    expect(validateListingTree(readListingTree(committed)), isEmpty);
+    expect(readListingTree(committed).map((locale) => locale.locale),
+        containsAll(['en-us', 'de-de']));
+  });
 }

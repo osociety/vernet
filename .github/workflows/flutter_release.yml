@@ -753,7 +753,7 @@ jobs:
   # Last, and only because it has to be: `msstore publish` above rebuilds the
   # Store draft from the last published submission, so listing text staged
   # before it would be discarded. This leg captures the submission that now
-  # names the bundle just shipped, overlays the words from metadata/store/, and
+  # names the bundle just shipped, overlays the words from msstore/, and
   # commits. Nothing depends on it, so a refused update -- the Store is busy
   # ingesting the package for a while after a commit -- leaves the release
   # intact and the listing for a mode=update dispatch.

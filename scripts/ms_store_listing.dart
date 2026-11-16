@@ -6,9 +6,9 @@
 // description, features, keywords and release notes come from git.
 //
 //     dart run scripts/ms_store_listing.dart \
-//       --submission captured.json --listings metadata/store --out payload.json
+//       --submission captured.json --listings msstore --out payload.json
 //
-// `metadata/store/pending/` holds the locales written but not yet enabled on the
+// `msstore/pending/` holds the locales written but not yet enabled on the
 // product; the tree reader only matches locale-shaped directory names, so they
 // sit in review without reaching a payload.
 //
@@ -61,6 +61,15 @@ const String reservedTitlesFile = 'reserved_titles.txt';
 /// Fields a locale directory must provide to be publishable at all.
 const List<String> requiredFiles = ['title.txt', 'description.txt'];
 
+/// The listing tree, deliberately at the repository root instead of `metadata/`.
+///
+/// fdroidserver scans `build/<package>/metadata/<locale>` in this checkout and
+/// copies whatever text it finds over the values read from fastlane, so a
+/// `metadata/` directory here is an ungoverned second F-Droid listing: the
+/// Windows prose would replace the Android one, whose summary limit is 80
+/// characters, and `pending/` would arrive as languages no store serves.
+const String defaultListingsDirectory = 'msstore';
+
 final RegExp localeDirectoryPattern = RegExp(r'^[a-z]{2,3}(-[a-z0-9]{2,4})+$');
 
 /// One locale's listing text, with a null value meaning "no file committed,
@@ -81,7 +90,7 @@ class ListingFailure implements Exception {
   String toString() => violations.join('\n');
 }
 
-/// Reads `metadata/store/<locale>/` and returns every locale it declares.
+/// Reads `msstore/<locale>/` and returns every locale it declares.
 List<ListingLocale> readListingTree(Directory root) {
   if (!root.existsSync()) {
     throw ListingFailure(['no listing tree at ${root.path}']);
@@ -295,7 +304,7 @@ Map<String, dynamic> overlaySubmission(
       '${unreserved.length} locale(s) keep the title the Store already serves, '
       'because title.txt is not a reserved product name (lengths in chars): '
       '${unreserved.join(', ')}. Reserve each name in Partner Center, then add '
-      'it to metadata/store/$reservedTitlesFile to publish it.',
+      'it to $defaultListingsDirectory/$reservedTitlesFile to publish it.',
     );
   }
 
@@ -426,7 +435,7 @@ class _Options {
   final bool checkOnly;
 
   static _Options? parse(List<String> args) {
-    Directory listings = Directory('metadata/store');
+    Directory listings = Directory(defaultListingsDirectory);
     String? submission;
     String? output;
     bool allowNew = false;

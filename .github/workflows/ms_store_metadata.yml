@@ -1,7 +1,12 @@
 name: Microsoft Store metadata
 
 # Publishes the Store listing (title, description, features, keywords, release
-# notes) from the text versioned under metadata/store/<locale>/.
+# notes) from the text versioned under msstore/<locale>/.
+#
+# The tree sits at the repository root, not under metadata/, because F-Droid
+# builds this same checkout: fdroidserver scans build/<package>/metadata/<locale>
+# and copies any text it finds over what it read from fastlane, so a metadata/
+# directory here would silently become the Android listing's English prose.
 #
 # The Store replaces the whole submission on every update, so the payload is
 # assembled rather than stored: capture the live submission, overlay this
@@ -9,7 +14,7 @@ name: Microsoft Store metadata
 # hardware stay the Store's business because nothing in git owns them; the
 # listing prose lives in git because that is where a rewrite gets reviewed.
 #
-# metadata/metadata.json used to be that capture, committed. It went stale on
+# A committed metadata.json used to be that capture. It went stale on
 # every release -- the file names the MSIX it was taken from, so publishing it
 # after a newer build shipped would have put the older package back on the
 # storefront -- and re-capturing it by hand was the chore that proved the model
@@ -38,20 +43,20 @@ name: Microsoft Store metadata
 # A locale directory has to name a language the product already serves (en-us,
 # de-de, fr-fr). Enable a new one in Partner Center first -- Store listing >
 # Add/remove languages -- then run with allow_new_locales. Text written for a
-# language that is not enabled yet lives under metadata/store/pending/, which
+# language that is not enabled yet lives under msstore/pending/, which
 # the assembler does not read, so the tree can carry more languages than the
 # product serves without refusing the publish.
 #
 # Titles are the one field git does not fully own: the package declares en-us
 # only, so every other language is listed under a reserved product name and the
-# Store refuses anything else. metadata/store/reserved_titles.txt says which
+# Store refuses anything else. msstore/reserved_titles.txt says which
 # names are reserved, and a title outside it is skipped with a log line.
 
 on:
   push:
     branches: [main]
     paths:
-      - metadata/store/**
+      - msstore/**
   workflow_call:
     inputs:
       mode:
@@ -129,7 +134,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           dart run scripts/ms_store_listing.dart --check
-          if ($LASTEXITCODE -ne 0) { throw 'metadata/store/ is not publishable as it stands.' }
+          if ($LASTEXITCODE -ne 0) { throw 'msstore/ is not publishable as it stands.' }
 
       - name: Configure the Microsoft Store CLI
         uses: microsoft/microsoft-store-apppublisher@v1.4
