@@ -32,12 +32,17 @@ import 'wifi_test/wifi_test_runner.dart' as wifi_test_runner;
 /// suffix so `flutter test integration_test` does not launch a separate app
 /// per file (which fails on macOS with "Unable to start the app on the device").
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   globals.testingActive = true;
   NotificationService.skipPermissionRequests = true;
   late ServerSocket server;
 
   setUp(() {
+    // The Linux leg of the CI matrix runs in a session whose language Vernet
+    // does not ship, and gen-l10n lists supportedLocales alphabetically, so
+    // Flutter's default resolution hands it German while macOS and Windows get
+    // English. The suites assert the English strings, so pin the language.
+    binding.platformDispatcher.localesTestValue = const [Locale('en')];
     SharedPreferences.setMockInitialValues({});
     AppSettings.instance.resetForTesting();
     TestUtils.configureAndroidChannelMocks();
