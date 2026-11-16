@@ -48,6 +48,24 @@ void main() {
       expect(reloaded.gatewayIP, '192.168.1');
     });
 
+    test('trims spaces around a saved custom subnet', () async {
+      await settings.setCustomSubnet('  10.0.0.1  ');
+
+      expect(settings.customSubnet, '10.0.0.1');
+      expect(settings.gatewayIP, '10.0.0');
+
+      await settings.load();
+      expect(settings.customSubnet, '10.0.0.1');
+    });
+
+    test('saves a whitespace-only custom subnet as empty', () async {
+      await settings.setCustomSubnet('10.0.0.1');
+
+      await settings.setCustomSubnet('   ');
+
+      expect(settings.customSubnet, isEmpty);
+    });
+
     test('calculates the scan range from the subnet mask', () {
       final range =
           settings.calculateHostRange('192.168.1.42', '255.255.255.0');
