@@ -40,6 +40,7 @@ import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/semantic_colors.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -220,6 +221,13 @@ class _MyAppState extends State<MyApp> {
             title: 'Vernet',
             theme: createSemanticTheme(theme.darkTheme),
             locale: locale.locale,
+            // Flutter's fallback for a language Vernet does not ship is
+            // supportedLocales.first, and gen-l10n orders that list by ARB
+            // filename, so a Russian or Polish device rendered German while the
+            // service layer read English. This callback runs before that
+            // fallback, so both layers agree on English.
+            localeListResolutionCallback: (systemLocales, supportedLocales) =>
+                resolveSystemLocale(systemLocales ?? const []),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: homePage,

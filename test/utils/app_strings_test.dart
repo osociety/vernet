@@ -44,6 +44,30 @@ void main() {
     });
   });
 
+  group('resolveSystemLocale', () {
+    test('matches by language code across the device preference list', () {
+      expect(
+          resolveSystemLocale(const [Locale('de', 'AT')]), const Locale('de'));
+      expect(resolveSystemLocale(const [Locale('fr'), Locale('en', 'GB')]),
+          const Locale('en'));
+    });
+
+    test('prefers the earlier device entry over a later match', () {
+      expect(resolveSystemLocale(const [Locale('de'), Locale('en')]),
+          const Locale('de'));
+    });
+
+    test('returns English when the device language is not shipped', () {
+      // supportedLocales starts with German because gen-l10n orders it by ARB
+      // filename, so Flutter's own fallback would answer a Russian device in
+      // German. This is the rule lib/main.dart hands to the widget tree.
+      expect(resolveSystemLocale(const [Locale('ru')]), const Locale('en'));
+      expect(
+          resolveSystemLocale(const [Locale('zh', 'CN')]), const Locale('en'));
+      expect(resolveSystemLocale(const []), const Locale('en'));
+    });
+  });
+
   group('systemDefaultLocale', () {
     test('resolves to a locale the app ships', () {
       expect(

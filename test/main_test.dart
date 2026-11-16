@@ -110,6 +110,55 @@ void main() {
 
       expect(MyApp.navigatorKey.currentState, isNotNull);
     });
+
+    // gen-l10n orders supportedLocales by ARB filename, so German is first and
+    // Flutter's own fallback would render a Russian or Polish system in German
+    // while appStrings() handed out English. The entry point resolves it now.
+    testWidgets('an unsupported system language renders English, not German',
+        (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('ru')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+
+      await tester.pumpWidget(const MyApp(null));
+      await pumpVisibleFrame(tester);
+
+      expect(
+        Localizations.localeOf(tester.element(find.byType(TabBarPage))),
+        const Locale('en'),
+      );
+      expect(find.text('Scan your network'), findsWidgets);
+      expect(find.text('Netzwerk scannen'), findsNothing);
+    });
+
+    testWidgets('a supported system language still renders that language',
+        (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('de')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+
+      await tester.pumpWidget(const MyApp(null));
+      await pumpVisibleFrame(tester);
+
+      expect(
+        Localizations.localeOf(tester.element(find.byType(TabBarPage))),
+        const Locale('de'),
+      );
+      expect(find.text('Netzwerk scannen'), findsWidgets);
+    });
+
+    testWidgets('a saved choice beats the system language', (tester) async {
+      SharedPreferences.setMockInitialValues({'LOCALESTATUS': 'de'});
+      AppSettings.instance.resetForTesting();
+      tester.platformDispatcher.localesTestValue = const [Locale('ru')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+
+      await tester.pumpWidget(const MyApp(null));
+      await pumpVisibleFrame(tester);
+
+      expect(
+        Localizations.localeOf(tester.element(find.byType(TabBarPage))),
+        const Locale('de'),
+      );
+    });
   });
 
   group('Responsive entry-point navigation', () {

@@ -26,6 +26,21 @@ AppLocalizations stringsForLocale(Locale locale) =>
 /// system language, else English.
 Locale currentAppLocale() => LocaleProvider.active ?? systemDefaultLocale();
 
+/// The bundle [systemLocales] selects: the first language Vernet ships, else
+/// English.
+///
+/// Flutter's own fallback ends at `supportedLocales.first` when nothing
+/// matches, and gen-l10n orders that list by ARB filename, so German would win
+/// on a Russian or Polish device while [appStrings] handed out English.
+Locale resolveSystemLocale(List<Locale> systemLocales) {
+  for (final system in systemLocales) {
+    for (final supported in AppLocalizations.supportedLocales) {
+      if (supported.languageCode == system.languageCode) return supported;
+    }
+  }
+  return const Locale('en');
+}
+
 /// The language the operating system reports, matched to one Vernet ships and
 /// falling back to English.
 ///
@@ -35,10 +50,5 @@ Locale currentAppLocale() => LocaleProvider.active ?? systemDefaultLocale();
 Locale systemDefaultLocale() {
   // The dispatcher, not the binding: a service can ask for strings before any
   // widget layer exists, and in a plain unit test where none ever will.
-  for (final system in ui.PlatformDispatcher.instance.locales) {
-    for (final supported in AppLocalizations.supportedLocales) {
-      if (supported.languageCode == system.languageCode) return supported;
-    }
-  }
-  return const Locale('en');
+  return resolveSystemLocale(ui.PlatformDispatcher.instance.locales);
 }
