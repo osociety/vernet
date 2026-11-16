@@ -24,6 +24,7 @@ import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/services/network_score_service.dart';
+import 'package:vernet/utils/wifi_addresses.dart';
 import 'package:vernet/values/keys.dart';
 
 import '../helpers/test_helpers.dart';
@@ -182,10 +183,11 @@ void main() {
       expect(find.text('CONNECTED'), findsOneWidget);
     });
 
-    testWidgets('keeps a custom scan subnet out of the gateway row',
+    testWidgets('badges a custom scan subnet without replacing the gateway',
         (tester) async {
       // #646: "Search a different network" saves a scan seed. The dashboard and
-      // the connection details must keep showing the detected router.
+      // the connection details must keep showing the detected router, while the
+      // CUSTOM badge says the scan is sweeping another subnet.
       await pumpHomePage(
         tester,
         size: const Size(900, 800),
@@ -207,17 +209,39 @@ void main() {
 
       expect(find.text('192.168.1.1'), findsWidgets);
       expect(find.text('10.0.0.1'), findsNothing);
-      expect(find.text('CUSTOM'), findsNothing);
+      expect(find.text('CUSTOM'), findsWidgets);
 
       await tester.tap(find.byKey(WidgetKey.deviceToRouterConnector.key));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('192.168.1.1'), findsWidgets);
-      expect(
-        find.text(l10nEn().netValueCustomSubnet('10.0.0.1')),
-        findsNothing,
+      expect(find.text('10.0.0.1'), findsNothing);
+    });
+
+    testWidgets('does not badge when the saved seed is the gateway',
+        (tester) async {
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          '172.20.10.2',
+          '00:11:22:33:44:55',
+          'Mock WiFi',
+          false,
+          '192.168.1.1',
+          true,
+          const WifiNetworkMetrics(
+            rawRssi: -50,
+            normalizedLevel: 3,
+            quality: WifiSignalQuality.excellent,
+          ),
+          scanSubnet: '192.168.1.1',
+        ),
       );
+
+      expect(find.text('192.168.1.1'), findsWidgets);
+      expect(find.text('CUSTOM'), findsNothing);
     });
 
     testWidgets('shows connection line status and opens detail dialog on click',

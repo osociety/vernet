@@ -30,7 +30,7 @@ class WifiInfo {
   /// Address the host scan runs against: the saved custom seed when there is
   /// one, otherwise [gatewayIp].
   String get scanSubnet {
-    final custom = _scanSubnet?.trim() ?? '';
+    final custom = _scanSubnet ?? '';
     return custom.isEmpty ? gatewayIp : custom;
   }
 

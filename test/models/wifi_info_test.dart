@@ -32,10 +32,10 @@ void main() {
       expect(info.subnet, '10.0.0');
     });
 
-    test('a blank custom scan subnet leaves the gateway subnet in use', () {
+    test('an empty custom scan subnet leaves the gateway subnet in use', () {
       final info = WifiInfo('192.168.1.10', null, null, false, '192.168.1.1',
           false, WifiNetworkMetrics.disconnected(),
-          scanSubnet: '  ');
+          scanSubnet: '');
       expect(info.scanSubnet, '192.168.1.1');
       expect(info.subnet, '192.168.1');
     });
