@@ -142,12 +142,12 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
                 contentPadding: EdgeInsets.zero,
                 dense: true,
                 title: Text(row.$1),
-                subtitle: SelectableText(row.$2),
+                subtitle: SelectableText(row.$3),
                 trailing: IconButton(
                   tooltip: row.$2,
                   icon: const Icon(Icons.copy, size: 18),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: row.$2));
+                    Clipboard.setData(ClipboardData(text: row.$3));
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(l10n.subnetCalcCopied(row.$1))),
                     );
