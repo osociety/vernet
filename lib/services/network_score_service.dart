@@ -236,11 +236,7 @@ class NetworkScoreService {
 
     if (wifiInfo.gatewayIp.isNotEmpty && wifiInfo.gatewayIp != '0.0.0.0') {
       score += 20;
-      if (wifiInfo.isCustomGateway) {
-        factors.add(l10n.scoreHealthCustomGateway(wifiInfo.gatewayIp));
-      } else {
-        factors.add(l10n.scoreHealthGateway(wifiInfo.gatewayIp));
-      }
+      factors.add(l10n.scoreHealthGateway(wifiInfo.gatewayIp));
     } else {
       factors.add(l10n.scoreHealthNoGateway);
       factors.add(l10n.scoreHealthNoGatewayTip);

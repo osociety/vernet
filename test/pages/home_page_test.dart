@@ -182,8 +182,10 @@ void main() {
       expect(find.text('CONNECTED'), findsOneWidget);
     });
 
-    testWidgets('badges the gateway when a custom subnet is in use',
+    testWidgets('keeps a custom scan subnet out of the gateway row',
         (tester) async {
+      // #646: "Search a different network" saves a scan seed. The dashboard and
+      // the connection details must keep showing the detected router.
       await pumpHomePage(
         tester,
         size: const Size(900, 800),
@@ -192,19 +194,30 @@ void main() {
           '00:11:22:33:44:55',
           'Mock WiFi',
           false,
-          '192.168.1.0',
+          '192.168.1.1',
           true,
           const WifiNetworkMetrics(
             rawRssi: -50,
             normalizedLevel: 3,
             quality: WifiSignalQuality.excellent,
           ),
-          isCustomGateway: true,
+          scanSubnet: '10.0.0.1',
         ),
       );
 
-      expect(find.text('192.168.1.0'), findsWidgets);
-      expect(find.text('CUSTOM'), findsWidgets);
+      expect(find.text('192.168.1.1'), findsWidgets);
+      expect(find.text('10.0.0.1'), findsNothing);
+      expect(find.text('CUSTOM'), findsNothing);
+
+      await tester.tap(find.byKey(WidgetKey.deviceToRouterConnector.key));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.text('192.168.1.1'), findsWidgets);
+      expect(
+        find.text(l10nEn().netValueCustomSubnet('10.0.0.1')),
+        findsNothing,
+      );
     });
 
     testWidgets('shows connection line status and opens detail dialog on click',
@@ -562,6 +575,38 @@ void main() {
       expect(find.text('250.4 Mbps'), findsOneWidget);
       expect(find.text('42.1 Mbps'), findsOneWidget);
       expect(find.byType(ImageFiltered), findsNothing);
+    });
+  });
+
+  group('resolveWifiAddresses', () {
+    test('a custom subnet seeds the scan and never the gateway (#646)', () {
+      final addresses = resolveWifiAddresses(
+        reportedGatewayIp: '192.168.2.1',
+        wifiIp: '192.168.2.42',
+        customSubnet: '10.0.0.1',
+      );
+      expect(addresses.gatewayIp, '192.168.2.1');
+      expect(addresses.scanSubnet, '10.0.0.1');
+    });
+
+    test('falls back to the device address when no gateway is reported', () {
+      final addresses = resolveWifiAddresses(
+        reportedGatewayIp: null,
+        wifiIp: '192.168.2.42',
+        customSubnet: '',
+      );
+      expect(addresses.gatewayIp, '192.168.2.42');
+      expect(addresses.scanSubnet, isNull);
+    });
+
+    test('reports no gateway when nothing answered', () {
+      final addresses = resolveWifiAddresses(
+        reportedGatewayIp: null,
+        wifiIp: null,
+        customSubnet: ' ',
+      );
+      expect(addresses.gatewayIp, isEmpty);
+      expect(addresses.scanSubnet, isNull);
     });
   });
 }

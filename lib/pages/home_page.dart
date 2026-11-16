@@ -35,6 +35,24 @@ import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
+/// The gateway the dashboard shows and the address the host scan targets.
+///
+/// A saved custom subnet seeds "Search a different network", so it replaces
+/// only the scan target. The gateway stays the one the platform reported, which
+/// is what stops the seed address being shown as the router (#646).
+@visibleForTesting
+({String gatewayIp, String? scanSubnet}) resolveWifiAddresses({
+  required String? reportedGatewayIp,
+  required String? wifiIp,
+  required String customSubnet,
+}) {
+  final seed = customSubnet.trim();
+  return (
+    gatewayIp: (reportedGatewayIp ?? wifiIp) ?? '',
+    scanSubnet: seed.isEmpty ? null : seed,
+  );
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
@@ -92,18 +110,22 @@ class _WifiDetailState extends State<HomePage> {
     } catch (e) {
       debugPrint('Unimplemented error $e');
     }
-    final gatewayIp = appSettings.customSubnet.isNotEmpty
-        ? appSettings.customSubnet
-        : (wifiGatewayIP ?? wifiIP) ?? '';
-    final isCustomGateway = appSettings.customSubnet.isNotEmpty;
+    // A saved custom subnet seeds "Search a different network"; it is not this
+    // device's router. Taking it as the gateway made the dashboard and the
+    // network score report the seed address as the router (#646).
+    final addresses = resolveWifiAddresses(
+      reportedGatewayIp: wifiGatewayIP,
+      wifiIp: wifiIP,
+      customSubnet: appSettings.customSubnet,
+    );
     final bool isLocationOn = (Platform.isAndroid || Platform.isIOS) &&
         await Permission.location.serviceStatus.isEnabled;
     final metrics = await WifiRepository.fetchWifiMetrics();
     final hasValidConnection =
         wifiIP != null && wifiIP != 'x.x.x.x' && wifiIP.isNotEmpty;
     _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, !hasValidConnection,
-        gatewayIp, isLocationOn, metrics,
-        isCustomGateway: isCustomGateway);
+        addresses.gatewayIp, isLocationOn, metrics,
+        scanSubnet: addresses.scanSubnet);
 
     if (appSettings.runScanOnStartup && wifiIP != null && !_hasRunStartupScan) {
       setState(() {
@@ -111,7 +133,7 @@ class _WifiDetailState extends State<HomePage> {
         scanRunning = true;
       });
       getIt<DeviceScannerService>()
-          .startNewScan(_wifiInfo!.subnet, wifiIP, gatewayIp)
+          .startNewScan(_wifiInfo!.subnet, wifiIP, _wifiInfo!.scanSubnet)
           .listen((device) {
         if (!mounted) return;
         devices[device.id] = device;
@@ -381,11 +403,6 @@ class _WifiDetailState extends State<HomePage> {
                       : (info.gatewayIp.isEmpty
                           ? l10n.netUnavailable
                           : info.gatewayIp),
-                  badge: !isChecking &&
-                          info.isCustomGateway &&
-                          info.gatewayIp.isNotEmpty
-                      ? const _CustomValueBadge()
-                      : null,
                 ),
               ),
             ],
@@ -743,11 +760,6 @@ class _WifiDetailState extends State<HomePage> {
             : (wifiInfo.gatewayIp.isEmpty
                 ? l10n.netUnavailable
                 : wifiInfo.gatewayIp),
-        badge: !isWifiChecking &&
-                wifiInfo.isCustomGateway &&
-                wifiInfo.gatewayIp.isNotEmpty
-            ? const _CustomValueBadge()
-            : null,
       ),
       _RouteData(
         Icons.cloud_outlined,
@@ -1155,11 +1167,10 @@ class _StatusPill extends StatelessWidget {
 }
 
 class _NetworkValue extends StatelessWidget {
-  const _NetworkValue({required this.label, required this.value, this.badge});
+  const _NetworkValue({required this.label, required this.value});
 
   final String label;
   final String value;
-  final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -1180,10 +1191,6 @@ class _NetworkValue extends StatelessWidget {
                     ),
               ),
             ),
-            if (badge != null) ...[
-              const SizedBox(width: 6),
-              badge!,
-            ],
           ],
         ),
         const SizedBox(height: 3),
@@ -1200,38 +1207,12 @@ class _NetworkValue extends StatelessWidget {
   }
 }
 
-class _CustomValueBadge extends StatelessWidget {
-  const _CustomValueBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: colors.tertiaryContainer,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        context.l10n.homeCustomBadge,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colors.onTertiaryContainer,
-              fontSize: 10,
-              letterSpacing: 0.8,
-              fontWeight: FontWeight.w800,
-            ),
-      ),
-    );
-  }
-}
-
 class _RouteData {
-  const _RouteData(this.icon, this.label, this.value, {this.badge});
+  const _RouteData(this.icon, this.label, this.value);
 
   final IconData icon;
   final String label;
   final String value;
-  final Widget? badge;
 }
 
 class _RouteNode extends StatelessWidget {
@@ -1273,10 +1254,6 @@ class _RouteNode extends StatelessWidget {
                     ),
               ),
             ),
-            if (data.badge != null) ...[
-              const SizedBox(width: 6),
-              data.badge!,
-            ],
           ],
         ),
         const SizedBox(height: 4),

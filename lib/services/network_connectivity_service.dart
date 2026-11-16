@@ -83,9 +83,7 @@ class NetworkConnectivityService {
         l10n.netDetailDeviceIp: wifiInfo.ip,
         l10n.netDetailGatewayIp: wifiInfo.gatewayIp.isEmpty
             ? l10n.netUnavailable
-            : wifiInfo.isCustomGateway
-                ? l10n.netValueCustomSubnet(wifiInfo.gatewayIp)
-                : wifiInfo.gatewayIp,
+            : wifiInfo.gatewayIp,
         l10n.netDetailInterface: interfaceName,
       };
 
