@@ -34,5 +34,11 @@ jobs:
       - name: Run analyzer
         run: flutter analyze --no-fatal-infos --fatal-warnings
 
+      # The only place a store-listing text change is reviewed before it merges:
+      # the release lanes check their own limits, and this checks the sentence a
+      # limit cannot see. Pure Dart and no credentials, so it needs no new leg.
+      - name: Check published copy for unqualified claims
+        run: dart run scripts/check_store_claims.dart --check
+
       - name: Run unit tests
         run: flutter test
