@@ -218,4 +218,32 @@ void main() {
     expect(LldpParser.parse([]), isNull);
     expect(LldpParser.parse([0x00, 0x00]), isNull);
   });
+
+  test('LLDP enabled capabilities are read past a MAC based chassis id', () {
+    List<int> tlv(int type, List<int> value) {
+      final length = value.length;
+      return [(type << 1) | ((length >> 8) & 0x01), length & 0xff, ...value];
+    }
+
+    // A real System Capabilities TLV starts with the chassis id the remote
+    // already sent, so the two capability bitmaps are its last four bytes.
+    // Reading bytes 2 and 3 returned MAC bytes 0xbb, 0xcc and reported
+    // invented capabilities instead of the bridge and router that were on.
+    final payload = <int>[
+      ...tlv(LldpParser.chassisId, [4, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff]),
+      ...tlv(LldpParser.portId, [5, ...'Gi1/0/1'.codeUnits]),
+      ...tlv(LldpParser.systemName, 'dist-sw1'.codeUnits),
+      ...tlv(LldpParser.capabilities, [
+        4, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, // chassis id subtype + MAC
+        0x00, 0x1c, // supported: bridge, WLAN AP, router
+        0x00, 0x14, // enabled: bridge, router
+      ]),
+      0x00,
+      0x00,
+    ];
+
+    final neighbor = LldpParser.parse(payload);
+    expect(neighbor, isNotNull);
+    expect(neighbor!.capabilities, 'Bridge, Router');
+  });
 }
