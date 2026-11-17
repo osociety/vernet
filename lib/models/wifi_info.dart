@@ -45,14 +45,15 @@ class WifiInfo {
 
   String get name {
     if (_name == null || _name.isEmpty) return noWifiName;
-    if (_name.startsWith('"') && _name.endsWith('"')) {
-      final array = _name.split('"');
-      if (array.length > 1) {
-        final wifiName = array[1];
-        return wifiName.isEmpty ? noWifiName : wifiName;
-      }
+    final raw = _name;
+    // The platform wraps the SSID in one pair of quotes, so only those two are
+    // removed. Splitting on every quote cut a network whose own name contains
+    // one, and a phone on `Cafe "Free" WiFi` showed `Cafe `.
+    if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {
+      final wifiName = raw.substring(1, raw.length - 1);
+      return wifiName.isEmpty ? noWifiName : wifiName;
     }
-    return _name;
+    return raw;
   }
 
   String get bssid => _bssid ?? defaultBSSID.first;
