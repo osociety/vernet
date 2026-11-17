@@ -117,4 +117,65 @@ void main() {
     expect(listTile.dense, isTrue);
     expect(listTile.contentPadding, const EdgeInsets.all(20));
   });
+
+  testWidgets('AdaptiveListTile long press works on iOS and macOS',
+      (tester) async {
+    for (final platform in ['ios', 'macos']) {
+      var longPressed = 0;
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: MaterialApp(
+            home: Scaffold(
+              body: AdaptiveListTile(
+                title: const Text('CopyMe'),
+                platform: platform,
+                onLongPress: () {
+                  longPressed++;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoListTile), findsOneWidget);
+
+      await tester.longPress(find.text('CopyMe'));
+      await tester.pumpAndSettle();
+      expect(longPressed, 1, reason: 'long press was dropped on $platform');
+    }
+  });
+
+  testWidgets('AdaptiveListTile keeps onTap separate from the long press',
+      (tester) async {
+    var tapped = 0;
+    var longPressed = 0;
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: AdaptiveListTile(
+              title: const Text('TapMe'),
+              platform: 'ios',
+              onTap: () {
+                tapped++;
+              },
+              onLongPress: () {
+                longPressed++;
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('TapMe'));
+    await tester.pumpAndSettle();
+    expect(tapped, 1);
+    expect(longPressed, 0);
+  });
 }

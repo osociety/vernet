@@ -61,6 +61,22 @@ void main() {
       expect(c.name, 'mywifi');
     });
 
+    test('name keeps a quote that is part of the network name', () {
+      final info = WifiInfo('1', null, '"Cafe "Free" WiFi"', false, 'g', false,
+          WifiNetworkMetrics.disconnected());
+      expect(info.name, 'Cafe "Free" WiFi');
+    });
+
+    test('name strips only the wrapping pair the platform adds', () {
+      final quoted = WifiInfo('1', null, '""Home""', false, 'g', false,
+          WifiNetworkMetrics.disconnected());
+      expect(quoted.name, '"Home"');
+
+      final unwrapped = WifiInfo('1', null, '"Home', false, 'g', false,
+          WifiNetworkMetrics.disconnected());
+      expect(unwrapped.name, '"Home');
+    });
+
     test('bssid falls back to default when null', () {
       final info = WifiInfo(
           '1', null, null, true, 'g', false, WifiNetworkMetrics.disconnected());
