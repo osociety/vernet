@@ -264,6 +264,16 @@ pointers thin, otherwise the two ecosystems drift apart.
 Skills carry more detail than this section. Where they overlap, the skill
 wins inside its own domain.
 
+## Guidance ships with the code that earns it
+
+A change that makes `AGENTS.md`, `ARCHITECTURE.md`, a skill, an agent or a
+stored memory wrong is not finished until those are corrected, on the same
+branch as the code, in the same PR. A separate docs PR leaves the repo
+documenting behavior that no longer exists for as long as it sits unmerged,
+and nobody reviews guidance for its freshness on its own schedule. Do the
+sync before reporting work as ready for merge approval, and name in the
+report which guidance files changed or that none needed it.
+
 ## Cross-agent MCP setup
 
 The same tooling is wired into every agent that can read a project config,

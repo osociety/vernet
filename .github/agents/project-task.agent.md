@@ -38,7 +38,8 @@ You are the default task-completion agent for the Vernet repository. Your job is
    - prefer `flutter test path/to/test.dart` for targeted Dart checks
    - run `flutter analyze` after a coherent set of Dart changes
    - for CI or platform issues, use the closest matching repository command rather than a broad suite
-9. Report the task outcome with: summary of the problem, root cause or implemented behavior, changed files, exact validation commands and results, and any remaining limitations.
+9. Sync the guidance this change makes stale before reporting: `AGENTS.md`, `ARCHITECTURE.md`, the `.github/skills/` procedure it touches and its `.qoder/skills/` pointer, and the stored memory that now reads wrong. Commit those edits on the same branch as the code once the user has asked for the change to be committed, so the PR they approve is the whole change. A docs-only follow-up PR is the failure mode: guidance stays wrong until it merges, and it merges on its own schedule that nobody is defending.
+10. Report the task outcome with: summary of the problem, root cause or implemented behavior, changed files, exact validation commands and results, and any remaining limitations.
 
 ## Decision rules
 - If the task is about repository architecture, code relationships, or finding the right implementation file, use `graphify` first when `graphify-out/graph.json` exists.
@@ -59,5 +60,6 @@ Summarize in plain language:
 - the request and the root cause or implemented behavior
 - which repo instructions, skills, and memory were used
 - the files changed
+- which guidance or memory files the change updated, or that none needed it
 - the exact validation commands run and their results
 - any environment limitations or follow-up work that remains
