@@ -58,6 +58,18 @@ review, such as devices and services that are reachable on your network.
 | [Contributing](CONTRIBUTING.md) | Setting up a development checkout and opening a pull request. |
 | [Architecture](ARCHITECTURE.md) | How `lib/` is layered and where new code belongs. |
 
+## Current Milestone
+
+[![Current milestone](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.title&label=Current%20milestone&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones)
+[![Open](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.open_issues&label=Open&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones)
+[![Closed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.closed_issues&label=Closed&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones)
+
+These badges read the earliest-due milestone still open, so closing one at the
+end of a quarter moves the row to the next without a commit. The two counts are
+GitHub's own milestone totals, which include the pull requests tagged to a
+milestone as well as its issues — the [milestone page](https://github.com/osociety/vernet/milestones)
+is the precise view.
+
 ## How to Contribute
 
 1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)
