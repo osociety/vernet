@@ -25,7 +25,7 @@ dependencies:
   # Bloc for state management, replace StatefulWidget
   flutter_bloc: ^9.1.1
   # A cross platform plugin for displaying local notifications.
-  flutter_local_notifications: ^23.0.0
+  flutter_local_notifications: ^23.0.2
   # Delegates that provide the Material/Cupertino localization data gen-l10n relies on.
   flutter_localizations:
     sdk: flutter
