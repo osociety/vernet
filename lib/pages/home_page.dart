@@ -466,22 +466,35 @@ class _WifiDetailState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
                 children: [
-                  _PanelIcon(icon: Icons.speed, color: colors.tertiary),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.homeSpeedTestPanel,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          letterSpacing: 1.1,
-                          fontWeight: FontWeight.w700,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _PanelIcon(icon: Icons.speed, color: colors.tertiary),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          l10n.homeSpeedTestPanel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    letterSpacing: 1.1,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                         ),
+                      ),
+                      if (testTimestamp != null) ...[
+                        const SizedBox(width: 8),
+                        TimestampChip(timestamp: testTimestamp),
+                      ],
+                    ],
                   ),
-                  if (testTimestamp != null) ...[
-                    const SizedBox(width: 8),
-                    TimestampChip(timestamp: testTimestamp),
-                  ],
-                  const Spacer(),
                   _StatusPill(
                     label: 'M-Lab',
                     color: colors.primary,
@@ -499,13 +512,18 @@ class _WifiDetailState extends State<HomePage> {
                       color: colors.primary,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      l10n.homeDownload,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
+                    Expanded(
+                      child: Text(
+                        l10n.homeDownload,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 8),
                     Text(
                       '${speedData.downloadMbps.toStringAsFixed(1)} Mbps',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -525,13 +543,18 @@ class _WifiDetailState extends State<HomePage> {
                       color: colors.tertiary,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      l10n.homeUpload,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
+                    Expanded(
+                      child: Text(
+                        l10n.homeUpload,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 8),
                     Text(
                       '${speedData.uploadMbps.toStringAsFixed(1)} Mbps',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -551,13 +574,18 @@ class _WifiDetailState extends State<HomePage> {
                       color: _getLatencyColor(speedData.latencyMs, colors),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      l10n.homeLatency,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
+                    Expanded(
+                      child: Text(
+                        l10n.homeLatency,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 8),
                     Text(
                       '${speedData.latencyMs.toStringAsFixed(0)} ms',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -578,12 +606,18 @@ class _WifiDetailState extends State<HomePage> {
                       children: [
                         Icon(Icons.download, size: 20, color: colors.primary),
                         const SizedBox(width: 8),
-                        Text(l10n.homeDownload,
+                        Expanded(
+                          child: Text(
+                            l10n.homeDownload,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
-                                ?.copyWith(color: colors.onSurfaceVariant)),
-                        const Spacer(),
+                                ?.copyWith(color: colors.onSurfaceVariant),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         ImageFiltered(
                           imageFilter: ImageFilter.blur(
                               sigmaX: 6, sigmaY: 6, tileMode: TileMode.clamp),
@@ -602,12 +636,18 @@ class _WifiDetailState extends State<HomePage> {
                       children: [
                         Icon(Icons.upload, size: 20, color: colors.tertiary),
                         const SizedBox(width: 8),
-                        Text(l10n.homeUpload,
+                        Expanded(
+                          child: Text(
+                            l10n.homeUpload,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
-                                ?.copyWith(color: colors.onSurfaceVariant)),
-                        const Spacer(),
+                                ?.copyWith(color: colors.onSurfaceVariant),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         ImageFiltered(
                           imageFilter: ImageFilter.blur(
                               sigmaX: 6, sigmaY: 6, tileMode: TileMode.clamp),
@@ -627,12 +667,18 @@ class _WifiDetailState extends State<HomePage> {
                         Icon(Icons.network_ping,
                             size: 20, color: colors.onSurfaceVariant),
                         const SizedBox(width: 8),
-                        Text(l10n.homeLatency,
+                        Expanded(
+                          child: Text(
+                            l10n.homeLatency,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
-                                ?.copyWith(color: colors.onSurfaceVariant)),
-                        const Spacer(),
+                                ?.copyWith(color: colors.onSurfaceVariant),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         ImageFiltered(
                           imageFilter: ImageFilter.blur(
                               sigmaX: 6, sigmaY: 6, tileMode: TileMode.clamp),

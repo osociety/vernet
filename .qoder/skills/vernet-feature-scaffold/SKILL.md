@@ -93,6 +93,11 @@ first-class layout, not a stretched phone.
   they do not overflow on narrow phones.
 - Verify both a `390px` phone width and a `>= 900px` desktop width in widget
   tests. Flutter test reports overflows automatically.
+- Also pump a narrow desktop window. A collapsed rail leaves a dashboard panel
+  near `370px`, narrower than the phone, and a `Row` of fixed children plus a
+  `Spacer` then clips its trailing widget. Use `Wrap` when a trailing chip may
+  drop to its own line, and `Expanded` around the label when ellipsizing it is
+  the better trade.
 
 ## Scaffold in dependency order
 
