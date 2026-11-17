@@ -36,7 +36,8 @@ Use this when a request is broad or cross-cutting and needs the repo’s guidanc
    - prefer `flutter test path/to/test.dart` for targeted checks
    - run `flutter analyze` after coherent Dart changes
    - for CI or platform work, use the corresponding repository command rather than a broad suite
-8. Report the outcome with a short summary of the task, root cause or behavior implemented, files changed, validation commands and results, and any remaining limitations.
+8. Sync the guidance the change makes stale, before you report it as ready: `AGENTS.md`, `ARCHITECTURE.md`, the `.github/skills/` procedure it touches (and its `.qoder/skills/` pointer, which stays a pointer), and any stored memory now reading wrong. Those edits belong in the same branch and the same PR as the code, once the user has asked for the change to be committed — a docs-only follow-up PR leaves the guidance stale until it merges, which is the state the user is not there to defend.
+9. Report the outcome with a short summary of the task, root cause or behavior implemented, files changed, which guidance or memory files the change updated or that none needed it, validation commands and results, and any remaining limitations.
 
 ## Vernet-specific expectations
 

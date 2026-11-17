@@ -58,6 +58,12 @@ review, such as devices and services that are reachable on your network.
 | [Contributing](CONTRIBUTING.md) | Setting up a development checkout and opening a pull request. |
 | [Architecture](ARCHITECTURE.md) | How `lib/` is layered and where new code belongs. |
 
+## Current Milestone
+
+[![2026 Q4 progress](https://badgen.net/github/milestones/osociety/vernet/5?color=green)](https://github.com/osociety/vernet/milestone/5) [![Open](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.open_issues&label=Open&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones) [![Closed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.closed_issues&label=Closed&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones) [![Due by](https://img.shields.io/badge/Due%20by-December%2031%2C%202026-484848)](https://github.com/osociety/vernet/milestone/5)
+
+Counts include pull requests tagged to the milestone, not only its issues.
+
 ## How to Contribute
 
 1. Found bug? Open an [issue](https://github.com/osociety/vernet/issues)

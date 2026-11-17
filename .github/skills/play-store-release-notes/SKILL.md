@@ -80,6 +80,12 @@ Non-obvious entries worth a second look:
   blank lines inside a block; the editor splits on newlines.
 - Never state the app is ad-free on Android. The Play build serves ads via
   `store_overlay/`; only the `fdroid` and `dev` flavors are ad-free.
+- `scripts/check_store_claims.dart --check` enforces that in
+  `flutter_unit_test.yml`, on the localized blocks as well: a listing or
+  changelog sentence that claims free, ad-free or no tracking must name the
+  build it is true of inside that same sentence, in that locale's own
+  spellings, or the PR fails. A qualifier in the neighbouring line does not
+  carry it.
 - Never claim a check ran that this skill did not run. Character counts are
   computed; translation quality is not machine-verified — say which is which.
 
