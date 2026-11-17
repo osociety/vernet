@@ -103,7 +103,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
       appBar: AppBar(
         title: Text(context.l10n.deviceDetailPageTitle),
       ),
-      body: ListView(
+      body: SafeArea(
+          child: ListView(
         padding: const EdgeInsets.all(12),
         children: [
           // Device identity header
@@ -127,7 +128,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           // Port scan results card
           _buildPortScanCard(theme, colorScheme),
         ],
-      ),
+      )),
     );
   }
 

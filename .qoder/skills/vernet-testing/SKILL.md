@@ -33,6 +33,10 @@ behavior, mirror the source path, and keep platform-specific guards in mind.
   Set `tester.view.physicalSize` with `devicePixelRatio = 1` and reset it in
   `addTearDown`. Flutter reports `RenderFlex overflowed` automatically, so keep
   chips and status labels on `Flexible` + ellipsis.
+- To prove a page clears the Android system bars, use `fakeSystemBarInsets` and
+  `safeBottom` from `test/helpers/test_helpers.dart`. `tester.view.padding` is
+  physical, so the helper takes logical pixels and scales them by the current
+  `devicePixelRatio`; asserting against unscaled padding passes by accident.
 - Assert ordering with `tester.getTopLeft(...).dy`, but re-measure after a
   reload; a stale Y from before a refresh compares against the wrong row.
 

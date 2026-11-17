@@ -566,7 +566,7 @@ class _HomePageState extends State<TabBarPage> {
                 )
               : null,
           body: isCompact
-              ? page
+              ? SafeArea(child: page)
               : SafeArea(
                   child: Row(
                     children: [

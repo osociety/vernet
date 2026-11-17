@@ -57,7 +57,8 @@ class DonatePage extends StatelessWidget {
     );
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navSupport)),
-      body: Center(
+      body: SafeArea(
+          child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
           child: ListView(
@@ -121,7 +122,7 @@ class DonatePage extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 

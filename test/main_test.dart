@@ -16,6 +16,8 @@ import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 
+import 'helpers/test_helpers.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -212,5 +214,32 @@ void main() {
       expect(find.text('Erscheinungsbild'), findsOneWidget);
       expect(find.text('Theme'), findsNothing);
     });
+  });
+
+  // Android 15+ hands an app targeting SDK 35 or newer the whole window and
+  // reports the bars only as view padding, so anything that ignores the
+  // padding draws underneath them. osociety/vernet#428.
+  group('Edge-to-edge insets', () {
+    // HomePage and SettingsPage own no Scaffold of their own, so this also
+    // proves the shell is what keeps them out of the navigation bar.
+    testWidgets(
+      'the compact shell clears the status bar and the navigation bar',
+      (tester) async {
+        await pumpTabBarPage(tester, size: const Size(390, 844));
+        fakeSystemBarInsets(tester);
+        await tester.pump();
+
+        expect(
+          tester.getSize(find.byType(AppBar)).height,
+          greaterThanOrEqualTo(kToolbarHeight + kTestStatusBarInset),
+          reason: 'the AppBar must grow to cover the status bar inset',
+        );
+        expect(
+          tester.getBottomLeft(find.byType(ListView).first).dy,
+          lessThanOrEqualTo(safeBottom(tester)),
+          reason: 'dashboard content must not sit under the navigation bar',
+        );
+      },
+    );
   });
 }

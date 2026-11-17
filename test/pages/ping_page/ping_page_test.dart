@@ -139,6 +139,25 @@ void main() {
       expect(find.text('192.168.1.1'), findsOneWidget);
     });
 
+    // BasePage builds the scaffold for Ping, DNS and Reverse DNS, so this one
+    // case covers the inset handling of all three. osociety/vernet#428.
+    testWidgets('keeps the results list clear of the navigation bar',
+        (tester) async {
+      await tester.pumpWidget(createPingPageTestWidget(const PingPage()));
+
+      fakeSystemBarInsets(tester);
+      await tester.pump();
+
+      expect(
+        tester.getSize(find.byType(AppBar)).height,
+        greaterThanOrEqualTo(kToolbarHeight + kTestStatusBarInset),
+      );
+      expect(
+        tester.getBottomLeft(find.byType(ListView).first).dy,
+        lessThanOrEqualTo(safeBottom(tester)),
+      );
+    });
+
     testWidgets('tapping a popular chip fills text field', (tester) async {
       await tester.pumpWidget(createPingPageTestWidget(const PingPage()));
 

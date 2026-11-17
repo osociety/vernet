@@ -63,46 +63,48 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
       appBar: AppBar(
         title: Text(title(context)),
       ),
-      body: Container(
-        margin: const EdgeInsets.all(5.0),
-        child: Column(
-          children: [
-            Form(
-              key: _formKey,
-              child: Container(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        validator: (value) => validateIP(context, value),
-                        controller: textEditingController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          hintText: fieldLabel(context),
+      body: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(5.0),
+          child: Column(
+            children: [
+              Form(
+                key: _formKey,
+                child: Container(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) => validateIP(context, value),
+                          controller: textEditingController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            hintText: fieldLabel(context),
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: ElevatedButton(
-                        key: WidgetKey.basePageSubmitButton.key,
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) onPressed();
-                        },
-                        child: Text(buttonLabel(context)),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: ElevatedButton(
+                          key: WidgetKey.basePageSubmitButton.key,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) onPressed();
+                          },
+                          child: Text(buttonLabel(context)),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 15),
-            buildPopularChips(context),
-            Expanded(
-              child: buildResults(context),
-            ),
-          ],
+              const SizedBox(height: 15),
+              buildPopularChips(context),
+              Expanded(
+                child: buildResults(context),
+              ),
+            ],
+          ),
         ),
       ),
     );

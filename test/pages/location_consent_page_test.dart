@@ -19,6 +19,8 @@ import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/network_score_service.dart';
 
+import '../helpers/test_helpers.dart';
+
 class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
   _InMemoryDatabaseService(this.db);
 
@@ -124,6 +126,30 @@ void main() {
     expect(
         find.byIcon(isMobileOrWindows ? Icons.location_on : Icons.check_circle),
         findsOneWidget);
+  });
+
+  // This page owns no AppBar, so unlike every other screen it has to consume
+  // the status-bar inset itself. A viewport shorter than its content means an
+  // implementation that ignores the insets cannot land inside the bounds.
+  // osociety/vernet#428.
+  testWidgets('LocationConsentPage keeps its content between both bars',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(390, 460);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump(const Duration(milliseconds: 600));
+
+    fakeSystemBarInsets(tester);
+    await tester.pump(const Duration(milliseconds: 600));
+
+    final content = find.byType(SingleChildScrollView);
+    expect(tester.getTopLeft(content).dy,
+        greaterThanOrEqualTo(kTestStatusBarInset));
+    expect(tester.getBottomLeft(content).dy,
+        lessThanOrEqualTo(safeBottom(tester)));
   });
 
   testWidgets('primary button navigates to TabBarPage',

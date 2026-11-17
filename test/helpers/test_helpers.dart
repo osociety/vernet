@@ -101,6 +101,35 @@ AppLocalizations l10nEn() => AppLocalizationsEn();
 /// screen renders the locale under test instead of falling back to English.
 AppLocalizations l10nDe() => AppLocalizationsDe();
 
+/// Status bar and navigation bar insets, in logical pixels, that a page must
+/// keep its content out of.
+const double kTestStatusBarInset = 48;
+const double kTestNavBarInset = 24;
+
+/// Fakes the system-bar insets Android reports to an app that targets SDK 35 or
+/// newer, where the OS no longer paints a scrim behind the bars and the app
+/// draws underneath them. Every other test here runs with all insets at zero,
+/// which is why an unconsumed inset never failed one.
+///
+/// [top] and [bottom] are logical pixels; the view stores padding physically,
+/// so they are scaled by the current [devicePixelRatio]. Registers its own
+/// teardown, so the caller only has to pump again.
+void fakeSystemBarInsets(
+  WidgetTester tester, {
+  double top = kTestStatusBarInset,
+  double bottom = kTestNavBarInset,
+}) {
+  final double dpr = tester.view.devicePixelRatio;
+  tester.view.padding = FakeViewPadding(top: top * dpr, bottom: bottom * dpr);
+  addTearDown(tester.view.resetPadding);
+}
+
+/// The lowest y a page may lay content out to: the screen bottom minus the
+/// navigation bar inset.
+double safeBottom(WidgetTester tester) =>
+    tester.view.physicalSize.height / tester.view.devicePixelRatio -
+    kTestNavBarInset;
+
 /// Common test data builders.
 class TestDataBuilder {
   static Map<String, dynamic> createSharedPreferences({

@@ -152,7 +152,8 @@ class _UpdatesPageState extends State<UpdatesPage> {
     );
     return Scaffold(
       appBar: AppBar(title: Text(l10n.updatesTitle)),
-      body: Center(
+      body: SafeArea(
+          child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 720),
           child: ListView(
@@ -184,7 +185,7 @@ class _UpdatesPageState extends State<UpdatesPage> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 

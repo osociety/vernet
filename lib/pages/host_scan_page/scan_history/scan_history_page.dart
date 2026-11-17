@@ -68,7 +68,8 @@ class _ScanHistoryPageState extends State<ScanHistoryPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<_ScanSummary>>(
+      body: SafeArea(
+          child: FutureBuilder<List<_ScanSummary>>(
         future: _scansFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -107,7 +108,7 @@ class _ScanHistoryPageState extends State<ScanHistoryPage> {
             ),
           );
         },
-      ),
+      )),
     );
   }
 
@@ -708,7 +709,8 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.scanReportTitle)),
-      body: FutureBuilder<List<DeviceData>>(
+      body: SafeArea(
+          child: FutureBuilder<List<DeviceData>>(
         future: _devicesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -755,7 +757,7 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
             ),
           );
         },
-      ),
+      )),
     );
   }
 

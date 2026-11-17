@@ -32,10 +32,11 @@ class HostScanPage extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocProvider(
+      body: SafeArea(
+          child: BlocProvider(
         create: (context) => getIt<HostScanBloc>(),
         child: _ScanStartGate(child: HostScanWidget()),
-      ),
+      )),
     );
   }
 }

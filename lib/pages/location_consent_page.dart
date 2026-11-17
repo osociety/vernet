@@ -86,7 +86,8 @@ class _LocationConsentPageState extends State<LocationConsentPage>
     final l10n = context.l10n;
 
     return Scaffold(
-      body: Center(
+      body: SafeArea(
+          child: Center(
         child: SingleChildScrollView(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -206,7 +207,7 @@ class _LocationConsentPageState extends State<LocationConsentPage>
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 

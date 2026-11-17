@@ -260,7 +260,8 @@ class _PortScanPageState extends State<PortScanPage>
       appBar: AppBar(
         title: Text(l10n.portScanTitle),
       ),
-      body: FutureBuilder<Map<String, Port>>(
+      body: SafeArea(
+          child: FutureBuilder<Map<String, Port>>(
         future: PortDescLoader('assets/ports_lists.json').load(),
         builder: (
           BuildContext context,
@@ -597,7 +598,7 @@ class _PortScanPageState extends State<PortScanPage>
             );
           }
         },
-      ),
+      )),
     );
   }
 }

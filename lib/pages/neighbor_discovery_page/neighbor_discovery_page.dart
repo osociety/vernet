@@ -135,7 +135,8 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
       appBar: AppBar(
         title: Text(context.l10n.neighborDiscoveryPageTitle),
       ),
-      body: ListView(
+      body: SafeArea(
+          child: ListView(
         padding: const EdgeInsets.all(8),
         children: [
           Form(
@@ -268,7 +269,7 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
             ),
           ..._neighbors.map(_neighborTile),
         ],
-      ),
+      )),
     );
   }
 
