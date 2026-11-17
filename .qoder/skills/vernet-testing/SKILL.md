@@ -91,14 +91,23 @@ setUp(() async {
   Windows sit on `10.1.0.0/24` and find devices. A test that branches on
   `deviceCount > 0` can only fail on the latter.
 - Text assertions are locale-dependent and the legs do not agree. gen-l10n
-  emits `supportedLocales` in ARB filename order, so `de` is first, and
-  `MaterialApp` sets no `localeResolutionCallback`, so a runner whose system
-  language the app does not ship renders German. That is why
-  `integration_test/app_test.dart` pins `localesTestValue` to `Locale('en')`.
-  Reproduce such a divergence on one machine by forcing
-  `tester.platformDispatcher.localesTestValue` in a throwaway widget test;
-  `flutter test` never shows it, because the unit runner ignores the host
-  locale.
+  emits `supportedLocales` in ARB filename order, so `de` is first, and a
+  runner whose system language the app does not ship renders German unless the
+  entry point resolves it. That is why `integration_test/app_test.dart` pins
+  `localesTestValue` to `Locale('en')`.
+  Reproduce such a divergence with `tester.platformDispatcher.localesTestValue`:
+  it drives the widget tree, because `LocalizationsResolver` reads
+  `WidgetsBinding.instance.platformDispatcher.locales` and consults
+  `localeListResolutionCallback` before falling back to
+  `supportedLocales.first`. It does **not** reach
+  `ui.PlatformDispatcher.instance.locales`, which `systemDefaultLocale()` and
+  therefore `appStrings()` read — `dart:ui` exposes that as a getter over a
+  private final, so no test can set it. A fallback fix made behind that read
+  looks green while testing nothing; keep the rule in a pure function
+  (`resolveSystemLocale` in `lib/utils/app_strings.dart`) and unit-test it, and
+  prove the widget case by deleting the fix and watching it fail.
+  `flutter test` never shows a host-locale divergence on its own, because the
+  unit runner ignores the host locale.
 - Do not assert a widget type the page swaps by width. `ScanDetailPage` renders
   `_DesktopDeviceRow` at >=900px and `AdaptiveListTile` below; assert on text
   both layouts show, such as the device address or make.
