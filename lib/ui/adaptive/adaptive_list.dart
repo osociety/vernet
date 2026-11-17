@@ -36,26 +36,7 @@ class AdaptiveListTile extends StatelessWidget {
     final themeChange = Provider.of<DarkThemeProvider>(context);
     final String currentPlatform = platform ?? Platform.operatingSystem;
     return currentPlatform == 'ios' || currentPlatform == 'macos'
-        ? CupertinoTheme(
-            data: CupertinoThemeData(
-              brightness: Theme.of(context).brightness,
-              primaryColor:
-                  themeChange.darkTheme ? Colors.white54 : Colors.black54,
-            ),
-            child: Padding(
-              padding: contentPadding ?? const EdgeInsets.all(10),
-              child: CupertinoListTile(
-                leading: leading,
-                title: title,
-                subtitle: subtitle,
-                trailing: trailing,
-                onTap: onTap,
-                padding: EdgeInsets.symmetric(
-                  vertical: minVerticalPadding ?? (dense ?? false ? 10 : 5),
-                ),
-              ),
-            ),
-          )
+        ? _cupertinoTile(context, themeChange)
         : ListTile(
             minVerticalPadding: minVerticalPadding,
             leading: leading,
@@ -67,5 +48,37 @@ class AdaptiveListTile extends StatelessWidget {
             onLongPress: onLongPress,
             contentPadding: contentPadding,
           );
+  }
+
+  /// [CupertinoListTile] has no long-press callback, so the row wraps it in a
+  /// gesture detector. Without that wrapper a long press was handled on
+  /// Android, Windows and Linux but silently ignored on iOS and macOS, where the
+  /// device row's copy-address action lives.
+  Widget _cupertinoTile(BuildContext context, DarkThemeProvider themeChange) {
+    final tile = CupertinoTheme(
+      data: CupertinoThemeData(
+        brightness: Theme.of(context).brightness,
+        primaryColor: themeChange.darkTheme ? Colors.white54 : Colors.black54,
+      ),
+      child: Padding(
+        padding: contentPadding ?? const EdgeInsets.all(10),
+        child: CupertinoListTile(
+          leading: leading,
+          title: title,
+          subtitle: subtitle,
+          trailing: trailing,
+          onTap: onTap,
+          padding: EdgeInsets.symmetric(
+            vertical: minVerticalPadding ?? (dense ?? false ? 10 : 5),
+          ),
+        ),
+      ),
+    );
+    if (onLongPress == null) return tile;
+    return GestureDetector(
+      onLongPress: onLongPress,
+      behavior: HitTestBehavior.opaque,
+      child: tile,
+    );
   }
 }
