@@ -60,11 +60,8 @@ review, such as devices and services that are reachable on your network.
 
 ## Current Milestone
 
-[![Current milestone](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.title&label=Current%20milestone&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones)
-[![Open](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.open_issues&label=Open&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones)
-[![Closed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.closed_issues&label=Closed&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones)
+[![2026 Q4 progress](https://badgen.net/github/milestones/osociety/vernet/5?color=green)](https://github.com/osociety/vernet/milestone/5) [![Open](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.open_issues&label=Open&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones) [![Closed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fosociety%2Fvernet%2Fmilestones%3Fstate%3Dopen%26sort%3Ddue_date%26direction%3Dasc%26per_page%3D1&query=%24%5B0%5D.closed_issues&label=Closed&cacheSeconds=3600)](https://github.com/osociety/vernet/milestones) [![Due by](https://img.shields.io/badge/Due%20by-December%2031%2C%202026-484848)](https://github.com/osociety/vernet/milestone/5)
 
-Badges track the earliest-due open milestone, so closing one moves the row.
 Counts include pull requests tagged to the milestone, not only its issues.
 
 ## How to Contribute
