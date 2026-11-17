@@ -241,5 +241,23 @@ void main() {
         );
       },
     );
+
+    // The drawer is Scaffold's own surface, not the body, so the shell's
+    // SafeArea does not reach it: its footer row is pinned to the panel bottom
+    // and needs the inset on its own.
+    testWidgets('the compact drawer clears the navigation bar', (tester) async {
+      await pumpTabBarPage(tester, size: const Size(390, 844));
+      fakeSystemBarInsets(tester);
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.menu));
+      await pumpVisibleFrame(tester);
+
+      expect(
+        tester.getBottomLeft(find.byKey(const ValueKey('sidebar-settings'))).dy,
+        lessThanOrEqualTo(safeBottom(tester)),
+        reason: 'the drawer footer must not sit under the navigation bar',
+      );
+    });
   });
 }
