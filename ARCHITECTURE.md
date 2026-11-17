@@ -305,6 +305,17 @@ the listing it read from fastlane. A `metadata/` directory here would quietly
 turn the Windows prose into the Android listing, whose summary limit is 80
 characters, and `pending/` would arrive there as languages no store serves.
 
+Store copy is gated on wording as well as size. `play_store_listing.dart` and
+`ms_store_listing.dart` enforce each store's field limits and locale parity;
+`check_store_claims.dart` reads the same two trees plus the snap description,
+the README and the landing page, and refuses a sentence claiming the app free,
+ad-free or free of tracking unless that sentence names the build the claim is
+true of. A single unqualified line would be a false statement about the Play
+bundle and an under-statement about F-Droid's, so the check is on placement,
+which a script can decide, and not on truth, which it cannot. It runs in the
+unit matrix on every pull request, because a publish lane only reports the
+problem after the copy is already live.
+
 An update replaces the whole submission, so a locale that git does not declare
 is carried through from the capture rather than dropped, and a locale in git
 that the product does not serve is refused until it is enabled in Partner
