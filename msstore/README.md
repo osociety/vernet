@@ -58,6 +58,14 @@ then a first-time locale has no screenshots, because git does not carry
 images, so add them to that language in Partner Center before expecting the
 update through.
 
+Staging is refused while a draft is open. On 2026-11-18 a `PendingCommit`
+submission carrying `Vernet-v1.7.0+84` was open, and every `updateMetadata`
+attempt failed with a bare `Error!`; the staging runs that did land had written
+into a product with no draft, or waited out a package still in certification.
+The answer never says whether the draft or the package inside it is the
+blocker, so clear the draft in Partner Center — commit or delete it — and
+restage. The run says as much when all its attempts report `PendingCommit`.
+
 Use the Add/remove languages picker, not the listing CSV, to bring a parked
 locale back. The CSV import can add a language the product never had, but it
 cannot fill one the product already lists as `Incomplete`: those columns stay
