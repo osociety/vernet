@@ -14,21 +14,31 @@ market settings come from the Store and the words come from here.
 | `features.txt` | Features | 20 lines, 200 characters each |
 | `keywords.txt` | Keywords | 7 lines, 40 characters each |
 
-`pending/` holds the languages that are written but not enabled on the product.
-Directory names there do not match the locale pattern, so the tree reader skips
-them: the text stays reviewed in git without reaching a payload. Move a
-directory back out once the language is enabled in Partner Center and carries at
-least one screenshot. Note that five of them are named the Play way
-(`cs-cz`, `it-it`, `pl-pl`, `ru-ru`, `sk-sk`) while the Store names those
-languages `cs`, `it`, `pl`, `ru`, `sk`, so rename on the way out or the capture
-and the tree never meet.
+`pending/` is the parking lot for languages that are written but not enabled on
+the product. The tree reader only looks at directories directly under
+`msstore/`, and `pending` is not a locale tag, so text there stays reviewed in
+git without reaching a payload. A directory name has to equal the tag the
+product reports, and Microsoft does not spell those consistently: the
+2026-11-18 capture served `ru` bare next to `cs-cz`, `it-it`, `pl-pl` and
+`sk-sk`, while `pt-br`, `es-es` and `es-419` carry a region. The locale pattern
+therefore makes the region optional, and the read-only `mode=get` run — which
+prints `Captured <tags>` — is the authority on the spelling, not Microsoft's
+supported-languages table and not the Play tree. The eight that were parked
+here moved up on 2026-11-18, which makes this tree 29 locales.
 
-`reserved_titles.txt` lists the product names Partner Center has reserved. The
-package declares only `en-us`, so every other language is listed under a
-reserved name and the Store refuses a submission that renames one to anything
-else. A `title.txt` outside that list is therefore skipped, with a log line
-naming the locale and its length, and the title the Store already serves is
-kept; the localized taglines stay committed until their names are reserved.
+`reserved_titles.txt` lists the product names Partner Center has reserved. A
+`title.txt` outside that list is therefore skipped, with a log line naming the
+locale and its length, and the title the Store already serves is kept; the
+localized taglines stay committed until their names are reserved.
+
+The same locale set is declared in the package itself: `msix_config: languages`
+in `pubspec.yaml` is what `msix:create` writes into the AppxManifest, and that
+manifest is what the Store's Languages tab reads. Keep the two in step — a
+language listed here but not there is a listing the package does not claim. The
+key is one comma-separated string rather than a YAML list, because msix parses
+it as a string and a list fails the Windows build outright, and
+`test/scripts/msix_languages_test.dart` fails if the line and this tree drift
+apart.
 
 A line-based file becomes a list, so one feature or keyword per line. A file
 that is absent leaves whatever the live submission already holds for that
@@ -48,13 +58,24 @@ then a first-time locale has no screenshots, because git does not carry
 images, so add them to that language in Partner Center before expecting the
 update through.
 
+Staging is refused while a draft is open. On 2026-11-18 a `PendingCommit`
+submission carrying `Vernet-v1.7.0+84` was open, and every `updateMetadata`
+attempt failed with a bare `Error!`; the staging runs that did land had written
+into a product with no draft, or waited out a package still in certification.
+The answer never says whether the draft or the package inside it is the
+blocker, so clear the draft in Partner Center — commit or delete it — and
+restage. The run says as much when all its attempts report `PendingCommit`.
+
 Use the Add/remove languages picker, not the listing CSV, to bring a parked
 locale back. The CSV import can add a language the product never had, but it
 cannot fill one the product already lists as `Incomplete`: those columns stay
-empty, and a locale whose canonical code carries no region (`cs`, `it`, `pl`,
-`ru`, `sk`) is silently dropped when the file names it the Play way, as
-`cs-cz`. Deleting the language and re-adding it through the picker is the only
-route that produces a listing the Store will accept text for.
+empty, and the importer keys them on Microsoft's canonical code — no region for
+`cs`, `it`, `pl`, `ru` and `sk` — so it drops a column named the Play way. The
+listing the product then carries can spell that language differently again: this
+product serves `cs-cz`, `it-it`, `pl-pl` and `sk-sk`. That is why the tree
+follows what `mode=get` prints and never a CSV or a table. Deleting the language
+and re-adding it through the picker is the only route that produces a listing the
+Store will accept text for.
 
 `release_notes.txt` is the one file that changes every release. The Play
 changelogs under `android/fastlane/metadata/android/en-US/changelogs/` are the

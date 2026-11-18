@@ -207,7 +207,7 @@ void main() {
   test('locale directories are matched strictly and newlines normalised', () {
     File('${root.path}${Platform.pathSeparator}README.md')
         .writeAsStringSync('notes\n');
-    Directory('${root.path}${Platform.pathSeparator}en').createSync();
+    Directory('${root.path}${Platform.pathSeparator}assets').createSync();
     writeLocale(root, 'en-us',
         {'title.txt': 'A\r\n', 'keywords.txt': 'one\r\ntwo\r\n'});
 
@@ -340,6 +340,20 @@ void main() {
       ['en-us'],
       reason: 'a directory named pending is not a locale tag',
     );
+  });
+
+  // The capture, not Microsoft's table, decides the spelling: the live product
+  // serves `ru` bare alongside `cs-cz`, `it-it`, `pl-pl` and `sk-sk`. A pattern
+  // that demanded a region silently skipped the bare one, and the only symptom
+  // was a payload with fewer languages than git holds.
+  test('a bare Store tag reads as a locale and a stray directory does not', () {
+    writeLocale(root, 'ru', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+    writeLocale(root, 'cs-cz', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+    writeLocale(root, 'docs', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+
+    final found = readListingTree(root).map((locale) => locale.locale).toList();
+    expect(found, containsAll(<String>['ru', 'cs-cz']));
+    expect(found, isNot(contains('docs')));
   });
 
   // F-Droid builds this same checkout, and fdroidserver scans

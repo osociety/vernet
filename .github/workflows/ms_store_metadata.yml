@@ -35,6 +35,14 @@ name: Microsoft Store metadata
 # declare is carried through untouched, so a manual Partner Center edit of one
 # survives the overlay.
 #
+# A draft already on the product is a different story. On 2026-11-18 a
+# PendingCommit submission holding Vernet-v1.7.0+84 was open and updateMetadata
+# refused every attempt with nothing but `Error!`, while the runs that did land
+# had no draft or were waiting out a certifying package. The reply never says
+# which half of that draft blocked the write, so treat an open one as the
+# blocker: a run that spends all its attempts seeing PendingCommit has a draft
+# to commit or delete in Partner Center, not a credential or payload fault.
+#
 # flutter_release.yml calls this workflow with mode=update *after*
 # ms_store_release.yml has committed the package, because `msstore publish`
 # rebuilds the draft from the last published submission and throws away listing
@@ -47,10 +55,10 @@ name: Microsoft Store metadata
 # the assembler does not read, so the tree can carry more languages than the
 # product serves without refusing the publish.
 #
-# Titles are the one field git does not fully own: the package declares en-us
-# only, so every other language is listed under a reserved product name and the
-# Store refuses anything else. msstore/reserved_titles.txt says which
-# names are reserved, and a title outside it is skipped with a log line.
+# Titles are the one field git does not fully own: the Store only accepts a
+# product name it has reserved for this submission, so a title.txt that is not
+# one of them is skipped, with a log line, and the served name kept.
+# msstore/reserved_titles.txt says which names are reserved.
 
 on:
   push:
@@ -243,6 +251,7 @@ jobs:
           # snippet hits.
           $attempts = 14
           $gap = 90
+          $states = @()
           for ($attempt = 1; $attempt -le $attempts; $attempt++) {
             $output = & msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload 2>&1 |
               Out-String
@@ -255,7 +264,11 @@ jobs:
             if ($output.Trim()) { Write-Host $output.Trim() }
             $state = msstore submission status "$env:MSSTORE_PRODUCT_ID" 2>&1 | Out-String
             Write-Host "  the Store says: $($state.Trim() -replace '\r?\n', ' ')"
+            $states += $state
             if ($attempt -lt $attempts) { Start-Sleep -Seconds $gap }
+          }
+          if (($states -join ' ') -match 'PendingCommit') {
+            Write-Host 'Every attempt met a PendingCommit submission: clear that draft in Partner Center - commit or delete it - then restage. Nothing here says whether the draft or the package it holds is what updateMetadata refuses to write over.'
           }
           throw "msstore submission updateMetadata refused the payload $attempts times. Once the package submission leaves certification, this listing is one command away: gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY"
 
