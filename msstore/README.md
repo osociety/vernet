@@ -17,13 +17,14 @@ market settings come from the Store and the words come from here.
 `pending/` is the parking lot for languages that are written but not enabled on
 the product. The tree reader only looks at directories directly under
 `msstore/`, and `pending` is not a locale tag, so text there stays reviewed in
-git without reaching a payload. Enable the language in Partner Center, give it
-at least one screenshot, then move its directory up — renamed to the code the
-Store uses. Five of these codes are bare (`cs`, `it`, `pl`, `ru`, `sk`) while
-Play writes them `cs-cz`, `it-it`, `pl-pl`, `ru-ru`, `sk-sk`; the locale pattern
-accepts both spellings, so what matters is matching the capture, not the Play
-tree. The eight that were parked here moved up on 2026-11-18, which makes this
-tree 29 locales.
+git without reaching a payload. A directory name has to equal the tag the
+product reports, and Microsoft does not spell those consistently: the
+2026-11-18 capture served `ru` bare next to `cs-cz`, `it-it`, `pl-pl` and
+`sk-sk`, while `pt-br`, `es-es` and `es-419` carry a region. The locale pattern
+therefore makes the region optional, and the read-only `mode=get` run — which
+prints `Captured <tags>` — is the authority on the spelling, not Microsoft's
+supported-languages table and not the Play tree. The eight that were parked
+here moved up on 2026-11-18, which makes this tree 29 locales.
 
 `reserved_titles.txt` lists the product names Partner Center has reserved. A
 `title.txt` outside that list is therefore skipped, with a log line naming the
@@ -60,10 +61,13 @@ update through.
 Use the Add/remove languages picker, not the listing CSV, to bring a parked
 locale back. The CSV import can add a language the product never had, but it
 cannot fill one the product already lists as `Incomplete`: those columns stay
-empty, and a locale whose canonical code carries no region (`cs`, `it`, `pl`,
-`ru`, `sk`) is silently dropped when the file names it the Play way, as
-`cs-cz`. Deleting the language and re-adding it through the picker is the only
-route that produces a listing the Store will accept text for.
+empty, and the importer keys them on Microsoft's canonical code — no region for
+`cs`, `it`, `pl`, `ru` and `sk` — so it drops a column named the Play way. The
+listing the product then carries can spell that language differently again: this
+product serves `cs-cz`, `it-it`, `pl-pl` and `sk-sk`. That is why the tree
+follows what `mode=get` prints and never a CSV or a table. Deleting the language
+and re-adding it through the picker is the only route that produces a listing the
+Store will accept text for.
 
 `release_notes.txt` is the one file that changes every release. The Play
 changelogs under `android/fastlane/metadata/android/en-US/changelogs/` are the

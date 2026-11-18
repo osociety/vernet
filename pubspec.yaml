@@ -121,7 +121,7 @@ msix_config:
   # language while msstore/ published the listing in twenty-one. msix reads this
   # as a single comma-separated string, not a YAML list, and
   # test/scripts/msix_languages_test.dart keeps it aligned with the msstore/ tree.
-  languages: en-us, ar-sa, cs, da-dk, de-de, es-419, es-es, fi-fi, fr-fr, he-il, hi-in, hu-hu, id-id, it, ja-jp, ko-kr, nb-no, nl-nl, pl, pt-br, ro-ro, ru, sk, sv-se, th-th, tr-tr, uk-ua, vi-vn, zh-cn
+  languages: en-us, ar-sa, cs-cz, da-dk, de-de, es-419, es-es, fi-fi, fr-fr, he-il, hi-in, hu-hu, id-id, it-it, ja-jp, ko-kr, nb-no, nl-nl, pl-pl, pt-br, ro-ro, ru, sk-sk, sv-se, th-th, tr-tr, uk-ua, vi-vn, zh-cn
 
 flutter:
 
