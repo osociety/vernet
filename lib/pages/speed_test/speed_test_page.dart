@@ -103,9 +103,10 @@ class _SpeedTestView extends StatelessWidget {
             appBar: AppBar(
               title: Text(context.l10n.speedTestTitle),
             ),
-            body: const Center(
+            body: const SafeArea(
+                child: Center(
               child: CircularProgressIndicator(),
-            ),
+            )),
           );
         }
 
@@ -116,7 +117,8 @@ class _SpeedTestView extends StatelessWidget {
             appBar: AppBar(
               title: Text(context.l10n.speedTestTitle),
             ),
-            body: Center(
+            body: SafeArea(
+                child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -146,7 +148,7 @@ class _SpeedTestView extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
+            )),
           );
         }
 
@@ -154,7 +156,7 @@ class _SpeedTestView extends StatelessWidget {
           appBar: AppBar(
             title: Text(context.l10n.speedTestTitle),
           ),
-          body: LayoutBuilder(
+          body: SafeArea(child: LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 600;
               final horizontalPadding = isWide ? 32.0 : 16.0;
@@ -275,7 +277,7 @@ class _SpeedTestView extends StatelessWidget {
                 ],
               );
             },
-          ),
+          )),
         );
       },
     );

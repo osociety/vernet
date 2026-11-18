@@ -207,7 +207,8 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       appBar: AppBar(
         title: Text(context.l10n.wakeOnLanPageTitle),
       ),
-      body: ListView(
+      body: SafeArea(
+          child: ListView(
         padding: const EdgeInsets.all(8),
         children: [
           Form(
@@ -336,7 +337,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
           else
             ..._saved.map(_savedTile),
         ],
-      ),
+      )),
     );
   }
 

@@ -75,7 +75,8 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
               ),
             ],
           ),
-          body: ListView(
+          body: SafeArea(
+              child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
               _buildOverallScoreSection(context, currentScore, isComputing),
@@ -84,7 +85,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
               const SizedBox(height: 24),
               _buildImproveScoreSection(context, currentScore),
             ],
-          ),
+          )),
         );
       },
     );

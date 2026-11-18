@@ -73,6 +73,12 @@ first-class layout, not a stretched phone.
   + `ConstrainedBox(maxWidth: ...)`. Use about `900` for simple lists, `900–1100`
   for reports, and `1180` for dashboards, matching `home_page.dart`.
 - Scale horizontal padding with width: `14–16` on phones, `24+` on desktop.
+- Keep content out of the system bars. Android 15+ gives an app targeting SDK 35
+  or newer the whole window and reports the bars only as padding, so wrap every
+  `Scaffold.body` in `SafeArea`. That wrapper reaches the body only, so give
+  `Scaffold.drawer` its own `SafeArea`, and inset `Scaffold.floatingActionButton`
+  yourself from `MediaQuery.paddingOf(context)`, because the Scaffold strips the
+  padding from the FAB slot.
 - Set `crossAxisAlignment: CrossAxisAlignment.stretch` or `.start` explicitly.
   A default `Column` centers its children, which produces a floating header on
   wide screens.
@@ -87,6 +93,11 @@ first-class layout, not a stretched phone.
   they do not overflow on narrow phones.
 - Verify both a `390px` phone width and a `>= 900px` desktop width in widget
   tests. Flutter test reports overflows automatically.
+- Also pump a narrow desktop window. A collapsed rail leaves a dashboard panel
+  near `370px`, narrower than the phone, and a `Row` of fixed children plus a
+  `Spacer` then clips its trailing widget. Use `Wrap` when a trailing chip may
+  drop to its own line, and `Expanded` around the label when ellipsizing it is
+  the better trade.
 
 ## Scaffold in dependency order
 

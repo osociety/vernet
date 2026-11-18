@@ -16,6 +16,8 @@ import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 
+import 'helpers/test_helpers.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -211,6 +213,51 @@ void main() {
       expect(find.byType(SettingsPage), findsOneWidget);
       expect(find.text('Erscheinungsbild'), findsOneWidget);
       expect(find.text('Theme'), findsNothing);
+    });
+  });
+
+  // Android 15+ hands an app targeting SDK 35 or newer the whole window and
+  // reports the bars only as view padding, so anything that ignores the
+  // padding draws underneath them. osociety/vernet#428.
+  group('Edge-to-edge insets', () {
+    // HomePage and SettingsPage own no Scaffold of their own, so this also
+    // proves the shell is what keeps them out of the navigation bar.
+    testWidgets(
+      'the compact shell clears the status bar and the navigation bar',
+      (tester) async {
+        await pumpTabBarPage(tester, size: const Size(390, 844));
+        fakeSystemBarInsets(tester);
+        await tester.pump();
+
+        expect(
+          tester.getSize(find.byType(AppBar)).height,
+          greaterThanOrEqualTo(kToolbarHeight + kTestStatusBarInset),
+          reason: 'the AppBar must grow to cover the status bar inset',
+        );
+        expect(
+          tester.getBottomLeft(find.byType(ListView).first).dy,
+          lessThanOrEqualTo(safeBottom(tester)),
+          reason: 'dashboard content must not sit under the navigation bar',
+        );
+      },
+    );
+
+    // The drawer is Scaffold's own surface, not the body, so the shell's
+    // SafeArea does not reach it: its footer row is pinned to the panel bottom
+    // and needs the inset on its own.
+    testWidgets('the compact drawer clears the navigation bar', (tester) async {
+      await pumpTabBarPage(tester, size: const Size(390, 844));
+      fakeSystemBarInsets(tester);
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.menu));
+      await pumpVisibleFrame(tester);
+
+      expect(
+        tester.getBottomLeft(find.byKey(const ValueKey('sidebar-settings'))).dy,
+        lessThanOrEqualTo(safeBottom(tester)),
+        reason: 'the drawer footer must not sit under the navigation bar',
+      );
     });
   });
 }

@@ -531,6 +531,20 @@ void main() {
       expect(find.text('Just now'), findsWidgets);
     });
 
+    // A collapsed rail leaves the dashboard barely wider than the panel, and
+    // the title row's Spacer clipped the M-Lab credit off the edge.
+    testWidgets('wraps the title row instead of overflowing a narrow panel',
+        (tester) async {
+      seedSpeedSnapshot(
+        timestamp: DateTime.now().subtract(const Duration(days: 5)),
+      );
+
+      await pumpHomePage(tester, size: const Size(369, 800));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('M-Lab'), findsOneWidget);
+    });
+
     testWidgets('shows relative age for recent results', (tester) async {
       seedSpeedSnapshot(
         timestamp: DateTime.now().subtract(const Duration(seconds: 30)),

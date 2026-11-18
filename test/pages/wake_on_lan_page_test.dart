@@ -85,6 +85,28 @@ void main() {
       expect(find.byKey(WidgetKey.wakeOnLanSaveButton.key), findsOneWidget);
     });
 
+    // osociety/vernet#428: the body has to give the navigation bar its height
+    // back, otherwise the form actions land underneath it on Android 15+.
+    testWidgets('keeps the form body clear of the navigation bar',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(WakeOnLanPage(service: _makeService())),
+      );
+      await tester.pump();
+
+      fakeSystemBarInsets(tester);
+      await tester.pump();
+
+      expect(
+        tester.getBottomLeft(find.byType(ListView).first).dy,
+        lessThanOrEqualTo(safeBottom(tester)),
+      );
+      expect(
+        tester.getSize(find.byType(AppBar)).height,
+        greaterThanOrEqualTo(kToolbarHeight + kTestStatusBarInset),
+      );
+    });
+
     testWidgets('empty-state placeholder is shown when no saved targets',
         (tester) async {
       await tester.pumpWidget(

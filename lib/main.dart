@@ -560,13 +560,12 @@ class _HomePageState extends State<TabBarPage> {
           drawer: isCompact
               ? Drawer(
                   child: SafeArea(
-                    bottom: false,
                     child: _buildSidebar(context, showToggleButton: false),
                   ),
                 )
               : null,
           body: isCompact
-              ? page
+              ? SafeArea(child: page)
               : SafeArea(
                   child: Row(
                     children: [

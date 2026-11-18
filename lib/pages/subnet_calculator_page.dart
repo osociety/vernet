@@ -43,7 +43,8 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.subnetCalcTitle)),
-      body: ListView(
+      body: SafeArea(
+          child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text(context.l10n.subnetCalcSubtitle),
@@ -80,7 +81,7 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
             _resultCard(context, result),
           ],
         ],
-      ),
+      )),
     );
   }
 

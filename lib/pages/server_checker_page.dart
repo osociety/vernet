@@ -233,12 +233,20 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(context.l10n.serverCheckerTitle)),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _addMonitor,
-          icon: const Icon(Icons.add),
-          label: Text(context.l10n.serverCheckerAdd),
+        floatingActionButton: Padding(
+          // The Scaffold's FAB slot has its MediaQuery padding stripped, so the
+          // nav-bar inset has to be read here, above the Scaffold.
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
+          child: FloatingActionButton.extended(
+            onPressed: _addMonitor,
+            icon: const Icon(Icons.add),
+            label: Text(context.l10n.serverCheckerAdd),
+          ),
         ),
-        body: _monitors.isEmpty ? _buildEmptyState() : _buildMonitorList(),
+        body: SafeArea(
+          child: _monitors.isEmpty ? _buildEmptyState() : _buildMonitorList(),
+        ),
       );
 
   Widget _buildEmptyState() {

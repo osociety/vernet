@@ -87,6 +87,23 @@ void main() {
     expect(find.text(l10n.serverCheckerAdd), findsOneWidget);
   });
 
+  // The Scaffold strips MediaQuery padding from the FAB slot, so the floating
+  // action button needs the nav-bar inset applied from above the Scaffold.
+  // osociety/vernet#428.
+  testWidgets('floats the add action above the navigation bar', (tester) async {
+    await tester
+        .pumpWidget(wrapWithLocalizations(child: const ServerCheckerPage()));
+    await tester.pumpAndSettle();
+
+    fakeSystemBarInsets(tester);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getBottomLeft(find.byType(FloatingActionButton)).dy,
+      lessThanOrEqualTo(safeBottom(tester)),
+    );
+  });
+
   testWidgets('requires name and host before saving a monitor', (tester) async {
     await tester
         .pumpWidget(wrapWithLocalizations(child: const ServerCheckerPage()));
