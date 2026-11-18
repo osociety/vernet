@@ -47,10 +47,10 @@ name: Microsoft Store metadata
 # the assembler does not read, so the tree can carry more languages than the
 # product serves without refusing the publish.
 #
-# Titles are the one field git does not fully own: the package declares en-us
-# only, so every other language is listed under a reserved product name and the
-# Store refuses anything else. msstore/reserved_titles.txt says which
-# names are reserved, and a title outside it is skipped with a log line.
+# Titles are the one field git does not fully own: the Store only accepts a
+# product name it has reserved for this submission, so a title.txt that is not
+# one of them is skipped, with a log line, and the served name kept.
+# msstore/reserved_titles.txt says which names are reserved.
 
 on:
   push:
