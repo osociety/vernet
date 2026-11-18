@@ -104,7 +104,7 @@ parts:
       #
       # nmcli is the source that fits this confinement: the declared
       # network-manager-observe plug is the read-only NetworkManager bus access
-      # it needs, and the README already asks users to connect it. iw is
+      # it needs, and the approved auto-connection wires it at install. iw is
       # staged too, because it is small and answers with an exact reading
       # wherever nl80211 is reachable.
       - iw

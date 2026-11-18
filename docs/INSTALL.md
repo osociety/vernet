@@ -23,13 +23,8 @@ and check "System type".
 sudo snap install vernet --beta
 ```
 
-Then connect the network permissions once, so the app can discover devices and
-read your Wi-Fi signal:
-
-```bash
-sudo snap connect vernet:network-observe
-sudo snap connect vernet:network-manager-observe
-```
+The network access the app needs to discover devices and read your Wi-Fi signal
+is connected automatically on install, so there is nothing to set up by hand.
 
 `snap install` picks the right build for your architecture (x64 or arm64)
 automatically.
