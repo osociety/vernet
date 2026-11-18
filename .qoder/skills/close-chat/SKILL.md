@@ -23,7 +23,10 @@ user-preference groups, the available specification groups and the
 `others` fallback are creatable, so verified repository facts go under
 `others`. An update there replaces the entire body, not a line: fetch the
 full text with `GetMemory` immediately first and resupply it with the
-stale sentence corrected, or the unrelated notes in it are lost.
+stale sentence corrected, or the unrelated notes in it are lost. Most of this
+repository's long entries already exceed the tool's 500-character body limit
+and so cannot be resupplied faithfully — never compress one to squeeze in a new
+note, record the new lesson as its own short entry instead.
 The store flavor is built from this repository
 (`scripts/build_store.dart`), so its work belongs here too, not in the
 `vernet-store` fork — which still serves Google Play until one Play beta
