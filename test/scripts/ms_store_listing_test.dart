@@ -207,7 +207,7 @@ void main() {
   test('locale directories are matched strictly and newlines normalised', () {
     File('${root.path}${Platform.pathSeparator}README.md')
         .writeAsStringSync('notes\n');
-    Directory('${root.path}${Platform.pathSeparator}en').createSync();
+    Directory('${root.path}${Platform.pathSeparator}assets').createSync();
     writeLocale(root, 'en-us',
         {'title.txt': 'A\r\n', 'keywords.txt': 'one\r\ntwo\r\n'});
 
@@ -340,6 +340,21 @@ void main() {
       ['en-us'],
       reason: 'a directory named pending is not a locale tag',
     );
+  });
+
+  // Microsoft's supported-language list writes cs, it, pl, ru and sk with no
+  // region, while Play and the app use cs-cz and friends. A pattern that
+  // demanded a region silently skipped those locales, and the only symptom was
+  // a payload with fewer languages than git holds.
+  test('a bare Store code reads as a locale and a stray directory does not',
+      () {
+    writeLocale(root, 'cs', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+    writeLocale(root, 'pt-br', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+    writeLocale(root, 'docs', {'title.txt': 'A\n', 'description.txt': 'B\n'});
+
+    final found = readListingTree(root).map((locale) => locale.locale).toList();
+    expect(found, containsAll(<String>['cs', 'pt-br']));
+    expect(found, isNot(contains('docs')));
   });
 
   // F-Droid builds this same checkout, and fdroidserver scans

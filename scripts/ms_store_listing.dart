@@ -70,7 +70,14 @@ const List<String> requiredFiles = ['title.txt', 'description.txt'];
 /// characters, and `pending/` would arrive as languages no store serves.
 const String defaultListingsDirectory = 'msstore';
 
-final RegExp localeDirectoryPattern = RegExp(r'^[a-z]{2,3}(-[a-z0-9]{2,4})+$');
+/// A locale directory is a Store language code, which is sometimes bare:
+/// Microsoft's supported-language list gives `cs`, `it`, `pl`, `ru` and `sk`
+/// without a region, while `pt-br`, `es-es` and `es-419` carry one. The region
+/// group is optional so both spellings read, and `pending` still fails it,
+/// which is what keeps an unenabled language out of a payload. It is a shape
+/// filter, not the Store's list: a code Microsoft does not serve, `en` say,
+/// reads here and is the Store's rejection to answer.
+final RegExp localeDirectoryPattern = RegExp(r'^[a-z]{2,3}(-[a-z0-9]{2,4})?$');
 
 /// One locale's listing text, with a null value meaning "no file committed,
 /// leave whatever the live submission holds".
