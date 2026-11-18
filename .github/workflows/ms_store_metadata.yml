@@ -35,18 +35,26 @@ name: Microsoft Store metadata
 # declare is carried through untouched, so a manual Partner Center edit of one
 # survives the overlay.
 #
-# A draft already on the product is a different story. On 2026-11-18 a
-# PendingCommit submission holding Vernet-v1.7.0+84 was open and updateMetadata
-# refused every attempt with nothing but `Error!`, while the runs that did land
-# had no draft or were waiting out a certifying package. The reply never says
-# which half of that draft blocked the write, so treat an open one as the
-# blocker: a run that spends all its attempts seeing PendingCommit has a draft
-# to commit or delete in Partner Center, not a credential or payload fault.
+# What `Error!` is: the CLI throwing the Store's answer away. SubmissionClient
+# only wraps a reply in its structured error type when the body deserialises as
+# a ResponseWrapper with errors, and the PUT for a packaged submission asks for a
+# DevCenterSubmission, so any other failure lands in the generic branch of
+# StatusContextExtensions.ErrorStatus, which prints the literal `Error!` and no
+# text at all. The reason is therefore always in the response body and only ever
+# on the console with --verbose, which is what the retry loop runs on the first
+# and last attempt. Do not read a refusal as "a draft was open": on 2026-11-18
+# every attempt met PendingCommit holding Vernet-v1.7.0+84, which proves a draft
+# existed and proves nothing about what updateMetadata objected to.
 #
-# flutter_release.yml calls this workflow with mode=update *after*
-# ms_store_release.yml has committed the package, because `msstore publish`
-# rebuilds the draft from the last published submission and throws away listing
-# text staged before it.
+# For an MSIX product the CLI makes package and listing one write, not two: the
+# docs call `submission update` and `submission updateMetadata` equivalent
+# because both PUT the whole submission JSON, and the documented order is
+# `publish <package> --noCommit`, then get, edit, update, then `submission
+# publish` and `poll`. flutter_release.yml takes the other shape -- it lets
+# ms_store_release.yml commit the package, then calls this workflow with
+# mode=update -- which is only safe because publish deletes any pending draft and
+# rebuilds from the last published submission, so the text this workflow stages
+# has to come after it and never before.
 #
 # A locale directory has to name a language the product already serves (en-us,
 # de-de, fr-fr). Enable a new one in Partner Center first -- Store listing >
@@ -249,28 +257,46 @@ jobs:
           # --payload rather than the JSON inline: a multi-locale listing passes
           # the 32,767 character command-line limit that Microsoft's own
           # snippet hits.
+          #
+          # Nothing that comes back from the Store is echoed verbatim. A
+          # submission JSON carries FileUploadUrl -- a signed ingestion blob url
+          # is write access to Microsoft storage for this product -- and these
+          # logs are public: run 43869000876 printed one on 2026-11-16 because
+          # the success branch echoed the command's output. Redact first, print
+          # the shape of the reply only.
+          $mask = {
+            param($text)
+            [regex]::Replace($text, '(https?://[^"]*\.blob\.core\.windows\.net/[^"]*)\?[^"]*', '$1?<query redacted>')
+          }
           $attempts = 14
           $gap = 90
           $states = @()
           for ($attempt = 1; $attempt -le $attempts; $attempt++) {
-            $output = & msstore submission updateMetadata "$env:MSSTORE_PRODUCT_ID" --payload $payload 2>&1 |
-              Out-String
+            # --verbose on the first and last attempt only: it is the single
+            # channel that carries the Store's reason, which the CLI otherwise
+            # discards, and two readable refusals beat fourteen identical ones.
+            $cli = @('submission', 'updateMetadata', "$env:MSSTORE_PRODUCT_ID", '--payload', $payload)
+            if ($attempt -eq 1 -or $attempt -eq $attempts) { $cli += '--verbose' }
+            $raw = & msstore $cli 2>&1 | Out-String
+            $output = & $mask "$raw"
             if ($LASTEXITCODE -eq 0) {
-              Write-Host "The Store accepted the listing on attempt $attempt."
-              if ($output.Trim()) { Write-Host $output.Trim() }
+              Write-Host "The Store accepted the listing on attempt $attempt. Its reply is not printed: a submission JSON holds signed upload urls."
               exit 0
             }
             Write-Host "Attempt $attempt of $attempts was refused (exit $LASTEXITCODE):"
-            if ($output.Trim()) { Write-Host $output.Trim() }
-            $state = msstore submission status "$env:MSSTORE_PRODUCT_ID" 2>&1 | Out-String
+            if ($output.Trim()) { Write-Host ($output.Trim() -replace '\r?\n', ' | ') }
+            $raw = msstore submission status "$env:MSSTORE_PRODUCT_ID" 2>&1 | Out-String
+            $state = & $mask "$raw"
             Write-Host "  the Store says: $($state.Trim() -replace '\r?\n', ' ')"
             $states += $state
             if ($attempt -lt $attempts) { Start-Sleep -Seconds $gap }
           }
-          if (($states -join ' ') -match 'PendingCommit') {
-            Write-Host 'Every attempt met a PendingCommit submission: clear that draft in Partner Center - commit or delete it - then restage. Nothing here says whether the draft or the package it holds is what updateMetadata refuses to write over.'
+          $seen = @($states | ForEach-Object { $_.Trim() -replace '\r?\n', ' ' } | Select-Object -Unique)
+          Write-Host "States seen across the refusals: $($seen -join ' | ')"
+          if (($seen -join ' ') -match 'PendingCommit') {
+            Write-Host 'At least one refusal met a PendingCommit submission, so a draft was open for part of the window. That is an observation about the product, not the cause of the refusal: the verbose attempts above hold what the Store objected to.'
           }
-          throw "msstore submission updateMetadata refused the payload $attempts times. Once the package submission leaves certification, this listing is one command away: gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY"
+          throw "msstore submission updateMetadata refused the payload $attempts times. Attempts 1 and $attempts ran --verbose, so the Store's own reason is in this log. Fix that, then: gh workflow run ms_store_metadata.yml -f mode=update -R $env:GITHUB_REPOSITORY"
 
       - name: Publish the listing
         if: env.MODE == 'update'

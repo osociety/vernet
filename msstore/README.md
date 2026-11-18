@@ -58,13 +58,23 @@ then a first-time locale has no screenshots, because git does not carry
 images, so add them to that language in Partner Center before expecting the
 update through.
 
-Staging is refused while a draft is open. On 2026-11-18 a `PendingCommit`
-submission carrying `Vernet-v1.7.0+84` was open, and every `updateMetadata`
-attempt failed with a bare `Error!`; the staging runs that did land had written
-into a product with no draft, or waited out a package still in certification.
-The answer never says whether the draft or the package inside it is the
-blocker, so clear the draft in Partner Center — commit or delete it — and
-restage. The run says as much when all its attempts report `PendingCommit`.
+A bare `💥 Error!` from `updateMetadata` is the CLI throwing the Store's answer
+away, not the answer. The PUT for a packaged submission asks for a submission
+object, so an error body that does not deserialise as the CLI's wrapped error
+type falls through to a generic catch that prints those two words and no reason
+(`SubmissionClient.InvokeAsync` and `StatusContextExtensions.ErrorStatus`). The
+staging step therefore runs its first and last attempt with `--verbose`, and the
+Store's own words are in that output. Read it before blaming the draft: all that
+2026-11-18 established is that a `PendingCommit` submission carrying
+`Vernet-v1.7.0+84` was open while every attempt failed, and an open draft is not
+a write blocker — a product with no draft at all takes the documented
+create-new-submission path.
+
+One write, not two, is the documented shape: for an MSIX product the Store
+treats `submission update` and `submission updateMetadata` as the same call,
+because both send the whole submission JSON, so `publish <package> --noCommit`,
+then get-edit-update, then `submission publish` and `poll` puts a package and its
+listing text into one submission instead of racing two of them.
 
 Use the Add/remove languages picker, not the listing CSV, to bring a parked
 locale back. The CSV import can add a language the product never had, but it
