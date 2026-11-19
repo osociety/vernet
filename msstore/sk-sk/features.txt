@@ -1,1 +1,10 @@
-Podrobnosti Wi-Fi, Nájsť zariadenia, Detail zariadenia, Skener portov, Ping a DNS, Sledovanie serverov, Kalkulačka podsietí IPv4/IPv6, Wake on LAN, Hľadanie switchov, Test rýchlosti
+Podrobnosti Wi-Fi
+Nájsť zariadenia
+Detail zariadenia
+Skener portov
+Ping a DNS
+Sledovanie serverov
+Kalkulačka podsietí IPv4/IPv6
+Wake on LAN
+Hľadanie switchov
+Test rýchlosti

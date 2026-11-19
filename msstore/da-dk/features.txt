@@ -1,1 +1,10 @@
-Wi-Fi-detajler, Find enheder, Enhedsdetaljer, Portscanner, Ping og DNS, Serverovervågning, IPv4/IPv6-undernetsberegner, Wake on LAN, Switch-opdagelse, Hastighedstest
+Wi-Fi-detajler
+Find enheder
+Enhedsdetaljer
+Portscanner
+Ping og DNS
+Serverovervågning
+IPv4/IPv6-undernetsberegner
+Wake on LAN
+Switch-opdagelse
+Hastighedstest

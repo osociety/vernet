@@ -1,1 +1,10 @@
-Szczegóły Wi-Fi, Znajdź urządzenia, Szczegóły urządzenia, Skaner portów, Ping i DNS, Monitoring serwerów, Kalkulator podsieci IPv4/IPv6, Wake on LAN, Wykrywanie switchy, Test prędkości
+Szczegóły Wi-Fi
+Znajdź urządzenia
+Szczegóły urządzenia
+Skaner portów
+Ping i DNS
+Monitoring serwerów
+Kalkulator podsieci IPv4/IPv6
+Wake on LAN
+Wykrywanie switchy
+Test prędkości

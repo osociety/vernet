@@ -1,1 +1,10 @@
-WLAN-Details, Geräte finden, Geräteinfo, Ports-Scanner, Ping & DNS, Server-Check, IPv4/IPv6-Subnetzrechner, Wake on LAN, Switch-Erkennung, Speedtest
+WLAN-Details
+Geräte finden
+Geräteinfo
+Ports-Scanner
+Ping & DNS
+Server-Check
+IPv4/IPv6-Subnetzrechner
+Wake on LAN
+Switch-Erkennung
+Speedtest

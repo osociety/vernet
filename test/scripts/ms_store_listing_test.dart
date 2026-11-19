@@ -193,6 +193,21 @@ void main() {
     );
   });
 
+  test('a comma-joined list is refused rather than published as one bullet',
+      () {
+    writeLocale(root, 'en-us', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'features.txt': 'Wifi details, find devices, ping and DNS\n',
+      'keywords.txt': 'network scanner, wifi monitor, ip lookup\n',
+    });
+
+    expect(validateListingTree(readListingTree(root)), [
+      'en-us: Features is one comma-joined line; put each entry on its own line',
+      'en-us: Keywords is one comma-joined line; put each entry on its own line',
+    ]);
+  });
+
   test('a keyword list inside the word budget is publishable', () {
     writeLocale(root, 'en-us', {
       'title.txt': 'A\n',
@@ -412,8 +427,14 @@ void main() {
     final committed = Directory(defaultListingsDirectory);
     expect(committed.existsSync(), isTrue,
         reason: 'run from the repository root');
-    expect(validateListingTree(readListingTree(committed)), isEmpty);
-    expect(readListingTree(committed).map((locale) => locale.locale),
-        containsAll(['en-us', 'de-de']));
+    final tree = readListingTree(committed);
+    expect(validateListingTree(tree), isEmpty);
+    expect(
+        tree.map((locale) => locale.locale), containsAll(['en-us', 'de-de']));
+    for (final locale in tree) {
+      expect(locale.fields['Features'], hasLength(greaterThan(1)),
+          reason: '${locale.locale} declares its bullets comma-joined, so the '
+              'Store would show one feature instead of ten');
+    }
   });
 }

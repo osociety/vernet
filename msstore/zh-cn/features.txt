@@ -1,1 +1,10 @@
-Wi-Fi 详情, 查找设备, 设备信息, 端口扫描, Ping 和 DNS, 服务器监控, IPv4/IPv6 子网计算器, Wake on LAN, 交换机发现, 网速测试
+Wi-Fi 详情
+查找设备
+设备信息
+端口扫描
+Ping 和 DNS
+服务器监控
+IPv4/IPv6 子网计算器
+Wake on LAN
+交换机发现
+网速测试

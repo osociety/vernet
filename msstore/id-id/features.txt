@@ -1,1 +1,10 @@
-Detail Wi-Fi, Cari Perangkat, Rincian Perangkat, Pemindai Port, Ping & DNS, Pemantauan Server, Kalkulator Subnet IPv4/IPv6, Wake on LAN, Deteksi Switch, Tes Kecepatan
+Detail Wi-Fi
+Cari Perangkat
+Rincian Perangkat
+Pemindai Port
+Ping & DNS
+Pemantauan Server
+Kalkulator Subnet IPv4/IPv6
+Wake on LAN
+Deteksi Switch
+Tes Kecepatan

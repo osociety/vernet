@@ -1,1 +1,10 @@
-Détails Wi-Fi, Appareils du réseau, Fiche appareil, Scanner de ports, Ping et DNS, Contrôle des serveurs, Calculateur IPv4/IPv6, Wake on LAN, Découverte des switchs, Test de débit
+Détails Wi-Fi
+Appareils du réseau
+Fiche appareil
+Scanner de ports
+Ping et DNS
+Contrôle des serveurs
+Calculateur IPv4/IPv6
+Wake on LAN
+Découverte des switchs
+Test de débit

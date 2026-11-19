@@ -1,1 +1,10 @@
-Wi-Fi-tiedot, Etsi laitteet, Laitetiedot, Porttiskannaus, Ping ja DNS, Palvelinvalvonta, IPv4/IPv6-aliverkkolaskin, Wake on LAN, Kytkinten haku, Nopeustesti
+Wi-Fi-tiedot
+Etsi laitteet
+Laitetiedot
+Porttiskannaus
+Ping ja DNS
+Palvelinvalvonta
+IPv4/IPv6-aliverkkolaskin
+Wake on LAN
+Kytkinten haku
+Nopeustesti

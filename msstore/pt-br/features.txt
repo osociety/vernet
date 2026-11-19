@@ -1,1 +1,10 @@
-Detalhes do Wi-Fi, Achar dispositivos, Ficha do dispositivo, Escâner de portas, Ping e DNS, Monitoramento de servidores, Calculadora IPv4/IPv6, Wake on LAN, Detecção de switches, Teste de velocidade
+Detalhes do Wi-Fi
+Achar dispositivos
+Ficha do dispositivo
+Escâner de portas
+Ping e DNS
+Monitoramento de servidores
+Calculadora IPv4/IPv6
+Wake on LAN
+Detecção de switches
+Teste de velocidade
