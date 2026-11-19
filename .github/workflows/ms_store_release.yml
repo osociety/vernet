@@ -1,18 +1,48 @@
 name: Microsoft Store release
 
-# Publishes the multi-architecture MSIX bundle to the live Store product.
-# flutter_release.yml's publish-windows job builds and signs that bundle; this
-# workflow only hands those exact bytes to the Store, which is why it never
-# builds — the same shape as play_store_release.yml, including the run_id
-# input that re-publishes an older release's bundle.
+# Publishes the multi-architecture MSIX bundle and the Store listing to the
+# live product as one submission. flutter_release.yml's publish-windows job
+# builds and signs the bundle; this workflow never builds — it hands those
+# exact bytes to the Store and overlays the words versioned under msstore/
+# onto the same submission, the same shape as play_store_release.yml including
+# the run_id input that re-publishes an older release's bundle.
 #
-# `msstore publish` commits the submission, so a release run goes straight
-# into Store certification. Two consequences worth knowing:
+# One submission, not two writes: `msstore publish --noCommit` creates a draft,
+# PUTs the configured submission and uploads the package blob, then returns
+# without committing (IStorePackagedAPIExtensions.cs, `if (noCommit)`). The
+# capture below reads that draft back — `submission get` takes
+# PendingApplicationSubmission first and only falls back to the last published
+# one — `submission update` replaces that same draft's JSON with the overlaid
+# payload, and `submission publish` commits. Certification starts once.
+#
+# Listing text used to go in a second, later submission through
+# ms_store_metadata.yml. That shape could not work: `submission update` PUTs
+# onto `application.PendingApplicationSubmission.Id`, and after the release
+# committed the package that submission is already in certification, so a
+# listing write could be accepted by the API and still not be the draft Partner
+# Center shows. The retry window that chased the refusals was a symptom of the
+# ordering, not of a busy Store.
+#
+# Two consequences worth knowing:
 #   - The CLI cannot make a first publication, it can only update a product
 #     that is already live. 9N1170N3PHMM is.
-#   - publish rebuilds the draft from the last published submission and throws
-#     away any listing metadata staged in that draft, so it shares its
-#     concurrency group with ms_store_metadata.yml and the two never overlap.
+#   - `publish` deletes a draft that already exists before creating its own, so
+#     a submission staged by hand in Partner Center does not survive a release.
+#     The listing lives in git and is re-applied every release for that reason.
+#
+# `submission poll` is deliberately not run: it blocks until the submission
+# reaches a terminal state, and Store certification outlives this job's timeout,
+# which would turn a submitted release red while it was still being reviewed.
+# The last step prints the state instead.
+#
+# One submission means one failure surface: a listing tree the Store refuses now
+# stops the package with it, where the separate metadata lane could fail and leave
+# a released app behind. The `--check` step is what pays for that — it reads the
+# same limits the assembler enforces, before any credential is used.
+#
+# A failure after the upload leaves an uncommitted draft with the new package
+# in it and nothing on the storefront. That is the safe half: the next release's
+# publish deletes it, and the log names the step that stopped.
 
 on:
   workflow_call:
@@ -46,7 +76,8 @@ env:
   # Pinned so a CLI release cannot change what a publish does unreviewed.
   # v0.4.2 added --payload for large submission JSON and stopped
   # --uploadTimeout defaulting to 0, which failed every blob upload; v0.4.3
-  # keeps a free product's price when publishing.
+  # keeps a free product's price when publishing; v0.4.4 added --noCommit, which
+  # is what makes the package and the listing one submission.
   MSSTORE_CLI_VERSION: v0.4.4
 
 jobs:
@@ -56,6 +87,11 @@ jobs:
     if: github.event.repository.fork != true
     runs-on: windows-2022
     steps:
+      # The assembler and msstore/ are read from the tag this release cut from,
+      # so the listing that ships is the one that was reviewed.
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
       # The Store publishes one file for both architectures, so the bundle
       # artifact is the only thing this job needs from the release run.
       - name: Download MSIX bundle
@@ -105,6 +141,24 @@ jobs:
           # an environment variable instead of re-discovering it.
           "MSSTORE_BUNDLE=$($bundle.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+      # The assembler imports dart:io and dart:convert only, so this needs the
+      # Dart SDK, not the Flutter toolchain, pub get or code generation.
+      - name: Install Dart
+        uses: dart-lang/setup-dart@v1.8.2
+        with:
+          sdk: stable
+
+      # Before any credential is used and before the Store is touched: an
+      # over-long description or a keyword list over the word budget fails in
+      # seconds, and the release keeps its draft for the next run instead of
+      # putting a half-written listing in front of shoppers.
+      - name: Check the listing tree
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          dart run scripts/ms_store_listing.dart --check
+          if ($LASTEXITCODE -ne 0) { throw 'msstore/ is not publishable as it stands.' }
+
       - name: Configure the Microsoft Store CLI
         uses: microsoft/microsoft-store-apppublisher@v1.4
         with:
@@ -146,18 +200,100 @@ jobs:
             --clientId "$env:AZURE_AD_APPLICATION_CLIENT_ID" --clientSecret "$env:AZURE_AD_APPLICATION_SECRET"
           if ($LASTEXITCODE -ne 0) { throw "msstore reconfigure exited with $LASTEXITCODE." }
 
-      - name: Publish the package
+      - name: Upload the package into a draft submission
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          msstore publish "$env:MSSTORE_BUNDLE" --appId "$env:MSSTORE_PRODUCT_ID"
+          msstore publish "$env:MSSTORE_BUNDLE" --appId "$env:MSSTORE_PRODUCT_ID" --noCommit
           if ($LASTEXITCODE -ne 0) {
-            throw "msstore publish exited with $LASTEXITCODE - the submission was not committed."
+            throw "msstore publish --noCommit exited with $LASTEXITCODE - the package is not in a draft submission."
+          }
+
+      # The draft just created, which is why this step runs after the upload:
+      # the capture is the base the overlay writes onto, so screenshots,
+      # markets, hardware and the package list come from the Store and only the
+      # words come from git.
+      #
+      # The capture is written raw and only into the runner's temp directory. It
+      # carries shared-access URLs for the package blobs, which are write access
+      # to Microsoft storage for this product, and these logs are public.
+      - name: Capture the draft submission
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $live = Join-Path $env:RUNNER_TEMP 'live-submission.json'
+          msstore submission get "$env:MSSTORE_PRODUCT_ID" |
+            Set-Content -Path $live -Encoding utf8NoBOM
+          if ($LASTEXITCODE -ne 0) { throw "msstore submission get exited with $LASTEXITCODE." }
+
+          $submission = Get-Content -Raw $live | ConvertFrom-Json
+          if (-not $submission) { throw 'The captured draft was not valid JSON.' }
+          $locales = @($submission.Listings.PSObject.Properties.Name)
+          if ($locales.Count -lt 1) { throw 'The captured draft carries no listings.' }
+
+          # The payload PUTs this package list back, so a draft from before the
+          # upload would put an older build on the storefront with every step
+          # above still green. Naming the file the bundle step just found is the
+          # cheapest way to prove the capture is the one this run made.
+          $packages = @($submission.ApplicationPackages.FileName)
+          $bundle = Split-Path -Leaf "$env:MSSTORE_BUNDLE"
+          if ($packages -notcontains $bundle) {
+            throw "The captured draft does not hold $bundle. It names: $($packages -join ', ')"
+          }
+
+          Write-Host "Draft $bundle serves $($locales.Count) locales: $($locales -join ', ')."
+
+      # The Store replaces the whole submission on every write, so the payload
+      # is assembled rather than stored, and the commit is the last thing this
+      # job does. One attempt: a refusal here is a payload problem the `--check`
+      # step above should have caught, and an uncommitted draft is harmless —
+      # the next release deletes it. --verbose because it is the only channel
+      # that carries the Store's reason; the CLI otherwise prints `Error!`.
+      - name: Overlay the listing and submit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $live = Join-Path $env:RUNNER_TEMP 'live-submission.json'
+          $payload = Join-Path $env:RUNNER_TEMP 'payload.json'
+
+          dart run scripts/ms_store_listing.dart --submission $live --out $payload
+          if ($LASTEXITCODE -ne 0) { throw "The listing assembler exited with $LASTEXITCODE - nothing was submitted." }
+
+          # --payload rather than the JSON inline: a 29-locale listing passes the
+          # 32,767 character command-line limit that Microsoft's own snippet hits.
+          #
+          # `submission update` answers with the whole updated submission JSON on
+          # stdout, which holds the signed upload urls, so nothing this step runs
+          # is echoed verbatim into a public log. Redact first, print the shape of
+          # the reply only, and print nothing at all if a signature survived.
+          $mask = {
+            param($text)
+            [regex]::Replace($text, '(https?://[^"]*\.blob\.core\.windows\.net/[^"]*)\?[^"]*', '$1?<query redacted>')
+          }
+          $cli = @('submission', 'update', "$env:MSSTORE_PRODUCT_ID", '--payload', $payload, '--verbose')
+          $raw = & msstore $cli 2>&1 | Out-String
+          $exit = $LASTEXITCODE
+          $reply = & $mask "$raw"
+          if ($reply -match 'sig=' -or $reply -match 'skoid=') {
+            Write-Host 'The Store reply held a signed url after redaction, so it is not printed.'
+            $reply = ''
+          }
+          if ($exit -ne 0) {
+            throw "msstore submission update was refused (exit $exit): $(($reply.Trim() -replace '\r?\n', ' | '))"
+          }
+          Write-Host 'The Store accepted the package and the listing as one submission.'
+
+          # Certification starts here and takes longer than this job, which is
+          # why nothing polls it.
+          $ErrorActionPreference = 'Stop'
+          msstore submission publish "$env:MSSTORE_PRODUCT_ID"
+          if ($LASTEXITCODE -ne 0) {
+            throw "msstore submission publish exited with $LASTEXITCODE - the draft holds the package and the listing but was not submitted."
           }
 
       # Read-only, and the log is where the certification state is visible
       # without opening Partner Center. A failure here says nothing about the
-      # publish above, so it must not turn a green publish red.
+      # steps above, so it must not turn a green release red.
       - name: Report the submission state
         if: ${{ !cancelled() }}
         continue-on-error: true

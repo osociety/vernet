@@ -1,7 +1,7 @@
-App para monitorear tu red
-Información de tu red
+Monitorear red
+Información de red
 Escáner de dispositivos Wi-Fi
-Monitoreo de Wi-Fi
+Monitoreo Wi-Fi
 Rastreador de direcciones IP
-Administrador de red casera
+Administrador de red
 Vernet App

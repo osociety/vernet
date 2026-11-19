@@ -1,7 +1,7 @@
-ứng dụng giám sát mạng
+giám sát mạng
 thông tin mạng
-quét thiết bị Wi-Fi
+quét thiết bị
 giám sát Wi-Fi
-theo dõi địa chỉ IP
-quản lý mạng gia đình
+địa chỉ IP
+quản lý mạng
 Vernet App
