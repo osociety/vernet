@@ -169,6 +169,46 @@ void main() {
         contains('de-de: Keywords entry is 80 characters, the limit is 40'));
   });
 
+  // The Store's own wording says "21 separate words across all keywords", which
+  // reads as either distinct or total. `vi-vn` settled it on 2026-11-18: seven
+  // keywords sharing nothing, 24 words, and the whole payload refused with
+  // `KeywordsTotalCount must be 21 or less`. Total counting is the stricter
+  // reading and the one the Store charges for.
+  test('counts every word a keyword list uses, not each word once', () {
+    writeLocale(root, 'en-us', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'network tool\n'
+          'wifi scanner device\n'
+          'ip address lookup scanner\n'
+          'port check scanner tool\n'
+          'speed test wifi\n'
+          'dns lookup tool\n'
+          'lan device scanner\n',
+    });
+
+    expect(
+      validateListingTree(readListingTree(root)),
+      ['en-us: Keywords uses 22 words across all entries, the limit is 21'],
+    );
+  });
+
+  test('a keyword list inside the word budget is publishable', () {
+    writeLocale(root, 'en-us', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'network scanner\n'
+          'network monitor\n'
+          'wifi scanner\n'
+          'wifi monitor\n'
+          'ip scanner\n'
+          'port scan\n'
+          'speed test\n',
+    });
+
+    expect(validateListingTree(readListingTree(root)), isEmpty);
+  });
+
   test('an empty required file is refused the same way a missing one is', () {
     writeLocale(root, 'en-us', {'title.txt': '\n', 'description.txt': 'B\n'});
 

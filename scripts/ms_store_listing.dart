@@ -8,6 +8,10 @@
 //     dart run scripts/ms_store_listing.dart \
 //       --submission captured.json --listings msstore --out payload.json
 //
+// `.github/workflows/ms_store_release.yml` runs that between uploading the
+// release package into a draft submission and committing it, so the package and
+// its listing text reach the Store as one submission.
+//
 // `msstore/pending/` holds the locales written but not yet enabled on the
 // product; the tree reader only matches locale-shaped directory names, so they
 // sit in review without reaching a payload.
@@ -38,6 +42,19 @@ const Map<String, int> maxTextLength = {
 const Map<String, int> maxListLength = {'Features': 20, 'Keywords': 7};
 const int maxListItemLength = 40;
 const int maxFeatureLength = 200;
+
+/// Words the seven keywords of one listing may use between them.
+///
+/// Microsoft states the budget two ways — "21 unique words TOTAL across all
+/// search terms" in the submission API table and "no more than 21 separate
+/// words across all keywords" in the MSIX page and the Partner Center form —
+/// and only the stricter reading is enforceable from git. On 2026-11-18 the
+/// Store refused a 29-locale payload with `KeywordsTotalCount must be 21 or
+/// less` while every `vi-vn` keyword was unique, 24 words in seven entries;
+/// blanking `Keywords` on every listing made the same payload accepted. So the
+/// count is per locale and it counts occurrences, not distinct words, and a
+/// refusal that names no locale costs a Store round trip to find.
+const int maxKeywordWordCount = 21;
 
 /// File name -> submission field, in the order the payload reports them.
 const Map<String, String> fileToField = {
@@ -77,7 +94,8 @@ const String defaultListingsDirectory = 'msstore';
 /// either way, and `pending` still fails the pattern, which is what keeps an
 /// unenabled language out of a payload. It is a shape filter, not Microsoft's
 /// list: a tag the product does not serve reads here and is the Store's
-/// rejection to answer, so `mode=get` decides the spelling, not a table.
+/// rejection to answer, so the release's capture decides the spelling, not a
+/// table.
 final RegExp localeDirectoryPattern = RegExp(r'^[a-z]{2,3}(-[a-z0-9]{2,4})?$');
 
 /// One locale's listing text, with a null value meaning "no file committed,
@@ -184,6 +202,16 @@ List<String> validateListingTree(List<ListingLocale> locales) {
         for (final item in value.where((item) => item.length > perItem)) {
           violations.add(
               '$prefix entry is ${item.length} characters, the limit is $perItem');
+        }
+        if (entry.key == 'Keywords') {
+          final words = value
+              .expand((item) => item.trim().split(RegExp(r'\s+')))
+              .where((word) => word.isNotEmpty)
+              .length;
+          if (words > maxKeywordWordCount) {
+            violations.add('$prefix uses $words words across all entries, '
+                'the limit is $maxKeywordWordCount');
+          }
         }
       }
     }
