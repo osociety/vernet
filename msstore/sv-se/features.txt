@@ -1,1 +1,10 @@
-Wi-Fi-uppgifter, Hitta enheter, Enhetsdetaljer, Portskanner, Ping och DNS, Serverövervakning, IPv4/IPv6-delnätskalkylator, Wake on LAN, Switchupptäckt, Hastighetstest
+Wi-Fi-uppgifter
+Hitta enheter
+Enhetsdetaljer
+Portskanner
+Ping och DNS
+Serverövervakning
+IPv4/IPv6-delnätskalkylator
+Wake on LAN
+Switchupptäckt
+Hastighetstest

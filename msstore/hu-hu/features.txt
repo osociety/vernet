@@ -1,1 +1,10 @@
-Wi-Fi részletek, Eszköskeresés, Eszköz adatai, Portkereső, Ping és DNS, Szerverfigyelés, IPv4/IPv6 alhálózat-számító, Wake on LAN, Switchfelfedezés, Sebességmérés
+Wi-Fi részletek
+Eszköskeresés
+Eszköz adatai
+Portkereső
+Ping és DNS
+Szerverfigyelés
+IPv4/IPv6 alhálózat-számító
+Wake on LAN
+Switchfelfedezés
+Sebességmérés

@@ -42,10 +42,13 @@ it as a string and a list fails the Windows build outright, and
 `test/scripts/msix_languages_test.dart` fails if the line and this tree drift
 apart.
 
-A line-based file becomes a list, so one feature or keyword per line. A file
-that is absent leaves whatever the live submission already holds for that
-field, which is how a one-off Store edit survives a publish without moving into
-git first.
+A line-based file becomes a list, so one feature or keyword per line. `--check`
+refuses a one-line `features.txt` or `keywords.txt` that separates its entries
+with commas, because that publishes as a single bullet and breaks no size limit
+that could otherwise catch it — all 29 locales shipped one feature that way
+until 2026-11-19. A file that is absent leaves whatever the live submission
+already holds for that field, which is how a one-off Store edit survives a
+publish without moving into git first.
 
 The release publishes this tree. `ms_store_release.yml` uploads the signed bundle
 into a draft with `msstore publish --noCommit`, captures that draft, overlays

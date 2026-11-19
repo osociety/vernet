@@ -56,6 +56,16 @@ const int maxFeatureLength = 200;
 /// refusal that names no locale costs a Store round trip to find.
 const int maxKeywordWordCount = 21;
 
+/// A comma where a list file should have had a newline.
+///
+/// `features.txt` and `keywords.txt` become one payload entry per line, so a
+/// file that separates its bullets with commas publishes a single bullet. All
+/// 29 locales did that with their features until 2026-11-19, and the storefront
+/// showed one feature per language instead of ten — no limit was breached, so
+/// nothing failed. The Arabic comma is in the class because `ar-sa` joined
+/// itself with `،` and a Latin-only check would have called it clean.
+final RegExp commaJoinedList = RegExp(',\\s|\u060C');
+
 /// File name -> submission field, in the order the payload reports them.
 const Map<String, String> fileToField = {
   'title.txt': 'Title',
@@ -202,6 +212,10 @@ List<String> validateListingTree(List<ListingLocale> locales) {
         for (final item in value.where((item) => item.length > perItem)) {
           violations.add(
               '$prefix entry is ${item.length} characters, the limit is $perItem');
+        }
+        if (value.length == 1 && commaJoinedList.hasMatch(value.single)) {
+          violations.add(
+              '$prefix is one comma-joined line; put each entry on its own line');
         }
         if (entry.key == 'Keywords') {
           final words = value
