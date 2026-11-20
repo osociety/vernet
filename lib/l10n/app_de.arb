@@ -853,6 +853,7 @@
   "donateCommunityNote": "Fehler melden und Diskussionen beantworten zählt auch – die App wird von einer Person gepflegt, die beides liest.",
   "whatsNewDialogTitle": "Was ist neu",
   "whatsNewEmpty": "Für diese Version gibt es keine Versionshinweise.",
+  "whatsNewReleaseLink": "Diese Veröffentlichung auf GitHub",
   "changelogGermanTranslation": "Vernet gibt es jetzt auf Deutsch",
   "changelogLanguageChoice": "Sprache beim ersten Start oder in den Einstellungen wählbar",
   "changelogLocaleDates": "Zeit und Datum folgen deiner Sprache",

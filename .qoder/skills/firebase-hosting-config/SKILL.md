@@ -1,6 +1,6 @@
 ---
 name: firebase-hosting-config
-description: "Troubleshoot Firebase Hosting, Google Cloud project permissions, Firebase app configuration, or consistency between Vernet app messaging, website, and documentation."
+description: "Troubleshoot Firebase Hosting, Google Cloud project permissions, Firebase app configuration, or consistency between Vernet app messaging, website, and documentation. Also for running the firebase/e2e browser gate locally before a site change is pushed."
 ---
 
 # Firebase Hosting and Configuration

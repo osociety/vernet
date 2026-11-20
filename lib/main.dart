@@ -261,9 +261,28 @@ class TabBarPage extends StatefulWidget {
 
 class _HomePageState extends State<TabBarPage> {
   static const double _largeLayoutBreakpoint = 600;
-  int _currentIndex = 0;
+
+  /// The rail and the page share a `Row`, so every frame of the extension
+  /// tween re-lays out the page. A shorter tween means fewer of those frames.
+  static const Duration _toggleAnimation = Duration(milliseconds: 200);
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late final SidebarXController _sidebarController;
+
+  /// The destination list, kept between builds so navigating does not rebuild
+  /// eleven items and eleven `onTap` closures. [AppLocalizations] hands back one
+  /// instance per locale, so that identity is the locale-changed signal.
+  AppLocalizations? _navStrings;
+  List<SidebarXItem>? _navItems;
+
+  /// The rail as one cached widget instance, valid while the [ColorScheme], the
+  /// layout mode and the destination list are. Dragging a desktop window re-runs
+  /// the `LayoutBuilder` in `build` on every frame, and handing `SidebarX` an
+  /// identical config then makes Flutter skip it instead of re-merging two
+  /// themes and re-listening eleven cells a frame.
+  Widget? _rail;
+  ColorScheme? _railColors;
+  List<SidebarXItem>? _railNavItems;
+  bool? _railIsCompact;
 
   @override
   void initState() {
@@ -307,10 +326,12 @@ class _HomePageState extends State<TabBarPage> {
 
   void _selectPage(int index) {
     _scaffoldKey.currentState?.closeDrawer();
-    setState(() {
-      _currentIndex = index;
-    });
-    _sidebarController.selectIndex(index);
+    // The controller holds the only copy of the selection, and notifying it is
+    // what rebuilds the rail and the content scope below. Rebuilding this state
+    // on top of that would rebuild the rail a second time, so it does not.
+    if (_sidebarController.selectedIndex != index) {
+      _sidebarController.selectIndex(index);
+    }
     // Opening Settings is the deepest commit a session reaches, so it is where
     // Play is asked for a review. Only the store build has the SDK.
     if (kStoreBuild && index == _navigationItems(context).length) {
@@ -319,7 +340,17 @@ class _HomePageState extends State<TabBarPage> {
   }
 
   List<SidebarXItem> _navigationItems(BuildContext context) {
+    final cached = _navItems;
     final l10n = context.l10n;
+    if (cached != null && identical(l10n, _navStrings)) return cached;
+
+    final items = _buildNavigationItems(l10n);
+    _navStrings = l10n;
+    _navItems = items;
+    return items;
+  }
+
+  List<SidebarXItem> _buildNavigationItems(AppLocalizations l10n) {
     return [
       SidebarXItem(
         icon: Icons.home,
@@ -379,14 +410,95 @@ class _HomePageState extends State<TabBarPage> {
     ];
   }
 
+  /// The mark at the top of the rail, decoded at the size it is painted.
+  ///
+  /// `assets/app_icon.png` is 512px square while the header asks for 24 or 36,
+  /// so without `cacheWidth` the image cache holds a full 1 MB RGBA buffer for a
+  /// logo the size of a stamp.
+  Widget _logo(BuildContext context, double size) {
+    return ClipOval(
+      child: Image.asset(
+        'assets/app_icon.png',
+        width: size,
+        height: size,
+        cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).ceil(),
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Widget _buildSidebarHeader(BuildContext context, bool isExtended) {
+    return SizedBox(
+      height: 72,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final showAppName = isExtended && constraints.maxWidth >= 200;
+          final logoSize = constraints.maxWidth < 56 ? 24.0 : 36.0;
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: showAppName ? 12 : 4),
+            child: Align(
+              alignment: showAppName ? Alignment.centerLeft : Alignment.center,
+              child: showAppName
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _logo(context, logoSize),
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: Text(
+                            'Vernet',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ),
+                      ],
+                    )
+                  : _logo(context, logoSize),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// The rail, or the exact widget instance handed out last time if nothing it
+  /// depends on has changed.
+  Widget _railFor(BuildContext context, {required bool isCompact}) {
+    final colors = Theme.of(context).colorScheme;
+    final navItems = _navigationItems(context);
+    final cached = _rail;
+    if (cached != null &&
+        identical(colors, _railColors) &&
+        identical(navItems, _railNavItems) &&
+        _railIsCompact == isCompact) {
+      return cached;
+    }
+
+    final rail = RepaintBoundary(
+      child: _buildSidebar(
+        context,
+        items: navItems,
+        showToggleButton: !isCompact,
+      ),
+    );
+    _rail = rail;
+    _railColors = colors;
+    _railNavItems = navItems;
+    _railIsCompact = isCompact;
+    return rail;
+  }
+
   Widget _buildSidebar(
     BuildContext context, {
+    required List<SidebarXItem> items,
     required bool showToggleButton,
   }) {
     final colors = Theme.of(context).colorScheme;
     return SidebarX(
       controller: _sidebarController,
       showToggleButton: showToggleButton,
+      animationDuration: _toggleAnimation,
       theme: SidebarXTheme(
         width: 72,
         margin: const EdgeInsets.all(8),
@@ -425,53 +537,7 @@ class _HomePageState extends State<TabBarPage> {
           borderRadius: BorderRadius.circular(18),
         ),
       ),
-      headerBuilder: (context, isExtended) => SizedBox(
-        height: 72,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final showAppName = isExtended && constraints.maxWidth >= 200;
-            final logoSize = constraints.maxWidth < 56 ? 24.0 : 36.0;
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: showAppName ? 12 : 4),
-              child: Align(
-                alignment:
-                    showAppName ? Alignment.centerLeft : Alignment.center,
-                child: showAppName
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ClipOval(
-                            child: Image.asset(
-                              'assets/app_icon.png',
-                              width: 36,
-                              height: 36,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              'Vernet',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ),
-                        ],
-                      )
-                    : ClipOval(
-                        child: Image.asset(
-                          'assets/app_icon.png',
-                          width: logoSize,
-                          height: logoSize,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-              ),
-            );
-          },
-        ),
-      ),
+      headerBuilder: _buildSidebarHeader,
       separatorBuilder: (context, index) {
         if (index == 2 || index == 5 || index == 8) {
           return Divider(
@@ -485,8 +551,8 @@ class _HomePageState extends State<TabBarPage> {
       },
       footerDivider: Divider(height: 1, color: colors.outlineVariant),
       footerBuilder: (context, isExtended) {
-        final settingsIndex = _navigationItems(context).length;
-        final isSelected = _currentIndex == settingsIndex;
+        final settingsIndex = items.length;
+        final isSelected = _sidebarController.selectedIndex == settingsIndex;
         final foreground =
             isSelected ? colors.primary : colors.onSurfaceVariant;
         return Padding(
@@ -536,7 +602,7 @@ class _HomePageState extends State<TabBarPage> {
           ),
         );
       },
-      items: _navigationItems(context),
+      items: items,
     );
   }
 
@@ -545,36 +611,33 @@ class _HomePageState extends State<TabBarPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth <= _largeLayoutBreakpoint;
-        final page = _selectedPage;
+        final rail = _railFor(context, isCompact: isCompact);
         return Scaffold(
           key: _scaffoldKey,
           appBar: isCompact
               ? AppBar(
-                  title: Text(_selectedPageTitle(context)),
+                  title: ListenableBuilder(
+                    listenable: _sidebarController,
+                    builder: (context, _) => Text(_selectedPageTitle(context)),
+                  ),
                   leading: IconButton(
                     icon: const Icon(Icons.menu),
                     onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                   ),
                 )
               : null,
-          drawer: isCompact
-              ? Drawer(
-                  child: SafeArea(
-                    child: _buildSidebar(context, showToggleButton: false),
-                  ),
-                )
-              : null,
+          drawer: isCompact ? Drawer(child: SafeArea(child: rail)) : null,
           body: isCompact
-              ? SafeArea(child: page)
+              ? SafeArea(child: _content())
               : SafeArea(
                   child: Row(
                     children: [
-                      _buildSidebar(context, showToggleButton: true),
+                      rail,
                       VerticalDivider(
                         width: 1,
                         color: Theme.of(context).colorScheme.outlineVariant,
                       ),
-                      Expanded(child: page),
+                      Expanded(child: _content()),
                     ],
                   ),
                 ),
@@ -583,11 +646,26 @@ class _HomePageState extends State<TabBarPage> {
     );
   }
 
+  /// The destination the controller points at, behind its own listen scope.
+  ///
+  /// Selecting a page and toggling the rail both notify the controller, and
+  /// nothing else in the shell has to redraw for them. The boundary then keeps
+  /// the page out of the repaints the widening rail causes on the frames where
+  /// the row re-lays it out.
+  Widget _content() {
+    return RepaintBoundary(
+      child: ListenableBuilder(
+        listenable: _sidebarController,
+        builder: (context, _) => _selectedPage,
+      ),
+    );
+  }
+
   /// Compact app bar title. The sidebar labels the same destinations, except
   /// index 0, where the rail says `navHome` and the bar names the dashboard.
   String _selectedPageTitle(BuildContext context) {
     final l10n = context.l10n;
-    return switch (_currentIndex) {
+    return switch (_sidebarController.selectedIndex) {
       0 => l10n.navYourNetwork,
       1 => l10n.navScanNetwork,
       2 => l10n.navCheckWebsite,
@@ -603,7 +681,7 @@ class _HomePageState extends State<TabBarPage> {
     };
   }
 
-  Widget get _selectedPage => switch (_currentIndex) {
+  Widget get _selectedPage => switch (_sidebarController.selectedIndex) {
         0 => const HomePage(),
         1 => HostScanPage(),
         2 => const PingPage(),
