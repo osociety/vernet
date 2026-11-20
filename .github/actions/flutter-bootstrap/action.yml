@@ -95,8 +95,12 @@ runs:
         restore-keys: |
           ${{ runner.os }}-dart-tool-
 
+    # The committed lock is what ships: F-Droid and the store artifacts are all
+    # meant to build the exact dependency versions recorded in `pubspec.lock`.
+    # Enforcement turns a silent re-resolution in CI into this step failing, so
+    # the fix is always `flutter pub get` locally and that lockfile in the PR.
     - name: Download dependencies
-      run: flutter pub get
+      run: flutter pub get --enforce-lockfile
       shell: bash
 
     - name: Run build_runner
