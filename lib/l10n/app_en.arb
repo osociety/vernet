@@ -3865,6 +3865,10 @@
   "@whatsNewEmpty": {
     "description": "Body of the release-notes dialog when the running version has no entry."
   },
+  "whatsNewReleaseLink": "This release on GitHub",
+  "@whatsNewReleaseLink": {
+    "description": "Link at the foot of the release-notes dialog that opens the running build's own GitHub release page, where the full asset list and the discussion live."
+  },
   "changelogGermanTranslation": "Vernet now speaks German",
   "@changelogGermanTranslation": {
     "description": "What's New release-note bullet."
