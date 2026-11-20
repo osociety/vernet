@@ -109,6 +109,35 @@ parts:
       # wherever nl80211 is reachable.
       - iw
       - network-manager
+      # MdnsScannerService asks the OS for the list of service types to browse
+      # before it runs its own Dart mDNS queries. On Linux that list comes from
+      # `timeout 2s avahi-browse --all -p` and `timeout 2s mdns-scan`, both
+      # hardcoded in network_tools' srv_list_linux.dart. Neither binary is in
+      # core22, so the enumeration always came back empty and searchMdnsDevices()
+      # silently fell back to the package's built-in SRV record list — only the
+      # ~90 service types it ships, never an odd IoT advertisement.
+      #
+      # coreutils is staged because the wrapper itself is refused: snapd's policy
+      # denies this snap read and exec on the base's copy, so the file has to be
+      # snap content to run at all.
+      #
+      #   apparmor="DENIED" operation="exec" profile="snap.vernet.vernet"
+      #     name="/usr/bin/timeout" requested_mask="x" denied_mask="x"
+      #
+      # mdns-scan is the probe that fits this confinement. It speaks mDNS
+      # straight over UDP 5353 with no daemon behind it, so the existing network
+      # plug is enough, and its "+ _http._tcp.local" lines go to stderr — the
+      # stream network_tools reads for this command.
+      #
+      # avahi-utils is deliberately not staged. avahi-browse is only a client of
+      # the system avahi daemon socket, which needs the avahi-observe plug; that
+      # interface is deny-auto-connection and takes its slot from another snap, so
+      # every user would have to run a manual `snap connect` and it would fail
+      # outright where avahi is not packaged as a snap. With timeout present the
+      # avahi leg just exits 127, which network_tools already treats as "not
+      # installed" and logs quietly instead of dumping a stack to stderr.
+      - coreutils
+      - mdns-scan
 
     override-build: |
       # 0. Take the snap version from pubspec.yaml (1.4.10+67 -> 1.4.10)
