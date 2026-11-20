@@ -548,27 +548,43 @@
   }
   .stat-label { color: var(--ink-dim); font-size: 0.78rem; }
 
-  /* Release history */
+  /* Release history: one <details> per build, so ten releases do not stack ten
+     artifact lists on top of each other before the reader picks one. */
   .release-list { display: flex; flex-direction: column; gap: 12px; max-width: 860px; margin: 0 auto; }
   .release-row {
-    background: var(--card); border: 1px solid var(--card-border); border-radius: 8px; padding: 18px 22px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 8px;
   }
   .release-head {
-    display: flex; align-items: baseline; justify-content: space-between; gap: 8px 18px; flex-wrap: wrap;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px 18px;
+    flex-wrap: wrap; padding: 18px 22px; cursor: pointer; list-style: none;
   }
-  .release-id { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .release-head::-webkit-details-marker { display: none; }
+  .release-head:focus-visible {
+    outline: 2px solid var(--purple-accent-2); outline-offset: -4px; border-radius: 8px;
+  }
+  .release-id { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; flex: 1 1 auto; }
   .release-version { margin: 0; font-size: 1.02rem; font-weight: 700; }
   .release-date { color: var(--ink-dim); font-size: 0.78rem; }
   .release-page { color: var(--purple-accent-2); font-size: 0.82rem; font-weight: 600; }
   .release-page:hover, .release-page:focus-visible { color: var(--purple-accent); }
+  /* A flexed summary drops the native triangle, so the affordance is drawn. */
+  .release-toggle { color: var(--ink-dim); font-size: 0.72rem; transition: transform 0.15s ease; }
+  .release-row[open] .release-toggle { transform: rotate(90deg); }
   .release-assets {
-    display: flex; flex-wrap: wrap; gap: 6px 18px;
-    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-border);
+    list-style: none; margin: 0; padding: 8px 22px 14px;
+    border-top: 1px solid var(--card-border);
   }
-  .release-asset { color: var(--purple-accent-2); font-size: 0.82rem; font-weight: 600; }
+  .release-asset-item {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 4px 16px;
+    flex-wrap: wrap; padding: 6px 0; font-size: 0.82rem;
+  }
+  .release-asset { color: var(--purple-accent-2); font-weight: 600; }
   .release-asset:hover, .release-asset:focus-visible { color: var(--purple-accent); }
-  .release-asset .release-asset-meta { color: var(--ink-dim); font-weight: 500; }
-  .release-empty { color: var(--ink-dim); font-size: 0.85rem; }
+  .release-asset-meta {
+    color: var(--ink-dim); font-weight: 500; font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .release-empty { color: var(--ink-dim); font-size: 0.85rem; padding: 6px 0; }
   .release-note {
     text-align: center; color: var(--ink-dim); font-size: 0.82rem; line-height: 1.6;
     max-width: 660px; margin: 22px auto 0;
@@ -582,8 +598,8 @@
   @media (max-width: 560px) {
     .stats { gap: 14px 24px; }
     .stat { min-width: 44%; }
-    .release-row { padding: 16px; }
-    .release-assets { gap: 5px 12px; }
+    .release-head { padding: 16px; }
+    .release-assets { padding: 8px 16px 12px; }
   }
 </style>
 </head>
@@ -821,7 +837,7 @@
     <div class="section-head">
       <span class="eyebrow">Release history</span>
       <h2>Every stable build, with its files</h2>
-      <p>The ten newest stable releases and each archive published for them, with the downloads recorded against every file.</p>
+      <p>The ten newest stable releases. Open a build to see each archive published for it and the downloads recorded against every file.</p>
     </div>
     <div class="release-list" id="release-list"></div>
     <p class="release-note">
@@ -978,6 +994,23 @@
     windows_arm64: '-windows-arm64.zip'
   };
 
+  // CI names each artifact for the build system; a reader chooses by platform and
+  // chip. The published file name stays on the link as its tooltip and in its
+  // URL, and an artifact this map does not know keeps its raw name rather than
+  // vanishing — `site.spec.js` fails the deploy gate when that happens.
+  const releaseAssetLabels = new Map([
+    ['app-arm64-v8a-dev-release.apk', 'Android (arm64)'],
+    ['app-armeabi-v7a-dev-release.apk', 'Android (arm 32-bit)'],
+    ['app-x86_64-dev-release.apk', 'Android (x86_64)'],
+    ['linux-x64.zip', 'Linux (x64)'],
+    ['linux-arm64.zip', 'Linux (arm64)'],
+    ['macos.dmg', 'macOS (disk image)'],
+    ['macos.zip', 'macOS (zip)'],
+    ['windows-x64.zip', 'Windows (x64)'],
+    ['windows-arm64.zip', 'Windows (arm64)'],
+    ['msixbundle', 'Windows (MSIX bundle)']
+  ]);
+
   const githubJson = url => fetch(url, { headers: { Accept: 'application/vnd.github+json' } })
     .then(response => {
       if (!response.ok) throw new Error(`${url} lookup failed`);
@@ -1014,9 +1047,10 @@
       : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const renderRelease = release => {
-    const row = document.createElement('article');
+  const renderRelease = (release, isOpen) => {
+    const row = document.createElement('details');
     row.className = 'release-row';
+    row.open = isOpen;
 
     const id = document.createElement('div');
     id.className = 'release-id';
@@ -1033,18 +1067,29 @@
     notes.href = release.html_url;
     notes.textContent = 'Release notes';
 
-    const head = document.createElement('div');
+    const toggle = document.createElement('span');
+    toggle.className = 'release-toggle';
+    toggle.setAttribute('aria-hidden', 'true');
+    toggle.textContent = '▸';
+
+    const head = document.createElement('summary');
     head.className = 'release-head';
-    head.append(id, notes);
+    head.append(id, notes, toggle);
     row.append(head);
 
-    const assets = document.createElement('div');
+    const assets = document.createElement('ul');
     assets.className = 'release-assets';
     for (const asset of release.assets || []) {
+      const item = document.createElement('li');
+      item.className = 'release-asset-item';
+
       const link = document.createElement('a');
       link.className = 'release-asset';
       link.href = asset.browser_download_url;
-      link.textContent = assetLabel(asset.name, release.tag_name);
+      const published = assetLabel(asset.name, release.tag_name);
+      link.textContent = releaseAssetLabels.get(published) ?? published;
+      link.title = asset.name;
+      item.append(link);
 
       const downloads = count(asset.download_count);
       const meta = [
@@ -1056,12 +1101,18 @@
       if (meta) {
         const detail = document.createElement('span');
         detail.className = 'release-asset-meta';
-        detail.textContent = ` · ${meta}`;
-        link.append(detail);
+        detail.textContent = meta;
+        item.append(detail);
       }
-      assets.append(link);
+      assets.append(item);
     }
-    if (assets.childElementCount) row.append(assets);
+    if (!assets.childElementCount) {
+      const empty = document.createElement('li');
+      empty.className = 'release-empty';
+      empty.textContent = 'No files published for this build';
+      assets.append(empty);
+    }
+    row.append(assets);
 
     return row;
   };
@@ -1089,7 +1140,11 @@
     const list = document.getElementById('release-list');
     if (list) {
       const rows = document.createDocumentFragment();
-      for (const release of stable.slice(0, 10)) rows.append(renderRelease(release));
+      // The newest build opens itself: ten collapsed rows would hide the files
+      // most readers came for behind a click.
+      stable.slice(0, 10).forEach((release, index) => {
+        rows.append(renderRelease(release, index === 0));
+      });
       list.append(rows);
     }
 

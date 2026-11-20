@@ -16,6 +16,22 @@ const RELEASE_ASSET_SUFFIXES = {
   windows_arm64: '-windows-arm64.zip',
 };
 
+// Mirrors `releaseAssetLabels` in index.html, and is the check on it: the page
+// falls back to the raw CI file name for anything the map misses, so a renamed
+// artifact has to fail here instead of quietly making the list unreadable.
+const RELEASE_ASSET_LABELS = new Set([
+  'Android (arm64)',
+  'Android (arm 32-bit)',
+  'Android (x86_64)',
+  'Linux (x64)',
+  'Linux (arm64)',
+  'macOS (disk image)',
+  'macOS (zip)',
+  'Windows (x64)',
+  'Windows (arm64)',
+  'Windows (MSIX bundle)',
+]);
+
 const contentTypeOf = (response) =>
   (response.headers()['content-type'] ?? '').split(';')[0].trim();
 
@@ -257,8 +273,43 @@ test('release history lists the newest stable builds with their artifacts', asyn
       if (!/^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\/download\//.test(href ?? '')) {
         problems.push(`row ${index} asset ${asset} href ${href}`);
       }
+      const label = (await assets.nth(asset).textContent()) ?? '';
+      if (!RELEASE_ASSET_LABELS.has(label)) {
+        problems.push(`row ${index} asset ${asset} reads "${label}", not a familiar name`);
+      }
     }
   }
+
+  // Rows collapse, so the newest build is the one that has to answer without a
+  // click and the rest are only reachable through their summary.
+  await expect(rows.nth(0), 'newest release starts collapsed').toHaveJSProperty('open', true);
+  // A closed <details> hides its list with `content-visibility`, which leaves a
+  // bounding box behind, so ask the platform's own visibility answer here.
+  const collapsed = await rows
+    .nth(1)
+    .locator('.release-asset')
+    .first()
+    .evaluate((link) => link.checkVisibility());
+  if (collapsed) problems.push('row 1 shows its artifacts while collapsed');
+
+  const second = rows.nth(1);
+  await second.locator('.release-version').click();
+  await expect(
+    second.locator('.release-asset').first(),
+    'opening a release did not reveal its artifacts',
+  ).toBeVisible();
+  await expect(second, 'summary click did not open the row').toHaveJSProperty('open', true);
+
+  // One artifact per line: every entry sits below the one before it.
+  const tops = await second
+    .locator('.release-asset-item')
+    .evaluateAll((items) => items.map((item) => item.getBoundingClientRect().top));
+  for (let line = 1; line < tops.length; line += 1) {
+    if (tops[line] <= tops[line - 1]) {
+      problems.push(`row 1 artifact ${line} shares a line with ${line - 1}`);
+    }
+  }
+
   expect(
     problems,
     'Release rows that do not name a CI build:\n' + problems.join('\n'),
