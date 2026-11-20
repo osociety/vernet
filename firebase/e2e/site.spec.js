@@ -213,6 +213,67 @@ test('platform download links match the CI release asset naming', async ({ page 
   ).toEqual([]);
 });
 
+test('release history lists the newest stable builds with their artifacts', async ({
+  page,
+}) => {
+  // Unauthenticated GitHub calls are rate limited per IP, and runners share one,
+  // so a red suite here would otherwise be a quota report rather than a render
+  // report. Probe the same endpoint the page reads: only when it answers is the
+  // page expected to have filled itself.
+  const probe = await page.request.get(
+    'https://api.github.com/repos/osociety/vernet/releases?per_page=100',
+  );
+  if (!probe.ok()) {
+    test.info().annotations.push({
+      type: 'note',
+      description: `GitHub API answered ${probe.status()}; the page keeps its static fallback.`,
+    });
+    return;
+  }
+
+  await page.goto('/');
+  const rows = page.locator('.release-row');
+  await expect(rows, 'release history did not render').toHaveCount(10, { timeout: 30_000 });
+
+  const problems = [];
+  for (let index = 0; index < 10; index += 1) {
+    const row = rows.nth(index);
+    const version = (await row.locator('.release-version').textContent()) ?? '';
+    if (!/^v\d+\.\d+\.\d+\+\d+$/.test(version)) {
+      problems.push(`row ${index} version "${version}" is not a CI tag`);
+    }
+
+    // Betas are releases too, and only the stable line belongs on this page.
+    const notesHref = await row.locator('.release-page').getAttribute('href');
+    if (!notesHref?.startsWith('https://github.com/osociety/vernet/releases/tag/')) {
+      problems.push(`row ${index} release link ${notesHref}`);
+    }
+
+    const assets = row.locator('.release-asset');
+    const count = await assets.count();
+    if (count === 0) problems.push(`row ${index} lists no artifacts`);
+    for (let asset = 0; asset < count; asset += 1) {
+      const href = await assets.nth(asset).getAttribute('href');
+      if (!/^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\/download\//.test(href ?? '')) {
+        problems.push(`row ${index} asset ${asset} href ${href}`);
+      }
+    }
+  }
+  expect(
+    problems,
+    'Release rows that do not name a CI build:\n' + problems.join('\n'),
+  ).toEqual([]);
+
+  const stats = page.locator('#repo-stats');
+  await expect(stats, 'repo stats band stayed hidden').toBeVisible();
+  for (const key of ['stars', 'forks', 'downloads']) {
+    await expect(
+      stats.locator(`[data-repo-stat="${key}"]`),
+      `stat ${key} never filled`,
+    ).toHaveText(/^[\d,]+$/);
+  }
+});
+
 test('SEO and agent endpoints are real files, not the fallback page', async ({
   request,
 }) => {

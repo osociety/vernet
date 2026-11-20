@@ -535,6 +535,56 @@
     aspect-ratio: 16 / 9;
     border: 0;
   }
+
+  /* Repo stats */
+  .stats {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 40px;
+    max-width: 720px; margin: 0 auto 30px;
+  }
+  .stat { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+  .stat-number {
+    font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 700; line-height: 1.05;
+    letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .stat-label { color: var(--ink-dim); font-size: 0.78rem; }
+
+  /* Release history */
+  .release-list { display: flex; flex-direction: column; gap: 12px; max-width: 860px; margin: 0 auto; }
+  .release-row {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 8px; padding: 18px 22px;
+  }
+  .release-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px 18px; flex-wrap: wrap;
+  }
+  .release-id { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .release-version { margin: 0; font-size: 1.02rem; font-weight: 700; }
+  .release-date { color: var(--ink-dim); font-size: 0.78rem; }
+  .release-page { color: var(--purple-accent-2); font-size: 0.82rem; font-weight: 600; }
+  .release-page:hover, .release-page:focus-visible { color: var(--purple-accent); }
+  .release-assets {
+    display: flex; flex-wrap: wrap; gap: 6px 18px;
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--card-border);
+  }
+  .release-asset { color: var(--purple-accent-2); font-size: 0.82rem; font-weight: 600; }
+  .release-asset:hover, .release-asset:focus-visible { color: var(--purple-accent); }
+  .release-asset .release-asset-meta { color: var(--ink-dim); font-weight: 500; }
+  .release-empty { color: var(--ink-dim); font-size: 0.85rem; }
+  .release-note {
+    text-align: center; color: var(--ink-dim); font-size: 0.82rem; line-height: 1.6;
+    max-width: 660px; margin: 22px auto 0;
+  }
+  .release-note a, .section-head p a {
+    color: var(--purple-accent-2); font-weight: 600;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .release-note a { color: var(--purple-accent-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .release-note a:hover { color: var(--purple-accent); }
+  @media (max-width: 560px) {
+    .stats { gap: 14px 24px; }
+    .stat { min-width: 44%; }
+    .release-row { padding: 16px; }
+    .release-assets { gap: 5px 12px; }
+  }
 </style>
 </head>
 <body>
@@ -753,7 +803,7 @@
     <div class="section-head">
       <span class="eyebrow">Available platforms</span>
       <h2>Choose your platform</h2>
-      <p>Windows and Linux install from their own stores, or grab the archives from GitHub. macOS builds are on GitHub. iOS is coming soon.</p>
+      <p>Windows and Linux install from their own stores, or grab the archives from GitHub. macOS builds are on GitHub. iOS is coming soon. Every past build is listed in <a href="#releases">the release history</a> below.</p>
     </div>
     <div class="platforms">
       <div class="platform-card"><div class="platform-category">Mobile</div><div class="name"><img class="platform-icon" loading="lazy" decoding="async" width="24" height="24" src="https://cdn.simpleicons.org/android/3DDC84" alt="" aria-hidden="true"> Android</div><div class="platform-meta">Contains ads</div><a href="https://play.google.com/store/apps/details?id=org.fsociety.vernet.store">Google Play</a></div>
@@ -766,11 +816,40 @@
   </div>
 </section>
 
+<section id="releases">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Release history</span>
+      <h2>Every stable build, with its files</h2>
+      <p>The ten newest stable releases and each archive published for them, with the downloads recorded against every file.</p>
+    </div>
+    <div class="release-list" id="release-list"></div>
+    <p class="release-note">
+      This list is read live from the GitHub API, so it shows the ten newest stable releases; betas are left out.
+      <a href="https://github.com/osociety/vernet/releases">All releases on GitHub</a> carries every build and its changelog.
+    </p>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <div class="oss">
       <h2>Free, open source, and built in the open</h2>
       <p>The full source code is public on GitHub under the Apache License 2.0, for anyone to read, build, or modify. The Google Play build contains ads to support development; F-Droid and GitHub builds are ad-free. No account is required, and the app ships no analytics or crash reporting.</p>
+      <div class="stats" id="repo-stats" hidden>
+        <div class="stat">
+          <span class="stat-number" data-repo-stat="stars">&ndash;</span>
+          <span class="stat-label">GitHub stars</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-repo-stat="forks">&ndash;</span>
+          <span class="stat-label">Forks</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-repo-stat="downloads">&ndash;</span>
+          <span class="stat-label">Downloads from GitHub</span>
+        </div>
+      </div>
       <div class="cta-row">
         <a href="https://github.com/osociety/vernet" class="btn">View on GitHub</a>
         <a href="https://github.com/osociety/vernet/discussions" class="btn ghost">Ask in Discussions</a>
@@ -889,6 +968,8 @@
     updateRotation();
   }
 
+  const repositoryApi = 'https://api.github.com/repos/osociety/vernet';
+
   const releaseAssetSuffixes = {
     macos: '-macos.dmg',
     linux_x64: '-linux-x64.zip',
@@ -896,18 +977,144 @@
     windows_x64: '-windows-x64.zip',
     windows_arm64: '-windows-arm64.zip'
   };
-  fetch('https://api.github.com/repos/osociety/vernet/releases/latest', {
-    headers: { Accept: 'application/vnd.github+json' }
-  }).then(response => {
-    if (!response.ok) throw new Error('Latest release lookup failed');
-    return response.json();
-  }).then(release => {
-    for (const link of document.querySelectorAll('[data-release-platform]')) {
-      const suffix = releaseAssetSuffixes[link.dataset.releasePlatform];
-      const asset = release.assets.find(item => item.name.toLowerCase().endsWith(suffix));
-      if (asset) link.href = asset.browser_download_url;
+
+  const githubJson = url => fetch(url, { headers: { Accept: 'application/vnd.github+json' } })
+    .then(response => {
+      if (!response.ok) throw new Error(`${url} lookup failed`);
+      return response.json();
+    });
+
+  const count = value => (typeof value === 'number' && Number.isFinite(value)
+    ? value.toLocaleString('en-US')
+    : null);
+
+  const setRepoStat = (key, value) => {
+    const slot = document.querySelector(`[data-repo-stat="${key}"]`);
+    const text = count(value);
+    if (!slot || text === null) return;
+    slot.textContent = text;
+    slot.closest('.stats').hidden = false;
+  };
+
+  const fileSize = bytes => (typeof bytes === 'number' && Number.isFinite(bytes)
+    ? `${(bytes / 1048576).toFixed(1)} MB`
+    : '');
+
+  // CI names every asset `Vernet-<tag>-<platform>` or `Vernet-<tag>.<ext>`, so the
+  // label a downloader needs is whatever the file name carries after the version.
+  const assetLabel = (name, tag) => {
+    const stripped = String(name).slice(`Vernet-${tag}`.length).replace(/^[-.]+/, '');
+    return stripped || String(name);
+  };
+
+  const releaseDate = publishedAt => {
+    const date = new Date(publishedAt);
+    return Number.isNaN(date.getTime())
+      ? ''
+      : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const renderRelease = release => {
+    const row = document.createElement('article');
+    row.className = 'release-row';
+
+    const id = document.createElement('div');
+    id.className = 'release-id';
+    const version = document.createElement('h3');
+    version.className = 'release-version';
+    version.textContent = release.tag_name;
+    const date = document.createElement('span');
+    date.className = 'release-date';
+    date.textContent = releaseDate(release.published_at);
+    id.append(version, date);
+
+    const notes = document.createElement('a');
+    notes.className = 'release-page';
+    notes.href = release.html_url;
+    notes.textContent = 'Release notes';
+
+    const head = document.createElement('div');
+    head.className = 'release-head';
+    head.append(id, notes);
+    row.append(head);
+
+    const assets = document.createElement('div');
+    assets.className = 'release-assets';
+    for (const asset of release.assets || []) {
+      const link = document.createElement('a');
+      link.className = 'release-asset';
+      link.href = asset.browser_download_url;
+      link.textContent = assetLabel(asset.name, release.tag_name);
+
+      const downloads = count(asset.download_count);
+      const meta = [
+        fileSize(asset.size),
+        downloads === null
+          ? ''
+          : `${downloads} ${asset.download_count === 1 ? 'download' : 'downloads'}`
+      ].filter(Boolean).join(' · ');
+      if (meta) {
+        const detail = document.createElement('span');
+        detail.className = 'release-asset-meta';
+        detail.textContent = ` · ${meta}`;
+        link.append(detail);
+      }
+      assets.append(link);
     }
-  }).catch(() => {});
+    if (assets.childElementCount) row.append(assets);
+
+    return row;
+  };
+
+  const renderReleases = releases => {
+    // Betas are tagged releases too, and a buyer wants the supported line. A
+    // release with no tag would name nothing, so it is dropped, not rendered.
+    const stable = releases.filter(
+      release => !release.prerelease && !release.draft && release.tag_name
+    );
+
+    // `/releases` answers newest first, so the first stable entry is the release
+    // `/releases/latest` handed the platform links before this page listed it.
+    const latest = stable[0];
+    if (latest) {
+      for (const link of document.querySelectorAll('[data-release-platform]')) {
+        const suffix = releaseAssetSuffixes[link.dataset.releasePlatform];
+        const asset = (latest.assets || []).find(
+          item => String(item.name).toLowerCase().endsWith(suffix)
+        );
+        if (asset) link.href = asset.browser_download_url;
+      }
+    }
+
+    const list = document.getElementById('release-list');
+    if (list) {
+      const rows = document.createDocumentFragment();
+      for (const release of stable.slice(0, 10)) rows.append(renderRelease(release));
+      list.append(rows);
+    }
+
+    // One page holds every release published so far, so this sum is the repo
+    // total; past a hundred releases it would only cover the newest hundred.
+    const downloads = releases.reduce(
+      (total, release) => (release.assets || []).reduce(
+        (sum, asset) => sum + (typeof asset.download_count === 'number' ? asset.download_count : 0),
+        total
+      ),
+      0
+    );
+    setRepoStat('downloads', downloads);
+  };
+
+  githubJson(`${repositoryApi}/releases?per_page=100`)
+    .then(renderReleases)
+    .catch(() => {});
+
+  githubJson(repositoryApi)
+    .then(repo => {
+      setRepoStat('stars', repo.stargazers_count);
+      setRepoStat('forks', repo.forks_count);
+    })
+    .catch(() => {});
 </script>
 
 </body>
