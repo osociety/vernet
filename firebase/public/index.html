@@ -71,11 +71,22 @@
   .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--purple-accent); box-shadow: 0 0 14px var(--purple-accent); }
   .nav-links { display: flex; gap: 28px; font-size: 0.95rem; color: var(--ink-dim); }
   .nav-links a { padding: 8px 0; transition: color 0.15s ease; }
+  /* One line per label, always. A shrunk link otherwise wraps "How it works"
+     mid-phrase and lets the unbreakable "Download" paint straight through the
+     Get-the-app button, which is what the header used to do between 520 and
+     640px. */
+  .nav-links a, header .btn { white-space: nowrap; }
   .nav-links a:hover { color: var(--ink); }
   .nav-links a:focus-visible, header .btn:focus-visible { outline: 2px solid var(--purple-accent-2); outline-offset: 4px; }
-  @media (max-width: 520px) {
+  /* The row needs about 620px of content; stack it before it gets that tight.
+     `header nav.wrap` is repeated because the theme block further down
+     re-declares `.nav-links { gap: 30px }`, which a plain class rule loses to. */
+  @media (max-width: 640px) {
     header nav.wrap { flex-wrap: wrap; row-gap: 10px; padding: 14px 20px; }
-    .nav-links { order: 3; flex: 1 0 100%; justify-content: center; gap: 18px; font-size: 0.88rem; }
+    header nav.wrap .nav-links {
+      order: 3; flex: 1 0 100%; justify-content: center; flex-wrap: wrap;
+      gap: 12px 18px; font-size: 0.88rem;
+    }
     nav .btn { flex-shrink: 0; }
   }
   .btn {
@@ -172,6 +183,9 @@
 
   /* Sections */
   section { padding: 64px 0; scroll-margin-top: 88px; }
+  /* The nav stacks into two ~109px rows at this width, so a nav jump needs more
+     clearance than the single-row header measures. */
+  @media (max-width: 640px) { section { scroll-margin-top: 124px; } }
   .section-head { text-align: center; max-width: 620px; margin: 0 auto 38px; }
   .section-head .eyebrow { margin-bottom: 16px; }
   .section-head h2 { font-size: clamp(1.7rem, 3.5vw, 2.3rem); margin: 0 0 14px; letter-spacing: -0.02em; }
@@ -536,17 +550,69 @@
     border: 0;
   }
 
-  /* Repo stats */
+  /* Repo stats: the band sits under the hero, before the feature list, so the
+     numbers are near the top of the page instead of at the foot of the
+     open-source card. The section is unhidden only once the API answers, so a
+     rate-limited visit collapses it entirely rather than showing a strip of
+     placeholders. */
+  .stats-section { padding: 0 0 14px; }
   .stats {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 40px;
-    max-width: 720px; margin: 0 auto 30px;
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
+    max-width: 900px; margin: 0 auto; padding: 30px 24px 26px;
+    background: linear-gradient(180deg, rgba(160,107,255,0.12), transparent 65%), var(--card);
+    border: 1px solid rgba(160,107,255,0.28); border-radius: 14px;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.28);
   }
-  .stat { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+  /* One sweep of light as the numbers arrive, then it stays put. */
+  .stats::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 32%, rgba(245,242,251,0.13) 48%, transparent 64%);
+    transform: translateX(-100%);
+    animation: stats-sheen 1.2s 0.3s ease-out 1;
+  }
+  .stat {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 10px 8px; border-radius: 10px; text-align: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    /* `backwards`, not `both`: a filled animation keeps overriding the hover lift. */
+    animation: stat-rise 0.5s cubic-bezier(0.2, 0.8, 0.25, 1) backwards;
+  }
+  .stat:nth-child(2) { animation-delay: 0.09s; }
+  .stat:nth-child(3) { animation-delay: 0.18s; }
+  .stat:hover { background: rgba(160,107,255,0.1); transform: translateY(-2px); }
+  .stat-icon {
+    width: 34px; height: 34px; margin-bottom: 8px; border-radius: 50%;
+    display: grid; place-items: center; color: var(--purple-accent-2);
+    background: rgba(160,107,255,0.14); border: 1px solid rgba(160,107,255,0.3);
+  }
+  .stat-icon svg {
+    width: 18px; height: 18px; fill: none; stroke: currentColor;
+    stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+  }
   .stat-number {
-    font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 700; line-height: 1.05;
-    letter-spacing: -0.02em; color: var(--ink); font-variant-numeric: tabular-nums;
+    font-size: clamp(2.5rem, 5.4vw, 3.8rem); font-weight: 800; line-height: 1.05;
+    letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, var(--ink), var(--purple-accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 6px 18px rgba(160,107,255,0.28));
   }
-  .stat-label { color: var(--ink-dim); font-size: 0.78rem; }
+  .stat-label { color: var(--ink-dim); font-size: 0.84rem; }
+  @keyframes stat-rise { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
+  @keyframes stats-sheen { to { transform: translateX(100%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .stats::before, .stat { animation: none; }
+    .stat { transition: none; }
+  }
+  /* Two columns until the row has room for three numbers at this size, which
+     is the same width the header starts stacking at. */
+  @media (max-width: 640px) {
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 22px 14px 18px;
+    }
+    .stat:nth-child(3) { grid-column: 1 / -1; }
+    .stat-number { font-size: clamp(2.1rem, 12vw, 3rem); }
+  }
 
   /* Release history: one <details> per build, so ten releases do not stack ten
      artifact lists on top of each other before the reader picks one. */
@@ -596,8 +662,6 @@
   .release-note a { color: var(--purple-accent-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   .release-note a:hover { color: var(--purple-accent); }
   @media (max-width: 560px) {
-    .stats { gap: 14px 24px; }
-    .stat { min-width: 44%; }
     .release-head { padding: 16px; }
     .release-assets { padding: 8px 16px 12px; }
   }
@@ -641,6 +705,28 @@
       </div>
       <div class="android-phone">
         <img src="images/android-home.webp" width="1080" height="2340" loading="lazy" decoding="async" alt="Vernet Android app showing the network overview">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-section" id="repo-stats" hidden aria-label="Vernet on GitHub">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.9-4.2 4.2 1 5.9-5.3-2.8-5.3 2.8 1-5.9L3.4 9.8l5.9-.9Z"/></svg></span>
+        <span class="stat-number" data-repo-stat="stars">&ndash;</span>
+        <span class="stat-label">GitHub stars</span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><path d="M12 8v5m-5 3 5-3 5 3"/></svg></span>
+        <span class="stat-number" data-repo-stat="forks">&ndash;</span>
+        <span class="stat-label">Forks</span>
+      </div>
+      <div class="stat">
+        <span class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v11m0 0 4.5-4.5M12 14 7.5 9.5M4 20h16"/></svg></span>
+        <span class="stat-number" data-repo-stat="downloads">&ndash;</span>
+        <span class="stat-label">Downloads from GitHub</span>
       </div>
     </div>
   </div>
@@ -731,7 +817,7 @@
       </div>
     </div>
     <div class="carousel-toolbar">
-      <div class="carousel-controls" aria-label="Feature carousel controls">
+      <div class="carousel-controls" role="group" aria-label="Feature carousel controls">
         <button type="button" data-carousel-step="-1" aria-label="Previous feature" aria-controls="feature-carousel" disabled>
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
         </button>
@@ -851,20 +937,6 @@
     <div class="oss">
       <h2>Free, open source, and built in the open</h2>
       <p>The full source code is public on GitHub under the Apache License 2.0, for anyone to read, build, or modify. The Google Play build contains ads to support development; F-Droid and GitHub builds are ad-free. No account is required, and the app ships no analytics or crash reporting.</p>
-      <div class="stats" id="repo-stats" hidden>
-        <div class="stat">
-          <span class="stat-number" data-repo-stat="stars">&ndash;</span>
-          <span class="stat-label">GitHub stars</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number" data-repo-stat="forks">&ndash;</span>
-          <span class="stat-label">Forks</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number" data-repo-stat="downloads">&ndash;</span>
-          <span class="stat-label">Downloads from GitHub</span>
-        </div>
-      </div>
       <div class="cta-row">
         <a href="https://github.com/osociety/vernet" class="btn">View on GitHub</a>
         <a href="https://github.com/osociety/vernet/discussions" class="btn ghost">Ask in Discussions</a>
@@ -1020,12 +1092,26 @@
     ? value.toLocaleString('en-US')
     : null);
 
+  // The count-up is decoration, never the source of the number: a backgrounded
+  // tab pauses requestAnimationFrame, so the final value is written first and the
+  // roll only paints over it while frames are actually running.
+  const rollCount = (slot, target) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const started = performance.now();
+    const frame = (now) => {
+      const t = Math.min(1, (now - started) / 1100);
+      slot.textContent = count(Math.round(target * (1 - (1 - t) ** 3)));
+      if (t < 1) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  };
+
   const setRepoStat = (key, value) => {
     const slot = document.querySelector(`[data-repo-stat="${key}"]`);
-    const text = count(value);
-    if (!slot || text === null) return;
-    slot.textContent = text;
-    slot.closest('.stats').hidden = false;
+    if (!slot || count(value) === null) return;
+    slot.textContent = count(value);
+    document.getElementById('repo-stats').hidden = false;
+    rollCount(slot, value);
   };
 
   const fileSize = bytes => (typeof bytes === 'number' && Number.isFinite(bytes)
