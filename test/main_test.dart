@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sidebarx/sidebarx.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/onboarding_service.dart';
 import 'package:vernet/injection.dart';
@@ -182,6 +183,28 @@ void main() {
       expect(find.byType(PingPage), findsOneWidget);
       expect(find.byType(HomePage), findsNothing);
       expect(find.text('Check a website'), findsOneWidget);
+    });
+
+    testWidgets('the rail is reused, not rebuilt, when a page is chosen',
+        (tester) async {
+      await pumpTabBarPage(tester);
+
+      final rail = tester.widget<SidebarX>(find.byType(SidebarX));
+
+      await tester.tap(find.text('Check a website'));
+      await pumpVisibleFrame(tester);
+
+      // Selecting a destination notifies the controller, which repaints the rail
+      // from inside; the shell itself must not rebuild on top of that, or the
+      // eleven items and their callbacks are allocated twice per tap.
+      expect(
+        tester.widget<SidebarX>(find.byType(SidebarX)).items,
+        same(rail.items),
+      );
+      expect(
+        tester.widget<SidebarX>(find.byType(SidebarX)).theme,
+        same(rail.theme),
+      );
     });
 
     testWidgets('Settings and Home are available from the persistent menu',
