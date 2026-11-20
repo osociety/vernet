@@ -70,6 +70,7 @@ apps:
       - network
       - network-observe
       - network-manager-observe
+      - avahi-observe
       - desktop
       - desktop-legacy
       - x11
@@ -109,42 +110,14 @@ parts:
       # wherever nl80211 is reachable.
       - iw
       - network-manager
-      # Every host scan printed two `Check that /usr/bin/timeout exists` blocks.
-      # MdnsScannerService asks the OS which service types to browse before it
-      # runs its own Dart mDNS queries, and on Linux that means
-      # `timeout 2s avahi-browse --all -p` and `timeout 2s mdns-scan`, both
-      # hardcoded in network_tools' srv_list_linux.dart. core22 ships neither
-      # client, and its /usr/bin/timeout is off limits to this snap:
-      #
-      #   apparmor="DENIED" operation="exec" class="file"
-      #     profile="snap.vernet.vernet" name="/usr/bin/timeout"
-      #     requested_mask="x" denied_mask="x"
-      #
-      # process_run writes that hint to stderr before it throws, so the app
-      # cannot catch or quiet it. Staging coreutils puts timeout under
-      # $SNAP/usr/bin, which the snap's file rules do let exec and which PATH
-      # reaches before the base's copy — checked on arm64: `command -v timeout`
-      # resolves inside /snap/ and the refusal is gone.
-      #
-      # The enumeration itself stays on the package's built-in ~90 SRV types,
-      # because no probe can improve it from inside this confinement:
-      #
-      # - avahi-browse is only a client of the system avahi daemon socket, which
-      #   needs the avahi-observe plug. That interface is deny-auto-connection
-      #   and takes its slot from another snap, so every user would run a manual
-      #   `snap connect` and it would fail where avahi is not packaged as a snap.
-      # - mdns-scan needs nothing but the network plug, yet its
-      #   `+ _http._tcp.local` lines carry three dot-separated labels and
-      #   srv_list_linux.dart keeps only lines with four or more, so it returns
-      #   nothing. Worse, a four-label advertisement such as
-      #   `_hap._tcp.casa.local` yields the junk string `_tcp.casa`, and
-      #   searchMdnsDevices() browses any non-empty OS list *instead of* its
-      #   built-in one: a working 90-type sweep traded for one dead query.
-      #
-      # With timeout staged and neither client installed, both legs exit 127
-      # saying `No such file or directory`, which network_tools already reads as
-      # "not installed" and logs quietly.
+      # network_tools shells out `timeout 2s avahi-browse --all -p` to learn which
+      # mDNS service types to browse, and snapd refuses this snap exec on core22's
+      # copy: apparmor DENIED operation="exec" name="/usr/bin/timeout". So the
+      # binary has to be snap content. avahi-browse needs the avahi-observe plug,
+      # which is deny-auto-connection, so it only works once the user connects it
+      # (docs/INSTALL.md); until then the package browses its built-in SRV list.
       - coreutils
+      - avahi-utils
 
     override-build: |
       # 0. Take the snap version from pubspec.yaml (1.4.10+67 -> 1.4.10)

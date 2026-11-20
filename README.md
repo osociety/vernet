@@ -51,7 +51,7 @@ review, such as devices and services that are reachable on your network.
 
 | Guide | Covers |
 |---|---|
-| [Install on desktop](docs/INSTALL.md) | Snap, Microsoft Store, and manual downloads for Linux, Windows and macOS, with the `net-tools` and `libsqlite3.so` gotchas. |
+| [Install on desktop](docs/INSTALL.md) | Snap, Microsoft Store, and manual downloads for Linux, Windows and macOS, with the `net-tools` and `libsqlite3.so` gotchas and the optional `avahi-observe` connection. |
 | [Beta testing](docs/BETA_TESTING.md) | How to run pre-release builds on each platform and what to report. |
 | [Android build flavors](docs/BUILD_FLAVORS.md) | Why `dev`, `fdroid` and `store` behave differently, and the `store_overlay/` rule. |
 | [Community](docs/COMMUNITY.md) | Which GitHub Discussions category to post in. |
