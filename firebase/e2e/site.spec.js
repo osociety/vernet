@@ -1311,12 +1311,26 @@ test('the page still offers downloads when the GitHub API is unreachable', async
   expect(errors, 'the failed lookups raised uncaught errors:\n' + errors.join('\n')).toEqual([]);
 });
 
-test('the stats band is wired for exactly the three numbers it publishes', async ({ page }) => {
+test('the stats band is wired for exactly the three numbers it publishes', async ({
+  page,
+  request,
+}) => {
   await page.goto('/');
   const band = await page.evaluate(() => {
     const section = document.getElementById('repo-stats');
+    // The band is collapsed until the API answers; the icon geometry is a fact
+    // about the shipped CSS, so open it rather than spend a rate-limited call.
+    section.hidden = false;
+    const chips = [...section.querySelectorAll('.stat-icon')].map((icon) => {
+      const box = icon.getBoundingClientRect();
+      const glyph = icon.querySelector('svg').getBoundingClientRect();
+      return {
+        ratio: glyph.width / box.width,
+        glyph: Math.round(glyph.width),
+        ring: parseFloat(getComputedStyle(icon).borderTopWidth),
+      };
+    });
     return {
-      hidden: section.hidden,
       name: section.getAttribute('aria-label'),
       keys: [...section.querySelectorAll('[data-repo-stat]')].map((el) => el.dataset.repoStat),
       labels: [...section.querySelectorAll('.stat-label')].map((el) => el.textContent.trim()),
@@ -1324,6 +1338,9 @@ test('the stats band is wired for exactly the three numbers it publishes', async
       iconsHidden: [...section.querySelectorAll('.stat-icon')].every(
         (icon) => icon.getAttribute('aria-hidden') === 'true',
       ),
+      smallestGlyph: Math.min(...chips.map((chip) => chip.glyph)),
+      tightestRatio: Math.min(...chips.map((chip) => chip.ratio)),
+      widestRing: Math.max(...chips.map((chip) => chip.ring)),
       strayIcons: [...section.querySelectorAll('svg')].filter(
         (svg) => !svg.closest('.stat-icon'),
       ).length,
@@ -1342,9 +1359,123 @@ test('the stats band is wired for exactly the three numbers it publishes', async
   expect(band.labels, 'a stat has no label').toHaveLength(band.keys.length);
   expect(new Set(band.labels).size, 'stat labels repeat each other').toBe(band.labels.length);
   expect(band.iconsHidden, 'a decorative icon is not hidden from assistive tech').toBe(true);
+  // A ring around the chip and a small glyph together read as a bullet beside a
+  // 64px count, which is what the band looked like before.
+  expect(
+    band.widestRing,
+    `a ${band.widestRing}px border eats the chip and shrinks the icon`,
+  ).toBe(0);
+  expect(
+    band.tightestRatio,
+    `the glyph fills ${(band.tightestRatio * 100).toFixed(0)}% of its chip, so it reads as an afterthought`,
+  ).toBeGreaterThanOrEqual(0.5);
+  expect(
+    band.smallestGlyph,
+    `the smallest icon is ${band.smallestGlyph}px against numerals twice its height`,
+  ).toBeGreaterThanOrEqual(22);
   expect(band.strayIcons, 'an svg in the band is not inside an icon chip').toBe(0);
   expect(band.name, 'the band needs an accessible name; it has no heading').toBeTruthy();
-  expect(band.hidden, 'the band starts open, so placeholders flash at first paint').toBe(true);
+
+  // Collapsed at first paint is a fact about the shipped markup, not about this
+  // run: whether the GitHub call has answered by now depends on how much of the
+  // shared rate limit the runner still holds, so the live state is checked in the
+  // two tests that control it — the blocked-API one and the reveal-on-scroll one.
+  const home = await (await request.get('/')).text();
+  expect(
+    home,
+    'the band must ship hidden, or a reader sees three dashes before the numbers do',
+  ).toMatch(/<section[^>]+id="repo-stats"[^>]+hidden/);
+});
+
+test('the band animates when the reader reaches it, not when the page loads', async ({ page }) => {
+  // Stubbed rather than read from GitHub: this is about when the entrance plays,
+  // and a shared-IP rate limit would otherwise decide whether the test ran.
+  const release = {
+    tag_name: 'v9.9.9+999',
+    prerelease: false,
+    draft: false,
+    published_at: '2026-11-01T00:00:00Z',
+    html_url: 'https://github.com/osociety/vernet/releases/tag/v9.9.9+999',
+    assets: [
+      {
+        name: 'Vernet-v9.9.9+999-linux-x64.zip',
+        download_count: 7,
+        size: 1048576,
+        browser_download_url:
+          'https://github.com/osociety/vernet/releases/download/v9.9.9+999/Vernet-v9.9.9+999-linux-x64.zip',
+      },
+    ],
+  };
+  await page.route('**api.github.com/**', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(
+        route.request().url().includes('/releases')
+          ? [release]
+          : { stargazers_count: 1234, forks_count: 56 },
+      ),
+    }),
+  );
+
+  await page.goto('/');
+  const band = page.locator('#repo-stats');
+  // Data can arrive while the band is still below the fold; that is the case this
+  // test exists for, so the reveal must not be the trigger.
+  await expect(band, 'the band never unhidden itself').toBeVisible();
+  await expect(page.locator('[data-repo-stat="stars"]')).toHaveText('1,234');
+
+  const fold = await page.evaluate(() => ({
+    bandTop: Math.round(document.getElementById('repo-stats').getBoundingClientRect().top),
+    viewportHeight: window.innerHeight,
+  }));
+  expect(
+    fold.bandTop,
+    `premise broken: the band already sits at ${fold.bandTop}px in a ${fold.viewportHeight}px window`,
+  ).toBeGreaterThanOrEqual(fold.viewportHeight);
+
+  const before = await page.evaluate(() => {
+    const section = document.getElementById('repo-stats');
+    return {
+      live: section.classList.contains('is-live'),
+      rise: getComputedStyle(document.querySelector('.stat')).animationName,
+      opacity: getComputedStyle(document.querySelector('.stat')).opacity,
+      sheen: getComputedStyle(document.querySelector('.stats'), '::before').animationName,
+    };
+  });
+  expect(before.live, 'the entrance fired while the band was still off screen').toBe(false);
+  expect(before.rise, `the cards still play ${before.rise} before anyone sees them`).toBe('none');
+  expect(
+    before.opacity,
+    'the cards paint while the entrance is held back, so reaching the band shows a full band that vanishes and rises again',
+  ).toBe('0');
+  expect(before.sheen, `the sheen still sweeps before anyone sees it: ${before.sheen}`).toBe('none');
+
+  await band.scrollIntoViewIfNeeded();
+  await expect(band, 'scrolling to the band never started its entrance').toHaveClass(/is-live/);
+  const after = await page.evaluate(() => ({
+    rise: getComputedStyle(document.querySelector('.stat')).animationName,
+    sheen: getComputedStyle(document.querySelector('.stats'), '::before').animationName,
+  }));
+  expect(after.rise, 'the cards never rose once the band was in view').not.toBe('none');
+  expect(after.sheen, 'the light sweep never ran once the band was in view').not.toBe('none');
+
+  // The number was written before the roll and must still be the real total after
+  // it, whatever happened to the frames in between.
+  await page.waitForTimeout(1400);
+  expect(
+    await page.evaluate(() => getComputedStyle(document.querySelector('.stat')).opacity),
+    'holding the cards transparent left them invisible after the entrance',
+  ).toBe('1');
+  for (const [key, value] of [
+    ['stars', '1,234'],
+    ['forks', '56'],
+    ['downloads', '7'],
+  ]) {
+    await expect(
+      page.locator(`[data-repo-stat="${key}"]`),
+      `${key} is stranded at ${value}`,
+    ).toHaveText(value);
+  }
 });
 
 test('reduced motion switches off the decorative animation', async ({ page }) => {

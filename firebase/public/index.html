@@ -581,14 +581,20 @@
   .stat:nth-child(2) { animation-delay: 0.09s; }
   .stat:nth-child(3) { animation-delay: 0.18s; }
   .stat:hover { background: rgba(160,107,255,0.1); transform: translateY(-2px); }
+  /* Sized against the numerals below it: a fixed 34px disc with a hard ring
+     read as a bullet next to a 64px count, so the glyph now fills the chip and
+     the chip is carried by a soft glow instead of a border. */
   .stat-icon {
-    width: 34px; height: 34px; margin-bottom: 8px; border-radius: 50%;
+    width: clamp(40px, 3.4vw, 50px); height: clamp(40px, 3.4vw, 50px);
+    margin-bottom: 10px; border-radius: 50%;
     display: grid; place-items: center; color: var(--purple-accent-2);
-    background: rgba(160,107,255,0.14); border: 1px solid rgba(160,107,255,0.3);
+    background: radial-gradient(circle at 32% 28%, rgba(160,107,255,0.34), rgba(160,107,255,0.12) 72%);
+    box-shadow: 0 8px 22px rgba(160,107,255,0.22);
   }
   .stat-icon svg {
-    width: 18px; height: 18px; fill: none; stroke: currentColor;
-    stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    width: clamp(23px, 2vw, 28px); height: clamp(23px, 2vw, 28px);
+    fill: none; stroke: currentColor;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
   }
   .stat-number {
     font-size: clamp(2.5rem, 5.4vw, 3.8rem); font-weight: 800; line-height: 1.05;
@@ -598,6 +604,17 @@
     filter: drop-shadow(0 6px 18px rgba(160,107,255,0.28));
   }
   .stat-label { color: var(--ink-dim); font-size: 0.84rem; }
+  /* The entrance waits for the reader instead of firing the moment the numbers
+     arrive. On a laptop the band is roughly 1200px below the fold at load, so the
+     rise, the sheen and the count-up were over before anyone could see them;
+     `is-live` is added when the section actually enters the viewport. The cards
+     are held transparent for the same reason: left opaque they paint the instant
+     the band's edge appears, then vanish and rise again a moment later. */
+  .stats-section:not(.is-live) .stat {
+    animation: none;
+    opacity: 0;
+  }
+  .stats-section:not(.is-live) .stats::before { animation: none; }
   @keyframes stat-rise { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
   @keyframes stats-sheen { to { transform: translateX(100%); } }
   @media (prefers-reduced-motion: reduce) {
@@ -1106,12 +1123,41 @@
     requestAnimationFrame(frame);
   };
 
+  // Reveal on scroll: the entrance belongs to whoever reaches the band, not to
+  // whichever request answered first. `is-live` starts the rise, the sheen and
+  // the count-up. The totals are written as they arrive, whether or not the
+  // reader has, so a displayed number never depends on an animation having run.
+  const statsBand = document.getElementById('repo-stats');
+  const rolling = [];
+  let statsLive = false;
+
+  const playStats = () => {
+    if (statsLive) return;
+    statsLive = true;
+    statsBand.classList.add('is-live');
+    for (const [slot, target] of rolling) rollCount(slot, target);
+  };
+
+  if ('IntersectionObserver' in window) {
+    const statsWatcher = new IntersectionObserver((entries, watcher) => {
+      if (!entries.some(entry => entry.isIntersecting)) return;
+      watcher.disconnect();
+      playStats();
+    }, { threshold: 0.2 });
+    statsWatcher.observe(statsBand);
+  } else {
+    playStats();
+  }
+
   const setRepoStat = (key, value) => {
     const slot = document.querySelector(`[data-repo-stat="${key}"]`);
     if (!slot || count(value) === null) return;
     slot.textContent = count(value);
-    document.getElementById('repo-stats').hidden = false;
-    rollCount(slot, value);
+    statsBand.hidden = false;
+    // Either the reader is already here, or the total landed after the entrance;
+    // in both cases roll it in place instead of waiting on a second trigger.
+    if (statsLive) rollCount(slot, value);
+    else rolling.push([slot, value]);
   };
 
   const fileSize = bytes => (typeof bytes === 'number' && Number.isFinite(bytes)
