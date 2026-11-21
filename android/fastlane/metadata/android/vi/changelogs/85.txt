@@ -1,0 +1,8 @@
+Các mục menu mở đúng trang được nêu tên.
+Trên điện thoại chỉ hiện một tiêu đề, không có gì bị che sau các thanh hệ thống.
+Nhấn giữ một thiết bị để sao chép địa chỉ trên iPhone và Mac.
+Quét hiển thị địa chỉ router thật của bạn.
+Mục Có gì mới liên kết tới bản phát hành này trên GitHub.
+Chuyển trang nhanh hơn.
+Bản snap Linux in ra ít cảnh báo hơn khi quét.
+Sửa lỗi và cải thiện hiệu năng.
