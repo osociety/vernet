@@ -54,6 +54,15 @@ jobs:
         with:
           java_version: '17'
 
+      # Built here, while no emulator exists, rather than inside the leg script.
+      # The build is the memory and CPU spike of this job — pub get, Gradle, the
+      # NDK and CMake downloads — and doing it before the device boots keeps it
+      # off the clock the suite runs on. scripts/android_integration installs the
+      # result and only rebuilds if the APK is missing, so a local run of that
+      # script still works.
+      - name: Build flavored APK
+        run: flutter build apk --debug --flavor ${{ matrix.flavor }}
+
       # Unit tests are flavor independent, so one leg runs them for the matrix.
       - name: Run unit tests
         if: matrix.flavor == 'dev'
@@ -66,6 +75,17 @@ jobs:
           target: default
           arch: x86_64
           profile: pixel_2
+          # The action installs the emulator with `sdkmanager --install
+          # emulator`, so this binary is whatever is newest on the stable
+          # channel and it moved under us. Legs on 37.2.13 (build 16740729) ran
+          # the suite for 3.5 minutes and reported 74 passing; every leg on
+          # 37.3.10 (16970787) loses the device ~25s into the first test - adb
+          # calls return `device offline` and the action's `adb emu kill` then
+          # gets `connection refused` on 5554, so the emulator process is gone.
+          # Nothing in the app or the harness changed between those dates, so
+          # the pin holds the channel's churn out of the result. Drop it once a
+          # 37.3.x build is proven here.
+          emulator-build: '16740729'
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-window -no-boot-anim -camera-back none
           disable-animations: true
