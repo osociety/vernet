@@ -8,7 +8,9 @@ name: Issue triage
 #
 # Deliberately left to people: Effort (only a maintainer can size a fix), the
 # project board columns (Projects v2 writes need a `project`-scoped token), and
-# any priority on an issue the maintainer opened themselves.
+# any priority on an issue the maintainer opened themselves. A type or priority
+# an issue already carries is never revised, only filled, so re-running this on
+# the backlog cannot promote something that was parked on purpose.
 
 on:
   issues:
@@ -58,6 +60,13 @@ jobs:
           body=$(jq -r '.body // ""' "$work/issue.json")
           node_id=$(jq -er '.node_id' "$work/issue.json")
           has_milestone=$(jq -r '.milestone != null' "$work/issue.json")
+
+          # Anything a person already chose is left alone. These two reads are
+          # what make a re-dispatch fill gaps instead of revising a judgement.
+          current_type=$(jq -r '.type.name // ""' "$work/issue.json")
+          current_priority=$(jq -r \
+            '[.issue_field_values[]? | select(.issue_field_name == "Priority") | .single_select_option.name][0] // ""' \
+            "$work/issue.json")
 
           if [ "$account_type" = "Bot" ]; then
             echo "::notice::#$ISSUE_NUMBER was opened by the bot $login; nothing to file."
@@ -122,10 +131,21 @@ jobs:
 
           # A customer's bug report is High so it cannot sit unseen; a customer's
           # feature request is Medium. An issue the maintainer opened keeps the
-          # priority they chose when filing it.
+          # priority they chose when filing it, and an issue that already carries
+          # a priority keeps it however it got there — backfilling the backlog
+          # must not silently promote requests parked on purpose.
           priority=""
+          priority_note="unchanged"
           if [ "$customer" = yes ]; then
-            if [ "$kind" = Feature ]; then priority=Medium; else priority=High; fi
+            if [ -n "$current_priority" ]; then
+              priority_note="kept $current_priority, set by hand"
+            elif [ "$kind" = Feature ]; then
+              priority=Medium
+              priority_note=Medium
+            else
+              priority=High
+              priority_note=High
+            fi
           fi
 
           # One call gets the org issue types and the open milestones, so nothing
@@ -139,12 +159,20 @@ jobs:
             } }' > "$work/repo.json"
 
           type_id=""
+          type_note="left unset, no template matched"
           if [ -n "$kind" ]; then
-            type_id=$(jq -er --arg kind "$kind" \
-              '[.data.repository.issueTypes.nodes[] | select(.name == $kind)] | .[0].id // empty' \
-              "$work/repo.json" || true)
-            if [ -z "$type_id" ]; then
-              echo "::warning::Issue type $kind is not enabled for this repository."
+            if [ -n "$current_type" ]; then
+              type_note="kept $current_type, set by hand"
+            else
+              type_id=$(jq -er --arg kind "$kind" \
+                '[.data.repository.issueTypes.nodes[] | select(.name == $kind)] | .[0].id // empty' \
+                "$work/repo.json" || true)
+              if [ -n "$type_id" ]; then
+                type_note=$kind
+              else
+                echo "::warning::Issue type $kind is not enabled for this repository."
+                type_note="wanted $kind, type not enabled"
+              fi
             fi
           fi
 
@@ -180,7 +208,7 @@ jobs:
           fi
 
           echo "Issue #$ISSUE_NUMBER filed by $login (customer report: $customer)"
-          echo "  type:       ${kind:-left unset, no template matched}"
+          echo "  type:       $type_note"
           echo "  labels:     ${labels:-none}"
-          echo "  priority:   ${priority:-unchanged}"
+          echo "  priority:   $priority_note"
           echo "  milestone:  $milestone_title"
