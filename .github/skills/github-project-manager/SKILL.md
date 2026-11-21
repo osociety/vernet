@@ -79,8 +79,10 @@ reporter's filled-in Device/OS lines, and the earliest open milestone that has
 not passed its due date when the issue has none. Bot accounts are skipped.
 `Effort` is never guessed, and the board columns are not written: Projects v2
 mutations need a `project`-scoped token this repo deliberately does not hold.
-Re-file one existing issue with `gh workflow run issue-triage.yml -f
-issue_number=NNN`.
+A type or priority an issue already carries is kept rather than revised, so
+re-filing one existing issue with `gh workflow run issue-triage.yml -f
+issue_number=NNN` fills gaps only — which is what makes it safe to loop over
+the backlog.
 
 The rules are in the workflow file, including the `MAINTAINER_LOGINS` list that
 decides whose own reports are exempt — add an account there if the maintainer
