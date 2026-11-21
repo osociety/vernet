@@ -3,7 +3,7 @@ import 'package:vernet/models/wifi_metrics.dart';
 class WifiInfo {
   WifiInfo(this._ip, this._bssid, this._name, this.unknown, this.gatewayIp,
       this.isLocationOn, this.metrics,
-      {String? scanSubnet})
+      {String? scanSubnet, this.dhcpServerIp})
       : _scanSubnet = scanSubnet;
 
   static Set<String> defaultBSSID = {'00:00:00:00:00:00'};
@@ -21,6 +21,12 @@ class WifiInfo {
   /// seed is not this device's router, so it never replaces this value.
   final String gatewayIp;
   final bool isLocationOn;
+
+  /// The host that leased this device's address, where the platform reports it.
+  ///
+  /// Only Android exposes the lease, and it is the gateway only by coincidence,
+  /// so this never stands in for [gatewayIp]. Null means "not reported".
+  final String? dhcpServerIp;
 
   /// The seed address the host scan targets, if the user chose another network.
   ///
