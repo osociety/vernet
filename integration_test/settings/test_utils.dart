@@ -104,9 +104,98 @@ class TestUtils {
   /// its way, but the integration test view reports zero `MediaQuery.viewInsets`
   /// even while the keyboard is up, so the layout never shrinks and anything
   /// below the keyboard line stays un-tappable.
+  ///
+  /// The wait is in real time, not in frames: closing the input connection only
+  /// *starts* the window dismissal, and `pumpAndSettle` returns as soon as
+  /// Flutter has no frames left to draw while the Android window is still
+  /// animating out. A tap issued in that window is silently dropped, which is
+  /// how one integration leg goes red on one run and green on the next (#604).
   static Future<void> hideKeyboard(WidgetTester tester) async {
     FocusManager.instance.primaryFocus?.unfocus();
     await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+  }
+
+  /// Scrolls [target] into view, but only when it is not already reachable.
+  ///
+  /// Two hazards make a bare `ensureVisible` the wrong tool here. A `ListView`
+  /// child outside the cache extent has no element yet, and `ensureVisible`
+  /// answers that with `Bad state: No element`; and it scrolls a widget to the
+  /// *edge* of the viewport, which on Android is inside the keyboard window, so
+  /// the tap after it still lands on the IME. Dragging [scrollable] toward the
+  /// end builds the child instead and leaves room above it.
+  ///
+  /// A target already built and on screen is left where it is: scrolling the
+  /// list would unbuild the widgets above it, and callers read those (the form
+  /// fields, the just-tapped button) right after revealing.
+  ///
+  /// The loop and its failure message follow the sidebar reveal in
+  /// [_navigationItem]: the framework's `dragUntilVisible` ends in
+  /// `element(finder)` too, so it would throw the same unhelpful error once its
+  /// iterations run out.
+  static Future<void> reveal(
+    WidgetTester tester,
+    Finder target, {
+    required Finder scrollable,
+    double scrollDelta = 240,
+    int maxDrags = 40,
+  }) async {
+    await hideKeyboard(tester);
+    if (target.evaluate().isNotEmpty && _isOnScreen(tester, target)) {
+      // Already reachable: scrolling away would unbuild the widgets above the
+      // target, and several callers read those right after.
+      await tester.pumpAndSettle();
+      return;
+    }
+    for (var attempt = 0;
+        target.evaluate().isEmpty && attempt < maxDrags;
+        attempt++) {
+      await tester.drag(scrollable, Offset(0, -scrollDelta));
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    if (target.evaluate().isEmpty) {
+      final built = find
+          .descendant(of: scrollable, matching: find.byType(Text))
+          .evaluate()
+          .map((element) => (element.widget as Text).data)
+          .whereType<String>()
+          .take(20)
+          .toList();
+      fail(
+        '${target.description} was never built after $maxDrags drags of '
+        '$scrollDelta px.'
+        ' view=${tester.view.physicalSize}@${tester.view.devicePixelRatio}x'
+        ' list=${tester.getRect(scrollable)} builtTexts=$built',
+      );
+    }
+    await tester.ensureVisible(target);
+    // The jump above changes the scroll offset without laying out again, so the
+    // rect a tap uses next is stale until the following frame.
+    await tester.pump();
+    await tester.pumpAndSettle();
+  }
+
+  static bool _isOnScreen(WidgetTester tester, Finder target) {
+    final view = tester.view;
+    final screen = Size(
+      view.physicalSize.width / view.devicePixelRatio,
+      view.physicalSize.height / view.devicePixelRatio,
+    );
+    final rect = tester.getRect(target);
+    return rect.left >= 0 &&
+        rect.top >= 0 &&
+        rect.right <= screen.width &&
+        rect.bottom <= screen.height;
+  }
+
+  static Future<void> revealAndTap(
+    WidgetTester tester,
+    Finder target, {
+    required Finder scrollable,
+  }) async {
+    await reveal(tester, target, scrollable: scrollable);
+    await tester.tap(target);
     await tester.pumpAndSettle();
   }
 
@@ -174,6 +263,21 @@ class TestUtils {
     await tester.pumpAndSettle();
   }
 
+  /// Focuses the field behind [widgetKey] and makes sure [text] is in it.
+  ///
+  /// `tester.enterText` does not type: it sends a fake
+  /// `TextInputClient.updateEditingState` straight to the focused field
+  /// (test_text_input.dart). On a live device the platform IME is attached to
+  /// that same field and reports its own — empty — value, and whichever of the
+  /// two arrives last wins. When the platform one lands second the field is
+  /// left empty with no error anywhere, so the form below it validates false,
+  /// the button reports nothing, and the failure surfaces as a missing widget
+  /// in an unrelated assertion. That is the nondeterminism in #604.
+  ///
+  /// So re-inject while the field reads back empty, and name it if it never
+  /// fills. A field that holds something *other* than [text] is left alone:
+  /// that is the app's own formatter or pre-fill, and the caller's assertion on
+  /// the resulting status is the one that should judge it.
   static Future<void> enterTextByKey(
     WidgetKey widgetKey,
     String text,
@@ -189,8 +293,47 @@ class TestUtils {
     await tester.pumpAndSettle();
     await tester.tap(textField);
     await tester.pumpAndSettle();
-    await tester.enterText(textField, text);
-    await tester.pumpAndSettle();
+
+    for (var attempt = 1; attempt <= 4; attempt++) {
+      await tester.enterText(textField, text);
+      await tester.pumpAndSettle();
+      // Give a competing platform update time to land before reading back, so
+      // a value that is about to be overwritten is not accepted as good.
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      await tester.pumpAndSettle();
+      final actual = _fieldText(tester, textField);
+      if (actual == text) {
+        return;
+      }
+      if (actual != null && actual.trim().isNotEmpty) {
+        // A formatter rewrote the input — uppercasing, separators, a length
+        // cap. That is the app normalizing, not the race, so leave it for the
+        // caller's own assertions rather than fighting the field with retries.
+        return;
+      }
+      if (attempt == 4) {
+        fail(
+          '${widgetKey.value} was still empty after $attempt attempts to enter '
+          '"$text" — the platform IME keeps overwriting the injected value '
+          '(#604).',
+        );
+      }
+      // Re-attach before retrying: an IME that has taken the connection back
+      // will keep answering for the field until it is focused again.
+      await tester.tap(textField);
+      await tester.pumpAndSettle();
+    }
+  }
+
+  static String? _fieldText(WidgetTester tester, Finder field) {
+    final editable = find.descendant(
+      of: field,
+      matching: find.byType(EditableText),
+    );
+    if (editable.evaluate().isEmpty) {
+      return null;
+    }
+    return tester.widget<EditableText>(editable.first).controller.text;
   }
 
   static Future<void> tapByWidgetKey(

@@ -85,6 +85,19 @@ void main() {
       expect(find.byKey(WidgetKey.wakeOnLanSaveButton.key), findsOneWidget);
     });
 
+    // osociety/vernet#604: the integration suite reveals saved rows by dragging
+    // this list, because `ensureVisible` on a child the viewport has not built
+    // throws instead of scrolling. The key is what that reveal targets.
+    testWidgets('exposes its body list for integration reveals',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(WakeOnLanPage(service: _makeService())),
+      );
+      await tester.pump();
+
+      expect(find.byKey(WidgetKey.wakeOnLanList.key), findsOneWidget);
+    });
+
     // osociety/vernet#428: the body has to give the navigation bar its height
     // back, otherwise the form actions land underneath it on Android 15+.
     testWidgets('keeps the form body clear of the navigation bar',
