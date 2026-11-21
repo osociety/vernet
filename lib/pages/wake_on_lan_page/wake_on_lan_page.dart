@@ -209,6 +209,7 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
       ),
       body: SafeArea(
           child: ListView(
+        key: WidgetKey.wakeOnLanList.key,
         padding: const EdgeInsets.all(8),
         children: [
           Form(

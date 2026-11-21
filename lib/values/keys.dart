@@ -70,6 +70,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   wakeOnLanSendButton('wakeOnLanSendButton'),
   wakeOnLanSaveButton('wakeOnLanSaveButton'),
   wakeOnLanStatusText('wakeOnLanStatusText'),
+  wakeOnLanList('wakeOnLanList'),
   ping('ping'),
   deviceDetailName('deviceDetailName'),
   deviceDetailIp('deviceDetailIp'),

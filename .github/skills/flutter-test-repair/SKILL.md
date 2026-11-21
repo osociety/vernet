@@ -24,3 +24,4 @@ Use this when a Vernet test fails locally or in CI, or when configuring an exist
 - Treat database lifecycle and cleanup as concurrency concerns; avoid parallel tests that share the same SQLite database.
 - After Dart/Flutter code changes, hot reload or hot restart an attached app when one is available.
 - A text assertion failing on one CI leg only is usually the resolved locale, not the platform — check the locale note in the `vernet-testing` skill before blaming the runner.
+- An integration test where a typed field reads back empty, or a tap changes nothing, is usually the platform IME, not the app: `tester.enterText` injects a value the real keyboard can overwrite, and taps at the viewport edge land on the keyboard window. The `TestUtils.enterTextByKey` and `TestUtils.reveal` helpers absorb both; see the integration-test notes in the `vernet-testing` skill.
