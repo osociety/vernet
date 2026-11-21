@@ -70,6 +70,7 @@ apps:
       - network
       - network-observe
       - network-manager-observe
+      - avahi-observe
       - desktop
       - desktop-legacy
       - x11
@@ -109,6 +110,14 @@ parts:
       # wherever nl80211 is reachable.
       - iw
       - network-manager
+      # network_tools shells out `timeout 2s avahi-browse --all -p` to learn which
+      # mDNS service types to browse, and snapd refuses this snap exec on core22's
+      # copy: apparmor DENIED operation="exec" name="/usr/bin/timeout". So the
+      # binary has to be snap content. avahi-browse needs the avahi-observe plug,
+      # which is deny-auto-connection, so it only works once the user connects it
+      # (docs/INSTALL.md); until then the package browses its built-in SRV list.
+      - coreutils
+      - avahi-utils
 
     override-build: |
       # 0. Take the snap version from pubspec.yaml (1.4.10+67 -> 1.4.10)

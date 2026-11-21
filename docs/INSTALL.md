@@ -24,10 +24,33 @@ sudo snap install vernet --beta
 ```
 
 The network access the app needs to discover devices and read your Wi-Fi signal
-is connected automatically on install, so there is nothing to set up by hand.
+is connected automatically on install, so there is nothing you have to set up by
+hand. One optional connection, below, adds richer mDNS device names.
 
 `snap install` picks the right build for your architecture (x64 or arm64)
 automatically.
+
+#### Optional: connect Avahi for mDNS device names
+
+The snap ships `avahi-browse`, which Vernet asks for the list of mDNS service
+types to browse — so a gadget advertising an unusual service gets a name instead
+of a bare IP. It reads the host's Avahi daemon over a socket snapd only hands
+out on request:
+
+```bash
+sudo snap connect vernet:avahi-observe
+```
+
+Confirm it stuck, then run a host scan:
+
+```bash
+snap connections vernet | grep avahi
+```
+
+This needs Avahi running on the host (`systemctl status avahi-daemon`), because
+the snap talks to the system daemon rather than starting its own. Without the
+connection everything still works: the scan finds the same devices and names them
+from reverse DNS, using Vernet's built-in list of about ninety service types.
 
 ### Option 2: Download from GitHub
 
