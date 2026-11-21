@@ -26,8 +26,56 @@ void main() {
       expect(page, isA<StatefulWidget>());
     });
 
-    // Further widget layout testing for SettingsPage is skipped to avoid
-    // large-tree layout issues in tests; constructor/type checks are sufficient.
+    Future<void> pumpAtWidth(
+      WidgetTester tester,
+      Size size, {
+      Locale? locale,
+    }) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      SharedPreferences.setMockInitialValues({});
+      AppSettings.instance.resetForTesting();
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
+            ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ],
+          child: MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SettingsPage(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    // The language row put an unsized DropdownButton in ListTile.trailing, whose
+    // intrinsic width plus content padding filled a phone-width tile (#675).
+    testWidgets('lays out the language row at phone width', (tester) async {
+      const phone = Size(390, 844);
+      await pumpAtWidth(tester, phone);
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(DropdownButton<Locale?>), findsOneWidget);
+      expect(
+        tester.getRect(find.byType(DropdownButton<Locale?>)).right,
+        lessThanOrEqualTo(phone.width),
+      );
+    });
+
+    testWidgets('lays out at phone width in German, where names are longer',
+        (tester) async {
+      await pumpAtWidth(tester, const Size(390, 844),
+          locale: const Locale('de'));
+
+      expect(tester.takeException(), isNull);
+    });
 
     testWidgets('choosing a language re-renders the page in it',
         (tester) async {

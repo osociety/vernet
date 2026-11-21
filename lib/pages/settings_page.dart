@@ -58,31 +58,52 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           Card(
-            child: ListTile(
-              key: WidgetKey.languageTile.key,
-              title: Text(l10n.languageTitle),
-              subtitle: Text(l10n.languageDesc),
-              trailing: DropdownButton<Locale?>(
-                value: localeChange.locale,
-                underline: const SizedBox.shrink(),
-                items: [
-                  // No value means follow the system language.
-                  DropdownMenuItem(
-                    child: Text(
-                      l10n.languageSystemDefault(
-                        languageName(systemDefaultLocale()),
-                      ),
+            child: Column(
+              children: [
+                ListTile(
+                  key: WidgetKey.languageTile.key,
+                  title: Text(l10n.languageTitle),
+                  subtitle: Text(l10n.languageDesc),
+                ),
+                Padding(
+                  // The chooser stays inline on this page, but below the row
+                  // text: as an unsized `trailing` its intrinsic width — the
+                  // longest language name plus the arrow — filled a phone-width
+                  // tile and tripped ListTile's trailing assertion (#675).
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: DropdownButton<Locale?>(
+                      value: localeChange.locale,
+                      isExpanded: true,
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        // No value means follow the system language.
+                        DropdownMenuItem(
+                          child: Text(
+                            l10n.languageSystemDefault(
+                              languageName(systemDefaultLocale()),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        ...AppLocalizations.supportedLocales.map(
+                          (locale) => DropdownMenuItem(
+                            value: locale,
+                            child: Text(
+                              languageName(locale),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (locale) => localeChange.locale = locale,
                     ),
                   ),
-                  ...AppLocalizations.supportedLocales.map(
-                    (locale) => DropdownMenuItem(
-                      value: locale,
-                      child: Text(languageName(locale)),
-                    ),
-                  ),
-                ],
-                onChanged: (locale) => localeChange.locale = locale,
-              ),
+                ),
+              ],
             ),
           ),
           Card(
