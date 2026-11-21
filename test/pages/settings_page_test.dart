@@ -12,6 +12,8 @@ import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 
+import '../helpers/test_helpers.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -180,6 +182,60 @@ void main() {
         find.byKey(WidgetKey.checkForUpdatesButton.key),
         findsOneWidget,
       );
+    });
+
+    Future<void> openAboutDialog(WidgetTester tester) async {
+      SharedPreferences.setMockInitialValues({});
+      AppSettings.instance.resetForTesting();
+      setupPackageInfoMock();
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => DarkThemeProvider()),
+            ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: SettingsPage(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final aboutTile = find.text('About');
+      await tester.ensureVisible(aboutTile);
+      await tester.tap(aboutTile);
+      await tester.pumpAndSettle();
+    }
+
+    // Both About tiles built their URL from a constant naming the
+    // maintainer's personal fork, which does not resolve for a reporter
+    // who has no access to it (#690).
+    testWidgets('report issues tile opens the osociety issues page',
+        (tester) async {
+      await openAboutDialog(tester);
+
+      await tester.tap(find.text('Report Issues'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('https://github.com/osociety/vernet/issues'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('git-elliot'), findsNothing);
+    });
+
+    testWidgets('source code tile opens the osociety repository',
+        (tester) async {
+      await openAboutDialog(tester);
+
+      await tester.tap(find.text('Source Code'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('https://github.com/osociety/vernet'), findsOneWidget);
+      expect(find.textContaining('git-elliot'), findsNothing);
     });
   });
 }
