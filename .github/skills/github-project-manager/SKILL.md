@@ -55,6 +55,37 @@ gh api graphql -f query='query { repository(owner:"osociety", name:"vernet") {
 
 Note: Org-level issue fields (set via `updateIssue` with `issueFieldUpdates`) have ORG_ONLY visibility and don't populate project-level sorting. Always use the project-level field IDs above for project board operations.
 
+### Priority is a field, not a label
+
+The org `Priority` issue field is the single record of priority. The `P1`–`P4`
+labels are retired: never add one, and read nothing into one still sitting on
+an older issue.
+
+`.github/workflows/issue-triage.yml` files issues automatically on
+`issues: opened`, with the default `GITHUB_TOKEN` and no secret:
+
+| Reporter | Came through | What the workflow writes |
+|----------|--------------|--------------------------|
+| Anyone but `git-elliot` | bug template | `customer reported`, `bug`, type Bug, Priority High |
+| Anyone but `git-elliot` | feature template | `customer reported`, `enhancement`, `feature request`, type Feature, Priority Medium |
+| Anyone but `git-elliot` | typed by hand | `customer reported`, Priority High, type left unset |
+| `git-elliot` | any | type and labels only — the priority chosen when filing is left alone |
+
+Customer means not filed by the maintainer, so other org members and
+collaborators count as customers: the rule tests the login, not membership.
+
+Every one of these also gets platform labels read from the title and the
+reporter's filled-in Device/OS lines, and the earliest open milestone that has
+not passed its due date when the issue has none. Bot accounts are skipped.
+`Effort` is never guessed, and the board columns are not written: Projects v2
+mutations need a `project`-scoped token this repo deliberately does not hold.
+Re-file one existing issue with `gh workflow run issue-triage.yml -f
+issue_number=NNN`.
+
+The rules are in the workflow file, including the `MAINTAINER_LOGINS` list that
+decides whose own reports are exempt — add an account there if the maintainer
+files issues from a second login. Update this section when the rules change.
+
 ## Common operations
 
 ### 1. Audit issue metadata completeness
