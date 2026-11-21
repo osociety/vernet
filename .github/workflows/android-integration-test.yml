@@ -75,6 +75,17 @@ jobs:
           target: default
           arch: x86_64
           profile: pixel_2
+          # The action installs the emulator with `sdkmanager --install
+          # emulator`, so this binary is whatever is newest on the stable
+          # channel and it moved under us. Legs on 37.2.13 (build 16740729) ran
+          # the suite for 3.5 minutes and reported 74 passing; every leg on
+          # 37.3.10 (16970787) loses the device ~25s into the first test - adb
+          # calls return `device offline` and the action's `adb emu kill` then
+          # gets `connection refused` on 5554, so the emulator process is gone.
+          # Nothing in the app or the harness changed between those dates, so
+          # the pin holds the channel's churn out of the result. Drop it once a
+          # 37.3.x build is proven here.
+          emulator-build: '16740729'
           force-avd-creation: false
           emulator-options: -no-snapshot-load -no-window -no-boot-anim -camera-back none
           disable-animations: true
