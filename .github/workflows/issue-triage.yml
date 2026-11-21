@@ -1,0 +1,186 @@
+name: Issue triage
+
+# Files a new issue the way the board is read: who reported it, what kind of
+# issue it is, which platforms it names, and which milestone it lands in.
+# Every value written here comes from a rule in this file, so a wrong label
+# traces back to a line that can be read and changed rather than to a model's
+# judgement. Needs no secret beyond the default GITHUB_TOKEN.
+#
+# Deliberately left to people: Effort (only a maintainer can size a fix), the
+# project board columns (Projects v2 writes need a `project`-scoped token), and
+# any priority on an issue the maintainer opened themselves.
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Number of an existing issue to file with the same rules
+        required: true
+
+# Only issue metadata is touched, so that is all the token gets.
+permissions:
+  contents: read
+  issues: write
+
+# Reports from anyone but these accounts are customer reports. Org membership
+# is not the test: a bug filed by a fellow org member still arrived from
+# outside this maintainer's own work, so it is labelled like any other report.
+env:
+  MAINTAINER_LOGINS: git-elliot
+
+jobs:
+  triage:
+    name: Label, type, prioritise and milestone
+    if: github.event.repository.fork != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: File the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${ISSUE_NUMBER:-}" ]; then
+            echo "::error::No issue number in the event payload."
+            exit 1
+          fi
+
+          work=$(mktemp -d)
+          gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER" > "$work/issue.json"
+
+          login=$(jq -er '.user.login' "$work/issue.json")
+          account_type=$(jq -er '.user.type' "$work/issue.json")
+          title=$(jq -er '.title' "$work/issue.json")
+          body=$(jq -r '.body // ""' "$work/issue.json")
+          node_id=$(jq -er '.node_id' "$work/issue.json")
+          has_milestone=$(jq -r '.milestone != null' "$work/issue.json")
+
+          if [ "$account_type" = "Bot" ]; then
+            echo "::notice::#$ISSUE_NUMBER was opened by the bot $login; nothing to file."
+            exit 0
+          fi
+
+          customer=yes
+          for maintainer in $MAINTAINER_LOGINS; do
+            if [ "$maintainer" = "$login" ]; then customer=no; fi
+          done
+
+          # Template boilerplate names platforms the reporter never mentioned
+          # ("OS: [e.g. iOS]", "Desktop (please complete the following…)"), so
+          # those lines are dropped before the text is scanned for platforms.
+          hay=$(
+            printf '%s\n%s\n' "$title" "$body" \
+              | grep -viE 'e\.g\.|please complete the following|if applicable|clear and concise|add any other context' \
+              | tr '[:upper:]' '[:lower:]' \
+              || true
+          )
+
+          # Platforms are read from the title and from the filled-in device and
+          # OS lines only. A whole-body scan was tried and is wrong: #676 says
+          # "Android, Windows or ubuntu legs" while describing a macOS-only
+          # break, and tagging every platform named in prose buries the one
+          # that matters. Missing a platform label costs one click; a wrong one
+          # silently corrupts the board filters.
+          plat=$(
+            {
+              printf '%s\n' "$title"
+              printf '%s\n' "$body" |
+                grep -iE '^[[:space:]]*[-*]?[[:space:]]*(device|os|browser|architecture)[[:space:]]*:'
+            } 2>/dev/null | grep -viE 'e\.g\.' | tr '[:upper:]' '[:lower:]' || true
+          )
+
+          # The headings below are the templates' own text, so the form an issue
+          # arrived through decides its type. A hand-written issue matches neither
+          # and is left untyped for a person to read.
+          kind=""
+          if grep -q 'describe the bug' <<<"$hay"; then
+            kind=Bug
+          elif grep -q 'is your feature request related to a problem' <<<"$hay"; then
+            kind=Feature
+          fi
+
+          add_label() {
+            if [ -n "$labels" ]; then labels="$labels,$1"; else labels="$1"; fi
+          }
+
+          labels=""
+          if [ "$customer" = yes ]; then add_label "customer reported"; fi
+          case "$kind" in
+            Bug) add_label bug ;;
+            Feature) add_label enhancement && add_label "feature request" ;;
+          esac
+          grep -q 'android' <<<"$plat" && add_label android
+          grep -qE '\bios\b|iphone|ipad' <<<"$plat" && add_label ios
+          grep -qE 'macos|macbook|mac book|imac|darwin|os x' <<<"$plat" && add_label macos
+          grep -q 'windows' <<<"$plat" && add_label windows
+          grep -qE '\blinux\b|ubuntu|debian|fedora|mint|opensuse|alpine' <<<"$plat" && add_label linux
+          grep -q 'desktop' <<<"$plat" && add_label desktop
+
+          # A customer's bug report is High so it cannot sit unseen; a customer's
+          # feature request is Medium. An issue the maintainer opened keeps the
+          # priority they chose when filing it.
+          priority=""
+          if [ "$customer" = yes ]; then
+            if [ "$kind" = Feature ]; then priority=Medium; else priority=High; fi
+          fi
+
+          # One call gets the org issue types and the open milestones, so nothing
+          # here hardcodes a node ID that changes when the roadmap rolls over.
+          gh api graphql \
+            -f owner="${GITHUB_REPOSITORY%%/*}" \
+            -f name="${GITHUB_REPOSITORY##*/}" \
+            -f query='query($owner:String!,$name:String!){ repository(owner:$owner,name:$name){
+              issueTypes(first:10){ nodes { name id } }
+              milestones(first:20, states:OPEN, orderBy:{field:DUE_DATE, direction:ASC}){ nodes { number title dueOn id } }
+            } }' > "$work/repo.json"
+
+          type_id=""
+          if [ -n "$kind" ]; then
+            type_id=$(jq -er --arg kind "$kind" \
+              '[.data.repository.issueTypes.nodes[] | select(.name == $kind)] | .[0].id // empty' \
+              "$work/repo.json" || true)
+            if [ -z "$type_id" ]; then
+              echo "::warning::Issue type $kind is not enabled for this repository."
+            fi
+          fi
+
+          milestone_id=""
+          milestone_title="unchanged"
+          if [ "$has_milestone" = false ]; then
+            # The current quarter: the earliest open milestone that has not yet
+            # passed its due date.
+            milestone=$(jq -r --arg today "$(date -u +%Y-%m-%dT00:00:00Z)" \
+              '[.data.repository.milestones.nodes[] | select(.dueOn != null and .dueOn >= $today)] | .[0] // empty' \
+              "$work/repo.json")
+            if [ -n "$milestone" ] && [ "$milestone" != "null" ]; then
+              milestone_id=$(jq -r '.id' <<<"$milestone")
+              milestone_title=$(jq -r '.title' <<<"$milestone")
+            else
+              echo "::warning::No open milestone with a future due date; leaving the milestone unset and rolling the roadmap is needed."
+            fi
+          fi
+
+          if [ -n "$labels" ]; then
+            gh issue edit "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --add-label "$labels" > /dev/null
+          fi
+
+          input="id: \"$node_id\""
+          if [ -n "$type_id" ]; then input="$input, issueTypeId: \"$type_id\""; fi
+          if [ -n "$milestone_id" ]; then input="$input, milestoneId: \"$milestone_id\""; fi
+          if [ -n "$priority" ]; then
+            input="$input, issueFieldUpdates: [{fieldName: \"Priority\", operation: SET, value: \"$priority\"}]"
+          fi
+
+          if [ "$input" != "id: \"$node_id\"" ]; then
+            gh api graphql -f query="mutation { updateIssue(input: { $input }) { issue { number } } }" > /dev/null
+          fi
+
+          echo "Issue #$ISSUE_NUMBER filed by $login (customer report: $customer)"
+          echo "  type:       ${kind:-left unset, no template matched}"
+          echo "  labels:     ${labels:-none}"
+          echo "  priority:   ${priority:-unchanged}"
+          echo "  milestone:  $milestone_title"
