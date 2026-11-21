@@ -4,6 +4,7 @@
 /// same releases and stores. A package or product id copied into three files
 /// is an id that drifts when the listing changes.
 const String githubRepositoryUrl = 'https://github.com/osociety/vernet';
+const String githubIssuesUrl = '$githubRepositoryUrl/issues';
 const String githubReleasesUrl = '$githubRepositoryUrl/releases';
 const String githubLatestReleaseUrl = '$githubReleasesUrl/latest';
 

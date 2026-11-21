@@ -21,6 +21,7 @@ import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
+import 'package:vernet/values/store_links.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -309,7 +310,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading: const Icon(Icons.bug_report),
                       title: Text(l10n.reportIssuesTitle),
                       onTap: () {
-                        launchURLWithWarning(context, _issueUrl);
+                        launchURLWithWarning(context, githubIssuesUrl);
                       },
                     ),
                     ListTile(
@@ -328,7 +329,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       leading: const Icon(Icons.code),
                       title: Text(l10n.sourceCodeTitle),
                       onTap: () {
-                        launchURLWithWarning(context, _srcUrl);
+                        launchURLWithWarning(context, githubRepositoryUrl);
                       },
                     ),
                     ListTile(
@@ -346,7 +347,4 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
-
-  static const String _srcUrl = 'https://github.com/git-elliot/vernet';
-  final String _issueUrl = '$_srcUrl/issues';
 }
