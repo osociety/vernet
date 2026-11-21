@@ -37,18 +37,33 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Only the dev leg writes Gradle state. setup-gradle keys the Gradle User
+      # Home entry as `gradle-home-v1|<os>|<job>[<hash of matrix params>]-<git sha>`,
+      # so each flavor wrote its own 380 MB copy of near-identical content and the
+      # sha guarantees the exact key cannot match the next run: 1.11 GB rewritten
+      # per push, matched only by restore-key prefix. The action's own docs call
+      # this out for exactly this shape - one writer plus a parallel matrix - and
+      # warn that entries this large evict other, useful caches. This repo sits at
+      # 9.48 GB of its 10 GB cache cap, and two of the three legs were spending
+      # ~4s each on `Unable to reserve cache with key gradle-home-...` while all
+      # three raced to save the same content.
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v5
-        
+        with:
+          cache-read-only: ${{ matrix.flavor != 'dev' }}
+
       # No AVD cache step here, deliberately, even though the action's README
-      # recommends one. This workflow runs with `permissions: contents: read`,
-      # and saving a cache needs actions: write, so every run logged
-      # "Cache is read-only: will not save state" and the next run reported
-      # "Cache not found for input keys: avd-default" - the key never changes
-      # and nothing was ever written under it. The step could only ever miss,
-      # while the action creates the AVD from scratch anyway (emulator-options
-      # passes -no-snapshot-load). Re-add it only together with actions: write
-      # and a snapshot-generating first leg.
+      # recommends one. Measured on the 2026-11-21 push runs: the entry was 1348 MB
+      # and a restore would replace only `avdmanager create avd`, which took 1.36s,
+      # because emulator-options passes -no-snapshot-load so the boot stays cold
+      # either way (33.0s, 38.1s, 43.6s across the three legs). Restoring 1348 MB
+      # costs ~14s at the rate the Flutter SDK cache measured on the same runner
+      # (1598 MB in 16.7s) and saving it took 9.2s, while all three legs share the
+      # one fixed key so two of them failed to reserve it. It has never been read:
+      # written at 12:15:38, evicted by 12:26 under the repo's 10 GB cache cap,
+      # which it alone would consume 13% of. Re-add only as a version-aware key on
+      # a leg that drops -no-snapshot-load and boots from the snapshot, and only
+      # once the cap has room for it.
 
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
