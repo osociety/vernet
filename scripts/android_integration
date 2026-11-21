@@ -5,6 +5,19 @@
 # One flavor per run, which is how the CI matrix spreads the suite across three
 # emulators. --flavor is what puts FLUTTER_APP_FLAVOR into the Dart defines, so
 # this is the only path that exercises the fdroid and store branches.
+#
+# Nothing here runs in parallel. Location permission can only be granted to an
+# installed package, and `flutter test` performs that install itself, so the
+# old version started the suite in the background and polled
+# `adb shell pm list packages` every 5s until the package appeared. That put
+# pub-get, the Gradle build with its NDK and CMake downloads, the emulator's
+# first minute of life and a stream of adb calls on one clock, and it granted
+# the permissions while the app was already running. When the emulator died
+# mid-session the loop spent its remaining 60 attempts calling a device that no
+# longer existed (3.5 min of "adb: device 'emulator-5554' not found") and the
+# leg reported a shell exit code instead of saying the device was gone.
+#
+# So the order now is: prove the device is up, install, grant, run.
 
 set -uo pipefail
 
@@ -23,29 +36,64 @@ if [ "$flavor" = "store" ]; then
     package="org.fsociety.vernet.store"
 fi
 
-echo "Running integration tests for flavor '$flavor' as $package"
+# CI attaches exactly one device, so neither adb nor flutter needs a target.
+# Set FLUTTER_TEST_DEVICE when running this on a machine that also has a desktop
+# device registered. The helpers branch instead of building an argument array,
+# because expanding an empty array under `set -u` is an error on bash 3.2.
+adb_shell() {
+    if [ -n "${FLUTTER_TEST_DEVICE:-}" ]; then
+        adb -s "$FLUTTER_TEST_DEVICE" "$@"
+    else
+        adb "$@"
+    fi
+}
 
-# CI attaches exactly one device, so it needs no -d. Set FLUTTER_TEST_DEVICE
-# when running this on a machine that also has a desktop device registered.
-adb shell settings put secure show_ime_with_hard_keyboard 0
-if [ -n "${FLUTTER_TEST_DEVICE:-}" ]; then
-    flutter test integration_test/app_test.dart --flavor "$flavor" \
-        -d "$FLUTTER_TEST_DEVICE" &
-else
-    flutter test integration_test/app_test.dart --flavor "$flavor" &
-fi
-test_pid=$!
+flutter_run() {
+    if [ -n "${FLUTTER_TEST_DEVICE:-}" ]; then
+        flutter "$@" -d "$FLUTTER_TEST_DEVICE"
+    else
+        flutter "$@"
+    fi
+}
 
-# The flavored build has to install before the grants can bind to it, and
-# LocationTool needs both permissions to scan at all.
-for attempt in $(seq 1 60); do
-    if adb shell pm list packages | grep -qx "package:$package"; then
+apk="build/app/outputs/flutter-apk/app-$flavor-debug.apk"
+
+boot_flag() { adb_shell shell getprop sys.boot_completed 2>/dev/null | tr -d '\r'; }
+
+echo "Waiting for the emulator to come up..."
+booted=""
+for _ in $(seq 1 60); do
+    booted="$(boot_flag)"
+    if [ "$booted" = "1" ]; then
         break
     fi
-    sleep 5
+    sleep 2
 done
+if [ "$booted" != "1" ]; then
+    echo "emulator never reported sys.boot_completed=1 after 120s (last said '${booted}')" >&2
+    exit 1
+fi
 
-adb shell pm grant "$package" android.permission.ACCESS_FINE_LOCATION || true
-adb shell pm grant "$package" android.permission.ACCESS_COARSE_LOCATION || true
-adb shell settings put secure location_mode 3
-wait "$test_pid"
+echo "Running integration tests for flavor '$flavor' as $package"
+
+# The keyboard is a separate Android window that swallows taps, and the
+# integration view reports zero viewInsets, so nothing resizes away from it.
+adb_shell shell settings put secure show_ime_with_hard_keyboard 0
+
+# The workflow builds this before the emulator starts. Fall back to building it
+# here so a local run of this script still works. A build takes no device, so it
+# is not routed through flutter_run.
+if [ ! -f "$apk" ]; then
+    flutter build apk --debug --flavor "$flavor"
+fi
+adb_shell install -r "$apk"
+
+# Both grants have to be in place before the app's first location request,
+# which is what a scan needs.
+adb_shell shell pm grant "$package" android.permission.ACCESS_FINE_LOCATION || true
+adb_shell shell pm grant "$package" android.permission.ACCESS_COARSE_LOCATION || true
+adb_shell shell settings put secure location_mode 3
+
+# Foreground: its exit code is the leg's, and a device that dies mid-run shows
+# up as the harness's own error rather than as adb noise afterwards.
+flutter_run test integration_test/app_test.dart --flavor "$flavor"

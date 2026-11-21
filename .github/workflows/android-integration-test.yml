@@ -54,6 +54,15 @@ jobs:
         with:
           java_version: '17'
 
+      # Built here, while no emulator exists, rather than inside the leg script.
+      # The build is the memory and CPU spike of this job — pub get, Gradle, the
+      # NDK and CMake downloads — and doing it before the device boots keeps it
+      # off the clock the suite runs on. scripts/android_integration installs the
+      # result and only rebuilds if the APK is missing, so a local run of that
+      # script still works.
+      - name: Build flavored APK
+        run: flutter build apk --debug --flavor ${{ matrix.flavor }}
+
       # Unit tests are flavor independent, so one leg runs them for the matrix.
       - name: Run unit tests
         if: matrix.flavor == 'dev'
