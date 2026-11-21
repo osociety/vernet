@@ -1,0 +1,8 @@
+Le voci del menu aprono la pagina indicata.
+Sul telefono compare un solo titolo e nulla resta nascosto dietro le barre di sistema.
+Tieni premuto un dispositivo per copiarne l'indirizzo su iPhone e Mac.
+Le scansioni mostrano l'indirizzo reale del router.
+Le novità rimandano a questa versione su GitHub.
+Cambiare pagina è più veloce.
+Lo snap per Linux mostra meno avvisi durante la scansione.
+Correzioni di bug e miglioramenti delle prestazioni.

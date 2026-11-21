@@ -1,0 +1,8 @@
+Položky menu otvárajú stránku, ktorú uvádzajú.
+V telefone sa zobrazí jeden názov a nič sa neskryje za systémové lišty.
+Podržaním zariadenia skopírujete jeho adresu na iPhone a Macu.
+Skeny zobrazujú skutočnú adresu routera.
+Novinky odkazujú na toto vydanie na GitHube.
+Prepnutie stránky je rýchlejšie.
+Snap pre Linux pri skenovaní vypíše menej varovaní.
+Opravy chýb a zlepšenia výkonu.

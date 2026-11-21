@@ -1,3 +1,6 @@
-Vernet is now fully translated into German.
-Choose your language the first time you open Vernet, or change it in Settings.
-Times and dates follow your language.
+Menu rows open the page they name.
+Scans show your real router address.
+The speed test fits in a narrow window.
+The in-app What's New links to this release on GitHub.
+Switching pages is faster.
+Bug fixes and performance improvements.
