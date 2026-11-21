@@ -93,6 +93,15 @@ class _WifiDetailState extends State<HomePage> {
     } catch (e) {
       debugPrint('Unimplemented error $e');
     }
+    // Kept apart from the gateway on purpose: Android used to answer the
+    // gateway query with the DHCP lease, so a network that splits the two
+    // roles showed the leasing host where the router belongs (#683).
+    String? wifiDhcpServer;
+    try {
+      wifiDhcpServer = await NetworkInfo().getWifiDhcpServerIP();
+    } catch (e) {
+      debugPrint('Unimplemented error $e');
+    }
     // A saved custom subnet seeds "Search a different network"; it is not this
     // device's router. Taking it as the gateway made the dashboard and the
     // network score report the seed address as the router (#646).
@@ -108,7 +117,7 @@ class _WifiDetailState extends State<HomePage> {
         wifiIP != null && wifiIP != 'x.x.x.x' && wifiIP.isNotEmpty;
     _wifiInfo = WifiInfo(wifiIP, wifiBSSID, wifiName, !hasValidConnection,
         addresses.gatewayIp, isLocationOn, metrics,
-        scanSubnet: addresses.scanSubnet);
+        scanSubnet: addresses.scanSubnet, dhcpServerIp: wifiDhcpServer);
 
     if (appSettings.runScanOnStartup && wifiIP != null && !_hasRunStartupScan) {
       setState(() {
@@ -393,6 +402,15 @@ class _WifiDetailState extends State<HomePage> {
               ),
             ],
           ),
+          if (info.dhcpServerIp != null &&
+              info.dhcpServerIp!.isNotEmpty &&
+              info.dhcpServerIp != info.gatewayIp) ...[
+            const SizedBox(height: 12),
+            _NetworkValue(
+              label: l10n.homeDhcpServer,
+              value: info.dhcpServerIp!,
+            ),
+          ],
           if (info.bssid != WifiInfo.defaultBSSID.first) ...[
             const SizedBox(height: 12),
             _NetworkValue(label: l10n.homeAccessPoint, value: info.bssid),

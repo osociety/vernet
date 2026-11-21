@@ -86,6 +86,11 @@ class _StubNetworkInfoPlatform extends NetworkInfoPlatform {
   @override
   Future<String?> getWifiGatewayIP() async => '192.168.1.1';
 
+  /// Matches the gateway above so the dashboard keeps the DHCP row hidden; a
+  /// test that wants the row re-stubs this with a different host.
+  @override
+  Future<String?> getWifiDhcpServerIP() async => '192.168.1.1';
+
   @override
   Future<String?> getWifiSubmask() async => '255.255.255.0';
 }
@@ -141,6 +146,8 @@ void main() {
           case 'wifiName':
             return 'Mock WiFi';
           case 'wifiGatewayAddress':
+            return '192.168.1.1';
+          case 'wifiDhcpServerAddress':
             return '192.168.1.1';
           default:
             return null;
