@@ -39,6 +39,7 @@ import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/store/store_features.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/localization.dart';
@@ -255,13 +256,19 @@ class _MyAppState extends State<MyApp> {
 
 class TabBarPage extends StatefulWidget {
   const TabBarPage({super.key});
+
+  /// The width at or below which the shell shows a drawer and its own bar
+  /// instead of the rail and the page heading.
+  ///
+  /// A test that asserts which heading a destination carries needs the number
+  /// the shell actually branches on.
+  static const double largeLayoutBreakpoint = 600;
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<TabBarPage> {
-  static const double _largeLayoutBreakpoint = 600;
-
   /// The rail and the page share a `Row`, so every frame of the extension
   /// tween re-lays out the page. A shorter tween means fewer of those frames.
   static const Duration _toggleAnimation = Duration(milliseconds: 200);
@@ -619,7 +626,8 @@ class _HomePageState extends State<TabBarPage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth <= _largeLayoutBreakpoint;
+        final isCompact =
+            constraints.maxWidth <= TabBarPage.largeLayoutBreakpoint;
         final rail = _railFor(context, isCompact: isCompact);
         return Scaffold(
           key: _scaffoldKey,
@@ -637,7 +645,7 @@ class _HomePageState extends State<TabBarPage> {
               : null,
           drawer: isCompact ? Drawer(child: SafeArea(child: rail)) : null,
           body: isCompact
-              ? SafeArea(child: _content())
+              ? SafeArea(child: _content(shellHasAppBar: true))
               : SafeArea(
                   child: Row(
                     children: [
@@ -646,7 +654,7 @@ class _HomePageState extends State<TabBarPage> {
                         width: 1,
                         color: Theme.of(context).colorScheme.outlineVariant,
                       ),
-                      Expanded(child: _content()),
+                      Expanded(child: _content(shellHasAppBar: false)),
                     ],
                   ),
                 ),
@@ -661,11 +669,17 @@ class _HomePageState extends State<TabBarPage> {
   /// nothing else in the shell has to redraw for them. The boundary then keeps
   /// the page out of the repaints the widening rail causes on the frames where
   /// the row re-lays it out.
-  Widget _content() {
+  ///
+  /// [shellHasAppBar] is what the pages read through [ShellChrome] to decide
+  /// whether to paint their own heading.
+  Widget _content({required bool shellHasAppBar}) {
     return RepaintBoundary(
-      child: ListenableBuilder(
-        listenable: _sidebarController,
-        builder: (context, _) => _selectedPage,
+      child: ShellChrome(
+        hasAppBar: shellHasAppBar,
+        child: ListenableBuilder(
+          listenable: _sidebarController,
+          builder: (context, _) => _selectedPage,
+        ),
       ),
     );
   }

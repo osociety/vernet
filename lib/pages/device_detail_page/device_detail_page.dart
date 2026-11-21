@@ -307,6 +307,31 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     );
   }
 
+  /// The side of the square that `CupertinoListTile` fits its `leading` into.
+  ///
+  /// `ListTile` sizes that slot from the widget itself and ignores this, so the
+  /// Material branch is untouched. Measuring the text instead of picking a
+  /// constant is what keeps a five-digit port legible at a large text scale,
+  /// which is what clipped it at three digits before.
+  double _leadingBoxWidth(
+    BuildContext context,
+    TextStyle? style,
+    String text,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: DefaultTextStyle.of(context).style.merge(style),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width.ceilToDouble();
+    painter.dispose();
+    return width;
+  }
+
   Widget _buildPortRow(BuildContext context, int port) {
     final description = _portDescription(context.l10n, port);
     return AdaptiveListTile(
@@ -524,16 +549,19 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                     itemBuilder: (context, index) {
                       final openPort = _openPorts.toList()[index];
                       final port = allPorts[openPort.port.toString()];
+                      final portStyle = theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.secondary,
+                      );
                       return AdaptiveListTile(
                         dense: true,
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 16),
-                        leading: Text(
+                        leadingSize: _leadingBoxWidth(
+                          context,
+                          portStyle,
                           '${openPort.port}',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: colorScheme.secondary,
-                          ),
                         ),
+                        leading: Text('${openPort.port}', style: portStyle),
                         title: Text(
                           port?.desc ??
                               l10n.deviceDetailPortNumber('${openPort.port}'),

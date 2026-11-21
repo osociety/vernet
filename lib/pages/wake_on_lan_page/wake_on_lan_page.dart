@@ -3,6 +3,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:vernet/models/wake_on_lan_target.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
 
@@ -204,9 +205,11 @@ class _WakeOnLanPageState extends State<WakeOnLanPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.wakeOnLanPageTitle),
-      ),
+      appBar: ShellChrome.providesAppBar(context)
+          ? null
+          : AppBar(
+              title: Text(context.l10n.wakeOnLanPageTitle),
+            ),
       body: SafeArea(
           child: ListView(
         key: WidgetKey.wakeOnLanList.key,

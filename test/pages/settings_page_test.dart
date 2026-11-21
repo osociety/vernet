@@ -184,10 +184,17 @@ void main() {
       );
     });
 
-    Future<void> openAboutDialog(WidgetTester tester) async {
+    Future<void> openAboutDialog(
+      WidgetTester tester, {
+      Size size = const Size(800, 600),
+    }) async {
       SharedPreferences.setMockInitialValues({});
       AppSettings.instance.resetForTesting();
       setupPackageInfoMock();
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
         MultiProvider(
@@ -236,6 +243,45 @@ void main() {
 
       expect(find.text('https://github.com/osociety/vernet'), findsOneWidget);
       expect(find.textContaining('git-elliot'), findsNothing);
+    });
+
+    // The placeholder glyph was a coloured Material icon that looked different
+    // from the logo every other surface shows; the mark now comes from the
+    // bundled splash asset and is tinted by the active theme. Checked at phone
+    // width because the dialog gives the icon no room to spare.
+    testWidgets('About dialog carries the theme-tinted Vernet mark',
+        (tester) async {
+      await openAboutDialog(tester, size: const Size(390, 844));
+
+      expect(find.byIcon(Icons.radar), findsNothing);
+
+      final mark = find.descendant(
+        of: find.byType(AboutDialog),
+        matching: find.byType(ColorFiltered),
+      );
+      expect(mark, findsOneWidget);
+      expect(
+        tester.widget<ColorFiltered>(mark).colorFilter,
+        ColorFilter.mode(
+          Theme.of(tester.element(mark)).colorScheme.onSurface,
+          BlendMode.srcIn,
+        ),
+      );
+      final image = tester.widget<Image>(
+        find.descendant(of: mark, matching: find.byType(Image)),
+      );
+      // AppMark asks for a cacheWidth, so the asset arrives wrapped.
+      expect(
+        ((image.image as ResizeImage).imageProvider as AssetImage).assetName,
+        'assets/splash11/splash_dark/ic_launcher_round.png',
+      );
+      expect(tester.getSize(mark), const Size(64, 64));
+      expect(
+        tester.getRect(find.byType(AboutDialog)).right,
+        lessThanOrEqualTo(390),
+        reason: 'the icon must not push the dialog past the viewport',
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 }

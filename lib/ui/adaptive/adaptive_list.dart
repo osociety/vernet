@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 
+/// `CupertinoListTile`'s own default for the square box around `leading`, which
+/// is sized for an icon.
+const double _kCupertinoLeadingSize = 28;
+
 class AdaptiveListTile extends StatelessWidget {
   const AdaptiveListTile({
     super.key,
@@ -18,6 +22,7 @@ class AdaptiveListTile extends StatelessWidget {
     this.onLongPress,
     this.contentPadding,
     this.platform,
+    this.leadingSize,
   });
 
   final Widget title;
@@ -30,6 +35,14 @@ class AdaptiveListTile extends StatelessWidget {
   final bool? dense;
   final EdgeInsetsGeometry? contentPadding;
   final String? platform;
+
+  /// The side length of the square box the Cupertino branch fits [leading] into.
+  ///
+  /// `CupertinoListTile` always clamps its leading widget to a square, so a
+  /// wide leading such as a four- or five-digit port number needs a box wide
+  /// enough for it; `ListTile` sizes that slot from the widget itself and
+  /// ignores this. Defaults to the 28 `CupertinoListTile` uses for an icon.
+  final double? leadingSize;
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +74,14 @@ class AdaptiveListTile extends StatelessWidget {
         primaryColor: themeChange.darkTheme ? Colors.white54 : Colors.black54,
       ),
       child: Padding(
-        padding: contentPadding ?? const EdgeInsets.all(10),
+        // 16 horizontal matches the content padding `ListTile` gives the other
+        // rows on the same page, so a list mixing the two keeps one leading
+        // edge. CupertinoListTile is handed vertical-only padding below.
+        padding: contentPadding ??
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: CupertinoListTile(
           leading: leading,
+          leadingSize: leadingSize ?? _kCupertinoLeadingSize,
           title: title,
           subtitle: subtitle,
           trailing: trailing,

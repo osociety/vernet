@@ -5,6 +5,7 @@ import 'package:vernet/models/neighbor_info.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/services/neighbor_discovery/neighbor_discovery_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
@@ -132,9 +133,11 @@ class _NeighborDiscoveryPageState extends State<NeighborDiscoveryPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.neighborDiscoveryPageTitle),
-      ),
+      appBar: ShellChrome.providesAppBar(context)
+          ? null
+          : AppBar(
+              title: Text(context.l10n.neighborDiscoveryPageTitle),
+            ),
       body: SafeArea(
           child: ListView(
         padding: const EdgeInsets.all(8),

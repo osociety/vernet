@@ -178,4 +178,96 @@ void main() {
     expect(tapped, 1);
     expect(longPressed, 0);
   });
+
+  // The settings list mixes plain ListTiles with these tiles, and the Cupertino
+  // branch used to sit 6px left of every Material row on the same page.
+  testWidgets('Cupertino rows share the Material leading edge', (tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: const MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                AdaptiveListTile(
+                  title: Text('WhatsNew'),
+                  platform: 'ios',
+                ),
+                ListTile(title: Text('Theme')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Measured on the painted titles rather than on a padding constant, so a
+    // change to either branch's defaults shows up as the misalignment users
+    // see instead of a passing comparison against a number.
+    expect(
+      tester.getTopLeft(find.text('WhatsNew')).dx,
+      tester.getTopLeft(find.text('Theme')).dx,
+      reason: 'both branches must start on one edge',
+    );
+  });
+
+  // CupertinoListTile clamps leading to a square sized for an icon, which
+  // clipped the port number in the device detail scan results.
+  testWidgets('leadingSize widens only the Cupertino leading box',
+      (tester) async {
+    Future<void> pump(double? leadingSize) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<DarkThemeProvider>(
+          create: (_) => DarkThemeProvider(),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: AdaptiveListTile(
+                  title: const Text('Service'),
+                  // The style the device detail port rows hand to `leading`.
+                  leading: Text(
+                    '65535',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  leadingSize: leadingSize,
+                  platform: 'ios',
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    // A box with room to spare paints the string at its natural width, in
+    // whatever font the test binding loads, so the checks below compare against
+    // that rather than against a guessed pixel budget.
+    await pump(400);
+    final naturalWidth = tester.getSize(find.text('65535')).width;
+    expect(naturalWidth, greaterThan(28));
+
+    await pump(null);
+    expect(
+      tester.getSize(find.text('65535')).width,
+      28,
+      reason: 'the icon-sized default box clips a five-digit port',
+    );
+
+    // The device detail port rows size the box from a TextPainter of the same
+    // string, so a box this wide is the contract that stops the clipping.
+    await pump(naturalWidth);
+    expect(
+      tester
+          .widget<CupertinoListTile>(find.byType(CupertinoListTile))
+          .leadingSize,
+      naturalWidth,
+    );
+    expect(
+      tester.getSize(find.text('65535')).width,
+      naturalWidth,
+      reason: 'the whole port number must be painted',
+    );
+  });
 }

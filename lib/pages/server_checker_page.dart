@@ -9,6 +9,7 @@ import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/utils/localization.dart';
 
 /// Name the quick-add suggestion stores for the gateway. The row keeps this
@@ -232,7 +233,9 @@ class _ServerCheckerPageState extends State<ServerCheckerPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(context.l10n.serverCheckerTitle)),
+        appBar: ShellChrome.providesAppBar(context)
+            ? null
+            : AppBar(title: Text(context.l10n.serverCheckerTitle)),
         floatingActionButton: Padding(
           // The Scaffold's FAB slot has its MediaQuery padding stripped, so the
           // nav-bar inset has to be read here, above the Scaffold.

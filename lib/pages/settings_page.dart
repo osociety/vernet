@@ -11,6 +11,7 @@ import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/providers/locale_provider.dart';
 import 'package:vernet/store/store_features.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/app_mark.dart';
 import 'package:vernet/ui/settings_dialog/custom_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/first_subnet_dialog.dart';
 import 'package:vernet/ui/settings_dialog/last_subnet_dialog.dart';
@@ -304,7 +305,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   context: context,
                   applicationName: 'Vernet',
                   applicationVersion: '${info.version}+${info.buildNumber}',
-                  applicationIcon: const Icon(Icons.radar),
+                  applicationIcon: const AppMark(),
                   children: [
                     ListTile(
                       leading: const Icon(Icons.bug_report),

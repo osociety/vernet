@@ -96,7 +96,24 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
 
       expect(find.byType(WakeOnLanPage), findsOneWidget);
-      expect(find.text(_en.wakeOnLanPageTitle), findsOneWidget);
+      // The rail hosts this destination inside the shell, so a phone gets the
+      // shell's own bar carrying the nav label while a wide window leaves the
+      // heading to the page. Either way exactly one bar is painted.
+      final isCompact =
+          tester.view.physicalSize.width / tester.view.devicePixelRatio <=
+              TabBarPage.largeLayoutBreakpoint;
+      expect(find.byType(AppBar), findsOneWidget);
+      expect(
+        tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byType(AppBar),
+                matching: find.byType(Text),
+              ),
+            )
+            .data,
+        isCompact ? _en.navWakeOnLan : _en.wakeOnLanPageTitle,
+      );
     });
 
     testWidgets('WakeOnLanPage shows all expected form fields', (tester) async {
