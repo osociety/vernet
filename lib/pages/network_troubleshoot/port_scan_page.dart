@@ -10,6 +10,7 @@ import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/adaptive_radio.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/ui/custom_tile.dart';
 import 'package:vernet/ui/popular_chip.dart';
 import 'package:vernet/utils/localization.dart';
@@ -257,9 +258,11 @@ class _PortScanPageState extends State<PortScanPage>
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.portScanTitle),
-      ),
+      appBar: ShellChrome.providesAppBar(context)
+          ? null
+          : AppBar(
+              title: Text(l10n.portScanTitle),
+            ),
       body: SafeArea(
           child: FutureBuilder<Map<String, Port>>(
         future: PortDescLoader('assets/ports_lists.json').load(),

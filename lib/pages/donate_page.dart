@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
@@ -56,7 +57,9 @@ class DonatePage extends StatelessWidget {
       isStoreBuild: kStoreBuild,
     );
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navSupport)),
+      appBar: ShellChrome.providesAppBar(context)
+          ? null
+          : AppBar(title: Text(l10n.navSupport)),
       body: SafeArea(
           child: Center(
         child: ConstrainedBox(

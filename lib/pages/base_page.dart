@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/ui/popular_chip.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
@@ -60,9 +61,11 @@ abstract class BasePage<T extends StatefulWidget> extends State<T> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title(context)),
-      ),
+      appBar: ShellChrome.providesAppBar(context)
+          ? null
+          : AppBar(
+              title: Text(title(context)),
+            ),
       body: SafeArea(
         child: Container(
           margin: const EdgeInsets.all(5.0),

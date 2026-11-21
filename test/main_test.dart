@@ -242,6 +242,52 @@ void main() {
   // Android 15+ hands an app targeting SDK 35 or newer the whole window and
   // reports the bars only as view padding, so anything that ignores the
   // padding draws underneath them. osociety/vernet#428.
+  // A page hosted by the shell used to paint its own AppBar under the shell's
+  // compact one, so a phone showed the destination named twice with two bars
+  // stacked. Desktop has no shell bar, so there the page bar stays the only
+  // heading; a page pushed over the shell keeps its bar at any width.
+  group('One heading per destination', () {
+    const destinations = <(String shellTitle, String pageTitle)>[
+      ('Check a website', 'Check connection'),
+      ('Subnet calculator', 'IP subnet calculator'),
+      ('Support Vernet', 'Support Vernet'),
+    ];
+
+    for (final (shellTitle, pageTitle) in destinations) {
+      testWidgets('$shellTitle paints one AppBar and one heading on a phone',
+          (tester) async {
+        await pumpTabBarPage(tester, size: const Size(390, 844));
+
+        await tester.tap(find.byIcon(Icons.menu));
+        await pumpVisibleFrame(tester);
+        await tester.tap(find.text(shellTitle).last);
+        await pumpVisibleFrame(tester);
+
+        expect(find.byType(AppBar), findsOneWidget);
+        expect(find.text(shellTitle), findsOneWidget);
+        if (pageTitle != shellTitle) {
+          expect(find.text(pageTitle), findsNothing);
+        }
+      });
+
+      testWidgets('$shellTitle keeps the page heading on desktop',
+          (tester) async {
+        await pumpTabBarPage(tester);
+
+        await tester.tap(find.text(shellTitle).first);
+        await pumpVisibleFrame(tester);
+
+        expect(find.byType(AppBar), findsOneWidget);
+        if (pageTitle != shellTitle) {
+          expect(find.text(pageTitle), findsOneWidget);
+        }
+      });
+    }
+  });
+
+  // The scan page's AppBar also carried its history action, which the compact
+  // shell has no slot for; test/pages/host_scan_page/host_scan_page_test.dart
+  // follows that button into the results header.
   group('Edge-to-edge insets', () {
     // HomePage and SettingsPage own no Scaffold of their own, so this also
     // proves the shell is what keeps them out of the navigation bar.

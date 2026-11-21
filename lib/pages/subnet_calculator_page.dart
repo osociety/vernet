@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vernet/models/subnet_calculation.dart';
 import 'package:vernet/services/subnet_calculator_service.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/utils/localization.dart';
 
 class SubnetCalculatorPage extends StatefulWidget {
@@ -42,7 +43,9 @@ class _SubnetCalculatorPageState extends State<SubnetCalculatorPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.subnetCalcTitle)),
+      appBar: ShellChrome.providesAppBar(context)
+          ? null
+          : AppBar(title: Text(context.l10n.subnetCalcTitle)),
       body: SafeArea(
           child: ListView(
         padding: const EdgeInsets.all(16),

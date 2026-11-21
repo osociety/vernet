@@ -169,6 +169,25 @@ All reusable components are located in:
 
 lib/widgets/
 
+## Responsive chrome
+
+The shell (`TabBarPage`) branches at `TabBarPage.largeLayoutBreakpoint`
+(600px): at or below it, it shows a drawer plus its own `AppBar` carrying the
+destination's navigation label; above it, it shows the `SidebarX` rail and no
+bar of its own.
+
+-   A page hosted by the shell must not paint a second heading. Pages read
+    `ShellChrome.providesAppBar(context)` and pass `appBar: null` when it is
+    true. A page pushed with `Navigator` has no `ShellChrome` ancestor, so the
+    same expression keeps its own bar and back button.
+-   An action that used to sit in a shell-hosted page's `AppBar` belongs in the
+    page body at that width (`ScanHistoryButton`, placed in the scan results
+    header, is the existing example).
+-   `AdaptiveListTile` renders `CupertinoListTile` on iOS/macOS and `ListTile`
+    elsewhere, and aligns both on `ListTile`'s 16px leading edge so a mixed
+    list keeps one column. Cupertino clamps `leading` to a square, so a wide
+    leading such as a port number passes `leadingSize`.
+
 ------------------------------------------------------------------------
 
 # State Management

@@ -6,12 +6,14 @@ import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
+import 'package:vernet/pages/host_scan_page/widgets/scan_history_button.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
@@ -108,9 +110,15 @@ class HostScanWidget extends StatelessWidget {
                 : _scanCompleteLabel(context.l10n, activeHostList.length),
             textAlign: TextAlign.center,
           ),
-          trailing: loading
-              ? const SizedBox()
-              : IconButton(
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // On a phone the shell's bar has no action slot for this page,
+              // so history rides along with the scan controls.
+              if (ShellChrome.providesAppBar(context))
+                const ScanHistoryButton(),
+              if (!loading)
+                IconButton(
                   key: WidgetKey.rescanIconButton.key,
                   onPressed: () {
                     context
@@ -119,6 +127,8 @@ class HostScanWidget extends StatelessWidget {
                   },
                   icon: const Icon(Icons.replay),
                 ),
+            ],
+          ),
         ),
         if (loading)
           ValueListenableBuilder<double>(

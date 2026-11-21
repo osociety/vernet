@@ -14,6 +14,7 @@ import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/ui/adaptive/shell_chrome.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -283,5 +284,80 @@ void main() {
     expect(find.text('Scan complete - 1 device found'), findsWidgets);
     expect(find.textContaining('Scanning '), findsNothing);
     expect(find.byKey(WidgetKey.rescanIconButton.key), findsOneWidget);
+  });
+
+  // On a phone the shell owns the heading and offers no action slot to the
+  // page, so the page must not stack a second bar under it and its history
+  // entry has to ride in the results header instead.
+  testWidgets('gives the heading to the shell and history to the results',
+      (tester) async {
+    final scanner = _FakeScannerService(devices: const [
+      DeviceData(
+        id: 1,
+        internetAddress: '192.168.1.42',
+        hostMake: 'Test host',
+        currentDeviceIp: '192.168.1.10',
+        gatewayIp: '192.168.1.1',
+        scanId: 1,
+      ),
+    ]);
+    await getIt.unregister<DeviceScannerService>();
+    getIt.registerSingleton<DeviceScannerService>(scanner);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              appBar: AppBar(title: const Text('Scan your network')),
+              body: Center(
+                child: TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    PageRouteBuilder<void>(
+                      // What the compact shell builds: its own bar, then the
+                      // page under a scope that says the heading is taken.
+                      pageBuilder: (_, __, ___) => Scaffold(
+                        appBar: AppBar(title: const Text('Scan your network')),
+                        body: ShellChrome(
+                          hasAppBar: true,
+                          child: HostScanPage(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    for (var i = 0;
+        i < 40 && (scanner.startCalls == 0 || bloc.state is! LoadSuccess);
+        i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    expect(bloc.state, isA<LoadSuccess>());
+    expect(
+      find.byType(AppBar),
+      findsOneWidget,
+      reason: 'the page must not add a bar below the shell heading',
+    );
+    expect(find.text('Find devices'), findsNothing);
+    expect(find.byKey(WidgetKey.scanHistoryIconButton.key), findsOneWidget);
   });
 }
