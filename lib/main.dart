@@ -324,6 +324,15 @@ class _HomePageState extends State<TabBarPage> {
     }
   }
 
+  /// Opens the destination at row [index].
+  ///
+  /// [index] is the row's position in [_navigationItems], which is also what
+  /// `SidebarX` writes to the controller itself after invoking an item's
+  /// `onTap` (`_onItemSelected` calls `selectIndex(listIndex)` whenever the item
+  /// is `selectable`). So a row whose `onTap` names a different number is
+  /// overwritten and opens the page of the row it sits above, and the highlight
+  /// and the page agree on the wrong one. The Settings footer is outside that
+  /// mechanism and keeps its own index of `items.length`.
   void _selectPage(int index) {
     _scaffoldKey.currentState?.closeDrawer();
     // The controller holds the only copy of the selection, and notifying it is
@@ -380,27 +389,27 @@ class _HomePageState extends State<TabBarPage> {
       SidebarXItem(
         icon: Icons.search,
         label: l10n.navFindWebsiteAddresses,
-        onTap: () => _selectPage(7),
+        onTap: () => _selectPage(5),
       ),
       SidebarXItem(
         icon: Icons.find_replace,
         label: l10n.navFindDeviceName,
-        onTap: () => _selectPage(8),
+        onTap: () => _selectPage(6),
       ),
       SidebarXItem(
         icon: Icons.account_tree,
         label: l10n.navSubnetCalculator,
-        onTap: () => _selectPage(9),
+        onTap: () => _selectPage(7),
       ),
       SidebarXItem(
         icon: Icons.hub,
         label: l10n.navFindSwitch,
-        onTap: () => _selectPage(5),
+        onTap: () => _selectPage(8),
       ),
       SidebarXItem(
         icon: Icons.power_settings_new,
         label: l10n.navWakeOnLan,
-        onTap: () => _selectPage(6),
+        onTap: () => _selectPage(9),
       ),
       SidebarXItem(
         icon: Icons.volunteer_activism,
@@ -671,11 +680,11 @@ class _HomePageState extends State<TabBarPage> {
       2 => l10n.navCheckWebsite,
       3 => l10n.navMonitorServer,
       4 => l10n.navFindSecurityGaps,
-      5 => l10n.navFindSwitch,
-      6 => l10n.navWakeOnLan,
-      7 => l10n.navFindWebsiteAddresses,
-      8 => l10n.navFindDeviceName,
-      9 => l10n.navSubnetCalculator,
+      5 => l10n.navFindWebsiteAddresses,
+      6 => l10n.navFindDeviceName,
+      7 => l10n.navSubnetCalculator,
+      8 => l10n.navFindSwitch,
+      9 => l10n.navWakeOnLan,
       10 => l10n.navSupport,
       _ => l10n.navSettings,
     };
@@ -687,11 +696,11 @@ class _HomePageState extends State<TabBarPage> {
         2 => const PingPage(),
         3 => const ServerCheckerPage(),
         4 => const PortScanPage(),
-        5 => const NeighborDiscoveryPage(),
-        6 => const WakeOnLanPage(),
-        7 => const DNSPage(),
-        8 => const ReverseDNSPage(),
-        9 => const SubnetCalculatorPage(),
+        5 => const DNSPage(),
+        6 => const ReverseDNSPage(),
+        7 => const SubnetCalculatorPage(),
+        8 => const NeighborDiscoveryPage(),
+        9 => const WakeOnLanPage(),
         10 => const DonatePage(),
         _ => const SettingsPage(),
       };

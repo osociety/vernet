@@ -50,6 +50,12 @@ Finder _savedDeviceLabel(String label) => find.byWidgetPredicate(
 
 /// The resource bundle the test device renders: these suites run in English.
 final _en = AppLocalizationsEn();
+
+/// The page's own list. Every reveal below scrolls this instead of calling
+/// `ensureVisible` on a bare finder: a `ListView` child outside the cache extent
+/// has no element yet, and `ensureVisible` answers that with `Bad state: No
+/// element` — the failure this group used to show at random (#604).
+final _wolList = find.byKey(WidgetKey.wakeOnLanList.key);
 void main() {
   globals.testingActive = true;
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -187,8 +193,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Leave the MAC field empty and tap Send
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSendButton.key));
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanSendButton.key),
+        scrollable: _wolList,
+      );
 
       expect(
         find.text('Enter a MAC address like AA:BB:CC:DD:EE:FF'),
@@ -210,8 +219,11 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanSaveButton.key),
+        scrollable: _wolList,
+      );
 
       expect(
         find.text('Enter a MAC address like AA:BB:CC:DD:EE:FF'),
@@ -247,10 +259,11 @@ void main() {
       );
 
       // The send button sits under the keyboard the port field just raised.
-      await TestUtils.hideKeyboard(tester);
-
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSendButton.key));
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanSendButton.key),
+        scrollable: _wolList,
+      );
 
       expect(find.text('Enter a port between 0 and 65535'), findsOneWidget);
     });
@@ -286,24 +299,28 @@ void main() {
         find,
       );
 
-      // Dismiss keyboard on Android so the button is tappable
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanMacField.key));
-      await tester.pumpAndSettle();
+      // Tapping a field to dismiss the keyboard does the opposite: it focuses
+      // that field, so the keyboard stays up and the send tap lands on its
+      // window instead of the button (#604).
+      await TestUtils.revealAndTap(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanSendButton.key),
+        scrollable: _wolList,
+      );
 
-      // Scroll to and tap the send button
-      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSendButton.key));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSendButton.key));
-
-      // Wait for the async send to finish
+      // The status text is the proof the tap reached the button. Waiting for it
+      // here turns a dropped tap into a named failure instead of the empty
+      // finder below reporting nothing.
       await TestUtils.waitForAnyWidget(
         tester,
         find.byKey(WidgetKey.wakeOnLanStatusText.key),
       );
 
-      // Scroll to status text in case it's below the fold
-      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanStatusText.key));
-      await tester.pumpAndSettle();
+      await TestUtils.reveal(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanStatusText.key),
+        scrollable: _wolList,
+      );
 
       final statusText = tester
           .widget<Text>(find.byKey(WidgetKey.wakeOnLanStatusText.key))
@@ -345,18 +362,37 @@ void main() {
         find,
       );
 
-      // Tap send but don't settle – check the button label mid-flight.
-      // The keyboard is up after entering text, so the button may sit
-      // below the shrunken viewport and need scrolling into view first.
+      // Tap send but don't settle – check the button mid-flight. The keyboard
+      // is up after entering text, so the button is revealed through the page
+      // list rather than scrolled to its bottom edge.
       final sendButton = find.byKey(WidgetKey.wakeOnLanSendButton.key);
-      await tester.ensureVisible(sendButton);
-      await tester.pump();
-      await tester.tap(sendButton);
-      await tester.pump(); // single frame
-      await tester.pump(const Duration(milliseconds: 50));
+      await TestUtils.reveal(tester, sendButton, scrollable: _wolList);
+      // The button guards its own re-entrancy with `onPressed: _sending ? null
+      // : _send`, so nullability is the thing under test, not the style.
+      expect(tester.widget<ElevatedButton>(sendButton).onPressed, isNotNull);
 
-      // The button label switches to 'Sending…' while _sending == true
-      expect(find.text('Sending…'), findsOneWidget);
+      await tester.tap(sendButton);
+      // The tap only marks the tree dirty: the 'Sending…' label and the null
+      // `onPressed` land on the next frame, so checking either before pumping
+      // reports none were found (#604).
+      await tester.pump();
+
+      expect(find.text(_en.wakeOnLanSending), findsOneWidget);
+      expect(tester.widget<ElevatedButton>(sendButton).onPressed, isNull);
+
+      // The completion signal is the status line, not a quiet frame tree: the
+      // packet repeats wait on real `Future.delayed`s that schedule no frames,
+      // so `pumpAndSettle` returns while the send is still in flight and the
+      // label is still 'Sending…' (#604).
+      await TestUtils.waitForAnyWidget(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanStatusText.key),
+        timeout: const Duration(seconds: 20),
+      );
+      await TestUtils.reveal(tester, sendButton, scrollable: _wolList);
+
+      expect(find.text(_en.wakeOnLanSend), findsOneWidget);
+      expect(tester.widget<ElevatedButton>(sendButton).onPressed, isNotNull);
     });
   });
 
@@ -377,6 +413,13 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
+      // The placeholder is a list child under the tall form card, so it is only
+      // in the tree once the viewport has reached it.
+      await TestUtils.reveal(
+        tester,
+        find.text(_en.wakeOnLanEmptyPlaceholder),
+        scrollable: _wolList,
+      );
       expect(
         find.text(_en.wakeOnLanEmptyPlaceholder),
         findsOneWidget,
@@ -416,16 +459,21 @@ void main() {
         find,
       );
 
-      // Scroll to and tap the save button
-      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanSaveButton.key),
+        scrollable: _wolList,
+      );
 
-      // Scroll to the saved tile in case it's below the fold on Android
+      // Saving reports itself, which is also the proof the tap reached the
+      // button instead of the keyboard window over it.
+      await TestUtils.waitForAnyWidget(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanStatusText.key),
+      );
+
       final savedLabel = _savedDeviceLabel('Gaming Rig');
-      await tester.ensureVisible(savedLabel);
-      await tester.pumpAndSettle();
+      await TestUtils.reveal(tester, savedLabel, scrollable: _wolList);
 
       // The label is also present in the editable form field, so target the
       // saved tile's Text widget specifically.
@@ -453,11 +501,14 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
-      // The saved tile label should be visible
-      expect(find.text('Home Server'), findsOneWidget);
+      // The saved tile is a list child under the form card, so reveal it
+      // through the page list rather than assuming the viewport built it.
+      final tile = find.text('Home Server');
+      await TestUtils.reveal(tester, tile, scrollable: _wolList);
+      expect(tile, findsOneWidget);
 
       // Tap the tile to fill the form
-      await tester.tap(find.text('Home Server'));
+      await tester.tap(tile);
       await tester.pumpAndSettle();
 
       // MAC field should now contain the device's MAC
@@ -483,15 +534,22 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
-      expect(find.text('Old PC'), findsOneWidget);
+      final tileLabel = find.text('Old PC');
+      await TestUtils.reveal(tester, tileLabel, scrollable: _wolList);
+      expect(tileLabel, findsOneWidget);
 
-      final deleteButton = find.byIcon(Icons.delete_outline);
-      await tester.ensureVisible(deleteButton);
-      await tester.pumpAndSettle();
-      await tester.tap(deleteButton);
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(
+        tester,
+        find.byIcon(Icons.delete_outline),
+        scrollable: _wolList,
+      );
 
-      expect(find.text('Old PC'), findsNothing);
+      expect(tileLabel, findsNothing);
+      await TestUtils.reveal(
+        tester,
+        find.text(_en.wakeOnLanEmptyPlaceholder),
+        scrollable: _wolList,
+      );
       expect(
         find.text(_en.wakeOnLanEmptyPlaceholder),
         findsOneWidget,
@@ -512,6 +570,11 @@ void main() {
       await TestUtils.tapByWidgetKey(WidgetKey.wakeOnLanButton, tester, find);
       await tester.pumpAndSettle();
 
+      // Saving answers with the label it stored, which both waits for the
+      // write and proves the Save tap actually reached the button. Waiting on
+      // the status widget alone would pass on the previous save's text.
+      final saveButton = find.byKey(WidgetKey.wakeOnLanSaveButton.key);
+
       // Save once
       await TestUtils.enterTextByKey(
         WidgetKey.wakeOnLanLabelField,
@@ -531,11 +594,11 @@ void main() {
         tester,
         find,
       );
-      await TestUtils.hideKeyboard(tester);
-      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(tester, saveButton, scrollable: _wolList);
+      await TestUtils.waitForAnyWidget(
+        tester,
+        find.text(_en.wakeOnLanSaved('First Label')),
+      );
 
       // Clear label and save again with same MAC, different label
       await TestUtils.enterTextByKey(
@@ -544,16 +607,14 @@ void main() {
         tester,
         find,
       );
-      await TestUtils.hideKeyboard(tester);
-      await tester.ensureVisible(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(WidgetKey.wakeOnLanSaveButton.key));
-      await tester.pumpAndSettle();
+      await TestUtils.revealAndTap(tester, saveButton, scrollable: _wolList);
+      await TestUtils.waitForAnyWidget(
+        tester,
+        find.text(_en.wakeOnLanSaved('Second Label')),
+      );
 
-      // Scroll to the saved tile in case it's below the fold on Android
       final secondLabel = _savedDeviceLabel('Second Label');
-      await tester.ensureVisible(secondLabel);
-      await tester.pumpAndSettle();
+      await TestUtils.reveal(tester, secondLabel, scrollable: _wolList);
 
       // Only one tile for this MAC should exist
       expect(secondLabel, findsOneWidget);
@@ -581,11 +642,12 @@ void main() {
 
       // Scope the action to the saved target. The app shell and form also
       // contain power icons, so a global icon count is brittle.
-      final wakeSavedTarget = find.byTooltip('Wake this device');
-      expect(wakeSavedTarget, findsOneWidget);
-      await tester.ensureVisible(wakeSavedTarget);
-      await tester.pumpAndSettle();
-      await tester.tap(wakeSavedTarget);
+      final wakeSavedTarget = find.byTooltip(_en.wakeOnLanWakeThis);
+      await TestUtils.revealAndTap(
+        tester,
+        wakeSavedTarget,
+        scrollable: _wolList,
+      );
 
       await TestUtils.waitForAnyWidget(
         tester,
@@ -593,6 +655,11 @@ void main() {
         timeout: const Duration(seconds: 10),
       );
 
+      await TestUtils.reveal(
+        tester,
+        find.byKey(WidgetKey.wakeOnLanStatusText.key),
+        scrollable: _wolList,
+      );
       expect(find.byKey(WidgetKey.wakeOnLanStatusText.key), findsOneWidget);
     });
   });

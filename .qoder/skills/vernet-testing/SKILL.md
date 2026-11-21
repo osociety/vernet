@@ -80,6 +80,22 @@ setUp(() async {
   `getIt<DeviceRepository>()`; pre-set ids so device rows link to scans.
 - Wait for widgets with `TestUtils.waitForWidget` / `waitForAnyWidget`, not
   fixed sleeps.
+- Enter text with `TestUtils.enterTextByKey`, never a bare `tester.enterText`.
+  The latter injects a fake `TextInputClient.updateEditingState`; on a device
+  the real IME is attached to the same field and can answer afterwards with its
+  own (empty) value, so the field ends up blank with no error raised and a
+  later assertion fails somewhere unrelated. The helper reads the controller
+  back and re-injects.
+- Reveal lower-screen widgets with `TestUtils.reveal` / `revealAndTap` and the
+  page's keyed scroll list, not `tester.ensureVisible(finder)`. A `ListView`
+  child past the cache extent has no element yet, which `ensureVisible` answers
+  with `Bad state: No element`; and it scrolls to the viewport edge, which on
+  Android is inside the keyboard window — the integration view reports zero
+  `MediaQuery.viewInsets`, so nothing resizes away from it and the tap after it
+  is silently dropped.
+- A tap's `setState` lands on the *next* frame. Assert the label or style a tap
+  changes only after a `tester.pump()`; checking in the same turn as the tap
+  reports the old widget tree and looks like a dropped tap.
 - Drive the real app: `await tester.pumpWidget(const MyApp(true))`, navigate
   through home and app bars. Do not pump pages directly unless the suite is
   specifically about that page.
