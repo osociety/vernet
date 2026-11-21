@@ -1,5 +1,6 @@
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/changelog_entry.dart';
+import 'package:vernet/values/store_links.dart';
 
 /// The version these notes describe: the `version:` in `pubspec.yaml`.
 const String changelogVersion = '1.7.0';
@@ -28,6 +29,15 @@ ChangelogEntry currentChangelog(AppLocalizations l10n) => ChangelogEntry(
 /// announcing the previous release again.
 ChangelogEntry? changelogEntryForVersion(
     String version, AppLocalizations l10n) {
+  return normalizeReleaseVersion(version) == changelogVersion
+      ? currentChangelog(l10n)
+      : null;
+}
+
+/// [version] reduced to the plain `1.7.0` form [changelogVersion] uses.
+///
+/// Shared with [githubReleaseUrl] so both read `PackageInfo` the same way.
+String normalizeReleaseVersion(String version) {
   var normalized = version.trim();
   if (normalized.startsWith('v')) normalized = normalized.substring(1);
   normalized = normalized.replaceAll('-store', '');
@@ -35,6 +45,20 @@ ChangelogEntry? changelogEntryForVersion(
   if (buildSeparator != -1) {
     normalized = normalized.substring(0, buildSeparator);
   }
+  return normalized;
+}
 
-  return normalized == changelogVersion ? currentChangelog(l10n) : null;
+/// The GitHub release page for a running build, or null when its version or
+/// build number cannot be read.
+///
+/// `flutter_release.yml` tags a release `v<version>+<build>` straight from the
+/// `version:` line in `pubspec.yaml`, so the tag is rebuilt from the two halves
+/// `PackageInfo` reports rather than stored a third time. A pre-release build
+/// still has a tag; a dev build with no matching release lands on GitHub's 404,
+/// which is why the caller hides the link on null instead of on a guess.
+String? githubReleaseUrl(String version, String buildNumber) {
+  final normalized = normalizeReleaseVersion(version);
+  final build = buildNumber.trim();
+  if (normalized.isEmpty || build.isEmpty) return null;
+  return '$githubRepositoryUrl/releases/tag/v$normalized+$build';
 }
