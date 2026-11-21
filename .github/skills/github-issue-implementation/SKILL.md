@@ -24,6 +24,12 @@ Turn issue context into a focused, verified Vernet change. Apply the repository'
 5. Immediately run the focused check after the first substantive edit; if it fails, fix the same slice and rerun it before widening scope. After coherent Dart changes, run `flutter analyze` and hot reload/restart an attached app when available.
 6. Do not hand-edit generated files. Verify package APIs against installed versions and avoid unit/widget tests that rely on live network, host state, or unavailable native plugins unless that behavior is the test's subject.
 
+## Cross-repository fixes
+
+1. When the root cause lives in a third-party package, work in its own checkout or fork and keep the consuming app on the released version. Do not commit a local path or git override to the app to make its side testable; open the app PR as a draft and name the release it waits on.
+2. Verify native code with the narrowest task that compiles it — for Android, `./gradlew :<package>:compileDebugKotlin` driven by a disposable host app with path dependencies. A full app build can pull a new Gradle distribution and exhaust local disk without proving anything extra. State in a PR description only the builds and runs that actually executed.
+3. On a repository you do not maintain, treat a red check as upstream until proven otherwise: read the failing step log, then compare the same checks on unrelated open pull requests. When they fail identically, report the cause as pre-existing and leave your branch unchanged.
+
 ## GitHub and release boundaries
 
 - Reading an issue is not permission to comment, close it, change labels or assignees, create a branch, open a pull request, commit, push, release, or deploy.
