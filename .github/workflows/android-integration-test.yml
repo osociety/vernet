@@ -40,14 +40,15 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v5
         
-      - name: AVD cache
-        uses: actions/cache@v5
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-default
+      # No AVD cache step here, deliberately, even though the action's README
+      # recommends one. This workflow runs with `permissions: contents: read`,
+      # and saving a cache needs actions: write, so every run logged
+      # "Cache is read-only: will not save state" and the next run reported
+      # "Cache not found for input keys: avd-default" - the key never changes
+      # and nothing was ever written under it. The step could only ever miss,
+      # while the action creates the AVD from scratch anyway (emulator-options
+      # passes -no-snapshot-load). Re-add it only together with actions: write
+      # and a snapshot-generating first leg.
 
       - name: Bootstrap Flutter
         uses: ./.github/actions/flutter-bootstrap
