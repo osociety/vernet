@@ -880,5 +880,34 @@
   "settingsMustBeNumber": "Muss eine Zahl sein",
   "settingsAfterStart": "Wähle einen Wert nach dem Suchbeginn",
   "settingsBeforeEnd": "Wähle einen Wert vor dem Suchende",
-  "netStepsHeading": "Schritte zur Fehlerbehebung"
+  "netStepsHeading": "Schritte zur Fehlerbehebung",
+  "deviceMapTitle": "Gerätekarte",
+  "@deviceMapTitle": {
+    "description": "Heading above the device-distribution strip on the host scan page"
+  },
+  "deviceMapCount": "{found} von {total} Adressen belegt",
+  "@deviceMapCount": {
+    "description": "Wie viele der 254 Host-Adressen des gescannten Subnetzes ein Gerät haben",
+    "placeholders": {
+      "found": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceMapNoDevice": "Kein Gerät unter {ip} gefunden",
+  "@deviceMapNoDevice": {
+    "description": "Dialogtext, wenn ein Block ohne Gerät in der Gerätekarte angetippt wird",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceMapOk": "OK",
+  "@deviceMapOk": {
+    "description": "Dialog-Schaltfläche zum Schließen des Dialogs"
+  }
 }

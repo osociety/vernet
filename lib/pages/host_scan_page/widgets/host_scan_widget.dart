@@ -6,6 +6,7 @@ import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
+import 'package:vernet/pages/host_scan_page/widgets/device_distribution_strip.dart';
 import 'package:vernet/pages/host_scan_page/widgets/scan_history_button.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
@@ -14,6 +15,7 @@ import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/shell_chrome.dart';
+import 'package:vernet/utils/device_distribution.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
@@ -130,6 +132,22 @@ class HostScanWidget extends StatelessWidget {
             ],
           ),
         ),
+        // The distribution strip: one colored block per host id of the scanned subnet (#36).
+        if (activeHostList.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+            child: DeviceDistributionStrip(
+              distribution: DeviceDistribution.fromDevices(activeHostList),
+              onDeviceTap: (device) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DeviceDetailPage(device: device),
+                  ),
+                );
+              },
+            ),
+          ),
         if (loading)
           ValueListenableBuilder<double>(
             valueListenable: context.read<HostScanBloc>().progress,
