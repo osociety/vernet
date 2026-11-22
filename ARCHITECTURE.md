@@ -315,8 +315,10 @@ field is written — and `dart run scripts/ms_store_listing.dart` overlays those
 files onto a fresh `msstore submission get` capture. Screenshots, packages,
 markets and hardware come from the Store because nothing in git owns them; the
 prose comes from git because that is where a rewrite gets reviewed. The same
-script enforces the Store's per-field limits, including the 21 words a locale's
-seven keywords may use between them, repairs the placeholder price a
+script enforces the Store's per-field limits — the 21 words a locale's seven
+keywords may use between them, and the undocumented cap on how many locales
+carry keywords at all, 21 across the submission, which `msstore/keyword_locales.txt`
+spends on the largest markets and clears elsewhere — repairs the placeholder price a
 free product is captured with, and reports each field it changes by size, so a
 public CI log shows what moved without copying the listing into it.
 

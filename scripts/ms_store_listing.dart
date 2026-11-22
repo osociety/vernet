@@ -22,6 +22,12 @@
 // A locale directory that the live submission does not carry is refused rather
 // than added: the language has to be enabled on the product in Partner Center
 // first, and `--allow-new-locales` says that has been done.
+//
+// `msstore/keyword_locales.txt` decides which locales publish keywords, because
+// the Store caps how many locales carry them at all and a tree that is valid
+// locale by locale is still refused as a submission. The file is optional:
+// without it every committed keyword list is sent, and the assembler's own
+// count check is what says so before the Store does.
 
 import 'dart:convert';
 import 'dart:io';
@@ -45,16 +51,34 @@ const int maxFeatureLength = 200;
 
 /// Words the seven keywords of one listing may use between them.
 ///
-/// Microsoft states the budget two ways — "21 unique words TOTAL across all
-/// search terms" in the submission API table and "no more than 21 separate
-/// words across all keywords" in the MSIX page and the Partner Center form —
-/// and only the stricter reading is enforceable from git. On 2026-11-18 the
-/// Store refused a 29-locale payload with `KeywordsTotalCount must be 21 or
-/// less` while every `vi-vn` keyword was unique, 24 words in seven entries;
-/// blanking `Keywords` on every listing made the same payload accepted. So the
-/// count is per locale and it counts occurrences, not distinct words, and a
-/// refusal that names no locale costs a Store round trip to find.
+/// Microsoft's MSIX page and the Partner Center form both say "no more than 21
+/// separate words across all keywords", and the Store's own error field for it
+/// is `KeywordsTotalCount`. This is a per-listing budget, and it is a different
+/// limit from [maxKeywordLocales], which the second sentence of the refusal
+/// confused it with for two releases: the 2026-11-18 payload and the 2026-11-22
+/// one were both refused by the locale count while every listing sat inside this
+/// budget, so no per-locale reading of the message can be trusted from the
+/// message alone.
 const int maxKeywordWordCount = 21;
+
+/// Locales that may carry keywords at all, across the whole submission.
+///
+/// Undocumented by Microsoft, and invisible to a per-locale check: the cap is
+/// not on keywords per listing nor on keywords in total, it is on the number of
+/// listings that have any, so a tree where every locale is individually valid is
+/// still refused. prof18/pcenter-cli records it in `docs/METADATA.md` ("Locales
+/// carrying keywords | <= 21 across the whole submission") and again in
+/// `docs/TROUBLESHOOTING.md` under the exact server wording. This repository met
+/// it twice: on 2026-11-18 and again on 2026-11-22, when `--check` passed on 29
+/// locales whose widest keyword list used 20 of its 21 words and the Store
+/// answered
+///
+///     {"code":"InvalidParameterValue","message":"The size of KeywordsTotalCount
+///      must be 21 or less","source":"Ingestion Api","target":"keywords"}
+///
+/// Blanketing `Keywords` on every listing has made the same payload accepted
+/// both times, which is what rules out the per-locale reading.
+const int maxKeywordLocales = 21;
 
 /// A comma where a list file should have had a newline.
 ///
@@ -84,6 +108,16 @@ const Map<String, String> fileToField = {
 /// localized taglines stay committed and go live by adding their name here once
 /// it is reserved.
 const String reservedTitlesFile = 'reserved_titles.txt';
+
+/// The locales allowed to carry keywords, one Store tag per line.
+///
+/// [maxKeywordLocales] is the reason this file exists: the Store counts the
+/// listings that have any keywords at all, so a 29-locale tree where every
+/// locale is individually valid is refused as a whole. Which locales spend the
+/// budget is a judgement about audience, not a limit, so it is a reviewed file
+/// rather than a constant. A locale outside it publishes with `Keywords`
+/// cleared and keeps its `keywords.txt` in git for when the budget moves.
+const String keywordLocalesFile = 'keyword_locales.txt';
 
 /// Fields a locale directory must provide to be publishable at all.
 const List<String> requiredFiles = ['title.txt', 'description.txt'];
@@ -159,8 +193,17 @@ List<ListingLocale> readListingTree(Directory root) {
 
 /// The reserved product names, or empty when the file is absent and nothing is
 /// enforced.
-List<String> readReservedTitles(Directory root) {
-  final file = File('${root.path}${Platform.pathSeparator}$reservedTitlesFile');
+List<String> readReservedTitles(Directory root) =>
+    _readRootFile(root, reservedTitlesFile);
+
+/// The locales allowed keywords, or empty when the file is absent and the
+/// Store's own count is the only limit that applies.
+List<String> readKeywordLocales(Directory root) =>
+    _readRootFile(root, keywordLocalesFile);
+
+/// One line-per-entry file at the root of the listing tree, CRLF tolerant.
+List<String> _readRootFile(Directory root, String name) {
+  final file = File('${root.path}${Platform.pathSeparator}$name');
   if (!file.existsSync()) return const [];
   return file
       .readAsStringSync()
@@ -178,9 +221,36 @@ Object? _fieldValue(String field, String content) {
   return content.split('\n').where((line) => line.isNotEmpty).toList();
 }
 
+/// Locales whose keywords [overlaySubmission] would actually send, which is the
+/// set the Store counts.
+///
+/// A locale outside [keywordLocales] is not in the set because the overlay
+/// clears it, which is the difference between a tree the release can publish and
+/// one the ingestion API refuses for a reason no per-locale check can see.
+List<String> keywordBearingLocales(
+  List<ListingLocale> locales,
+  List<String> keywordLocales,
+) =>
+    locales
+        .where((locale) =>
+            _hasKeywords(locale) &&
+            (keywordLocales.isEmpty || keywordLocales.contains(locale.locale)))
+        .map((locale) => locale.locale)
+        .toList();
+
+/// Whether the tree commits a keyword list for this locale at all, which is the
+/// unit the Store counts.
+bool _hasKeywords(ListingLocale locale) {
+  final value = locale.fields['Keywords'];
+  return value is List && value.isNotEmpty;
+}
+
 /// Every limit and completeness problem across the tree, in one report, so a
 /// contributor sees all of them from a single run.
-List<String> validateListingTree(List<ListingLocale> locales) {
+List<String> validateListingTree(
+  List<ListingLocale> locales, {
+  List<String> keywordLocales = const [],
+}) {
   final violations = <String>[];
   if (locales.isEmpty) violations.add('the listing tree declares no locales');
   for (final locale in locales) {
@@ -229,6 +299,22 @@ List<String> validateListingTree(List<ListingLocale> locales) {
         }
       }
     }
+  }
+  if (keywordLocales.length > maxKeywordLocales) {
+    violations.add('$keywordLocalesFile names ${keywordLocales.length} '
+        'locales, the Store publishes keywords in at most '
+        '$maxKeywordLocales');
+  }
+  final declared = locales.map((locale) => locale.locale).toSet();
+  for (final stray in keywordLocales.where((tag) => !declared.contains(tag))) {
+    violations.add('$keywordLocalesFile names $stray, which the tree does not '
+        'carry: a typo or a parked locale spends nothing and sends nothing');
+  }
+  final carriers = keywordBearingLocales(locales, keywordLocales);
+  if (carriers.length > maxKeywordLocales) {
+    violations.add('${carriers.length} locales carry keywords, the Store '
+        'publishes at most $maxKeywordLocales: ${carriers.join(', ')} — name '
+        'the ones to keep in $keywordLocalesFile and the rest publish blank');
   }
   return violations;
 }
@@ -282,8 +368,10 @@ Map<String, dynamic> overlaySubmission(
   List<ListingLocale> locales, {
   bool allowNewLocales = false,
   List<String> reservedTitles = const [],
+  List<String> keywordLocales = const [],
 }) {
-  final violations = validateListingTree(locales);
+  final violations =
+      validateListingTree(locales, keywordLocales: keywordLocales);
   final Object? listings = submission[listingField];
   if (listings is! Map) {
     throw ListingFailure(
@@ -296,6 +384,7 @@ Map<String, dynamic> overlaySubmission(
   final staged = <String>[];
   final unknown = <String>[];
   final unreserved = <String>[];
+  final blanked = <String>[];
   final added = <String>[];
   final changes = <String>[];
 
@@ -332,6 +421,17 @@ Map<String, dynamic> overlaySubmission(
       fields.remove('Title');
       unreserved.add('${locale.locale} (${title.length})');
     }
+    final keywords = fields['Keywords'];
+    if (keywordLocales.isNotEmpty &&
+        !keywordLocales.contains(locale.locale) &&
+        keywords is List &&
+        keywords.isNotEmpty) {
+      // The empty list is the write: leaving the field alone keeps whatever the
+      // captured draft serves, and the Store counts those listings in the same
+      // budget, so the refusal would come back unchanged.
+      fields['Keywords'] = <String>[];
+      blanked.add(locale.locale);
+    }
     changes.addAll(describeOverlayChanges(locale.locale, baseListing, fields));
     fields.forEach((field, value) {
       if (value != null) baseListing[field] = value;
@@ -346,6 +446,17 @@ Map<String, dynamic> overlaySubmission(
       'screenshots. The Store wants at least one image per language, which it '
       'can only get from a submission made in Partner Center -- expect this '
       'update to be refused until one has been.',
+    );
+  }
+
+  if (blanked.isNotEmpty) {
+    stderr.writeln(
+      '${blanked.length} locale(s) publish with Keywords cleared because they '
+      'are not named in $defaultListingsDirectory/$keywordLocalesFile: '
+      '${blanked.join(', ')}. The Store counts the listings that carry keywords '
+      'and refuses a submission over $maxKeywordLocales, so the words stay in '
+      'git and the budget goes to the named locales. Add a tag to that file to '
+      'give one keywords and remove another to stay inside the cap.',
     );
   }
 
@@ -437,8 +548,10 @@ void main(List<String> args) {
 
   try {
     final locales = readListingTree(options.listingsDirectory);
+    final keywordLocales = readKeywordLocales(options.listingsDirectory);
     if (options.checkOnly) {
-      final violations = validateListingTree(locales);
+      final violations =
+          validateListingTree(locales, keywordLocales: keywordLocales);
       if (violations.isNotEmpty) throw ListingFailure(violations);
       stdout.writeln(
         '${locales.map((locale) => locale.locale).join(', ')}: listing tree is within '
@@ -451,6 +564,7 @@ void main(List<String> args) {
       locales,
       allowNewLocales: options.allowNewLocales,
       reservedTitles: readReservedTitles(options.listingsDirectory),
+      keywordLocales: keywordLocales,
     );
     File(options.outputPath!)
         .writeAsStringSync(const JsonEncoder.withIndent('  ').convert(payload));

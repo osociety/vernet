@@ -169,11 +169,16 @@ void main() {
         contains('de-de: Keywords entry is 80 characters, the limit is 40'));
   });
 
-  // The Store's own wording says "21 separate words across all keywords", which
-  // reads as either distinct or total. `vi-vn` settled it on 2026-11-18: seven
-  // keywords sharing nothing, 24 words, and the whole payload refused with
-  // `KeywordsTotalCount must be 21 or less`. Total counting is the stricter
-  // reading and the one the Store charges for.
+  // Microsoft states this budget twice, as "21 unique words TOTAL across all
+  // search terms" in the submission API table and "no more than 21 separate
+  // words across all keywords" in the MSIX page and the Partner Center form, and
+  // counting every occurrence is the stricter reading. It is a real per-listing
+  // rule and it is not what refused the last two releases: the 2026-11-22 tree
+  // had no locale over 20 words and went out at `KeywordsTotalCount` anyway,
+  // because the number the ingestion API charged was the count of locales
+  // carrying keywords — see `maxKeywordLocales`. On 2026-11-18 `vi-vn` did sit
+  // over this budget at 24 words, which is how the two limits got conflated and
+  // why the wrong cause survived a release.
   test('counts every word a keyword list uses, not each word once', () {
     writeLocale(root, 'en-us', {
       'title.txt': 'A\n',
@@ -222,6 +227,112 @@ void main() {
     });
 
     expect(validateListingTree(readListingTree(root)), isEmpty);
+  });
+
+  // The cap the Store charges is on how many listings have keywords at all, not
+  // on what any listing contains, so a tree that passes every per-locale check
+  // still comes back `InvalidParameterValue` / `target: keywords`. Clearing the
+  // field rather than skipping it is the part that matters: an omitted field
+  // keeps the keywords the captured draft serves, and those listings are charged
+  // against the same budget.
+  test('the keyword budget clears the locales the allowlist does not name', () {
+    final listings = <String, dynamic>{};
+    for (final tag in ['en-us', 'de-de', 'fr-fr']) {
+      listings[tag] = {
+        baseListingField: {
+          'Title': 'Live',
+          'Description': 'Live',
+          'Keywords': ['served', 'by', 'the', 'store'],
+        },
+        platformOverridesField: <String, dynamic>{},
+      };
+      writeLocale(root, tag, {
+        'title.txt': 'A\n',
+        'description.txt': 'B\n',
+        'keywords.txt': 'alpha\n' 'beta\n',
+      });
+    }
+
+    Map baseOf(Map payload, String tag) =>
+        ((payload[listingField] as Map)[tag] as Map)[baseListingField] as Map;
+    final payload = overlaySubmission(
+        capture(listings: listings), readListingTree(root),
+        keywordLocales: ['en-us', 'de-de']);
+
+    expect(baseOf(payload, 'en-us')['Keywords'], ['alpha', 'beta']);
+    expect(baseOf(payload, 'de-de')['Keywords'], ['alpha', 'beta']);
+    expect(baseOf(payload, 'fr-fr')['Keywords'], isEmpty,
+        reason: 'an empty list is what removes them from the storefront');
+  });
+
+  test('an allowlist the tree does not carry publishes nothing by accident',
+      () {
+    writeLocale(root, 'en-us', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'alpha\n',
+    });
+    writeLocale(root, 'de-de', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'alpha\n',
+    });
+
+    final violations = validateListingTree(readListingTree(root),
+        keywordLocales: ['en-us', 'pl-pl']);
+    expect(violations.single, startsWith('keyword_locales.txt names pl-pl'));
+    expect(violations.single, contains('does not carry'));
+  });
+
+  // Twenty-two keyword-bearing locales with no allowlist is the shape of the
+  // 2026-11-22 payload: valid locale by locale, refused as a submission. The
+  // release's `--check` step runs the same code, so the tree now fails in
+  // seconds instead of costing a Store round trip and an uncommitted draft.
+  test('a tree over the locale budget names the cap and the file', () {
+    final locales = [
+      for (var i = 0; i < 22; i++)
+        ListingLocale('aa-$i', {
+          'Title': 'A',
+          'Description': 'B',
+          'Keywords': ['alpha'],
+        })
+    ];
+
+    final violations = validateListingTree(locales);
+    expect(
+        violations.single,
+        startsWith(
+            '22 locales carry keywords, the Store publishes at most 21'));
+    expect(violations.single, contains('keyword_locales.txt'));
+    expect(
+        validateListingTree(locales, keywordLocales: ['aa-0', 'aa-1']), isEmpty,
+        reason: 'the allowlist is what brings the same tree inside the cap');
+  });
+
+  test('an allowlist over the cap is refused before any overlay', () {
+    writeLocale(root, 'en-us', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'alpha\n',
+    });
+
+    expect(
+      () => overlaySubmission(capture(), readListingTree(root),
+          keywordLocales: List.generate(22, (i) => 'en-us')),
+      throwsA(isA<ListingFailure>().having(
+        (failure) => failure.violations.join(' '),
+        'violation',
+        allOf(contains('keyword_locales.txt names 22 locales'), contains('21')),
+      )),
+    );
+  });
+
+  test('the keyword allowlist comes from the listing root', () {
+    expect(readKeywordLocales(root), isEmpty,
+        reason: 'absent file, absent policy: every committed list is sent');
+    File('${root.path}${Platform.pathSeparator}$keywordLocalesFile')
+        .writeAsStringSync('en-us\r\nde-de\r\n');
+    expect(readKeywordLocales(root), ['en-us', 'de-de']);
   });
 
   test('an empty required file is refused the same way a missing one is', () {
@@ -428,7 +539,8 @@ void main() {
     expect(committed.existsSync(), isTrue,
         reason: 'run from the repository root');
     final tree = readListingTree(committed);
-    expect(validateListingTree(tree), isEmpty);
+    final allowed = readKeywordLocales(committed);
+    expect(validateListingTree(tree, keywordLocales: allowed), isEmpty);
     expect(
         tree.map((locale) => locale.locale), containsAll(['en-us', 'de-de']));
     for (final locale in tree) {
@@ -436,5 +548,18 @@ void main() {
           reason: '${locale.locale} declares its bullets comma-joined, so the '
               'Store would show one feature instead of ten');
     }
+    // The release PUTs what this tree says, and the ingestion API counts the
+    // listings with keywords in it: 29 locales carrying keywords is the payload
+    // that was refused on 2026-11-22 with every per-locale check green.
+    expect(allowed, isNotEmpty,
+        reason: 'without an allowlist every locale spends the budget');
+    expect(allowed.length, lessThanOrEqualTo(maxKeywordLocales));
+    expect(keywordBearingLocales(tree, allowed).length, allowed.length,
+        reason: 'a listed locale with no keywords.txt is budget spent on '
+            'nothing a shopper can be found by');
+    expect(tree.length, greaterThan(maxKeywordLocales),
+        reason: 'the tree is wider than the keyword budget, which is the whole '
+            'reason the allowlist exists; the assembler clears what it does not '
+            'name rather than refusing the tree');
   });
 }
