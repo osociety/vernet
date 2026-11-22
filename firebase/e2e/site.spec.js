@@ -1252,7 +1252,7 @@ test('Hosting applies the cache policy firebase.json declares', async ({ request
   ];
   const problems = [];
   for (const [path, expected] of checks) {
-    const response = await request.get(path, fresh);
+    const response = await request.get(path);
     const actual = response.headers()['cache-control'] ?? '(absent)';
     if (actual !== expected) problems.push(`${path}: Cache-Control is "${actual}", not "${expected}"`);
   }
