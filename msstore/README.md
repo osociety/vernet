@@ -13,7 +13,7 @@ words come from here. One submission carries both, and it is committed once.
 | `description.txt` | Description | 10000 characters, required |
 | `release_notes.txt` | ReleaseNotes | 1500 characters, one per version |
 | `features.txt` | Features | 20 lines, 200 characters each |
-| `keywords.txt` | Keywords | 7 lines, 40 characters each, 21 words across all 7 |
+| `keywords.txt` | Keywords | 7 lines, 40 characters each, 21 words across all 7, and at most 21 locales carrying them per submission |
 
 `pending/` is the parking lot for languages that are written but not enabled on
 the product. The tree reader only looks at directories directly under
@@ -32,6 +32,27 @@ The eight that were parked here moved up on 2026-11-18, which makes this tree
 `title.txt` outside that list is therefore skipped, with a log line naming the
 locale and its length, and the title the Store already serves is kept; the
 localized taglines stay committed until their names are reserved.
+
+`keyword_locales.txt` is the keyword budget, and it is a count of locales, not a
+count of keywords. Microsoft caps how many listings carry keywords at all at 21
+per submission — not 21 keywords, and not the 21 words one listing may use,
+which a locale can be inside while the submission is still refused. The cap is
+undocumented; prof18/pcenter-cli records it against the server's own message
+(`The size of KeywordsTotalCount must be 21 or less`), and this product met it
+twice: the 2026-11-18 and 2026-11-22 payloads were both refused with every
+locale individually valid, the second with the widest list using 20 of its 21
+words and `--check` green. Which locales spend the budget is a judgement about
+audience rather than a limit, so it lives in a reviewed file: the ten named
+there keep their keywords and the assembler clears `Keywords` on every other
+locale. It writes the empty list rather than leaving the field alone, because a
+field it leaves alone keeps the keywords the captured draft already serves, and
+the Store charges those against the same 21.
+
+A cleared locale keeps its `keywords.txt` in git, so rotating the budget is two
+lines of the list and the words a locale gets back are the ones already
+reviewed. `--check` refuses an entry the tree does not carry, which is a typo or
+a parked locale spending nothing, and refuses the whole tree when no list is
+committed and the locales still add up to more than 21.
 
 The same locale set is declared in the package itself: `msix_config: languages`
 in `pubspec.yaml` is what `msix:create` writes into the AppxManifest, and that
@@ -65,8 +86,11 @@ Check the tree before pushing, and without Store credentials:
     dart run scripts/ms_store_listing.dart --check
 
 The release runs the same check before it uses a credential, so an over-long
-description or a keyword list over its word budget fails the job in seconds and
-leaves the draft uncommitted rather than half-publishing.
+description, a keyword list over its word budget or a tree carrying keywords in
+more than 21 locales fails the job in seconds and leaves the draft uncommitted
+rather than half-publishing. The third is the one the check exists for: the
+Store only reports it after the package is already in a draft, and it names no
+locale.
 
 A new language has to be enabled on the product in Partner Center first (Store
 listing > Add/remove languages), or the assembler refuses to send a locale the

@@ -149,9 +149,12 @@ jobs:
           sdk: stable
 
       # Before any credential is used and before the Store is touched: an
-      # over-long description or a keyword list over the word budget fails in
-      # seconds, and the release keeps its draft for the next run instead of
-      # putting a half-written listing in front of shoppers.
+      # over-long description, a keyword list over the word budget, or keywords in
+      # more locales than the submission allows fails in seconds, and the release
+      # keeps its draft for the next run instead of putting a half-written listing
+      # in front of shoppers. The third is what the 2026-11-22 release paid for:
+      # the Store reports it only after the package sits in a draft, and it names
+      # no locale to fix.
       - name: Check the listing tree
         shell: pwsh
         run: |
