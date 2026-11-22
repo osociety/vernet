@@ -103,7 +103,10 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1.343.0
         with:
-          ruby-version: 3.4.2
+          # A patch pin dies when the runner image moves: ruby-builder ships
+          # only the newest patch of each series for ubuntu-26.04, so 3.4.2
+          # returned "Unavailable version 3.4.2 for ruby on ubuntu-26.04".
+          ruby-version: '3.4'
 
       - name: Cache bundle dependencies
         uses: actions/cache@v4.2.2
