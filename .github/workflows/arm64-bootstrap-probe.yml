@@ -1,0 +1,33 @@
+name: Arm64 bootstrap probe
+
+# Throwaway: run it on a branch that changes flutter-bootstrap, read the log,
+# then delete this file before the branch merges.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/actions/flutter-bootstrap/**
+      - .github/workflows/arm64-bootstrap-probe.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04-arm, windows-11-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: ./.github/actions/flutter-bootstrap
+        with:
+          architecture: arm64
+
+      - name: Report the SDK that resolved
+        shell: bash
+        run: |
+          flutter --version
+          grep -A5 '^  test_api:' pubspec.lock
