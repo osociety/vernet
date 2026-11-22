@@ -1,0 +1,8 @@
+Menüpunkte öffnen die Seite, die sie nennen.
+Auf dem Handy gibt es nur einen Titel, nichts liegt hinter den Systemleisten.
+Gerätezeile auf iPhone und Mac lang gedrückt halten, um die Adresse zu kopieren.
+Scans zeigen die echte Router-Adresse.
+„Was ist neu“ verlinkt auf diese Version auf GitHub.
+Seitenwechsel sind schneller.
+Der Linux-Snap meldet beim Scannen weniger Warnungen.
+Fehlerbehebungen und Leistungsverbesserungen.

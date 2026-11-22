@@ -1,0 +1,8 @@
+Las opciones del menú abren la página que indican.
+En el móvil solo se ve un título y nada queda oculto tras las barras del sistema.
+Mantén pulsado un dispositivo para copiar su dirección en iPhone y Mac.
+Los análisis muestran la dirección real del router.
+«Novedades» enlaza con esta versión en GitHub.
+Cambiar de página es más rápido.
+El snap de Linux muestra menos avisos durante el análisis.
+Correcciones de errores y mejoras de rendimiento.

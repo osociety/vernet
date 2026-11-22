@@ -1,0 +1,8 @@
+A menüpontok a nevüknek megfelelő oldalt nyitják meg.
+Telefonon csak egy cím jelenik meg, és semmi nem marad a rendszer sávjai mögé.
+Nyomja hosszan az eszközt a címe másolásához iPhone-on és Macen.
+A vizsgálatok a router valódi címét mutatják.
+Az Újdonságok erre a kiadásra hivatkozik a GitHubon.
+Gyorsabb az oldalváltás.
+A Linux snap kevesebb figyelmeztetést ír ki vizsgálat közben.
+Hibajavítások és teljesítményjavítások.

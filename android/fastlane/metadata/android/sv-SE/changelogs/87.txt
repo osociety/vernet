@@ -1,0 +1,8 @@
+Menyalarna öppnar sidan de namnger.
+På telefonen visas bara en titel, och ingenting hamnar bak status- och navigeringsfälten.
+Tryck länge på en enhet för att kopiera dess adress på iPhone och Mac.
+Skanningar visar routeradressen som faktiskt gäller.
+"Vad är nytt" länkar till den här versionen på GitHub.
+Det går snabbare att byta sida.
+Linux-snapen skriver färre varningar under skanning.
+Felrättningar och prestandaförbättringar.
