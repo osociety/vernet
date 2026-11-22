@@ -101,7 +101,7 @@ jobs:
         run: dart run scripts/play_store_listing.dart --check
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1.221.0
+        uses: ruby/setup-ruby@v1.343.0
         with:
           ruby-version: 3.4.2
 
