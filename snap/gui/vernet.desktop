@@ -1,7 +1,14 @@
 [Desktop Entry]
 Type=Application
 Name=Vernet
+GenericName=Network Diagnostics
+GenericName[ar]=تشخيص الشبكة
+GenericName[de]=Netzwerkdiagnose
+GenericName[tr]=Ağ Tanılama
 Comment=Know your network. Discover, scan & diagnose.
+Comment[ar]=اعرف شبكتك. اكتشف الأجهزة وافحصها وشخّصها.
+Comment[de]=Dein Netzwerk kennen. Entdecken, scannen & diagnostizieren.
+Comment[tr]=Ağınızı tanıyın. Keşfedin, tarayın ve tanılayın.
 Exec=vernet
 Icon=${SNAP}/meta/gui/vernet.png
 Terminal=false
