@@ -1,0 +1,8 @@
+Les entrées du menu ouvrent la page indiquée.
+Sur téléphone, un seul titre, et rien ne passe derrière les barres système.
+Appui long sur un appareil pour copier son adresse sur iPhone et Mac.
+Les analyses affichent la vraie adresse du routeur.
+Les nouveautés renvoient à cette version sur GitHub.
+Le changement de page est plus rapide.
+Le paquet Linux snap affiche moins d'avertissements pendant l'analyse.
+Corrections de bugs et améliorations des performances.

@@ -1,0 +1,8 @@
+Baris menu membuka halaman sesuai namanya.
+Di ponsel hanya tampil satu judul, dan tidak ada yang tersembunyi di balik bilah sistem.
+Tekan lama perangkat untuk menyalin alamatnya di iPhone dan Mac.
+Pemindaian menampilkan alamat router kamu yang sebenarnya.
+Bagian Ada yang baru menautkan rilis ini di GitHub.
+Beralih halaman lebih cepat.
+Snap Linux mencetak lebih sedikit peringatan saat memindai.
+Perbaikan bug dan peningkatan performa.

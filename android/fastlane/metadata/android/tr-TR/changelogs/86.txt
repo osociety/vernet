@@ -1,0 +1,8 @@
+Menü satırları adını verdikleri sayfayı açıyor.
+Telefonda tek başlık gösterilir ve hiçbir şey sistem çubuklarının arkasında kalmaz.
+iPhone ve Mac'te bir cihazın adresini kopyalamak için üzerine uzun dokunun.
+Taramalar yönlendiricinizin gerçek adresini gösterir.
+Yenilikler bu sürümün GitHub sayfasına bağlantı verir.
+Sayfa geçişleri daha hızlı.
+Linux snap paketi taramada daha az uyarı yazdırır.
+Hata düzeltmeleri ve performans iyileştirmeleri.
