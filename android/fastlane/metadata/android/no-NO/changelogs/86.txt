@@ -1,0 +1,8 @@
+Menupunktene åpner siden de navgir.
+På telefon vises kun én tittel, og ingenting gjemmer seg bak status- og navigeringsfeltet.
+Trykk lenge på en enhet for å kopiere adressen på iPhone og Mac.
+Skanninger viser den virkelige routeradressen.
+"Hva er nytt" lenker til denne versjonen på GitHub.
+Å bytte side går raskere.
+Linux-snapen viser færre advarsler under skanning.
+Feilrettinger og ytelsesforbedringer.

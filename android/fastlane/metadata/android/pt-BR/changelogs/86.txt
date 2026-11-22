@@ -1,0 +1,8 @@
+As opções do menu abrem a página indicada.
+No celular, aparece um único título e nada fica escondido atrás das barras do sistema.
+Pressione e segure um dispositivo para copiar o endereço no iPhone e no Mac.
+As varreduras mostram o endereço real do roteador.
+As novidades do app levam a esta versão no GitHub.
+Trocar de página ficou mais rápido.
+O snap do Linux exibe menos avisos durante a varredura.
+Correções de bugs e melhorias de desempenho.

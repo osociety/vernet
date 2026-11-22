@@ -1,0 +1,8 @@
+Menuopties openen de pagina die ze noemen.
+Op de telefoon verschijnt één titel, en niets verdwijnt achter de balken van het systeem.
+Houd een apparaat ingedrukt om het adres te kopiëren op iPhone en Mac.
+Scans tonen het echte routeradres.
+"Wat is nieuw" verwijst naar deze release op GitHub.
+Van pagina wisselen is sneller.
+De Linux-snap toont minder waarschuwingen tijdens het scannen.
+Bugfixes en prestatieverbeteringen.

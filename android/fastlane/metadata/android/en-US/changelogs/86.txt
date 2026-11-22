@@ -1,0 +1,8 @@
+Menu rows open the page they name.
+Phone screens show one title, and nothing hides behind the system bars.
+Long-press a device row to copy its address on iPhone and Mac.
+Scans show your real router address.
+The in-app What's New links to this release on GitHub.
+Switching pages is faster.
+The Linux snap prints fewer warnings while scanning.
+Bug fixes and performance improvements.

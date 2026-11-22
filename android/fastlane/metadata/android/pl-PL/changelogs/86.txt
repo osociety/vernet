@@ -1,0 +1,8 @@
+Pozycje menu otwierają stronę, którą wskazują.
+Na telefonie widać jeden tytuł i nic nie znika za paskami systemowymi.
+Przytrzymaj urządzenie, aby skopiować jego adres na iPhonie i Macu.
+Skany pokazują prawdziwy adres routera.
+Nowości linkują do tego wydania na GitHubie.
+Przełączanie stron jest szybsze.
+Snap na Linuksa wyświetla mniej ostrzeżeń podczas skanowania.
+Poprawki błędów i ulepszenia wydajności.
