@@ -1,0 +1,8 @@
+Valikon kohdat avaavat nimensä mukaisen sivun.
+Puhelimessa näkyy vain yksi otsikko, eikä mikään jää tilarivien taakse.
+Kopioi laitteen osoite painamalla laitetta pitkään iPhonessa ja Macissa.
+Skannaukset näyttävät reitittimen todellisen osoitteen.
+Mitä uutta -kohdassa on linkki tähän julkaisuun GitHubissa.
+Sivun vaihto on nopeampaa.
+Linux-snap näyttää skannauksen aikana vähemmän varoituksia.
+Virhekorjauksia ja suorituskyvyn parannuksia.

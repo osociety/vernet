@@ -1,0 +1,8 @@
+Menupunkterne åbner den side, de nævner.
+På telefonen vises kun én titel, og intet gemmer sig bag status- og navigationsbaren.
+Tryk og hold på en enhed for at kopiere dens adresse på iPhone og Mac.
+Scanninger viser din routers rigtige adresse.
+"Hvad er nyt" linker til denne version på GitHub.
+Det går hurtigere at skifte side.
+Linux-sappen viser færre advarsler under scanning.
+Fejlretninger og forbedringer af ydeevnen.

@@ -1,0 +1,8 @@
+Elementele de meniu deschid pagina indicată.
+Pe telefon apare un singur titlu și nimic nu rămâne ascuns în spatele barelor de sistem.
+Apasă lung pe un dispozitiv ca să îi copiezi adresa pe iPhone și Mac.
+Scanările arată adresa reală a routerului.
+Ce este nou trimite la această versiune pe GitHub.
+Comutarea paginilor este mai rapidă.
+Snap-ul pentru Linux afișează mai puține avertismente în timpul scanării.
+Corecturi de erori și îmbunătățiri de performanță.

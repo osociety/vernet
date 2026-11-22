@@ -3,7 +3,7 @@ import 'package:vernet/models/changelog_entry.dart';
 import 'package:vernet/values/store_links.dart';
 
 /// The version these notes describe: the `version:` in `pubspec.yaml`.
-const String changelogVersion = '1.7.2';
+const String changelogVersion = '1.7.3';
 
 /// Release notes for [changelogVersion], in the language [l10n] renders.
 ///
