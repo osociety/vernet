@@ -11,9 +11,11 @@ inputs:
     required: false
     default: ''
   arm64_flutter_ref:
-    description: Branch or tag of flutter/flutter to clone on Linux and Windows arm64.
+    description: >-
+      Branch or tag of flutter/flutter to clone on Linux and Windows arm64. It
+      must be the stable release the other legs install, not a newer one.
     required: false
-    default: master
+    default: stable
 
 runs:
   using: composite
@@ -51,7 +53,9 @@ runs:
         architecture: ${{ steps.arch.outputs.value }}
         cache: true
 
-    # arm64 on Linux and Windows: clone from git with caching
+    # arm64 on Linux and Windows: clone from git with caching. `stable` must
+    # stay the release the other legs get from `channel: stable`: a newer ref
+    # ships a newer flutter_test, and the lockfile enforcement below rejects it.
     - name: Cache Flutter SDK (arm64)
       id: cache-flutter-arm64
       if: ${{ steps.arch.outputs.value == 'arm64' && runner.os != 'macOS' }}
