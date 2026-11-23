@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- The Wi-Fi permissions above make Play assume android.hardware.wifi is
+         required, which hides the app from Wi-Fi-less devices. It is optional:
+         scans and diagnostics work over any local interface. -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
     <!-- Add the block below to your manifest file to configure apps with action.VIEW intent filters as visible to your app -->
     <queries>
         <intent>
