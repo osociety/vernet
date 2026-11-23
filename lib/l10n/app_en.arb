@@ -3869,32 +3869,12 @@
   "@whatsNewReleaseLink": {
     "description": "Link at the foot of the release-notes dialog that opens the running build's own GitHub release page, where the full asset list and the discussion live."
   },
-  "changelogMenuRows": "Menu rows open the page they name",
-  "@changelogMenuRows": {
+  "changelogMoreDevices": "Vernet installs on more Android devices",
+  "@changelogMoreDevices": {
     "description": "What's New release-note bullet."
   },
-  "changelogPhoneLayout": "One title per phone screen, clear of the system bars",
-  "@changelogPhoneLayout": {
-    "description": "What's New release-note bullet."
-  },
-  "changelogLongPressCopy": "Long-press a row to copy its address on iPhone and Mac",
-  "@changelogLongPressCopy": {
-    "description": "What's New release-note bullet."
-  },
-  "changelogRouterAddress": "Scans show your real router address",
-  "@changelogRouterAddress": {
-    "description": "What's New release-note bullet."
-  },
-  "changelogWhatsNewLink": "What's New links to this release on GitHub",
-  "@changelogWhatsNewLink": {
-    "description": "What's New release-note bullet."
-  },
-  "changelogFasterPages": "Switching pages is faster",
-  "@changelogFasterPages": {
-    "description": "What's New release-note bullet."
-  },
-  "changelogSnapWarnings": "The Linux snap prints fewer warnings while scanning",
-  "@changelogSnapWarnings": {
+  "changelogSnapLocalizedName": "The Linux snap shows its name in your language",
+  "@changelogSnapLocalizedName": {
     "description": "What's New release-note bullet."
   },
   "commonCouldNotLaunch": "Could not launch {url}",
