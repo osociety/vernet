@@ -3966,5 +3966,34 @@
   "netStepsHeading": "Troubleshooting Steps",
   "@netStepsHeading": {
     "description": "Heading above the fix-it list in the connection details dialog."
+  },
+  "deviceMapTitle": "Device map",
+  "@deviceMapTitle": {
+    "description": "Heading above the device-distribution strip on the host scan page"
+  },
+  "deviceMapCount": "{found} of {total} addresses in use",
+  "@deviceMapCount": {
+    "description": "How many of the 254 host addresses of the scanned subnet have a device, shown next to the strip heading",
+    "placeholders": {
+      "found": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceMapNoDevice": "No device found at {ip}",
+  "@deviceMapNoDevice": {
+    "description": "Dialog body when a block without a device is tapped in the device-distribution strip",
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceMapOk": "OK",
+  "@deviceMapOk": {
+    "description": "Dialog button closing the no-device dialog"
   }
 }
