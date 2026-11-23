@@ -91,6 +91,10 @@ void main() {
       expect(find.text(l10nEn().settingsNetwork), findsOneWidget);
       expect(find.text(l10nEn().settingsFeatures), findsOneWidget);
       expect(find.text(l10nEn().settingsAdvanced), findsOneWidget);
+      expect(find.text(l10nEn().settingsGeneralDesc), findsOneWidget);
+      expect(find.text(l10nEn().settingsNetworkDesc), findsOneWidget);
+      expect(find.text(l10nEn().settingsFeaturesDesc), findsOneWidget);
+      expect(find.text(l10nEn().settingsAdvancedDesc), findsOneWidget);
       expect(find.byIcon(Icons.palette_outlined), findsOneWidget);
       expect(find.byIcon(Icons.router_outlined), findsOneWidget);
       expect(find.byIcon(Icons.cloud_outlined), findsOneWidget);

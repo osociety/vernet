@@ -325,17 +325,33 @@
   "@settingsGeneral": {
     "description": "Category for appearance, language, and app information."
   },
+  "settingsGeneralDesc": "Theme, language, updates, and app information",
+  "@settingsGeneralDesc": {
+    "description": "Settings index subtitle describing the app preferences category."
+  },
   "settingsNetwork": "Network scanning",
   "@settingsNetwork": {
     "description": "Category for local network scan settings."
+  },
+  "settingsNetworkDesc": "Choose the device range and connection timeout",
+  "@settingsNetworkDesc": {
+    "description": "Settings index subtitle describing network scanning options."
   },
   "settingsAdvanced": "Advanced options",
   "@settingsAdvanced": {
     "description": "Category for less common network options."
   },
+  "settingsAdvancedDesc": "Ping count and custom network target",
+  "@settingsAdvancedDesc": {
+    "description": "Settings index subtitle describing advanced network options."
+  },
   "settingsFeatures": "Online features",
   "@settingsFeatures": {
     "description": "Category for optional internet-connected app features."
+  },
+  "settingsFeaturesDesc": "Control Vernet's optional internet access",
+  "@settingsFeaturesDesc": {
+    "description": "Settings index subtitle describing online feature settings."
   },
   "inAppInternetTitle": "In-App Internet",
   "@inAppInternetTitle": {

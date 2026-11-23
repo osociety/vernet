@@ -30,6 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _categoryTile(
           context,
           title: l10n.settingsGeneral,
+          subtitle: l10n.settingsGeneralDesc,
           icon: Icons.palette_outlined,
           key: WidgetKey.settingsGeneralCategory,
           category: SettingsCategory.general,
@@ -37,6 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _categoryTile(
           context,
           title: l10n.settingsNetwork,
+          subtitle: l10n.settingsNetworkDesc,
           icon: Icons.router_outlined,
           key: WidgetKey.settingsNetworkCategory,
           category: SettingsCategory.network,
@@ -44,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _categoryTile(
           context,
           title: l10n.settingsFeatures,
+          subtitle: l10n.settingsFeaturesDesc,
           icon: Icons.cloud_outlined,
           key: WidgetKey.settingsOnlineFeaturesCategory,
           category: SettingsCategory.features,
@@ -51,6 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _categoryTile(
           context,
           title: l10n.settingsAdvanced,
+          subtitle: l10n.settingsAdvancedDesc,
           icon: Icons.build_outlined,
           key: WidgetKey.settingsAdvancedCategory,
           category: SettingsCategory.advanced,
@@ -62,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _categoryTile(
     BuildContext context, {
     required String title,
+    required String subtitle,
     required IconData icon,
     required WidgetKey key,
     required SettingsCategory category,
@@ -71,6 +76,7 @@ class _SettingsPageState extends State<SettingsPage> {
         key: key.key,
         leading: Icon(icon),
         title: Text(title),
+        subtitle: Text(subtitle),
         trailing: Icon(
           Icons.chevron_right,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
