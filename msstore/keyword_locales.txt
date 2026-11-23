@@ -1,10 +1,1 @@
 en-us
-zh-cn
-de-de
-ja-jp
-ru
-pt-br
-es-es
-fr-fr
-ko-kr
-it-it
