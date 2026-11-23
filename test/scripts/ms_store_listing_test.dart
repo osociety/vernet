@@ -172,13 +172,12 @@ void main() {
   // Microsoft states this budget twice, as "21 unique words TOTAL across all
   // search terms" in the submission API table and "no more than 21 separate
   // words across all keywords" in the MSIX page and the Partner Center form, and
-  // counting every occurrence is the stricter reading. It is a real per-listing
-  // rule and it is not what refused the last two releases: the 2026-11-22 tree
-  // had no locale over 20 words and went out at `KeywordsTotalCount` anyway,
-  // because the number the ingestion API charged was the count of locales
-  // carrying keywords — see `maxKeywordLocales`. On 2026-11-18 `vi-vn` did sit
-  // over this budget at 24 words, which is how the two limits got conflated and
-  // why the wrong cause survived a release.
+  // counting every occurrence is the stricter reading. What the prose leaves out
+  // is that the server splits a keyword on a hyphen as well as a space, so a
+  // list that reads as 20 words by whitespace is charged 22 — which is how the
+  // Spanish, Italian, Portuguese and Russian lists passed `--check` and were
+  // refused anyway. A locale on its own breaches the listing budget and the
+  // shared submission budget, so both are reported.
   test('counts every word a keyword list uses, not each word once', () {
     writeLocale(root, 'en-us', {
       'title.txt': 'A\n',
@@ -192,10 +191,30 @@ void main() {
           'lan device scanner\n',
     });
 
+    final violations = validateListingTree(readListingTree(root));
+    expect(violations, hasLength(2));
+    expect(violations.first, startsWith('en-us: Keywords uses 22 words'));
+    expect(violations.last, contains('KeywordsTotalCount'));
+  });
+
+  test('a hyphen separates, so Wi-Fi spends two words', () {
     expect(
-      validateListingTree(readListingTree(root)),
-      ['en-us: Keywords uses 22 words across all entries, the limit is 21'],
+      keywordWords(['Wi-Fi device scanner', 'Wi-Fi monitoring app']),
+      [
+        'wi', 'fi', 'device', 'scanner', //
+        'wi', 'fi', 'monitoring', 'app',
+      ],
     );
+    expect(keywordWords(['privacy\u2011focused\u2010app']).length, 3);
+  });
+
+  test('a repeated word spends the budget again in every keyword', () {
+    expect(keywordWords(List.filled(7, 'aa bb')).length, 14,
+        reason: 'seven terms of two words is 14 words, not two unique words');
+  });
+
+  test('punctuation around a word does not make another one', () {
+    expect(keywordWords(['"network" scanner, app']).length, 3);
   });
 
   test('a comma-joined list is refused rather than published as one bullet',
@@ -229,12 +248,11 @@ void main() {
     expect(validateListingTree(readListingTree(root)), isEmpty);
   });
 
-  // The cap the Store charges is on how many listings have keywords at all, not
-  // on what any listing contains, so a tree that passes every per-locale check
-  // still comes back `InvalidParameterValue` / `target: keywords`. Clearing the
-  // field rather than skipping it is the part that matters: an omitted field
-  // keeps the keywords the captured draft serves, and those listings are charged
-  // against the same budget.
+  // The budget is words, not listings, and the whole submission shares it, so
+  // the tree cannot let every market spend 21 of them. Clearing the field rather
+  // than skipping it is what makes the policy real: an omitted field keeps the
+  // keywords the captured draft already serves, and those words are charged
+  // against the same 21 whether git named the locale or not.
   test('the keyword budget clears the locales the allowlist does not name', () {
     final listings = <String, dynamic>{};
     for (final tag in ['en-us', 'de-de', 'fr-fr']) {
@@ -284,11 +302,14 @@ void main() {
     expect(violations.single, contains('does not carry'));
   });
 
-  // Twenty-two keyword-bearing locales with no allowlist is the shape of the
-  // 2026-11-22 payload: valid locale by locale, refused as a submission. The
-  // release's `--check` step runs the same code, so the tree now fails in
-  // seconds instead of costing a Store round trip and an uncommitted draft.
-  test('a tree over the locale budget names the cap and the file', () {
+  // Twenty-two one-word keyword lists with no allowlist is the shape the 2026-11
+  // payloads had, and the shape of the 2026-11-22+87 retry one level down: every
+  // listing individually valid, the submission charged for spending 22 words
+  // against a budget of 21. The release's `--check` step runs this same code, so
+  // the tree now fails in seconds instead of costing a Store round trip and an
+  // uncommitted draft.
+  test('a submission over the shared word budget names the spend and the file',
+      () {
     final locales = [
       for (var i = 0; i < 22; i++)
         ListingLocale('aa-$i', {
@@ -301,28 +322,66 @@ void main() {
     final violations = validateListingTree(locales);
     expect(
         violations.single,
-        startsWith(
-            '22 locales carry keywords, the Store publishes at most 21'));
+        startsWith('the keyword lists that publish spend '
+            '22 words, and the Store refuses a submission over 21'));
     expect(violations.single, contains('keyword_locales.txt'));
     expect(
         validateListingTree(locales, keywordLocales: ['aa-0', 'aa-1']), isEmpty,
-        reason: 'the allowlist is what brings the same tree inside the cap');
+        reason: 'the allowlist is what brings the same tree inside the budget');
   });
 
-  test('an allowlist over the cap is refused before any overlay', () {
+  test('an out-of-budget locale keeps an over-budget list inert', () {
     writeLocale(root, 'en-us', {
       'title.txt': 'A\n',
       'description.txt': 'B\n',
-      'keywords.txt': 'alpha\n',
+      'keywords.txt': 'alpha\n' 'beta\n',
+    });
+    writeLocale(root, 'es-es', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'escaner de red casa oficina\n'
+          'monitorizacion de red local wifi\n'
+          'direccion ip publica y privada\n'
+          'escaner de dispositivos wifi red\n'
+          'analisis de red completa online\n'
+          'herramienta de red domestica ip\n'
+          'velocidad de red test rapido\n',
+    });
+
+    expect(
+        validateListingTree(readListingTree(root), keywordLocales: ['en-us']),
+        isEmpty,
+        reason: 'a list the assembler blanks cannot breach a limit the Store '
+            'never sees');
+    expect(
+      validateListingTree(readListingTree(root),
+          keywordLocales: ['en-us', 'es-es']),
+      isNotEmpty,
+      reason: 'moving the budget onto it is what makes its words a release '
+          'blocker',
+    );
+  });
+
+  test('a locale over the shared budget is refused before any overlay', () {
+    writeLocale(root, 'en-us', {
+      'title.txt': 'A\n',
+      'description.txt': 'B\n',
+      'keywords.txt': 'network monitoring app\n'
+          'network insights\n'
+          'Wi-Fi device scanner\n'
+          'Wi-Fi monitoring app\n'
+          'IP address tracker\n'
+          'home network manager\n'
+          'extra keyword here\n',
     });
 
     expect(
       () => overlaySubmission(capture(), readListingTree(root),
-          keywordLocales: List.generate(22, (i) => 'en-us')),
+          keywordLocales: ['en-us']),
       throwsA(isA<ListingFailure>().having(
         (failure) => failure.violations.join(' '),
         'violation',
-        allOf(contains('keyword_locales.txt names 22 locales'), contains('21')),
+        allOf(contains('KeywordsTotalCount'), contains('en-us=22')),
       )),
     );
   });
@@ -549,17 +608,25 @@ void main() {
               'Store would show one feature instead of ten');
     }
     // The release PUTs what this tree says, and the ingestion API counts the
-    // listings with keywords in it: 29 locales carrying keywords is the payload
-    // that was refused on 2026-11-22 with every per-locale check green.
+    // words of the lists that publish: 29 locales of multi-word keywords is the
+    // payload refused on 2026-11-18 and 2026-11-22, and the 10-locale retry that
+    // spent 192 words was refused the same way on 2026-11-22+87.
     expect(allowed, isNotEmpty,
         reason: 'without an allowlist every locale spends the budget');
-    expect(allowed.length, lessThanOrEqualTo(maxKeywordLocales));
-    expect(keywordBearingLocales(tree, allowed).length, allowed.length,
+    expect(keywordSpend(tree, allowed).keys, unorderedEquals(allowed),
         reason: 'a listed locale with no keywords.txt is budget spent on '
             'nothing a shopper can be found by');
-    expect(tree.length, greaterThan(maxKeywordLocales),
-        reason: 'the tree is wider than the keyword budget, which is the whole '
-            'reason the allowlist exists; the assembler clears what it does not '
-            'name rather than refusing the tree');
+    expect(
+      keywordSpend(tree, allowed).values.fold<int>(0, (a, b) => a + b),
+      lessThanOrEqualTo(maxSubmissionKeywordWords),
+      reason: 'the words this tree publishes are the number the Store charges',
+    );
+    expect(
+      keywordSpend(tree, const []).values.fold<int>(0, (a, b) => a + b),
+      greaterThan(maxSubmissionKeywordWords),
+      reason: 'the tree is wider than the word budget, which is the whole '
+          'reason the allowlist exists; the assembler clears what it does not '
+          'name rather than refusing the tree',
+    );
   });
 }

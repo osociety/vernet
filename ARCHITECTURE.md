@@ -315,12 +315,18 @@ field is written — and `dart run scripts/ms_store_listing.dart` overlays those
 files onto a fresh `msstore submission get` capture. Screenshots, packages,
 markets and hardware come from the Store because nothing in git owns them; the
 prose comes from git because that is where a rewrite gets reviewed. The same
-script enforces the Store's per-field limits — the 21 words a locale's seven
-keywords may use between them, and the undocumented cap on how many locales
-carry keywords at all, 21 across the submission, which `msstore/keyword_locales.txt`
-spends on the largest markets and clears elsewhere — repairs the placeholder price a
-free product is captured with, and reports each field it changes by size, so a
-public CI log shows what moved without copying the listing into it.
+script enforces the Store's per-field limits — the 21 keyword words one listing
+may use, out of the 21 the whole submission shares, counted the way the server
+counts them: hyphens split and repeats are not de-duplicated, so `Wi-Fi device
+scanner` is four words. `msstore/keyword_locales.txt` names who spends that
+budget, currently `en-us` alone, and the assembler publishes an empty list
+everywhere else, because a field it leaves alone keeps the keywords the captured
+draft already serves and those words are charged against the same 21. Reading
+`KeywordsTotalCount` as a count of locales instead cost three refused releases,
+the last one sending ten locales at 192 words. The script also repairs the
+placeholder price a free product is captured with, and reports each field it
+changes by size, so a public CI log shows what moved without copying the listing
+into it.
 
 The tree is named `msstore/` at the repository root rather than
 `metadata/store/`, because F-Droid builds this same checkout and fdroidserver

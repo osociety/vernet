@@ -52,33 +52,35 @@ const int maxFeatureLength = 200;
 /// Words the seven keywords of one listing may use between them.
 ///
 /// Microsoft's MSIX page and the Partner Center form both say "no more than 21
-/// separate words across all keywords", and the Store's own error field for it
-/// is `KeywordsTotalCount`. This is a per-listing budget, and it is a different
-/// limit from [maxKeywordLocales], which the second sentence of the refusal
-/// confused it with for two releases: the 2026-11-18 payload and the 2026-11-22
-/// one were both refused by the locale count while every listing sat inside this
-/// budget, so no per-locale reading of the message can be trusted from the
-/// message alone.
+/// separate words across all keywords", and the field the refusal names is
+/// `KeywordsTotalCount` — a count of words, not of keywords. A hyphen splits
+/// like a space, so `Wi-Fi` spends two, and repeats are not de-duplicated. This
+/// is why `--check` used to call the Spanish, Italian, Portuguese and Russian
+/// lists legal at 20 words while the Store counted 22: each of them writes
+/// `Wi-Fi` twice.
 const int maxKeywordWordCount = 21;
 
-/// Locales that may carry keywords at all, across the whole submission.
+/// Keyword words the whole submission may spend, across every locale.
 ///
-/// Undocumented by Microsoft, and invisible to a per-locale check: the cap is
-/// not on keywords per listing nor on keywords in total, it is on the number of
-/// listings that have any, so a tree where every locale is individually valid is
-/// still refused. prof18/pcenter-cli records it in `docs/METADATA.md` ("Locales
-/// carrying keywords | <= 21 across the whole submission") and again in
-/// `docs/TROUBLESHOOTING.md` under the exact server wording. This repository met
-/// it twice: on 2026-11-18 and again on 2026-11-22, when `--check` passed on 29
-/// locales whose widest keyword list used 20 of its 21 words and the Store
-/// answered
+/// The same number, applied one level up. Which level the server applies is
+/// what three refused releases got wrong in both directions:
 ///
 ///     {"code":"InvalidParameterValue","message":"The size of KeywordsTotalCount
 ///      must be 21 or less","source":"Ingestion Api","target":"keywords"}
 ///
-/// Blanketing `Keywords` on every listing has made the same payload accepted
-/// both times, which is what rules out the per-locale reading.
-const int maxKeywordLocales = 21;
+/// The 2026-11-18 and 2026-11-22 payloads sent keywords in 29 locales and were
+/// refused with a per-locale reading of 20 words as the widest list; the
+/// 2026-11-22+87 payload cleared 19 of them, sent 10 locales at 70 keywords and
+/// 192 counted words, and was refused again — which kills the count-of-locales
+/// reading that file was written for. prof18/pcenter-cli records that reading
+/// from the same message, and allodia-eu/mail-calendar, which probed the
+/// ingestion API against a throwaway draft on 2026-08-03, records the word
+/// reading and the hyphen split. Nothing has yet been published inside 21 words
+/// total, and nothing has been refused while sitting inside it, so the number
+/// stays ambiguous and the script enforces both: a submission under
+/// [maxKeywordWordCount] words in total is under it per locale for free, and it
+/// is the only shape that cannot be refused by either reading.
+const int maxSubmissionKeywordWords = 21;
 
 /// A comma where a list file should have had a newline.
 ///
@@ -109,14 +111,15 @@ const Map<String, String> fileToField = {
 /// it is reserved.
 const String reservedTitlesFile = 'reserved_titles.txt';
 
-/// The locales allowed to carry keywords, one Store tag per line.
+/// The locales allowed to spend the submission's keyword words, one Store tag
+/// per line.
 ///
-/// [maxKeywordLocales] is the reason this file exists: the Store counts the
-/// listings that have any keywords at all, so a 29-locale tree where every
-/// locale is individually valid is refused as a whole. Which locales spend the
-/// budget is a judgement about audience, not a limit, so it is a reviewed file
-/// rather than a constant. A locale outside it publishes with `Keywords`
-/// cleared and keeps its `keywords.txt` in git for when the budget moves.
+/// Because [maxSubmissionKeywordWords] is shared, the tree cannot give every
+/// market a full list: seven ordinary terms already cost 19 to 22 words. This
+/// file chooses who gets the budget, and a locale outside it publishes with
+/// `Keywords` cleared and keeps its `keywords.txt` in git for when the budget
+/// moves. Which market deserves it is a judgement about audience, not a limit,
+/// so it stays a reviewed file rather than a constant.
 const String keywordLocalesFile = 'keyword_locales.txt';
 
 /// Fields a locale directory must provide to be publishable at all.
@@ -221,28 +224,59 @@ Object? _fieldValue(String field, String content) {
   return content.split('\n').where((line) => line.isNotEmpty).toList();
 }
 
-/// Locales whose keywords [overlaySubmission] would actually send, which is the
-/// set the Store counts.
+/// Keyword words each publishing locale spends, biggest spender first.
 ///
-/// A locale outside [keywordLocales] is not in the set because the overlay
-/// clears it, which is the difference between a tree the release can publish and
-/// one the ingestion API refuses for a reason no per-locale check can see.
-List<String> keywordBearingLocales(
+/// The unit of the Store's `KeywordsTotalCount` is the word, so this is what a
+/// refusal is actually about, and naming the lists is what makes the message
+/// fixable: the count is one budget, and the only lever a contributor has is
+/// which locales [keywordLocalesFile] names and how long their terms are. A
+/// locale outside that list is not in the map because [overlaySubmission]
+/// blanks it, and a locale with no `keywords.txt` is not in it because git
+/// declares nothing to send.
+Map<String, int> keywordSpend(
   List<ListingLocale> locales,
   List<String> keywordLocales,
-) =>
-    locales
-        .where((locale) =>
-            _hasKeywords(locale) &&
-            (keywordLocales.isEmpty || keywordLocales.contains(locale.locale)))
-        .map((locale) => locale.locale)
-        .toList();
+) {
+  final spend = <String, int>{};
+  for (final locale in locales) {
+    if (keywordLocales.isNotEmpty && !keywordLocales.contains(locale.locale)) {
+      continue;
+    }
+    final keywords = locale.fields['Keywords'];
+    if (keywords is! List<String>) continue;
+    final words = keywordWords(keywords).length;
+    if (words > 0) spend[locale.locale] = words;
+  }
+  final ordered = spend.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+  return {for (final entry in ordered) entry.key: entry.value};
+}
 
-/// Whether the tree commits a keyword list for this locale at all, which is the
-/// unit the Store counts.
-bool _hasKeywords(ListingLocale locale) {
-  final value = locale.fields['Keywords'];
-  return value is List && value.isNotEmpty;
+/// Separators the Store splits a keyword on: whitespace and the three hyphens
+/// that survive a copy out of a word processor.
+final RegExp _keywordSeparators = RegExp(r'[\s\-‐‑]+');
+
+/// Punctuation the Store keeps inside a word, so a quote or a full stop must not
+/// inflate the count. Mirrors the set allodia-eu/mail-calendar measured.
+final RegExp _keywordPunctuation = RegExp(
+  r'''^[.,;:!?\[\]()"'«»’]+|[.,;:!?\[\]()"'«»’]+$''',
+);
+
+/// The words the Store counts in [keywords], repeats included.
+///
+/// `[maxKeywordWordCount]` reads "21 separate words", which invites a count of
+/// distinct words; the measured behaviour is a count of words. Seven copies of
+/// `aa bb` spend 14 there and 2 in a set, and only the first agrees with the
+/// server.
+List<String> keywordWords(Iterable<String> keywords) {
+  final words = <String>[];
+  for (final keyword in keywords) {
+    for (final part in keyword.split(_keywordSeparators)) {
+      final word = part.replaceAll(_keywordPunctuation, '').toLowerCase();
+      if (word.isNotEmpty) words.add(word);
+    }
+  }
+  return words;
 }
 
 /// Every limit and completeness problem across the tree, in one report, so a
@@ -265,6 +299,15 @@ List<String> validateListingTree(
       final value = entry.value;
       if (value == null) continue;
       final prefix = '${locale.locale}: ${entry.key}';
+      // A locale outside the keyword budget publishes an empty list, so nothing
+      // its keywords.txt holds reaches the Store and no limit on it can be
+      // breached. These checks start applying the moment the budget names it,
+      // which is the point where the copy becomes somebody else's refusal.
+      if (entry.key == 'Keywords' &&
+          keywordLocales.isNotEmpty &&
+          !keywordLocales.contains(locale.locale)) {
+        continue;
+      }
       if (value is String) {
         final max = maxTextLength[entry.key];
         if (max != null && value.length > max) {
@@ -288,33 +331,32 @@ List<String> validateListingTree(
               '$prefix is one comma-joined line; put each entry on its own line');
         }
         if (entry.key == 'Keywords') {
-          final words = value
-              .expand((item) => item.trim().split(RegExp(r'\s+')))
-              .where((word) => word.isNotEmpty)
-              .length;
+          final words = keywordWords(value).length;
           if (words > maxKeywordWordCount) {
             violations.add('$prefix uses $words words across all entries, '
-                'the limit is $maxKeywordWordCount');
+                'the limit is $maxKeywordWordCount, and every word it spends '
+                'comes out of the $maxSubmissionKeywordWords the whole '
+                'submission shares');
           }
         }
       }
     }
-  }
-  if (keywordLocales.length > maxKeywordLocales) {
-    violations.add('$keywordLocalesFile names ${keywordLocales.length} '
-        'locales, the Store publishes keywords in at most '
-        '$maxKeywordLocales');
   }
   final declared = locales.map((locale) => locale.locale).toSet();
   for (final stray in keywordLocales.where((tag) => !declared.contains(tag))) {
     violations.add('$keywordLocalesFile names $stray, which the tree does not '
         'carry: a typo or a parked locale spends nothing and sends nothing');
   }
-  final carriers = keywordBearingLocales(locales, keywordLocales);
-  if (carriers.length > maxKeywordLocales) {
-    violations.add('${carriers.length} locales carry keywords, the Store '
-        'publishes at most $maxKeywordLocales: ${carriers.join(', ')} — name '
-        'the ones to keep in $keywordLocalesFile and the rest publish blank');
+  final spend = keywordSpend(locales, keywordLocales);
+  final used = spend.values.fold<int>(0, (a, b) => a + b);
+  if (used > maxSubmissionKeywordWords) {
+    violations.add(
+      'the keyword lists that publish spend $used words, and the Store '
+      'refuses a submission over $maxSubmissionKeywordWords '
+      '(KeywordsTotalCount): ${spend.entries.map((e) => '${e.key}=${e.value}').join(', ')} '
+      '— a hyphen counts as a space, so shorten the biggest lists or move '
+      'the locale out of $keywordLocalesFile and publish it blank',
+    );
   }
   return violations;
 }
@@ -427,8 +469,9 @@ Map<String, dynamic> overlaySubmission(
         keywords is List &&
         keywords.isNotEmpty) {
       // The empty list is the write: leaving the field alone keeps whatever the
-      // captured draft serves, and the Store counts those listings in the same
-      // budget, so the refusal would come back unchanged.
+      // captured draft serves, and those words spend the submission's budget
+      // whether git named the locale or not, so the refusal would come back
+      // unchanged.
       fields['Keywords'] = <String>[];
       blanked.add(locale.locale);
     }
@@ -453,10 +496,10 @@ Map<String, dynamic> overlaySubmission(
     stderr.writeln(
       '${blanked.length} locale(s) publish with Keywords cleared because they '
       'are not named in $defaultListingsDirectory/$keywordLocalesFile: '
-      '${blanked.join(', ')}. The Store counts the listings that carry keywords '
-      'and refuses a submission over $maxKeywordLocales, so the words stay in '
-      'git and the budget goes to the named locales. Add a tag to that file to '
-      'give one keywords and remove another to stay inside the cap.',
+      '${blanked.join(', ')}. The $maxSubmissionKeywordWords keyword words the '
+      'Store allows are one budget shared by the submission, so the words stay '
+      'in git and the spend goes to the named locales. Add a tag to that file '
+      'to give one keywords, and keep the total inside the budget.',
     );
   }
 
