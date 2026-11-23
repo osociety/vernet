@@ -234,6 +234,14 @@ class TestUtils {
     await _pumpTransition(tester);
   }
 
+  static Future<void> tapSettingsCategory(
+    WidgetKey category,
+    WidgetTester tester,
+    CommonFinders find,
+  ) async {
+    await tapByWidgetKey(category, tester, find);
+  }
+
   static Future<void> tapHomeButton(
     WidgetTester tester,
     CommonFinders find,

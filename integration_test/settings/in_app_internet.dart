@@ -48,6 +48,11 @@ void main() {
       await tester.pumpAndSettle();
 
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsOnlineFeaturesCategory,
+        tester,
+        find,
+      );
 
       await TestUtils.tapByWidgetKey(
         WidgetKey.inAppInternetSwitch,
@@ -56,8 +61,19 @@ void main() {
       );
 
       // The fdroid flavor ships no update check at all, so the tile this step
-      // reaches for is never built there.
+      // reaches for is never built there. Updates now live with app preferences
+      // rather than the online-feature toggle.
       if (kUpdateChecksEnabled) {
+        await TestUtils.tapByWidgetKey(
+          WidgetKey.settingsCategoryBackButton,
+          tester,
+          find,
+        );
+        await TestUtils.tapSettingsCategory(
+          WidgetKey.settingsGeneralCategory,
+          tester,
+          find,
+        );
         await TestUtils.scrollUntilVisibleByWidgetKey(
           WidgetKey.updateSettingsTile,
           tester,

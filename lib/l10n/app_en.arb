@@ -321,6 +321,22 @@
   "@themeLight": {
     "description": "Light appearance option."
   },
+  "settingsGeneral": "App preferences",
+  "@settingsGeneral": {
+    "description": "Category for appearance, language, and app information."
+  },
+  "settingsNetwork": "Network scanning",
+  "@settingsNetwork": {
+    "description": "Category for local network scan settings."
+  },
+  "settingsAdvanced": "Advanced options",
+  "@settingsAdvanced": {
+    "description": "Category for less common network options."
+  },
+  "settingsFeatures": "Online features",
+  "@settingsFeatures": {
+    "description": "Category for optional internet-connected app features."
+  },
   "inAppInternetTitle": "In-App Internet",
   "@inAppInternetTitle": {
     "description": "Settings row that lets Vernet make its own outbound requests instead of skipping the network checks entirely."
