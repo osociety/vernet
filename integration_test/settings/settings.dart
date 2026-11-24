@@ -12,6 +12,7 @@ import 'package:vernet/values/globals.dart' as globals;
 
 import 'dark_theme.dart' as dark_theme_test;
 import 'in_app_internet.dart' as in_app_internet_test;
+import 'scan_behavior.dart' as scan_behavior_test;
 import 'subnet_tests.dart' as subnet_test;
 import 'test_utils.dart';
 
@@ -39,5 +40,6 @@ void main() {
 
   dark_theme_test.main();
   subnet_test.main();
+  scan_behavior_test.main();
   in_app_internet_test.main();
 }
