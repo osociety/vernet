@@ -44,6 +44,11 @@ void main() {
       await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsAdvancedCategory,
+        tester,
+        find,
+      );
 
       await TestUtils.scrollUntilVisibleByWidgetKey(
         WidgetKey.customSubnetTile,
@@ -77,6 +82,11 @@ void main() {
       await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsNetworkCategory,
+        tester,
+        find,
+      );
 
       await TestUtils.scrollUntilVisibleByWidgetKey(
         WidgetKey.firstSubnetTile,
@@ -110,6 +120,11 @@ void main() {
       await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsNetworkCategory,
+        tester,
+        find,
+      );
 
       await TestUtils.scrollUntilVisibleByWidgetKey(
         WidgetKey.lastSubnetTile,
@@ -143,6 +158,11 @@ void main() {
       await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsNetworkCategory,
+        tester,
+        find,
+      );
 
       await TestUtils.scrollUntilVisibleByWidgetKey(
         WidgetKey.socketTimeoutTile,
@@ -176,6 +196,11 @@ void main() {
       await tester.pumpWidget(const MyApp(null));
 
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsAdvancedCategory,
+        tester,
+        find,
+      );
 
       await TestUtils.scrollUntilVisibleByWidgetKey(
         WidgetKey.pingCountTile,

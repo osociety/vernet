@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
@@ -101,6 +102,33 @@ void main() {
   });
 
   group('PingPage', () {
+    testWidgets('uses the saved ping count when starting a check',
+        (tester) async {
+      await AppSettings.instance.setPingCount(7);
+      final controller = StreamController<PingEvent>();
+      int? usedCount;
+
+      await tester.pumpWidget(
+        createPingPageTestWidget(
+          PingPage(
+            target: '1.1.1.1',
+            pingBuilder: (host, {count, forceCodepage = false}) {
+              usedCount = count;
+              return FakePing(controller.stream);
+            },
+          ),
+        ),
+      );
+
+      await tester.tap(find.text(l10n.startCheck));
+      await tester.pump();
+
+      expect(usedCount, 7);
+
+      await controller.close();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('renders all initial UI components and statistics placeholders',
         (tester) async {
       await tester.pumpWidget(createPingPageTestWidget(const PingPage()));

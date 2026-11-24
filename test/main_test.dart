@@ -234,6 +234,9 @@ void main() {
       await pumpVisibleFrame(tester);
 
       expect(find.byType(SettingsPage), findsOneWidget);
+      expect(find.text('App-Einstellungen'), findsOneWidget);
+      await tester.tap(find.text('App-Einstellungen'));
+      await pumpVisibleFrame(tester);
       expect(find.text('Erscheinungsbild'), findsOneWidget);
       expect(find.text('Theme'), findsNothing);
     });

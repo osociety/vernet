@@ -49,6 +49,11 @@ void main() {
 
       // Change to Dark
       await TestUtils.tapSettingsButton(tester, find);
+      await TestUtils.tapSettingsCategory(
+        WidgetKey.settingsGeneralCategory,
+        tester,
+        find,
+      );
       await tester.tap(find.byKey(WidgetKey.changeThemeTile.key));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(WidgetKey.darkThemeRadioButton.key));
