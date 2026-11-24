@@ -13,7 +13,6 @@
   "pingMethod": "Ping-Methode",
   "pingMethodDesc": "Wähle die Methode zur Geräteprüfung.",
   "pingMethodIcmp": "ICMP",
-  "pingMethodUdp": "UDP",
   "pingMethodTcpFallback": "TCP + ICMP-Fallback",
   "mdnsDiscovery": "mDNS-Erkennung",
   "mdnsDiscoveryDesc": "Findet Geräte in der Nähe, die Namen über mDNS anbieten.",

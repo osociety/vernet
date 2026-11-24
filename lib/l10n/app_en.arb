@@ -52,10 +52,6 @@
   "@pingMethodIcmp": {
     "description": "ICMP ping method option."
   },
-  "pingMethodUdp": "UDP",
-  "@pingMethodUdp": {
-    "description": "UDP ping method option."
-  },
   "pingMethodTcpFallback": "TCP + ICMP fallback",
   "@pingMethodTcpFallback": {
     "description": "TCP ping with ICMP fallback option."

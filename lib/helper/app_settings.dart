@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum ScanPingMethod { icmp, udp, tcpFallback }
+enum ScanPingMethod { icmp, tcpFallback }
 
 class AppSettings {
   //TODO: move it to isar db

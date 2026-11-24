@@ -149,6 +149,26 @@ void main() {
       expect(find.byKey(WidgetKey.scanTimeoutTile.key), findsOneWidget);
       expect(find.byKey(WidgetKey.scanConcurrencyTile.key), findsOneWidget);
       expect(find.byKey(WidgetKey.pingMethodTile.key), findsOneWidget);
+      final pingMethodDropdown = tester.widget<DropdownButton<ScanPingMethod>>(
+        find.descendant(
+          of: find.byKey(WidgetKey.pingMethodTile.key),
+          matching: find.byType(DropdownButton<ScanPingMethod>),
+        ),
+      );
+      expect(
+        pingMethodDropdown.items!.map((item) => item.value),
+        [ScanPingMethod.icmp, ScanPingMethod.tcpFallback],
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(WidgetKey.pingMethodTile.key),
+          matching: find.byType(DropdownButton<ScanPingMethod>),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l10nEn().pingMethodIcmp));
+      await tester.pumpAndSettle();
+      expect(AppSettings.instance.pingMethod, ScanPingMethod.icmp);
       expect(find.byKey(WidgetKey.mdnsDiscoveryTile.key), findsOneWidget);
 
       final mdnsSwitch = tester.widget<SwitchListTile>(

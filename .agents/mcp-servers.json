@@ -55,6 +55,9 @@
       "candidates": [
         "~/.cargo/bin/rtk-mcp"
       ],
+      "prependPath": [
+        "~/.cargo/bin"
+      ],
       "args": []
     },
     "github": {

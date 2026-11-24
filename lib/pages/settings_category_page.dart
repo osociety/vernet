@@ -281,10 +281,6 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
                 child: Text(l10n.pingMethodIcmp),
               ),
               DropdownMenuItem(
-                value: ScanPingMethod.udp,
-                child: Text(l10n.pingMethodUdp),
-              ),
-              DropdownMenuItem(
                 value: ScanPingMethod.tcpFallback,
                 child: Text(l10n.pingMethodTcpFallback),
               ),
