@@ -15,6 +15,11 @@ typedef TcpHostScan = Stream<ActiveHost> Function(
   void Function(double progress)? onProgress,
 );
 
+/// Host discovery that applies the saved scan behavior settings.
+///
+/// ICMP mode probes hosts directly and reports only ping responders. The TCP
+/// mode delegates to the network_tools sweep, split into batches so a lower
+/// concurrency limit is honored; the sweep keeps its own platform ceiling.
 class HostScanBehaviorService {
   HostScanBehaviorService({
     IcmpHostProbe? icmpProbe,
@@ -38,6 +43,7 @@ class HostScanBehaviorService {
     final activePings = <Ping>{};
     var cancelled = false;
     StreamSubscription<ActiveHost>? tcpSubscription;
+    Completer<void>? pendingBatch;
     late final StreamController<ActiveHost> controller;
 
     Future<void> stopActivePings() async {
@@ -55,16 +61,21 @@ class HostScanBehaviorService {
         if (hostCount <= 0) return;
 
         final effectiveConcurrency = concurrency.clamp(1, hostCount);
+        // The package sweep already runs up to the platform's recommended
+        // concurrency in one pass, so only split it when a lower limit is
+        // requested; otherwise the default scan would pay an isolate spawn per
+        // batch for no change in probe concurrency.
+        final batchSize = pingMethod == ScanPingMethod.tcpFallback &&
+                effectiveConcurrency >= AppSettings.recommendedScanConcurrency
+            ? hostCount
+            : effectiveConcurrency;
         final hostIds = [
           for (var hostId = firstHostId; hostId <= lastHostId; hostId++) hostId,
         ];
 
-        for (var offset = 0;
-            offset < hostIds.length;
-            offset += effectiveConcurrency) {
+        for (var offset = 0; offset < hostIds.length; offset += batchSize) {
           if (cancelled) return;
-          final batch =
-              hostIds.skip(offset).take(effectiveConcurrency).toList();
+          final batch = hostIds.skip(offset).take(batchSize).toList();
 
           if (pingMethod == ScanPingMethod.icmp) {
             var completed = 0;
@@ -103,6 +114,7 @@ class HostScanBehaviorService {
           }
 
           final batchDone = Completer<void>();
+          pendingBatch = batchDone;
           tcpSubscription = _tcpHostScan(
             subnet,
             batch,
@@ -122,6 +134,7 @@ class HostScanBehaviorService {
             },
           );
           await batchDone.future;
+          pendingBatch = null;
           tcpSubscription = null;
           if (cancelled) return;
           reportBatchProgress(100);
@@ -141,6 +154,10 @@ class HostScanBehaviorService {
       onListen: () => unawaited(runScan()),
       onCancel: () async {
         cancelled = true;
+        // Cancelling the subscription does not invoke its onDone, so an awaited
+        // batch would never settle and runScan would never close the stream.
+        final batch = pendingBatch;
+        if (batch != null && !batch.isCompleted) batch.complete();
         await tcpSubscription?.cancel();
         await stopActivePings();
       },

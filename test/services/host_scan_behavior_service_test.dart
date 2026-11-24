@@ -86,5 +86,63 @@ void main() {
       expect(progress.last, 100);
       expect(progress, orderedEquals(progress.toList()..sort()));
     });
+
+    test('TCP fallback keeps one sweep at the recommended concurrency',
+        () async {
+      final batches = <List<int>>[];
+      final lastHostId = AppSettings.recommendedScanConcurrency + 10;
+      final service = HostScanBehaviorService(
+        tcpHostScan: (subnet, hostIds, timeoutSeconds, onProgress) {
+          batches.add(hostIds);
+          return const Stream<ActiveHost>.empty();
+        },
+      );
+
+      await service
+          .scan(
+            subnet: '192.168.1',
+            firstHostId: 1,
+            lastHostId: lastHostId,
+            timeoutSeconds: 2,
+            concurrency: AppSettings.recommendedScanConcurrency,
+            pingMethod: ScanPingMethod.tcpFallback,
+          )
+          .toList();
+
+      // Splitting at the package's own ceiling only adds an isolate spawn per
+      // batch; a lower requested limit is what should fan the sweep out.
+      expect(batches, [
+        [for (var hostId = 1; hostId <= lastHostId; hostId++) hostId],
+      ]);
+    });
+
+    test('cancelling a TCP scan stops the in-flight sweep', () async {
+      var sourceCancelled = false;
+      final source = StreamController<ActiveHost>(
+        onCancel: () => sourceCancelled = true,
+      );
+      final service = HostScanBehaviorService(
+        tcpHostScan: (subnet, hostIds, timeoutSeconds, onProgress) =>
+            source.stream,
+      );
+      final emitted = <ActiveHost>[];
+
+      final subscription = service
+          .scan(
+            subnet: '192.168.1',
+            firstHostId: 1,
+            lastHostId: 7,
+            timeoutSeconds: 2,
+            concurrency: 2,
+            pingMethod: ScanPingMethod.tcpFallback,
+          )
+          .listen(emitted.add);
+
+      await Future<void>.delayed(Duration.zero);
+      await subscription.cancel();
+
+      expect(sourceCancelled, isTrue);
+      expect(emitted, isEmpty);
+    });
   });
 }

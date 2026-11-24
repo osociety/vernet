@@ -60,6 +60,20 @@ void main() {
       expect(reloaded.mdnsEnabled, isFalse);
     });
 
+    test('resetScanDefaults restores the recommended values', () async {
+      await settings.setScanTimeout(10);
+      await settings.setScanConcurrency(16);
+      await settings.setPingMethod(ScanPingMethod.icmp);
+      await settings.setMdnsEnabled(false);
+
+      await settings.resetScanDefaults();
+
+      expect(settings.scanTimeout, 2);
+      expect(settings.scanConcurrency, AppSettings.recommendedScanConcurrency);
+      expect(settings.pingMethod, ScanPingMethod.tcpFallback);
+      expect(settings.mdnsEnabled, isTrue);
+    });
+
     test('trims spaces around a saved custom subnet', () async {
       await settings.setCustomSubnet('  10.0.0.1  ');
 

@@ -219,79 +219,35 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           onTap: () => _showSettingDialog(context, const SocketTimeoutDialog()),
         ),
       ),
-      Card(
-        child: ListTile(
-          key: WidgetKey.scanTimeoutTile.key,
-          title: Text(l10n.scanTimeout),
-          subtitle: Text(l10n.scanTimeoutDesc),
-          trailing: DropdownButton<int>(
-            value: appSettings.scanTimeout,
-            underline: const SizedBox.shrink(),
-            items: const [1, 2, 3, 5, 10]
-                .map(
-                  (seconds) => DropdownMenuItem(
-                    value: seconds,
-                    child: Text('${seconds}s'),
-                  ),
-                )
-                .toList(),
-            onChanged: (seconds) async {
-              if (seconds == null) return;
-              await appSettings.setScanTimeout(seconds);
-              if (mounted) setState(() {});
-            },
-          ),
-        ),
+      _settingDropdown<int>(
+        rowKey: WidgetKey.scanTimeoutTile,
+        title: l10n.scanTimeout,
+        subtitle: l10n.scanTimeoutDesc,
+        value: appSettings.scanTimeout,
+        options: const [1, 2, 3, 5, 10],
+        labelOf: (seconds) => '${seconds}s',
+        onSelected: appSettings.setScanTimeout,
       ),
-      Card(
-        child: ListTile(
-          key: WidgetKey.scanConcurrencyTile.key,
-          title: Text(l10n.scanConcurrency),
-          subtitle: Text(l10n.scanConcurrencyDesc),
-          trailing: DropdownButton<int>(
-            value: appSettings.scanConcurrency,
-            underline: const SizedBox.shrink(),
-            items: const [16, 32, 64, 128]
-                .map(
-                  (limit) => DropdownMenuItem(
-                    value: limit,
-                    child: Text('$limit'),
-                  ),
-                )
-                .toList(),
-            onChanged: (limit) async {
-              if (limit == null) return;
-              await appSettings.setScanConcurrency(limit);
-              if (mounted) setState(() {});
-            },
-          ),
-        ),
+      _settingDropdown<int>(
+        rowKey: WidgetKey.scanConcurrencyTile,
+        title: l10n.scanConcurrency,
+        subtitle: l10n.scanConcurrencyDesc,
+        value: appSettings.scanConcurrency,
+        options: const [16, 32, 64, 128],
+        labelOf: (limit) => '$limit',
+        onSelected: appSettings.setScanConcurrency,
       ),
-      Card(
-        child: ListTile(
-          key: WidgetKey.pingMethodTile.key,
-          title: Text(l10n.pingMethod),
-          subtitle: Text(l10n.pingMethodDesc),
-          trailing: DropdownButton<ScanPingMethod>(
-            value: appSettings.pingMethod,
-            underline: const SizedBox.shrink(),
-            items: [
-              DropdownMenuItem(
-                value: ScanPingMethod.icmp,
-                child: Text(l10n.pingMethodIcmp),
-              ),
-              DropdownMenuItem(
-                value: ScanPingMethod.tcpFallback,
-                child: Text(l10n.pingMethodTcpFallback),
-              ),
-            ],
-            onChanged: (method) async {
-              if (method == null) return;
-              await appSettings.setPingMethod(method);
-              if (mounted) setState(() {});
-            },
-          ),
-        ),
+      _settingDropdown<ScanPingMethod>(
+        rowKey: WidgetKey.pingMethodTile,
+        title: l10n.pingMethod,
+        subtitle: l10n.pingMethodDesc,
+        value: appSettings.pingMethod,
+        options: ScanPingMethod.values,
+        labelOf: (method) => switch (method) {
+          ScanPingMethod.icmp => l10n.pingMethodIcmp,
+          ScanPingMethod.tcpFallback => l10n.pingMethodTcpFallback,
+        },
+        onSelected: appSettings.setPingMethod,
       ),
       Card(
         child: SwitchListTile(
@@ -431,6 +387,53 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           .textTheme
           .titleSmall
           ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+    );
+  }
+
+  /// A settings row whose control sits below the text, at full width.
+  ///
+  /// An intrinsic-width dropdown in [ListTile.trailing] consumes the whole tile
+  /// on a phone-width page, so this keeps the control below the text the same
+  /// way the language row does.
+  Widget _settingDropdown<T>({
+    required WidgetKey rowKey,
+    required String title,
+    required String subtitle,
+    required T value,
+    required List<T> options,
+    required String Function(T option) labelOf,
+    required Future<void> Function(T option) onSelected,
+  }) {
+    return Card(
+      key: rowKey.key,
+      child: Column(
+        children: [
+          ListTile(title: Text(title), subtitle: Text(subtitle)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: SizedBox(
+              width: double.infinity,
+              child: DropdownButton<T>(
+                value: value,
+                isExpanded: true,
+                underline: const SizedBox.shrink(),
+                items: [
+                  for (final option in options)
+                    DropdownMenuItem(
+                      value: option,
+                      child: Text(labelOf(option)),
+                    ),
+                ],
+                onChanged: (option) async {
+                  if (option == null) return;
+                  await onSelected(option);
+                  if (mounted) setState(() {});
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

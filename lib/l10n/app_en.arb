@@ -386,7 +386,7 @@
   "@settingsNetwork": {
     "description": "Category for local network scan settings."
   },
-  "settingsNetworkDesc": "Choose the device range and connection timeout",
+  "settingsNetworkDesc": "Device range, timeouts, concurrency, ping method and mDNS",
   "@settingsNetworkDesc": {
     "description": "Settings index subtitle describing network scanning options."
   },

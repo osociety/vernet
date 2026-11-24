@@ -178,13 +178,41 @@ void main() {
       await tester.pumpAndSettle();
       expect(AppSettings.instance.mdnsEnabled, isFalse);
 
-      await tester.tap(find.byKey(WidgetKey.resetScanDefaultsButton.key));
+      final resetButton = find.byKey(WidgetKey.resetScanDefaultsButton.key);
+      await tester.scrollUntilVisible(resetButton, 120);
+      await tester.pumpAndSettle();
+      await tester.tap(resetButton);
       await tester.pumpAndSettle();
       expect(AppSettings.instance.scanTimeout, 2);
       expect(AppSettings.instance.scanConcurrency,
           AppSettings.recommendedScanConcurrency);
       expect(AppSettings.instance.pingMethod, ScanPingMethod.tcpFallback);
       expect(AppSettings.instance.mdnsEnabled, isTrue);
+    });
+
+    testWidgets('lays out the scan behavior rows at phone width',
+        (tester) async {
+      const phone = Size(390, 844);
+      await pumpAtWidth(tester, phone);
+
+      await tester.tap(find.byKey(WidgetKey.settingsNetworkCategory.key));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      final pingMethodTile = find.byKey(WidgetKey.pingMethodTile.key);
+      await tester.scrollUntilVisible(pingMethodTile, 120);
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getRect(pingMethodTile).right,
+        lessThanOrEqualTo(phone.width),
+      );
+
+      final resetTile = find.byKey(WidgetKey.resetScanDefaultsButton.key);
+      await tester.scrollUntilVisible(resetTile, 120);
+      await tester.pumpAndSettle();
+
+      expect(tester.getRect(resetTile).right, lessThanOrEqualTo(phone.width));
     });
 
     testWidgets('choosing a language re-renders the page in it',

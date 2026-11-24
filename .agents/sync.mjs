@@ -55,7 +55,6 @@ const agents = {
     mcpFile: '.vscode/mcp.json',
     mcpKey: 'servers',
     style: 'typed-both',
-    excludeServers: ['dart', 'github'],
     skillsDir: null,
   },
   gemini: {
@@ -118,19 +117,10 @@ function substitute(server, agentId) {
   );
 }
 
-function environment(server) {
-  const prependPath = (server.prependPath ?? []).map(expandHome);
-  if (!prependPath.length) return {};
-  return {
-    PATH: [...prependPath, process.env.PATH].filter(Boolean).join(path.delimiter),
-  };
-}
-
 function renderServers(agentId, agent) {
   const out = {};
   const httpKey = agent.httpKey ?? 'url';
   for (const [name, server] of Object.entries(manifest.servers)) {
-    if (agent.excludeServers?.includes(name)) continue;
     if (server.transport === 'http') {
       out[name] =
         agent.style === 'plain'
@@ -142,8 +132,6 @@ function renderServers(agentId, agent) {
     if (!bin) continue;
     const args = substitute(server, agentId);
     const entry = args.length ? { command: bin, args } : { command: bin };
-    const env = environment(server);
-    if (Object.keys(env).length) entry.env = env;
     out[name] = agent.style === 'typed-both' ? { type: 'stdio', ...entry } : entry;
   }
   return out;
@@ -224,11 +212,7 @@ function syncCodex(agentId) {
         : (() => {
             const bin = resolved.get(name);
             if (!bin) return null;
-            const envArgs = Object.entries(environment(server)).flatMap(([key, value]) => [
-              '--env',
-              `${key}=${value}`,
-            ]);
-            return ['mcp', 'add', name, ...envArgs, '--', bin, ...substitute(server, agentId)];
+            return ['mcp', 'add', name, '--', bin, ...substitute(server, agentId)];
           })();
     if (!argv) continue;
 

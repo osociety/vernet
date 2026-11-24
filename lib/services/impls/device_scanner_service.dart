@@ -391,7 +391,8 @@ class DeviceScannerService extends ScannerService {
     debugPrint(
         'Starting background port scan enrichment for ${devices.length} devices');
 
-    final maxConcurrency = appSettings.scanConcurrency.clamp(1, devices.length);
+    // Process devices with bounded concurrency (8 at a time)
+    const maxConcurrency = 8;
     var index = 0;
 
     while (index < devices.length) {
