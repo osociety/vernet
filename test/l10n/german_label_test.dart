@@ -44,6 +44,8 @@ const Set<String> kGermanKeepsTheEnglish = {
   'signalStrengthUnit',
   'serverCheckerLatencyMs',
   'serverCheckerHttpStatus',
+  'pingMethodIcmp',
+  'pingMethodUdp',
   'deviceDetailPortNumber',
   'neighborVlan',
   'portScanChipSsh',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
@@ -216,6 +217,112 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           subtitle: Text(l10n.socketTimeoutDesc),
           trailing: _settingValue(context, '${appSettings.socketTimeout} ms'),
           onTap: () => _showSettingDialog(context, const SocketTimeoutDialog()),
+        ),
+      ),
+      Card(
+        child: ListTile(
+          key: WidgetKey.scanTimeoutTile.key,
+          title: Text(l10n.scanTimeout),
+          subtitle: Text(l10n.scanTimeoutDesc),
+          trailing: DropdownButton<int>(
+            value: appSettings.scanTimeout,
+            underline: const SizedBox.shrink(),
+            items: const [1, 2, 3, 5, 10]
+                .map(
+                  (seconds) => DropdownMenuItem(
+                    value: seconds,
+                    child: Text('${seconds}s'),
+                  ),
+                )
+                .toList(),
+            onChanged: (seconds) async {
+              if (seconds == null) return;
+              await appSettings.setScanTimeout(seconds);
+              if (mounted) setState(() {});
+            },
+          ),
+        ),
+      ),
+      Card(
+        child: ListTile(
+          key: WidgetKey.scanConcurrencyTile.key,
+          title: Text(l10n.scanConcurrency),
+          subtitle: Text(l10n.scanConcurrencyDesc),
+          trailing: DropdownButton<int>(
+            value: appSettings.scanConcurrency,
+            underline: const SizedBox.shrink(),
+            items: const [16, 32, 64, 128]
+                .map(
+                  (limit) => DropdownMenuItem(
+                    value: limit,
+                    child: Text('$limit'),
+                  ),
+                )
+                .toList(),
+            onChanged: (limit) async {
+              if (limit == null) return;
+              await appSettings.setScanConcurrency(limit);
+              if (mounted) setState(() {});
+            },
+          ),
+        ),
+      ),
+      Card(
+        child: ListTile(
+          key: WidgetKey.pingMethodTile.key,
+          title: Text(l10n.pingMethod),
+          subtitle: Text(l10n.pingMethodDesc),
+          trailing: DropdownButton<ScanPingMethod>(
+            value: appSettings.pingMethod,
+            underline: const SizedBox.shrink(),
+            items: [
+              DropdownMenuItem(
+                value: ScanPingMethod.icmp,
+                child: Text(l10n.pingMethodIcmp),
+              ),
+              DropdownMenuItem(
+                value: ScanPingMethod.udp,
+                child: Text(l10n.pingMethodUdp),
+              ),
+              DropdownMenuItem(
+                value: ScanPingMethod.tcpFallback,
+                child: Text(l10n.pingMethodTcpFallback),
+              ),
+            ],
+            onChanged: (method) async {
+              if (method == null) return;
+              await appSettings.setPingMethod(method);
+              if (mounted) setState(() {});
+            },
+          ),
+        ),
+      ),
+      Card(
+        child: SwitchListTile(
+          key: WidgetKey.mdnsDiscoveryTile.key,
+          title: Text(l10n.mdnsDiscovery),
+          subtitle: Text(l10n.mdnsDiscoveryDesc),
+          value: appSettings.mdnsEnabled,
+          onChanged: (enabled) async {
+            await appSettings.setMdnsEnabled(enabled);
+            if (mounted) setState(() {});
+          },
+        ),
+      ),
+      Card(
+        child: ListTile(
+          key: WidgetKey.resetScanDefaultsButton.key,
+          leading: const Icon(Icons.restart_alt),
+          title: Text(l10n.resetScanDefaults),
+          subtitle: Text(
+            l10n.recommendedScanDefaults(
+              AppSettings.recommendedScanConcurrency,
+            ),
+          ),
+          onTap: () async {
+            await appSettings.resetScanDefaults();
+            if (mounted) setState(() {});
+          },
         ),
       ),
     ];

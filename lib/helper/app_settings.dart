@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+enum ScanPingMethod { icmp, udp, tcpFallback }
 
 class AppSettings {
   //TODO: move it to isar db
@@ -13,6 +15,10 @@ class AppSettings {
   static const String _runScanOnStartupKey = 'AppSettings-RUN-SCAN-ON-STARTUP';
   static const String _customSubnetKey = 'AppSettings-CUSTOM-SUBNET';
   static const String _betaUpdatesKey = 'AppSettings-BETA-UPDATES';
+  static const String _scanTimeoutKey = 'AppSettings-SCAN-TIMEOUT';
+  static const String _scanConcurrencyKey = 'AppSettings-SCAN-CONCURRENCY';
+  static const String _pingMethodKey = 'AppSettings-PING-METHOD';
+  static const String _mdnsEnabledKey = 'AppSettings-MDNS-ENABLED';
   int _firstSubnet = 1;
   int _lastSubnet = 254;
   int _socketTimeout = 500;
@@ -25,6 +31,10 @@ class AppSettings {
   // Stable installs are the default: a beta build can break the very scan the
   // user opened the app for. Opting in is a choice made on the updates page.
   bool _betaUpdates = false;
+  int _scanTimeout = 2;
+  int _scanConcurrency = 32;
+  ScanPingMethod _pingMethod = ScanPingMethod.tcpFallback;
+  bool _mdnsEnabled = true;
 
   static final AppSettings _instance = AppSettings._();
 
@@ -37,6 +47,52 @@ class AppSettings {
   bool get runScanOnStartup => _runScanOnStartup;
   String get customSubnet => _customSubnet;
   bool get betaUpdates => _betaUpdates;
+  int get scanTimeout => _scanTimeout;
+  int get scanConcurrency => _scanConcurrency;
+  ScanPingMethod get pingMethod => _pingMethod;
+  bool get mdnsEnabled => _mdnsEnabled;
+
+  static int get recommendedScanConcurrency {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+      case TargetPlatform.iOS:
+        return 32;
+      default:
+        return 128;
+    }
+  }
+
+  Future<bool> setScanTimeout(int scanTimeout) async {
+    _scanTimeout = scanTimeout;
+    return await (await SharedPreferences.getInstance())
+        .setInt(_scanTimeoutKey, _scanTimeout);
+  }
+
+  Future<bool> setScanConcurrency(int scanConcurrency) async {
+    _scanConcurrency = scanConcurrency;
+    return await (await SharedPreferences.getInstance())
+        .setInt(_scanConcurrencyKey, _scanConcurrency);
+  }
+
+  Future<bool> setPingMethod(ScanPingMethod pingMethod) async {
+    _pingMethod = pingMethod;
+    return await (await SharedPreferences.getInstance())
+        .setString(_pingMethodKey, pingMethod.name);
+  }
+
+  Future<bool> setMdnsEnabled(bool mdnsEnabled) async {
+    _mdnsEnabled = mdnsEnabled;
+    return await (await SharedPreferences.getInstance())
+        .setBool(_mdnsEnabledKey, _mdnsEnabled);
+  }
+
+  Future<void> resetScanDefaults() async {
+    await setScanTimeout(2);
+    await setScanConcurrency(recommendedScanConcurrency);
+    await setPingMethod(ScanPingMethod.tcpFallback);
+    await setMdnsEnabled(true);
+  }
+
   String get gatewayIP => _customSubnet.contains('.')
       ? _customSubnet.substring(0, _customSubnet.lastIndexOf('.'))
       : _customSubnet;
@@ -132,6 +188,24 @@ class AppSettings {
         (await SharedPreferences.getInstance()).getBool(_betaUpdatesKey) ??
             _betaUpdates;
     debugPrint("Beta updates : $_betaUpdates");
+
+    _scanTimeout =
+        (await SharedPreferences.getInstance()).getInt(_scanTimeoutKey) ?? 2;
+    _scanConcurrency =
+        (await SharedPreferences.getInstance()).getInt(_scanConcurrencyKey) ??
+            recommendedScanConcurrency;
+    final pingMethodName =
+        (await SharedPreferences.getInstance()).getString(_pingMethodKey);
+    _pingMethod = ScanPingMethod.tcpFallback;
+    for (final value in ScanPingMethod.values) {
+      if (value.name == pingMethodName) {
+        _pingMethod = value;
+        break;
+      }
+    }
+    _mdnsEnabled =
+        (await SharedPreferences.getInstance()).getBool(_mdnsEnabledKey) ??
+            true;
   }
 
   ({int first, int last}) calculateHostRange(
@@ -213,5 +287,9 @@ class AppSettings {
     _runScanOnStartup = false;
     _customSubnet = '';
     _betaUpdates = false;
+    _scanTimeout = 2;
+    _scanConcurrency = recommendedScanConcurrency;
+    _pingMethod = ScanPingMethod.tcpFallback;
+    _mdnsEnabled = true;
   }
 }

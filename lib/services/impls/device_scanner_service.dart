@@ -210,7 +210,7 @@ class DeviceScannerService extends ScannerService {
 
         // mDNS discovery does not depend on the ICMP/ARP sweep; overlapping
         // them keeps the overall scan as short as the slower of the two.
-        final mdnsSearch = globals.testingActive
+        final mdnsSearch = globals.testingActive || !appSettings.mdnsEnabled
             ? Future<List<ActiveHost>>.value(const [])
             : _searchMdnsDevicesSafely();
 
@@ -236,6 +236,7 @@ class DeviceScannerService extends ScannerService {
           subnet,
           firstHostId: effectiveRange.first,
           lastHostId: effectiveRange.last,
+          timeoutInSeconds: appSettings.scanTimeout,
           progressCallback: onProgress,
           // On Android the sweep is a system-ping-per-host process storm; the
           // ascending-order gate delays each row until every lower host id has
@@ -393,8 +394,8 @@ class DeviceScannerService extends ScannerService {
     debugPrint(
         'Starting background port scan enrichment for ${devices.length} devices');
 
-    // Process devices with bounded concurrency (8 at a time)
-    const maxConcurrency = 8;
+    // Process devices with the user-configured concurrency limit.
+    final maxConcurrency = appSettings.scanConcurrency;
     var index = 0;
 
     while (index < devices.length) {

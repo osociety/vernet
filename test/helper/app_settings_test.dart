@@ -24,6 +24,10 @@ void main() {
       expect(settings.runScanOnStartup, isFalse);
       expect(settings.customSubnet, isEmpty);
       expect(settings.gatewayIP, isEmpty);
+      expect(settings.scanTimeout, 2);
+      expect(settings.scanConcurrency, AppSettings.recommendedScanConcurrency);
+      expect(settings.pingMethod, ScanPingMethod.tcpFallback);
+      expect(settings.mdnsEnabled, isTrue);
     });
 
     test('persists and reloads updated values', () async {
@@ -34,6 +38,10 @@ void main() {
       await settings.setInAppInternet(true);
       await settings.setRunScanOnStartup(true);
       await settings.setCustomSubnet('192.168.1.0');
+      await settings.setScanTimeout(5);
+      await settings.setScanConcurrency(64);
+      await settings.setPingMethod(ScanPingMethod.icmp);
+      await settings.setMdnsEnabled(false);
 
       final reloaded = AppSettings.instance;
       await reloaded.load();
@@ -46,6 +54,10 @@ void main() {
       expect(reloaded.runScanOnStartup, isTrue);
       expect(reloaded.customSubnet, '192.168.1.0');
       expect(reloaded.gatewayIP, '192.168.1');
+      expect(reloaded.scanTimeout, 5);
+      expect(reloaded.scanConcurrency, 64);
+      expect(reloaded.pingMethod, ScanPingMethod.icmp);
+      expect(reloaded.mdnsEnabled, isFalse);
     });
 
     test('trims spaces around a saved custom subnet', () async {
