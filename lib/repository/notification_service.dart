@@ -288,6 +288,76 @@ class NotificationService {
     );
   }
 
+  /// Channel carrying the alerts for devices that are not trusted.
+  static const String untrustedChannelId = 'untrusted_devices';
+
+  static String get untrustedChannelName =>
+      appStrings().notifUntrustedChannelName;
+
+  /// Payload that opens the trusted devices screen when the alert is tapped.
+  static const String untrustedDevicesPayload = 'untrusted_devices';
+
+  static bool isUntrustedDevicesPayload(String? payload) =>
+      payload == untrustedDevicesPayload;
+
+  static Future<void> showUntrustedDevicesAlert(
+    List<String> devices,
+  ) async {
+    if (devices.isEmpty) return;
+    if (globals.testingActive) {
+      return;
+    }
+    if (Platform.isWindows && !debugIgnorePlatformCheck) {
+      return await Future.value();
+    }
+    final l10n = appStrings();
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        untrustedChannelId,
+        untrustedChannelName,
+        channelDescription: l10n.notifUntrustedChannelDesc,
+        importance: Importance.max,
+        priority: Priority.high,
+        actions: <AndroidNotificationAction>[
+          AndroidNotificationAction(
+            navigationActionId,
+            l10n.notifViewAction,
+          ),
+        ],
+      ),
+      iOS: const DarwinNotificationDetails(
+        categoryIdentifier: darwinNotificationCategoryPlain,
+      ),
+      macOS: const DarwinNotificationDetails(
+        categoryIdentifier: darwinNotificationCategoryPlain,
+      ),
+      linux: LinuxNotificationDetails(
+        actions: <LinuxNotificationAction>[
+          LinuxNotificationAction(
+            key: navigationActionId,
+            label: l10n.notifViewAction,
+          ),
+        ],
+      ),
+    );
+    final listed = devices.take(3).join(', ');
+    final body = devices.length == 1
+        ? l10n.notifUntrustedBodyOne(devices.single)
+        : l10n.notifUntrustedBodyMany(
+            '${devices.length}',
+            devices.length > 3
+                ? '$listed ${l10n.notifUntrustedMore('${devices.length - 3}')}'
+                : listed,
+          );
+    await flutterLocalNotificationsPlugin.show(
+      id: id++,
+      title: l10n.notifUntrustedTitle,
+      body: body,
+      notificationDetails: details,
+      payload: untrustedDevicesPayload,
+    );
+  }
+
   static Future<void> grantPermissions() async {
     if (Platform.isWindows && !debugIgnorePlatformCheck) {
       return await Future.value();

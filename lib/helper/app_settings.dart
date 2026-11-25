@@ -19,6 +19,11 @@ class AppSettings {
   static const String _scanConcurrencyKey = 'AppSettings-SCAN-CONCURRENCY';
   static const String _pingMethodKey = 'AppSettings-PING-METHOD';
   static const String _mdnsEnabledKey = 'AppSettings-MDNS-ENABLED';
+  static const String _autoTrustNewDevicesKey =
+      'AppSettings-AUTO-TRUST-NEW-DEVICES';
+  static const String _notifyUntrustedDevicesKey =
+      'AppSettings-NOTIFY-UNTRUSTED-DEVICES';
+  static const String _trustBaselineKey = 'AppSettings-TRUST-BASELINE';
   int _firstSubnet = 1;
   int _lastSubnet = 254;
   int _socketTimeout = 500;
@@ -35,6 +40,13 @@ class AppSettings {
   int _scanConcurrency = 32;
   ScanPingMethod _pingMethod = ScanPingMethod.tcpFallback;
   bool _mdnsEnabled = true;
+  // The devices already on the network when the feature first runs become the
+  // trusted baseline; anything after that waits for an explicit decision.
+  bool _autoTrustNewDevices = false;
+  bool _notifyUntrustedDevices = true;
+  // Persisted so forgetting every device does not turn the next scan into a
+  // fresh baseline that silently trusts whatever it finds.
+  bool _trustBaselineEstablished = false;
 
   static final AppSettings _instance = AppSettings._();
 
@@ -51,6 +63,9 @@ class AppSettings {
   int get scanConcurrency => _scanConcurrency;
   ScanPingMethod get pingMethod => _pingMethod;
   bool get mdnsEnabled => _mdnsEnabled;
+  bool get autoTrustNewDevices => _autoTrustNewDevices;
+  bool get notifyUntrustedDevices => _notifyUntrustedDevices;
+  bool get trustBaselineEstablished => _trustBaselineEstablished;
 
   static int get recommendedScanConcurrency {
     switch (defaultTargetPlatform) {
@@ -84,6 +99,24 @@ class AppSettings {
     _mdnsEnabled = mdnsEnabled;
     return await (await SharedPreferences.getInstance())
         .setBool(_mdnsEnabledKey, _mdnsEnabled);
+  }
+
+  Future<bool> setAutoTrustNewDevices(bool autoTrustNewDevices) async {
+    _autoTrustNewDevices = autoTrustNewDevices;
+    return await (await SharedPreferences.getInstance())
+        .setBool(_autoTrustNewDevicesKey, _autoTrustNewDevices);
+  }
+
+  Future<bool> setNotifyUntrustedDevices(bool notifyUntrustedDevices) async {
+    _notifyUntrustedDevices = notifyUntrustedDevices;
+    return await (await SharedPreferences.getInstance())
+        .setBool(_notifyUntrustedDevicesKey, _notifyUntrustedDevices);
+  }
+
+  Future<bool> setTrustBaselineEstablished(bool established) async {
+    _trustBaselineEstablished = established;
+    return await (await SharedPreferences.getInstance())
+        .setBool(_trustBaselineKey, _trustBaselineEstablished);
   }
 
   Future<void> resetScanDefaults() async {
@@ -206,6 +239,15 @@ class AppSettings {
     _mdnsEnabled =
         (await SharedPreferences.getInstance()).getBool(_mdnsEnabledKey) ??
             true;
+    _autoTrustNewDevices = (await SharedPreferences.getInstance())
+            .getBool(_autoTrustNewDevicesKey) ??
+        false;
+    _notifyUntrustedDevices = (await SharedPreferences.getInstance())
+            .getBool(_notifyUntrustedDevicesKey) ??
+        true;
+    _trustBaselineEstablished =
+        (await SharedPreferences.getInstance()).getBool(_trustBaselineKey) ??
+            false;
   }
 
   ({int first, int last}) calculateHostRange(
@@ -291,5 +333,8 @@ class AppSettings {
     _scanConcurrency = recommendedScanConcurrency;
     _pingMethod = ScanPingMethod.tcpFallback;
     _mdnsEnabled = true;
+    _autoTrustNewDevices = false;
+    _notifyUntrustedDevices = true;
+    _trustBaselineEstablished = false;
   }
 }

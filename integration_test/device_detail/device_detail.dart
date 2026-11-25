@@ -18,6 +18,8 @@ import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -58,6 +60,27 @@ void main() {
     appSettings.resetForTesting();
     TestUtils.configureAndroidChannelMocks();
   });
+
+  /// Polls the registry because the switch writes through the service and the
+  /// card rebuilds from the watcher stream, not from the tap itself.
+  Future<void> waitForTrust(
+    WidgetTester tester,
+    DeviceTrustService service,
+    DeviceData device, {
+    required bool trusted,
+  }) async {
+    final deadline = DateTime.now().add(const Duration(seconds: 10));
+    while (DateTime.now().isBefore(deadline)) {
+      final rows = await service.getAll();
+      if (DeviceTrustService.knownDeviceFor(rows, device)?.trusted == trusted) {
+        await tester.pump();
+        return;
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    fail('the registry never recorded ${device.internetAddress} as '
+        'trusted=$trusted');
+  }
 
   Widget buildTestApp({DeviceData device = testDevice}) {
     return ChangeNotifierProvider(
@@ -242,6 +265,44 @@ void main() {
             find.byType(CircularProgressIndicator).evaluate().isNotEmpty,
         isTrue,
       );
+    });
+
+    testWidgets('trust card reflects and updates the device registry',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final trustService = getIt<DeviceTrustService>();
+      final deviceKey = DeviceUtil.deviceKey(testDevice);
+      await trustService.forget(deviceKey);
+      await trustService.setTrusted(testDevice, false);
+      addTearDown(() => trustService.forget(deviceKey));
+
+      await tester.pumpWidget(buildTestApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text(_en.deviceTrustCardTitle), findsOneWidget);
+      final trustSwitch = find.byKey(WidgetKey.deviceDetailTrustSwitch.key);
+      await tester.ensureVisible(trustSwitch);
+      await tester.pump();
+
+      expect(tester.widget<SwitchListTile>(trustSwitch).value, isFalse);
+      expect(find.text(_en.deviceTrustToggleOff), findsOneWidget);
+
+      await tester.tap(trustSwitch);
+      await waitForTrust(
+        tester,
+        trustService,
+        testDevice,
+        trusted: true,
+      );
+
+      expect(tester.widget<SwitchListTile>(trustSwitch).value, isTrue);
+      expect(find.text(_en.deviceTrustToggleOn), findsOneWidget);
     });
   });
 

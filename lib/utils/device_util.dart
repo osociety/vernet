@@ -5,6 +5,52 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 
 class DeviceUtil {
+  /// Canonical colon-separated form of [mac], or null when the value is not a
+  /// twelve-digit hardware address.
+  ///
+  /// Devices report MACs with colons, dashes or no separators at all, and the
+  /// registry compares them, so every spelling has to land on one form.
+  static String? normalizedMacAddress(String? mac) {
+    final hex = (mac ?? '').trim().toLowerCase().replaceAll(
+          RegExp('[^0-9a-f]'),
+          '',
+        );
+    if (hex.length != 12) return null;
+    return [
+      for (var index = 0; index < 12; index += 2)
+        hex.substring(index, index + 2),
+    ].join(':');
+  }
+
+  static bool isValidMacAddress(String mac) =>
+      normalizedMacAddress(mac) != null;
+
+  /// The registry key for a device that exposes [mac].
+  static String? macDeviceKey(String? mac) {
+    final normalized = normalizedMacAddress(mac);
+    return normalized == null ? null : 'mac:$normalized';
+  }
+
+  /// The registry key for a device whose MAC is unknown.
+  static String addressDeviceKey(String address) => 'ip:${address.trim()}';
+
+  /// The identity a device keeps between scans.
+  ///
+  /// The MAC wins because a DHCP lease change moves the address but not the
+  /// hardware; the address covers adapters that expose no MAC.
+  static String deviceKey(DeviceData device) =>
+      macDeviceKey(device.macAddress) ??
+      addressDeviceKey(device.internetAddress);
+
+  /// Every key [device] can be known by, most stable first.
+  static List<String> deviceKeys(DeviceData device) {
+    final macKey = macDeviceKey(device.macAddress);
+    return [
+      if (macKey != null) macKey,
+      addressDeviceKey(device.internetAddress),
+    ];
+  }
+
   static bool _isLikelyNetworkService(String? name) {
     final normalizedName = (name ?? '').toLowerCase();
     return normalizedName.contains('dhcp') ||

@@ -12,8 +12,10 @@ import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/known_device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 
@@ -50,10 +52,14 @@ void main() {
     final scanRepository = ScanRepository(databaseService);
     final deviceRepository = DeviceRepository(databaseService);
     final networkScoreRepository = NetworkScoreRepository();
+    final deviceTrustService = DeviceTrustService(
+      KnownDeviceRepository(databaseService),
+    );
     final networkScoreService = NetworkScoreService(
       scanRepository: scanRepository,
       deviceRepository: deviceRepository,
       scoreRepository: networkScoreRepository,
+      deviceTrustService: deviceTrustService,
     );
     final networkScoreBloc = NetworkScoreBloc(
       scoreService: networkScoreService,

@@ -33,6 +33,7 @@ import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/pages/subnet_calculator_page.dart';
+import 'package:vernet/pages/trusted_devices_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/providers/locale_provider.dart';
@@ -124,14 +125,14 @@ class _MyAppState extends State<MyApp> {
     }
     _notificationTapSubscription = NotificationService
         .selectNotificationStream.stream
-        .listen(_openScanFromNotification);
+        .listen(_handleNotificationTap);
     // Tapping while the app was stopped delivers the payload during
     // `initNotification`, before anything listens to the stream.
     final launchPayload = NotificationService.selectedNotificationPayload;
     if (launchPayload != null) {
       NotificationService.selectedNotificationPayload = null;
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _openScanFromNotification(launchPayload),
+        (_) => _handleNotificationTap(launchPayload),
       );
     }
     getCurrentAppTheme();
@@ -142,6 +143,21 @@ class _MyAppState extends State<MyApp> {
   void dispose() {
     _notificationTapSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _handleNotificationTap(String? payload) async {
+    if (NotificationService.isUntrustedDevicesPayload(payload)) {
+      final navigator = MyApp.navigatorKey.currentState;
+      if (navigator == null) return;
+      await Navigator.push<void>(
+        navigator.context,
+        MaterialPageRoute<void>(
+          builder: (_) => const TrustedDevicesPage(),
+        ),
+      );
+      return;
+    }
+    await _openScanFromNotification(payload);
   }
 
   Future<void> _openScanFromNotification(String? payload) async {

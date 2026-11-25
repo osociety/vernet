@@ -17,7 +17,10 @@ import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart'
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/device_trust_badge.dart';
+import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -510,6 +513,52 @@ void main() {
       expect(find.text(_en.scanReportNoDevices), findsOneWidget);
       expect(find.text(_en.scanReportDiscoveredDevices), findsOneWidget);
       expect(find.byType(AdaptiveListTile), findsNothing);
+    });
+
+    testWidgets('report badges state each device trust decision',
+        (tester) async {
+      _useWindow(tester, _desktopWindow);
+      final start = DateTime.now().subtract(const Duration(hours: 2));
+
+      await _insertScan(
+        id: 801,
+        gatewayIp: '192.168.0',
+        startTime: start,
+        endTime: start.add(const Duration(seconds: 30)),
+      );
+      final trustedDevice = await _insertDevice(
+        id: 8101,
+        scanId: 801,
+        gatewayIp: '192.168.0',
+        internetAddress: '192.168.0.5',
+        macAddress: '00:03:93:AA:BB:01',
+        hostMake: 'Living Room TV',
+      );
+      final untrustedDevice = await _insertDevice(
+        id: 8102,
+        scanId: 801,
+        gatewayIp: '192.168.0',
+        internetAddress: '192.168.0.9',
+        macAddress: '00:03:93:AA:BB:02',
+        hostMake: 'Guest Phone',
+      );
+
+      final trustService = getIt<DeviceTrustService>();
+      await trustService.setTrusted(trustedDevice, true);
+      await trustService.setTrusted(untrustedDevice, false);
+      addTearDown(() async {
+        for (final device in [trustedDevice, untrustedDevice]) {
+          await trustService.forget(DeviceUtil.deviceKey(device));
+        }
+      });
+
+      await _pumpApp(tester);
+      await _openHistoryFromHome(tester);
+      await _openScanReport(tester, '192.168.0');
+
+      expect(find.byType(DeviceTrustBadge), findsNWidgets(2));
+      expect(find.byIcon(Icons.verified_user), findsOneWidget);
+      expect(find.byIcon(Icons.gpp_maybe), findsOneWidget);
     });
 
     testWidgets('a completed device scan appears in previous scans',

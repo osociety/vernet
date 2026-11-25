@@ -2490,6 +2490,212 @@
       }
     }
   },
+  "notifUntrustedChannelName": "Untrusted devices",
+  "@notifUntrustedChannelName": {
+    "description": "Name of the untrusted device alert channel."
+  },
+  "notifUntrustedChannelDesc": "Alerts when an unknown device joins your network",
+  "@notifUntrustedChannelDesc": {
+    "description": "Description of the untrusted device alert channel."
+  },
+  "notifUntrustedTitle": "New device on your network",
+  "@notifUntrustedTitle": {
+    "description": "Title of the alert for devices that are not trusted."
+  },
+  "notifUntrustedBodyOne": "{device} joined your network. Tap to review it.",
+  "@notifUntrustedBodyOne": {
+    "description": "Body of the alert when one untrusted device joined.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUntrustedBodyMany": "{count} new devices joined your network: {devices}",
+  "@notifUntrustedBodyMany": {
+    "description": "Body of the alert when several untrusted devices joined.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "devices": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUntrustedMore": "and {count} more",
+  "@notifUntrustedMore": {
+    "description": "Tail of the device list when more devices joined than listed.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceTrustTrusted": "Trusted device",
+  "@deviceTrustTrusted": {
+    "description": "Tooltip on the shield shown for a trusted device."
+  },
+  "deviceTrustUntrusted": "Not a trusted device",
+  "@deviceTrustUntrusted": {
+    "description": "Tooltip on the warning shield shown for an untrusted device."
+  },
+  "deviceTrustMarkedTrusted": "{device} is now trusted",
+  "@deviceTrustMarkedTrusted": {
+    "description": "Confirmation after a device is marked as trusted.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceTrustMarkedUntrusted": "{device} is no longer trusted",
+  "@deviceTrustMarkedUntrusted": {
+    "description": "Confirmation after a device is marked as untrusted.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceTrustUpdateFailed": "Could not update this device's trust",
+  "@deviceTrustUpdateFailed": {
+    "description": "Shown when saving a trust decision fails."
+  },
+  "deviceTrustCardTitle": "Device trust",
+  "@deviceTrustCardTitle": {
+    "description": "Heading of the trust card on the device detail page."
+  },
+  "deviceTrustCardDescription": "Vernet alerts you when a device you have not trusted joins your network.",
+  "@deviceTrustCardDescription": {
+    "description": "Explanation under the trust card heading."
+  },
+  "deviceTrustToggleLabel": "Trust this device",
+  "@deviceTrustToggleLabel": {
+    "description": "Label of the trust switch."
+  },
+  "deviceTrustToggleOn": "This device is trusted",
+  "@deviceTrustToggleOn": {
+    "description": "Switch subtitle while the device is trusted."
+  },
+  "deviceTrustToggleOff": "This device is not trusted",
+  "@deviceTrustToggleOff": {
+    "description": "Switch subtitle while the device is untrusted."
+  },
+  "trustedDevicesTitle": "Trusted devices",
+  "@trustedDevicesTitle": {
+    "description": "Title of the trust management page."
+  },
+  "trustedDevicesSubtitle": "Review devices you trust and manage join alerts",
+  "@trustedDevicesSubtitle": {
+    "description": "Settings row subtitle opening the trust page."
+  },
+  "trustedDevicesEmpty": "No devices yet. The devices in your first scan become trusted automatically, or add one by its MAC address.",
+  "@trustedDevicesEmpty": {
+    "description": "Empty state of the trust management page."
+  },
+  "trustedDevicesFilterAll": "All",
+  "@trustedDevicesFilterAll": {
+    "description": "Trust filter showing every known device."
+  },
+  "trustedDevicesFilterTrusted": "Trusted",
+  "@trustedDevicesFilterTrusted": {
+    "description": "Trust filter showing only trusted devices."
+  },
+  "trustedDevicesFilterUntrusted": "Untrusted",
+  "@trustedDevicesFilterUntrusted": {
+    "description": "Trust filter showing only untrusted devices."
+  },
+  "trustedDevicesFilterEmpty": "No devices match this filter",
+  "@trustedDevicesFilterEmpty": {
+    "description": "Empty state when the chosen trust filter has no rows."
+  },
+  "trustedDevicesTrustAction": "Trust",
+  "@trustedDevicesTrustAction": {
+    "description": "Action that trusts a listed device."
+  },
+  "trustedDevicesUntrustAction": "Remove trust",
+  "@trustedDevicesUntrustAction": {
+    "description": "Action that revokes trust from a listed device."
+  },
+  "trustedDevicesForget": "Forget device",
+  "@trustedDevicesForget": {
+    "description": "Action that deletes a device from the registry."
+  },
+  "trustedDevicesForgetConfirmTitle": "Forget this device?",
+  "@trustedDevicesForgetConfirmTitle": {
+    "description": "Title of the confirmation before deleting a registry row."
+  },
+  "trustedDevicesForgetConfirmBody": "{device} is removed from the registry. The next scan that finds it treats it as a new device.",
+  "@trustedDevicesForgetConfirmBody": {
+    "description": "Body of the confirmation before deleting a registry row.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "trustedDevicesForgotten": "Device forgotten",
+  "@trustedDevicesForgotten": {
+    "description": "Confirmation after deleting a registry row."
+  },
+  "trustedDevicesAddTitle": "Trust a device by MAC address",
+  "@trustedDevicesAddTitle": {
+    "description": "Heading of the manual add form."
+  },
+  "trustedDevicesMacLabel": "MAC address",
+  "@trustedDevicesMacLabel": {
+    "description": "Label of the manual MAC field."
+  },
+  "trustedDevicesNameLabel": "Name (optional)",
+  "@trustedDevicesNameLabel": {
+    "description": "Label of the optional name for a manual device."
+  },
+  "trustedDevicesAddButton": "Add trusted device",
+  "@trustedDevicesAddButton": {
+    "description": "Submit button of the manual add form."
+  },
+  "trustedDevicesMacInvalid": "Enter a MAC address such as 00:1A:2B:3C:4D:5E",
+  "@trustedDevicesMacInvalid": {
+    "description": "Validation error for the manual MAC field."
+  },
+  "trustedDevicesAdded": "Trusted device added",
+  "@trustedDevicesAdded": {
+    "description": "Confirmation after adding a device by MAC address."
+  },
+  "trustedDevicesLastSeen": "Last seen {when}",
+  "@trustedDevicesLastSeen": {
+    "description": "When the registry last saw a device.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "trustedDevicesNeverSeen": "Not seen in a scan yet",
+  "@trustedDevicesNeverSeen": {
+    "description": "Shown for a device added only by MAC address."
+  },
+  "settingsTrustedDevicesDesc": "Review trusted devices and add one by MAC address",
+  "@settingsTrustedDevicesDesc": {
+    "description": "Subtitle of the trusted devices settings row."
+  },
+  "settingsAutoTrustNewDevices": "Trust new devices automatically",
+  "@settingsAutoTrustNewDevices": {
+    "description": "Setting that trusts each device a scan finds."
+  },
+  "settingsAutoTrustNewDevicesDesc": "Devices are trusted as soon as a scan finds them",
+  "@settingsAutoTrustNewDevicesDesc": {
+    "description": "Subtitle of the automatic trust setting."
+  },
+  "settingsNotifyUntrustedDevices": "Alert on untrusted devices",
+  "@settingsNotifyUntrustedDevices": {
+    "description": "Setting that enables the join alert."
+  },
+  "settingsNotifyUntrustedDevicesDesc": "Notify when a device you have not trusted joins your network",
+  "@settingsNotifyUntrustedDevicesDesc": {
+    "description": "Subtitle of the untrusted device alert setting."
+  },
   "deviceDetailUnknownDevice": "Unknown device",
   "@deviceDetailUnknownDevice": {
     "description": "Fallback device name."
@@ -2742,6 +2948,22 @@
   "scoreSecurityUnknownTip": "Tip: Identify unknown devices or run network scan to refresh device list",
   "@scoreSecurityUnknownTip": {
     "description": "Advice shown when devices are unidentified."
+  },
+  "scoreSecurityUntrustedDevices": "✗ {count} untrusted device(s) on network (-{points} points)",
+  "@scoreSecurityUntrustedDevices": {
+    "description": "Security factor counting devices the user marked untrusted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityUntrustedTip": "Tip: Review them in Settings → Trusted devices, or mark them trusted from the scan results",
+  "@scoreSecurityUntrustedTip": {
+    "description": "Advice shown when untrusted devices are on the network."
   },
   "scoreSecurityAllIdentified": "✓ All {count} device(s) identified",
   "@scoreSecurityAllIdentified": {
@@ -3444,7 +3666,7 @@
   "@scoreVulnActionPorts": {
     "description": "Third remediation step."
   },
-  "scoreVulnActionTrust": "• Consider enabling device trust features",
+  "scoreVulnActionTrust": "• Review untrusted devices and mark the ones you recognize as trusted",
   "@scoreVulnActionTrust": {
     "description": "Fourth remediation step."
   },

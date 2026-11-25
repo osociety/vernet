@@ -71,6 +71,7 @@ const Set<String> kGermanKeepsTheEnglish = {
   'speedTestMetricDownload',
   'speedTestMetricUpload',
   'commonName',
+  'trustedDevicesNameLabel',
   'wakeOnLanNameLabel',
   'scanHistoryScansLabel',
   'scanHistoryStatusColumn',

@@ -7,7 +7,9 @@ import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 
@@ -1062,7 +1064,7 @@ class _ScanTimelineRow extends StatelessWidget {
   }
 }
 
-class _DeviceResultsPanel extends StatelessWidget {
+class _DeviceResultsPanel extends StatefulWidget {
   const _DeviceResultsPanel({
     required this.devices,
     required this.isWide,
@@ -1074,7 +1076,37 @@ class _DeviceResultsPanel extends StatelessWidget {
   final ValueChanged<DeviceData> onDeviceTap;
 
   @override
+  State<_DeviceResultsPanel> createState() => _DeviceResultsPanelState();
+}
+
+class _DeviceResultsPanelState extends State<_DeviceResultsPanel> {
+  Stream<List<KnownDeviceData>>? _knownDevices;
+
+  @override
+  void initState() {
+    super.initState();
+    if (getIt.isRegistered<DeviceTrustService>()) {
+      _knownDevices = getIt<DeviceTrustService>().watchAll();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final knownDevices = _knownDevices;
+    if (knownDevices == null) return _buildPanel(context, const []);
+    return StreamBuilder<List<KnownDeviceData>>(
+      stream: knownDevices,
+      builder: (context, snapshot) =>
+          _buildPanel(context, snapshot.data ?? const []),
+    );
+  }
+
+  Widget _buildPanel(
+    BuildContext context,
+    List<KnownDeviceData> knownDevices,
+  ) {
+    final devices = widget.devices;
+    final isWide = widget.isWide;
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Material(
@@ -1134,12 +1166,20 @@ class _DeviceResultsPanel extends StatelessWidget {
               if (isWide)
                 _DesktopDeviceRow(
                   device: devices[index],
-                  onTap: () => onDeviceTap(devices[index]),
+                  knownDevice: DeviceTrustService.knownDeviceFor(
+                    knownDevices,
+                    devices[index],
+                  ),
+                  onTap: () => widget.onDeviceTap(devices[index]),
                 )
               else
                 _MobileDeviceRow(
                   device: devices[index],
-                  onTap: () => onDeviceTap(devices[index]),
+                  knownDevice: DeviceTrustService.knownDeviceFor(
+                    knownDevices,
+                    devices[index],
+                  ),
+                  onTap: () => widget.onDeviceTap(devices[index]),
                 ),
             ],
           ],
@@ -1203,10 +1243,15 @@ class _DeviceTableHeader extends StatelessWidget {
 }
 
 class _DesktopDeviceRow extends StatelessWidget {
-  const _DesktopDeviceRow({required this.device, required this.onTap});
+  const _DesktopDeviceRow({
+    required this.device,
+    required this.onTap,
+    this.knownDevice,
+  });
 
   final DeviceData device;
   final VoidCallback onTap;
+  final KnownDeviceData? knownDevice;
 
   @override
   Widget build(BuildContext context) {
@@ -1230,14 +1275,24 @@ class _DesktopDeviceRow extends StatelessWidget {
                   _DeviceAvatar(device: device),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      DeviceUtil.makeLabel(
-                            context.l10n,
-                            DeviceUtil.getDeviceMake(device),
-                          ) ??
-                          context.l10n.unknownDevice,
-                      style: textTheme.titleSmall,
-                      overflow: TextOverflow.ellipsis,
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            DeviceUtil.makeLabel(
+                                  context.l10n,
+                                  DeviceUtil.getDeviceMake(device),
+                                ) ??
+                                context.l10n.unknownDevice,
+                            style: textTheme.titleSmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (knownDevice != null) ...[
+                          const SizedBox(width: 6),
+                          DeviceTrustBadge(trusted: knownDevice!.trusted),
+                        ],
+                      ],
                     ),
                   ),
                 ],
@@ -1283,10 +1338,15 @@ class _DesktopDeviceRow extends StatelessWidget {
 }
 
 class _MobileDeviceRow extends StatelessWidget {
-  const _MobileDeviceRow({required this.device, required this.onTap});
+  const _MobileDeviceRow({
+    required this.device,
+    required this.onTap,
+    this.knownDevice,
+  });
 
   final DeviceData device;
   final VoidCallback onTap;
+  final KnownDeviceData? knownDevice;
 
   @override
   Widget build(BuildContext context) {
@@ -1297,12 +1357,24 @@ class _MobileDeviceRow extends StatelessWidget {
         '${vendorName != null && vendorName.isNotEmpty ? ' • $vendorName' : ''}';
     return AdaptiveListTile(
       leading: _DeviceAvatar(device: device),
-      title: Text(
-        DeviceUtil.makeLabel(
-              context.l10n,
-              DeviceUtil.getDeviceMake(device),
-            ) ??
-            context.l10n.unknownDevice,
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              DeviceUtil.makeLabel(
+                    context.l10n,
+                    DeviceUtil.getDeviceMake(device),
+                  ) ??
+                  context.l10n.unknownDevice,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (knownDevice != null) ...[
+            const SizedBox(width: 6),
+            DeviceTrustBadge(trusted: knownDevice!.trusted),
+          ],
+        ],
       ),
       subtitle: Text(subtitle),
       onTap: onTap,

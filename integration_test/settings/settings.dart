@@ -15,6 +15,7 @@ import 'in_app_internet.dart' as in_app_internet_test;
 import 'scan_behavior.dart' as scan_behavior_test;
 import 'subnet_tests.dart' as subnet_test;
 import 'test_utils.dart';
+import 'trusted_devices.dart' as trusted_devices_test;
 
 void main() {
   globals.testingActive = true;
@@ -41,5 +42,6 @@ void main() {
   dark_theme_test.main();
   subnet_test.main();
   scan_behavior_test.main();
+  trusted_devices_test.main();
   in_app_internet_test.main();
 }

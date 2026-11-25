@@ -142,4 +142,78 @@ void main() {
     expect(NotificationService.isScanPayload(null), isFalse);
     expect(NotificationService.isScanPayload(''), isFalse);
   });
+
+  group('untrusted device alert', () {
+    test('names the single device and opens the trust screen', () async {
+      await NotificationService.showUntrustedDevicesAlert([
+        'Living Room TV · 192.168.0.5 · 00:11:22:33:44:55',
+      ]);
+
+      final details = verify(
+        () => plugin.show(
+          id: any(named: 'id'),
+          title: l10n.notifUntrustedTitle,
+          body: l10n.notifUntrustedBodyOne(
+            'Living Room TV · 192.168.0.5 · 00:11:22:33:44:55',
+          ),
+          notificationDetails: captureAny(named: 'notificationDetails'),
+          payload: NotificationService.untrustedDevicesPayload,
+        ),
+      ).captured.single as NotificationDetails;
+
+      expect(details.android?.channelId, 'untrusted_devices');
+      expect(details.android?.channelName, l10n.notifUntrustedChannelName);
+      expect(
+        details.android?.actions?.single.id,
+        NotificationService.navigationActionId,
+      );
+      expect(
+          NotificationService.isUntrustedDevicesPayload(
+            NotificationService.untrustedDevicesPayload,
+          ),
+          isTrue);
+      expect(
+          NotificationService.isScanPayload(
+            NotificationService.untrustedDevicesPayload,
+          ),
+          isFalse);
+    });
+
+    test('counts the batch and trims the list past three devices', () async {
+      await NotificationService.showUntrustedDevicesAlert([
+        '192.168.0.5',
+        '192.168.0.6',
+        '192.168.0.7',
+        '192.168.0.8',
+      ]);
+
+      verify(
+        () => plugin.show(
+          id: any(named: 'id'),
+          title: l10n.notifUntrustedTitle,
+          body: l10n.notifUntrustedBodyMany(
+            '4',
+            '192.168.0.5, 192.168.0.6, 192.168.0.7 '
+                '${l10n.notifUntrustedMore('1')}',
+          ),
+          notificationDetails: any(named: 'notificationDetails'),
+          payload: NotificationService.untrustedDevicesPayload,
+        ),
+      ).called(1);
+    });
+
+    test('does nothing without devices', () async {
+      await NotificationService.showUntrustedDevicesAlert(const []);
+
+      verifyNever(
+        () => plugin.show(
+          id: any(named: 'id'),
+          title: any(named: 'title'),
+          body: any(named: 'body'),
+          notificationDetails: any(named: 'notificationDetails'),
+          payload: any(named: 'payload'),
+        ),
+      );
+    });
+  });
 }

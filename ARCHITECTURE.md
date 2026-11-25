@@ -86,6 +86,32 @@ lib/services/network_scanner/
 
 ------------------------------------------------------------------------
 
+### Device Trust
+
+Remember which discovered devices the user trusts and alert when an
+untrusted one joins.
+
+Responsibilities:
+
+-   trust registry keyed by normalized MAC address, falling back to the
+    IP address for devices that expose no MAC
+-   first-scan baseline that trusts the devices already on the network
+-   ip-to-mac key migration when a later scan resolves the MAC
+-   local notification when a scan finds a device outside the registry
+-   security dimension of the network score deducts five points per
+    untrusted device in the latest scan, capped at 25
+-   review, revoke, forget, and add-ahead-by-MAC from
+    `lib/pages/trusted_devices_page.dart`
+
+The registry is a drift table (`KnownDevice`), read through
+`KnownDeviceRepository` and orchestrated by
+`lib/services/device_trust_service.dart`. Scan results reach it from the
+host scan BLoC and the home page startup scan; both call
+`recordScan()`, which evaluates the batch, persists sightings, and raises
+the notification.
+
+------------------------------------------------------------------------
+
 ### Port Scanner
 
 Scan TCP ports on a target host.

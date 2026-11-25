@@ -5,14 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/port_desc_loader.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/models/port.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
@@ -39,18 +42,57 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
   bool _portScanCompleted = false;
   StreamSubscription<ActiveHost>? _portScanSubscription;
 
+  DeviceTrustService? _trustService;
+  StreamSubscription<List<KnownDeviceData>>? _trustSubscription;
+  KnownDeviceData? _knownDevice;
+  bool _trustBusy = false;
+
   @override
   void initState() {
     super.initState();
     if (widget.autoScan) {
       Future.delayed(Durations.short2, _startQuickPortScan);
     }
+    // The detail page also opens from stored scans, whose rows exist before
+    // any scan of this session, so the registry is read rather than assumed.
+    if (getIt.isRegistered<DeviceTrustService>()) {
+      _trustService = getIt<DeviceTrustService>();
+      _trustSubscription =
+          _trustService!.watchAll().listen(_onKnownDevicesChanged);
+    }
+  }
+
+  void _onKnownDevicesChanged(List<KnownDeviceData> knownDevices) {
+    if (!mounted) return;
+    setState(() {
+      _knownDevice =
+          DeviceTrustService.knownDeviceFor(knownDevices, widget.device);
+    });
   }
 
   @override
   void dispose() {
     _portScanSubscription?.cancel();
+    _trustSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _setTrust(bool trusted) async {
+    final service = _trustService;
+    if (service == null) return;
+    setState(() => _trustBusy = true);
+    try {
+      await service.setTrusted(widget.device, trusted);
+    } catch (error) {
+      debugPrint('Device trust update failed: $error');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.deviceTrustUpdateFailed)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _trustBusy = false);
+    }
   }
 
   void _startQuickPortScan() {
@@ -111,6 +153,11 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           _buildHeaderCard(device, deviceMake, iconData, theme, colorScheme),
           const SizedBox(height: 12),
 
+          if (_trustService != null) ...[
+            _buildTrustCard(theme, colorScheme),
+            const SizedBox(height: 12),
+          ],
+
           // Network information card
           _buildNetworkInfoCard(device, theme, colorScheme),
           const SizedBox(height: 12),
@@ -158,10 +205,21 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    key: WidgetKey.deviceDetailName.key,
-                    deviceMake ?? context.l10n.deviceDetailUnknownDevice,
-                    style: theme.textTheme.titleLarge,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          key: WidgetKey.deviceDetailName.key,
+                          deviceMake ?? context.l10n.deviceDetailUnknownDevice,
+                          style: theme.textTheme.titleLarge,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (_knownDevice != null) ...[
+                        const SizedBox(width: 8),
+                        DeviceTrustBadge(trusted: _knownDevice!.trusted),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 4),
                   SelectableText(
@@ -184,6 +242,39 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTrustCard(ThemeData theme, ColorScheme colorScheme) {
+    final trusted = _knownDevice?.trusted ?? false;
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            leading: Icon(
+              trusted ? Icons.verified_user : Icons.gpp_maybe,
+              color: trusted ? colorScheme.primary : colorScheme.error,
+            ),
+            title: Text(
+              context.l10n.deviceTrustCardTitle,
+              style: theme.textTheme.titleMedium,
+            ),
+            subtitle: Text(context.l10n.deviceTrustCardDescription),
+          ),
+          SwitchListTile(
+            key: WidgetKey.deviceDetailTrustSwitch.key,
+            title: Text(context.l10n.deviceTrustToggleLabel),
+            subtitle: Text(
+              trusted
+                  ? context.l10n.deviceTrustToggleOn
+                  : context.l10n.deviceTrustToggleOff,
+            ),
+            value: trusted,
+            onChanged: _trustBusy ? null : _setTrust,
+          ),
+        ],
       ),
     );
   }

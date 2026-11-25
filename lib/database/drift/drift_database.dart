@@ -3,11 +3,12 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vernet/models/drift/device.dart';
+import 'package:vernet/models/drift/known_device.dart';
 import 'package:vernet/models/drift/scan.dart';
 
 part 'drift_database.g.dart';
 
-@DriftDatabase(tables: [Device, Scan])
+@DriftDatabase(tables: [Device, Scan, KnownDevice])
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
   // and a constructor telling drift where the database should be stored.
@@ -15,67 +16,86 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(
-        beforeOpen: (details) async {
-          if (details.wasCreated) return;
+  MigrationStrategy get migration {
+    final migrator = Migrator(this);
+    return MigrationStrategy(
+      beforeOpen: (details) async {
+        if (details.wasCreated) return;
 
-          // Handle databases created before migration support was added.
-          // Check if device_type column exists, add it if missing.
+        // Handle databases created before migration support was added.
+        // Check if device_type column exists, add it if missing.
+        try {
+          await customStatement('SELECT device_type FROM device LIMIT 0');
+        } catch (_) {
+          debugPrint('Adding missing device_type column');
+          await customStatement(
+              'ALTER TABLE device ADD COLUMN device_type TEXT');
+        }
+
+        // Check if open_ports column exists, add it if missing.
+        try {
+          await customStatement('SELECT open_ports FROM device LIMIT 0');
+        } catch (_) {
+          debugPrint('Adding missing open_ports column');
+          await customStatement(
+              'ALTER TABLE device ADD COLUMN open_ports TEXT');
+        }
+
+        // Check if vendor_name column exists, add it if missing.
+        try {
+          await customStatement('SELECT vendor_name FROM device LIMIT 0');
+        } catch (_) {
+          debugPrint('Adding missing vendor_name column');
+          await customStatement(
+              'ALTER TABLE device ADD COLUMN vendor_name TEXT');
+        }
+
+        // The trust registry arrived after migration support did, so a store
+        // that recorded version 5 without the table needs the same repair.
+        try {
+          await customStatement('SELECT 1 FROM known_device LIMIT 0');
+        } catch (_) {
+          debugPrint('Adding missing known_device table');
+          await migrator.createTable(knownDevice);
+        }
+      },
+      onUpgrade: (m, from, to) async {
+        debugPrint('Database upgrade from version $from to $to');
+        // Use customStatement to check if columns exist before adding
+        if (from < 2) {
           try {
             await customStatement('SELECT device_type FROM device LIMIT 0');
           } catch (_) {
-            debugPrint('Adding missing device_type column');
-            await customStatement(
-                'ALTER TABLE device ADD COLUMN device_type TEXT');
+            await m.addColumn(device, device.deviceType);
           }
-
-          // Check if open_ports column exists, add it if missing.
+        }
+        if (from < 3) {
           try {
             await customStatement('SELECT open_ports FROM device LIMIT 0');
           } catch (_) {
-            debugPrint('Adding missing open_ports column');
-            await customStatement(
-                'ALTER TABLE device ADD COLUMN open_ports TEXT');
+            await m.addColumn(device, device.openPorts);
           }
-
-          // Check if vendor_name column exists, add it if missing.
+        }
+        if (from < 4) {
           try {
             await customStatement('SELECT vendor_name FROM device LIMIT 0');
           } catch (_) {
-            debugPrint('Adding missing vendor_name column');
-            await customStatement(
-                'ALTER TABLE device ADD COLUMN vendor_name TEXT');
+            await m.addColumn(device, device.vendorName);
           }
-        },
-        onUpgrade: (m, from, to) async {
-          debugPrint('Database upgrade from version $from to $to');
-          // Use customStatement to check if columns exist before adding
-          if (from < 2) {
-            try {
-              await customStatement('SELECT device_type FROM device LIMIT 0');
-            } catch (_) {
-              await m.addColumn(device, device.deviceType);
-            }
+        }
+        if (from < 5) {
+          try {
+            await customStatement('SELECT 1 FROM known_device LIMIT 0');
+          } catch (_) {
+            await m.createTable(knownDevice);
           }
-          if (from < 3) {
-            try {
-              await customStatement('SELECT open_ports FROM device LIMIT 0');
-            } catch (_) {
-              await m.addColumn(device, device.openPorts);
-            }
-          }
-          if (from < 4) {
-            try {
-              await customStatement('SELECT vendor_name FROM device LIMIT 0');
-            } catch (_) {
-              await m.addColumn(device, device.vendorName);
-            }
-          }
-        },
-      );
+        }
+      },
+    );
+  }
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
