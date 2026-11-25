@@ -543,4 +543,45 @@ void main() {
 
     await disposeTree(tester);
   });
+
+  testWidgets('records the finished scan in the trust registry',
+      (tester) async {
+    final trustService = await registerTrustService();
+
+    await runScan(
+      tester,
+      _FakeScannerService(devices: const [
+        DeviceData(
+          id: 1,
+          scanId: 1,
+          internetAddress: '192.168.1.42',
+          macAddress: '00:03:93:AA:BB:01',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+          hostMake: 'Living room TV',
+        ),
+      ]),
+    );
+
+    // The trust pass runs after the result is on screen, so it needs the real
+    // event loop to reach the drift write.
+    for (var i = 0; i < 20; i++) {
+      if ((await trustService.getAll()).isNotEmpty) break;
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    final rows = await trustService.getAll();
+    expect(rows, hasLength(1));
+    expect(rows.single.deviceKey, 'mac:00:03:93:aa:bb:01');
+    expect(
+      rows.single.trusted,
+      isTrue,
+      reason: 'the first scan establishes the trusted baseline',
+    );
+
+    await disposeTree(tester);
+  });
 }

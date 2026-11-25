@@ -98,6 +98,8 @@ Responsibilities:
 -   first-scan baseline that trusts the devices already on the network
 -   ip-to-mac key migration when a later scan resolves the MAC
 -   local notification when a scan finds a device outside the registry
+-   security dimension of the network score deducts five points per
+    untrusted device in the latest scan, capped at 25
 -   review, revoke, forget, and add-ahead-by-MAC from
     `lib/pages/trusted_devices_page.dart`
 

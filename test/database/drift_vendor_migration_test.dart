@@ -25,6 +25,21 @@ Future<File> _seedDatabaseWithoutVendor(
   return file;
 }
 
+/// Leaves a database file without the trust registry, as an install made
+/// before the registry shipped would have it.
+Future<File> _seedDatabaseWithoutTrustRegistry(
+  Directory dir,
+  String name, {
+  required int userVersion,
+}) async {
+  final file = File('${dir.path}${Platform.pathSeparator}$name');
+  final database = AppDatabase(NativeDatabase(file));
+  await database.customStatement('DROP TABLE known_device');
+  await database.customStatement('PRAGMA user_version = $userVersion');
+  await database.close();
+  return file;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -83,6 +98,52 @@ void main() {
 
       expect((await reopened.select(reopened.device).getSingle()).vendorName,
           'NETGEAR');
+    });
+  });
+
+  group('known_device migration', () {
+    Future<void> expectRegistryUsable(AppDatabase database) async {
+      await database.into(database.knownDevice).insert(
+            KnownDeviceCompanion.insert(
+              deviceKey: 'mac:00:03:93:aa:bb:01',
+              lastAddress: '192.168.0.5',
+              firstSeenAt: DateTime(2026, 1, 1),
+              lastSeenAt: DateTime(2026, 1, 1),
+            ),
+          );
+      final stored = await database.select(database.knownDevice).getSingle();
+      expect(stored.deviceKey, 'mac:00:03:93:aa:bb:01');
+      expect(stored.trusted, isFalse);
+    }
+
+    test('upgrading from schema version 4 creates the trust registry',
+        () async {
+      final file = await _seedDatabaseWithoutTrustRegistry(
+        tempDir,
+        'trust-upgrade.sqlite',
+        userVersion: 4,
+      );
+
+      final upgraded = AppDatabase(NativeDatabase(file));
+      addTearDown(upgraded.close);
+
+      await expectRegistryUsable(upgraded);
+    });
+
+    test('a version-5 database that predates the registry is repaired on open',
+        () async {
+      // The registry was added after version 5 was already being stamped, so
+      // onUpgrade never runs on those installs and beforeOpen has to repair it.
+      final file = await _seedDatabaseWithoutTrustRegistry(
+        tempDir,
+        'trust-repair.sqlite',
+        userVersion: 5,
+      );
+
+      final reopened = AppDatabase(NativeDatabase(file));
+      addTearDown(reopened.close);
+
+      await expectRegistryUsable(reopened);
     });
   });
 }
