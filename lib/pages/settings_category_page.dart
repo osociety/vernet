@@ -7,6 +7,7 @@ import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/donate_page.dart';
 import 'package:vernet/pages/onboarding/whats_new_page.dart';
+import 'package:vernet/pages/trusted_devices_page.dart';
 import 'package:vernet/pages/updates_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/providers/locale_provider.dart';
@@ -257,6 +258,48 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           value: appSettings.mdnsEnabled,
           onChanged: (enabled) async {
             await appSettings.setMdnsEnabled(enabled);
+            if (mounted) setState(() {});
+          },
+        ),
+      ),
+      Card(
+        child: AdaptiveListTile(
+          key: WidgetKey.trustedDevicesTile.key,
+          leading: const Icon(Icons.shield_outlined),
+          title: Text(l10n.trustedDevicesTitle),
+          subtitle: Text(l10n.settingsTrustedDevicesDesc),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => const TrustedDevicesPage(),
+            ),
+          ),
+        ),
+      ),
+      Card(
+        child: SwitchListTile(
+          key: WidgetKey.autoTrustNewDevicesSwitch.key,
+          title: Text(l10n.settingsAutoTrustNewDevices),
+          subtitle: Text(l10n.settingsAutoTrustNewDevicesDesc),
+          value: appSettings.autoTrustNewDevices,
+          onChanged: (enabled) async {
+            await appSettings.setAutoTrustNewDevices(enabled);
+            if (mounted) setState(() {});
+          },
+        ),
+      ),
+      Card(
+        child: SwitchListTile(
+          key: WidgetKey.notifyUntrustedDevicesSwitch.key,
+          title: Text(l10n.settingsNotifyUntrustedDevices),
+          subtitle: Text(l10n.settingsNotifyUntrustedDevicesDesc),
+          value: appSettings.notifyUntrustedDevices,
+          onChanged: (enabled) async {
+            await appSettings.setNotifyUntrustedDevices(enabled);
             if (mounted) setState(() {});
           },
         ),

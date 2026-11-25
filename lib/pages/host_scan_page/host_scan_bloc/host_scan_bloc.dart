@@ -14,6 +14,7 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -273,6 +274,19 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       );
     } catch (error) {
       debugPrint('Scan-complete notification failed: $error');
+    }
+
+    // The trust pass runs after the result is on screen, so a slow or broken
+    // registry can never hold back the report the user asked for.
+    try {
+      if (getIt.isRegistered<DeviceTrustService>()) {
+        await getIt<DeviceTrustService>().recordScan(
+          devicesSet.toList(),
+          scanId: finishedScanId,
+        );
+      }
+    } catch (error) {
+      debugPrint('Device trust evaluation failed: $error');
     }
   }
 

@@ -8,14 +8,18 @@ import 'package:vernet/injection.dart' as di;
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
+import 'package:vernet/pages/trusted_devices_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 class MockScanRepository extends Mock implements ScanRepository {}
 
 class MockDeviceRepository extends Mock implements DeviceRepository {}
+
+class MockDeviceTrustService extends Mock implements DeviceTrustService {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -228,6 +232,38 @@ void main() {
       await pumpApp(tester);
 
       expect(find.byType(ScanDetailPage), findsOneWidget);
+      expect(NotificationService.selectedNotificationPayload, isNull);
+    });
+  });
+
+  group('Untrusted-device alert tap', () {
+    setUp(() {
+      final trustService = MockDeviceTrustService();
+      when(() => trustService.watchAll())
+          .thenAnswer((_) => const Stream<List<KnownDeviceData>>.empty());
+      di.getIt.registerSingleton<DeviceTrustService>(trustService);
+    });
+
+    testWidgets('opens the trust registry instead of a scan report',
+        (tester) async {
+      await pumpApp(tester);
+      await tapNotification(
+        tester,
+        NotificationService.untrustedDevicesPayload,
+      );
+
+      expect(find.byType(TrustedDevicesPage), findsOneWidget);
+      expect(find.byType(ScanDetailPage), findsNothing);
+      expect(find.byType(ScanHistoryPage), findsNothing);
+    });
+
+    testWidgets('a launch from that alert opens the registry', (tester) async {
+      NotificationService.selectedNotificationPayload =
+          NotificationService.untrustedDevicesPayload;
+
+      await pumpApp(tester);
+
+      expect(find.byType(TrustedDevicesPage), findsOneWidget);
       expect(NotificationService.selectedNotificationPayload, isNull);
     });
   });

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
@@ -9,19 +9,50 @@ import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/host_scan_page/widgets/scan_history_button.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/shell_chrome.dart';
+import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/build_flavor.dart';
 import 'package:vernet/values/keys.dart';
 
-class HostScanWidget extends StatelessWidget {
+class HostScanWidget extends StatefulWidget {
+  @override
+  State<HostScanWidget> createState() => _HostScanWidgetState();
+}
+
+class _HostScanWidgetState extends State<HostScanWidget> {
+  DeviceTrustService? _trustService;
+  Stream<List<KnownDeviceData>>? _knownDevices;
+
+  @override
+  void initState() {
+    super.initState();
+    // Widget tests mount the page without the DI graph; the list then simply
+    // renders without badges instead of failing to build.
+    if (getIt.isRegistered<DeviceTrustService>()) {
+      _trustService = getIt<DeviceTrustService>();
+      _knownDevices = _trustService!.watchAll();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final knownDevices = _knownDevices;
+    if (knownDevices == null) return _buildScan(context, const []);
+    return StreamBuilder<List<KnownDeviceData>>(
+      stream: knownDevices,
+      builder: (context, snapshot) =>
+          _buildScan(context, snapshot.data ?? const []),
+    );
+  }
+
+  Widget _buildScan(BuildContext context, List<KnownDeviceData> knownDevices) {
     return BlocConsumer<HostScanBloc, HostScanState>(
       listenWhen: (previous, current) =>
           previous is! LoadSuccess && current is LoadSuccess,
@@ -79,13 +110,23 @@ class HostScanWidget extends StatelessWidget {
             );
           },
           foundNewDevice: (FoundNewDevice value) {
-            return _devicesWidget(context, value.activeHosts.toList(), true);
+            return _devicesWidget(
+              context,
+              value.activeHosts.toList(),
+              true,
+              knownDevices,
+            );
           },
           loadFailure: (value) {
             return Text(context.l10n.scanCouldNotFinish);
           },
           loadSuccess: (value) {
-            return _devicesWidget(context, value.activeHosts.toList(), false);
+            return _devicesWidget(
+              context,
+              value.activeHosts.toList(),
+              false,
+              knownDevices,
+            );
           },
           error: (Error value) {
             return Text(context.l10n.scanWentWrong);
@@ -99,6 +140,7 @@ class HostScanWidget extends StatelessWidget {
     BuildContext context,
     List<DeviceData> activeHostList,
     bool loading,
+    List<KnownDeviceData> knownDevices,
   ) {
     return Flex(
       direction: Axis.vertical,
@@ -170,6 +212,8 @@ class HostScanWidget extends StatelessWidget {
               }
               final DeviceData host = activeHostList[index - kStoreBannerRows];
               final isCurrentDevice = DeviceUtil.isCurrentDevice(host);
+              final knownDevice =
+                  DeviceTrustService.knownDeviceFor(knownDevices, host);
               return AdaptiveListTile(
                 //TODO: fix below errors
                 leading: Icon(DeviceUtil.getIconData(host)),
@@ -199,6 +243,10 @@ class HostScanWidget extends StatelessWidget {
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                       ),
+                    ],
+                    if (knownDevice != null) ...[
+                      const SizedBox(width: 8),
+                      DeviceTrustBadge(trusted: knownDevice.trusted),
                     ],
                   ],
                 ),
@@ -258,24 +306,53 @@ class HostScanWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                onLongPress: () {
-                  Clipboard.setData(
-                    ClipboardData(
-                      text: host.internetAddress,
-                    ),
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.l10n.scanDeviceAddressCopied),
-                    ),
-                  );
-                },
+                onLongPress: _trustService == null
+                    ? null
+                    : () => _toggleTrust(
+                          host,
+                          knownDevice?.trusted ?? false,
+                        ),
               );
             },
           ),
         ),
       ],
     );
+  }
+
+  /// Long-press flips the device's trust; the badge beside the name shows the
+  /// result once the registry streams the new row back.
+  Future<void> _toggleTrust(DeviceData host, bool trusted) async {
+    final service = _trustService;
+    if (service == null) return;
+    final name = DeviceUtil.makeLabel(
+          context.l10n,
+          DeviceUtil.getDeviceMake(host),
+        ) ??
+        context.l10n.unknownDevice;
+    try {
+      await service.setTrusted(host, !trusted);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              trusted
+                  ? context.l10n.deviceTrustMarkedUntrusted(name)
+                  : context.l10n.deviceTrustMarkedTrusted(name),
+            ),
+          ),
+        );
+    } catch (error) {
+      debugPrint('Device trust update failed: $error');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(context.l10n.deviceTrustUpdateFailed)),
+        );
+    }
   }
 
   Widget _buildSubtitle(DeviceData host, BuildContext context) {

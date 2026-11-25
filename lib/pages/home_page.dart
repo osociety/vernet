@@ -25,6 +25,7 @@ import 'package:vernet/pages/speed_test/speed_test_page.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/repository/wifi_repository.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/services/network_connectivity_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
@@ -132,6 +133,14 @@ class _WifiDetailState extends State<HomePage> {
         await NotificationService.showNotificationWithActions(
           deviceCount: devices.length,
         );
+        try {
+          if (getIt.isRegistered<DeviceTrustService>()) {
+            await getIt<DeviceTrustService>()
+                .recordScan(devices.values.toList());
+          }
+        } catch (error) {
+          debugPrint('Device trust evaluation failed: $error');
+        }
       });
     }
 

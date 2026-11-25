@@ -1,3 +1,4 @@
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
@@ -12,9 +14,13 @@ import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
+import 'package:vernet/repository/drift/known_device_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/shell_chrome.dart';
+import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
 
@@ -47,6 +53,15 @@ class _FakeScannerService implements DeviceScannerService {
 
   @override
   Future<int> getCurrentDevicesCount() async => devices.length;
+}
+
+class _InMemoryDatabaseService implements DatabaseService<AppDatabase> {
+  _InMemoryDatabaseService(this.db);
+
+  final AppDatabase db;
+
+  @override
+  Future<AppDatabase?> open() async => db;
 }
 
 class _MockNotificationPlugin extends Mock
@@ -88,6 +103,90 @@ void main() {
         FlutterLocalNotificationsPlugin();
     await getIt.reset();
   });
+
+  /// Drift schedules a zero-delay timer when the badge query is cancelled, and
+  /// the binding fails the test if it is still pending at the end. Advancing
+  /// five seconds also expires any snackbar timer.
+  Future<void> disposeTree(WidgetTester tester) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 5));
+  }
+
+  Future<DeviceTrustService> registerTrustService() async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final service = DeviceTrustService(
+      KnownDeviceRepository(_InMemoryDatabaseService(db)),
+    );
+    getIt.registerSingleton<DeviceTrustService>(service);
+    return service;
+  }
+
+  /// Opens the scan page and drives [fake] to completion.
+  ///
+  /// Initialisation awaits real network-interface IO and the trust pass writes
+  /// through drift, so real delays alternate with the fake-time pumps that
+  /// flush the bloc and the route, as in the suites above.
+  Future<void> runScan(
+    WidgetTester tester,
+    _FakeScannerService fake,
+  ) async {
+    await getIt.unregister<DeviceScannerService>();
+    getIt.registerSingleton<DeviceScannerService>(fake);
+
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1200, 1200);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<DarkThemeProvider>(
+        create: (_) => DarkThemeProvider(),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    PageRouteBuilder<void>(
+                      pageBuilder: (_, __, ___) => HostScanPage(),
+                    ),
+                  ),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+    for (var i = 0;
+        i < 60 && (fake.startCalls == 0 || bloc.state is! LoadSuccess);
+        i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(bloc.state, isA<LoadSuccess>());
+  }
+
+  Finder tileOf(String name) => find.ancestor(
+        of: find.text(name),
+        matching: find.byType(AdaptiveListTile),
+      );
+
+  DeviceTrustBadge badgeIn(WidgetTester tester, Finder tile) =>
+      tester.widget<DeviceTrustBadge>(
+        find.descendant(of: tile, matching: find.byType(DeviceTrustBadge)),
+      );
 
   testWidgets('starts the scan only after the route transition completes',
       (tester) async {
@@ -359,5 +458,89 @@ void main() {
     );
     expect(find.text('Find devices'), findsNothing);
     expect(find.byKey(WidgetKey.scanHistoryIconButton.key), findsOneWidget);
+  });
+
+  testWidgets('marks each discovered device with its trust badge',
+      (tester) async {
+    final trustService = await registerTrustService();
+    await trustService.addTrustedMac(
+      '00:03:93:AA:BB:01',
+      label: 'Trusted host',
+    );
+    await trustService.setTrusted(
+      const DeviceData(
+        id: 2,
+        scanId: 1,
+        internetAddress: '192.168.1.43',
+        macAddress: '00:03:93:AA:BB:02',
+        currentDeviceIp: '192.168.1.10',
+        gatewayIp: '192.168.1.1',
+        hostMake: 'Untrusted host',
+      ),
+      false,
+    );
+
+    await runScan(
+      tester,
+      _FakeScannerService(devices: const [
+        DeviceData(
+          id: 1,
+          scanId: 1,
+          internetAddress: '192.168.1.42',
+          macAddress: '00:03:93:AA:BB:01',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+          hostMake: 'Trusted host',
+        ),
+        DeviceData(
+          id: 2,
+          scanId: 1,
+          internetAddress: '192.168.1.43',
+          macAddress: '00:03:93:AA:BB:02',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+          hostMake: 'Untrusted host',
+        ),
+      ]),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DeviceTrustBadge), findsNWidgets(2));
+    expect(badgeIn(tester, tileOf('Trusted host')).trusted, isTrue);
+    expect(badgeIn(tester, tileOf('Untrusted host')).trusted, isFalse);
+
+    await disposeTree(tester);
+  });
+
+  testWidgets('long-press flips a device between untrusted and trusted',
+      (tester) async {
+    final trustService = await registerTrustService();
+    const host = DeviceData(
+      id: 1,
+      scanId: 1,
+      internetAddress: '192.168.1.42',
+      macAddress: '00:03:93:AA:BB:01',
+      currentDeviceIp: '192.168.1.10',
+      gatewayIp: '192.168.1.1',
+      hostMake: 'Living room TV',
+    );
+    await trustService.setTrusted(host, false);
+
+    await runScan(
+      tester,
+      _FakeScannerService(devices: const [host]),
+    );
+    await tester.pumpAndSettle();
+
+    expect(badgeIn(tester, tileOf('Living room TV')).trusted, isFalse);
+
+    await tester.longPress(tileOf('Living room TV'));
+    await tester.pumpAndSettle();
+
+    expect((await trustService.getAll()).single.trusted, isTrue);
+    expect(badgeIn(tester, tileOf('Living room TV')).trusted, isTrue);
+    expect(find.textContaining('is now trusted'), findsOneWidget);
+
+    await disposeTree(tester);
   });
 }

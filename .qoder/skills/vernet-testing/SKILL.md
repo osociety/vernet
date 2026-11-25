@@ -23,6 +23,12 @@ behavior, mirror the source path, and keep platform-specific guards in mind.
 - Drift repository tests use `AppDatabase(NativeDatabase.memory())` and an
   `_InMemoryDatabaseService implements DatabaseService<AppDatabase>`; close the
   database in `tearDown`.
+- A widget that watches a drift query leaves a zero-duration timer behind when
+  its subscription is cancelled during teardown, and the binding then fails the
+  test with "A Timer is still pending". End those tests with
+  `await tester.pumpWidget(const SizedBox.shrink());` followed by
+  `await tester.pump(const Duration(seconds: 5));`; a bare `pump()` does not run
+  a zero-duration timer, and the five seconds also expire any snackbar timer.
 - Widget tests wrap pages with `wrapWithDarkThemeProvider` and pass repositories
   through the page constructor instead of `getIt` when the page supports it
   (`ScanHistoryPage`, `ScanDetailPage`).
