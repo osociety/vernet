@@ -103,14 +103,11 @@ void main() {
 
   group('known_device migration', () {
     Future<void> expectRegistryUsable(AppDatabase database) async {
-      await database.into(database.knownDevice).insert(
-            KnownDeviceCompanion.insert(
-              deviceKey: 'mac:00:03:93:aa:bb:01',
-              lastAddress: '192.168.0.5',
-              firstSeenAt: DateTime(2026, 1, 1),
-              lastSeenAt: DateTime(2026, 1, 1),
-            ),
-          );
+      await database.customStatement(
+        'INSERT INTO known_device (device_key, last_address, first_seen_at, '
+        'last_seen_at) VALUES (?, ?, ?, ?)',
+        ['mac:00:03:93:aa:bb:01', '192.168.0.5', 1767225600, 1767225600],
+      );
       final stored = await database.select(database.knownDevice).getSingle();
       expect(stored.deviceKey, 'mac:00:03:93:aa:bb:01');
       expect(stored.trusted, isFalse);
