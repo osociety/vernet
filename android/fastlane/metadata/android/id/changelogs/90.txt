@@ -1,0 +1,5 @@
+Vernet menyimpan daftar perangkat tepercaya dan menandai perangkat baru.
+Skor jaringan menghitung perangkat tak tepercaya sebagai risiko keamanan.
+Pengaturan dikelompokkan dalam kategori yang jelas.
+Waktu tunggu pemindaian, konkurensi, metode ping, dan mDNS dapat diatur.
+Grafik tes kecepatan lebih jarang digambar ulang saat diseret.

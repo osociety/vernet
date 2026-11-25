@@ -4176,12 +4176,24 @@
   "@whatsNewReleaseLink": {
     "description": "Link at the foot of the release-notes dialog that opens the running build's own GitHub release page, where the full asset list and the discussion live."
   },
-  "changelogMoreDevices": "Vernet installs on more Android devices",
-  "@changelogMoreDevices": {
+  "changelogTrustedDevices": "Vernet keeps a trusted-device list and flags new devices",
+  "@changelogTrustedDevices": {
     "description": "What's New release-note bullet."
   },
-  "changelogSnapLocalizedName": "The Linux snap shows its name in your language",
-  "@changelogSnapLocalizedName": {
+  "changelogTrustScore": "The network score counts untrusted devices as a risk",
+  "@changelogTrustScore": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogSettingsCategories": "Settings are grouped into clear categories",
+  "@changelogSettingsCategories": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogScanBehavior": "Scan timeout, concurrency, ping method and mDNS can be tuned",
+  "@changelogScanBehavior": {
+    "description": "What's New release-note bullet."
+  },
+  "changelogSpeedChart": "The speed test chart redraws less while you drag across it",
+  "@changelogSpeedChart": {
     "description": "What's New release-note bullet."
   },
   "commonCouldNotLaunch": "Could not launch {url}",

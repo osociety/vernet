@@ -3,7 +3,7 @@ import 'package:vernet/models/changelog_entry.dart';
 import 'package:vernet/values/store_links.dart';
 
 /// The version these notes describe: the `version:` in `pubspec.yaml`.
-const String changelogVersion = '1.7.4';
+const String changelogVersion = '1.8.0';
 
 /// Release notes for [changelogVersion], in the language [l10n] renders.
 ///
@@ -14,8 +14,11 @@ const String changelogVersion = '1.7.4';
 ChangelogEntry currentChangelog(AppLocalizations l10n) => ChangelogEntry(
       version: changelogVersion,
       changes: [
-        l10n.changelogMoreDevices,
-        l10n.changelogSnapLocalizedName,
+        l10n.changelogTrustedDevices,
+        l10n.changelogTrustScore,
+        l10n.changelogSettingsCategories,
+        l10n.changelogScanBehavior,
+        l10n.changelogSpeedChart,
       ],
     );
 

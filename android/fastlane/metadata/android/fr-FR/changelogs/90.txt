@@ -1,0 +1,5 @@
+Vernet tient une liste d'appareils de confiance et signale les nouveaux.
+Le score réseau compte les appareils non approuvés comme un risque.
+Les réglages sont regroupés en catégories claires.
+Le délai d'analyse, la concurrence, la méthode ping et le mDNS sont réglables.
+Le graphique du test de débit se redessine moins quand on le fait glisser.

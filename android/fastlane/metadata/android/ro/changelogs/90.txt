@@ -1,0 +1,5 @@
+Vernet păstrează o listă de dispozitive de încredere și le marchează pe cele noi.
+Scorul rețelei tratează dispozitivele neîncrezute ca risc de securitate.
+Setările sunt grupate în categorii clare.
+Timpul de scanare, concurența, metoda ping și mDNS pot fi reglate.
+Graficul testului de viteză se redesenează mai rar la glisare.

@@ -1,0 +1,5 @@
+Vernet güvenilen cihazların listesini tutar ve yeni cihazları işaretler.
+Ağ puanı güvenilmeyen cihazları güvenlik riski olarak sayar.
+Ayarlar net kategorilerde gruplandı.
+Tarama zaman aşımı, eşzamanlılık, ping yöntemi ve mDNS ayarlanabilir.
+Hız testi grafiği sürüklerken daha az yeniden çizilir.

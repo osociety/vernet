@@ -1,0 +1,5 @@
+Vernet führt eine Liste vertrauenswürdiger Geräte und markiert neue.
+Der Netzwerk-Score zählt nicht vertrauenswürdige Geräte als Sicherheitsrisiko.
+Die Einstellungen sind in klare Kategorien gegliedert.
+Scan-Timeout, Parallelität, Ping-Methode und mDNS sind einstellbar.
+Das Speedtest-Diagramm zeichnet beim Ziehen seltener neu.

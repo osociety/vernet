@@ -1,0 +1,5 @@
+Vernet holder en liste over betroede enheder og markerer nye enheder.
+Netværksscoren tæller ikke-betroede enheder som en sikkerhedsrisiko.
+Indstillingerne er opdelt i tydelige kategorier.
+Scan-timeout, samtidighed, ping-metode og mDNS kan justeres.
+Hastighedstestens graf tegnes sjældnere, mens du trækker hen over den.

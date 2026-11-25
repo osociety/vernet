@@ -1,0 +1,5 @@
+Vernet houdt een lijst bij van vertrouwde apparaten en markeert nieuwe.
+De netwerkscore telt niet-vertrouwde apparaten als veiligheidsrisico.
+Instellingen zijn gegroepeerd in duidelijke categorieën.
+Scantime-out, gelijktijdigheid, pingmethode en mDNS zijn instelbaar.
+De snelheidstestgrafiek wordt minder vaak opnieuw getekend tijdens slepen.

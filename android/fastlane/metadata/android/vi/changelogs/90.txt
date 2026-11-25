@@ -1,0 +1,5 @@
+Vernet lưu danh sách thiết bị tin cậy và đánh dấu thiết bị mới.
+Điểm mạng tính thiết bị không tin cậy là rủi ro bảo mật.
+Cài đặt được nhóm thành các mục rõ ràng.
+Có thể chỉnh thời gian chờ quét, mức đồng thời, cách ping và mDNS.
+Biểu đồ kiểm tra tốc độ ít vẽ lại hơn khi bạn kéo.

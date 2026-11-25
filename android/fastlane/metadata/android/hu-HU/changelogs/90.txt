@@ -1,0 +1,5 @@
+A Vernet listát vezet a megbízható eszközökről, és megjelöli az újakat.
+A hálózati pontszám biztonsági kockázatként számolja a nem megbízható eszközöket.
+A beállítások világos kategóriákba vannak rendezve.
+A vizsgálat időtúllépése, párhuzamossága, a ping módszer és az mDNS állítható.
+A sebességteszt diagramja kevesebbszer rajzolódik újra húzáskor.

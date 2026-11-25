@@ -1,0 +1,5 @@
+Vernet keeps a trusted-device list and flags new devices.
+The network score counts untrusted devices as a security risk.
+Settings are grouped into clear categories.
+Scan timeout, concurrency, ping method and mDNS can be tuned.
+The speed test chart redraws less while you drag across it.
