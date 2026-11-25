@@ -1,0 +1,5 @@
+Vernet tiene un elenco di dispositivi fidati e segnala quelli nuovi.
+Il punteggio di rete conta i dispositivi non fidati come rischio.
+Le impostazioni sono raggruppate in categorie chiare.
+Timeout di scansione, concorrenza, metodo ping e mDNS sono regolabili.
+Il grafico del test di velocità si ridisegna meno mentre lo trascini.

@@ -1,0 +1,5 @@
+Vernet holder en liste over klarerte enheter og merker nye enheter.
+Nettverksscoren teller uklarerte enheter som en sikkerhetsrisiko.
+Innstillingene er delt inn i tydelige kategorier.
+Skannetidsavbrudd, samtidighet, ping-metode og mDNS kan justeres.
+Hastighetstestgrafen tegnes sjeldnere mens du drar over den.

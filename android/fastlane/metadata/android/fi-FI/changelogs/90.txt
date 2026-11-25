@@ -1,0 +1,5 @@
+Vernet pitää luetteloa luotetuista laitteista ja merkitsee uudet laitteet.
+Verkon pisteytys laskee ei-luotetut laitteet turvallisuusriskiksi.
+Asetukset on jaettu selkeisiin kategorioihin.
+Skannauksen aikakatkaisu, rinnakkaisuus, ping-menetelmä ja mDNS ovat säädettävissä.
+Nopeustestin kaavio piirtyy harvemmin, kun sitä raahaa.

@@ -1,0 +1,5 @@
+Vernet prowadzi listę zaufanych urządzeń i oznacza nowe urządzenia.
+Ocena sieci liczy niezaufane urządzenia jako ryzyko bezpieczeństwa.
+Ustawienia są pogrupowane w przejrzyste kategorie.
+Limit czasu skanowania, współbieżność, metodę ping i mDNS można dostosować.
+Wykres testu prędkości rzadziej się odrysowuje podczas przeciągania.

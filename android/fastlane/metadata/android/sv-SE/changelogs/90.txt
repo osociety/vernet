@@ -1,0 +1,5 @@
+Vernet håller en lista över betrodda enheter och markerar nya enheter.
+Nätverkspoängen räknar obetrodda enheter som en säkerhetsrisk.
+Inställningarna är grupperade i tydliga kategorier.
+Skanningstimeout, samtidighet, pingmetod och mDNS kan justeras.
+Hastighetstestets graf ritas om mer sällan när du drar i den.

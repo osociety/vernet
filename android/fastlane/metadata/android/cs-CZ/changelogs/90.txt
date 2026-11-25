@@ -1,0 +1,5 @@
+Vernet si vede seznam důvěryhodných zařízení a označuje nová zařízení.
+Skóre sítě počítá nedůvěryhodná zařízení jako bezpečnostní riziko.
+Nastavení je rozděleno do přehledných kategorií.
+Timeout skenu, souběžnost, metodu ping a zjišťování mDNS lze nastavit.
+Graf testu rychlosti se při táhnutí překresluje méně.

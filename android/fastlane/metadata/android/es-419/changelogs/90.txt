@@ -1,0 +1,5 @@
+Vernet mantiene una lista de dispositivos de confianza y marca los nuevos.
+La puntuación de red cuenta los dispositivos no confiables como riesgo.
+Los ajustes están agrupados en categorías claras.
+Puedes ajustar el tiempo de escaneo, la concurrencia, el método ping y mDNS.
+El gráfico de velocidad se redibuja menos al arrastrarlo.

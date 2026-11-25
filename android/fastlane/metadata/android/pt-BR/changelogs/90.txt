@@ -1,0 +1,5 @@
+O Vernet guarda uma lista de dispositivos confiáveis e marca os novos.
+A pontuação da rede conta dispositivos não confiáveis como risco.
+As configurações estão agrupadas em categorias claras.
+Tempo limite, simultaneidade, método de ping e mDNS são ajustáveis.
+O gráfico do teste de velocidade é redesenhado menos ao arrastar.

@@ -1,6 +1,5 @@
-Menu rows open the page they name.
-Scans show your real router address.
-The speed test fits in a narrow window.
-The in-app What's New links to this release on GitHub.
-Switching pages is faster.
-Bug fixes and performance improvements.
+Vernet keeps a trusted-device list and flags new devices.
+The network score counts untrusted devices as a security risk.
+Settings are grouped into clear categories.
+Scan timeout, concurrency, ping method and mDNS can be tuned.
+The speed test chart redraws less while you drag across it.
