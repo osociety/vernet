@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
@@ -218,6 +219,64 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           onTap: () => _showSettingDialog(context, const SocketTimeoutDialog()),
         ),
       ),
+      _settingDropdown<int>(
+        rowKey: WidgetKey.scanTimeoutTile,
+        title: l10n.scanTimeout,
+        subtitle: l10n.scanTimeoutDesc,
+        value: appSettings.scanTimeout,
+        options: const [1, 2, 3, 5, 10],
+        labelOf: (seconds) => '${seconds}s',
+        onSelected: appSettings.setScanTimeout,
+      ),
+      _settingDropdown<int>(
+        rowKey: WidgetKey.scanConcurrencyTile,
+        title: l10n.scanConcurrency,
+        subtitle: l10n.scanConcurrencyDesc,
+        value: appSettings.scanConcurrency,
+        options: const [16, 32, 64, 128],
+        labelOf: (limit) => '$limit',
+        onSelected: appSettings.setScanConcurrency,
+      ),
+      _settingDropdown<ScanPingMethod>(
+        rowKey: WidgetKey.pingMethodTile,
+        title: l10n.pingMethod,
+        subtitle: l10n.pingMethodDesc,
+        value: appSettings.pingMethod,
+        options: ScanPingMethod.values,
+        labelOf: (method) => switch (method) {
+          ScanPingMethod.icmp => l10n.pingMethodIcmp,
+          ScanPingMethod.tcpFallback => l10n.pingMethodTcpFallback,
+        },
+        onSelected: appSettings.setPingMethod,
+      ),
+      Card(
+        child: SwitchListTile(
+          key: WidgetKey.mdnsDiscoveryTile.key,
+          title: Text(l10n.mdnsDiscovery),
+          subtitle: Text(l10n.mdnsDiscoveryDesc),
+          value: appSettings.mdnsEnabled,
+          onChanged: (enabled) async {
+            await appSettings.setMdnsEnabled(enabled);
+            if (mounted) setState(() {});
+          },
+        ),
+      ),
+      Card(
+        child: ListTile(
+          key: WidgetKey.resetScanDefaultsButton.key,
+          leading: const Icon(Icons.restart_alt),
+          title: Text(l10n.resetScanDefaults),
+          subtitle: Text(
+            l10n.recommendedScanDefaults(
+              AppSettings.recommendedScanConcurrency,
+            ),
+          ),
+          onTap: () async {
+            await appSettings.resetScanDefaults();
+            if (mounted) setState(() {});
+          },
+        ),
+      ),
     ];
   }
 
@@ -328,6 +387,53 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           .textTheme
           .titleSmall
           ?.copyWith(color: Theme.of(context).colorScheme.secondary),
+    );
+  }
+
+  /// A settings row whose control sits below the text, at full width.
+  ///
+  /// An intrinsic-width dropdown in [ListTile.trailing] consumes the whole tile
+  /// on a phone-width page, so this keeps the control below the text the same
+  /// way the language row does.
+  Widget _settingDropdown<T>({
+    required WidgetKey rowKey,
+    required String title,
+    required String subtitle,
+    required T value,
+    required List<T> options,
+    required String Function(T option) labelOf,
+    required Future<void> Function(T option) onSelected,
+  }) {
+    return Card(
+      key: rowKey.key,
+      child: Column(
+        children: [
+          ListTile(title: Text(title), subtitle: Text(subtitle)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: SizedBox(
+              width: double.infinity,
+              child: DropdownButton<T>(
+                value: value,
+                isExpanded: true,
+                underline: const SizedBox.shrink(),
+                items: [
+                  for (final option in options)
+                    DropdownMenuItem(
+                      value: option,
+                      child: Text(labelOf(option)),
+                    ),
+                ],
+                onChanged: (option) async {
+                  if (option == null) return;
+                  await onSelected(option);
+                  if (mounted) setState(() {});
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

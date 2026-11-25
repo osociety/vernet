@@ -24,6 +24,59 @@
   "@socketTimeoutDesc": {
     "description": "Settings row subtitle for the socket timeout duration."
   },
+  "scanTimeout": "Scan timeout",
+  "@scanTimeout": {
+    "description": "Settings row title for host scan timeout."
+  },
+  "scanTimeoutDesc": "Recommended: 2 seconds. Applies to the next scan.",
+  "@scanTimeoutDesc": {
+    "description": "Settings row subtitle for host scan timeout."
+  },
+  "scanConcurrency": "Scan concurrency",
+  "@scanConcurrency": {
+    "description": "Settings row title for scan concurrency."
+  },
+  "scanConcurrencyDesc": "Limit simultaneous scan work. Recommended: 32 on mobile or 128 on desktop.",
+  "@scanConcurrencyDesc": {
+    "description": "Settings row subtitle for scan concurrency."
+  },
+  "pingMethod": "Ping method",
+  "@pingMethod": {
+    "description": "Settings row title for ping method."
+  },
+  "pingMethodDesc": "Choose the host ping strategy.",
+  "@pingMethodDesc": {
+    "description": "Settings row subtitle for ping method."
+  },
+  "pingMethodIcmp": "ICMP",
+  "@pingMethodIcmp": {
+    "description": "ICMP ping method option."
+  },
+  "pingMethodTcpFallback": "TCP + ICMP fallback",
+  "@pingMethodTcpFallback": {
+    "description": "TCP ping with ICMP fallback option."
+  },
+  "mdnsDiscovery": "mDNS discovery",
+  "@mdnsDiscovery": {
+    "description": "Settings row title for mDNS neighbor discovery."
+  },
+  "mdnsDiscoveryDesc": "Discover nearby devices that advertise names with mDNS.",
+  "@mdnsDiscoveryDesc": {
+    "description": "Settings row subtitle for mDNS neighbor discovery."
+  },
+  "resetScanDefaults": "Reset to defaults",
+  "@resetScanDefaults": {
+    "description": "Button label to reset host scanning settings."
+  },
+  "recommendedScanDefaults": "Restores 2 seconds, {concurrency} concurrency, TCP + ICMP fallback, and mDNS.",
+  "@recommendedScanDefaults": {
+    "description": "Subtitle describing recommended host scan defaults.",
+    "placeholders": {
+      "concurrency": {
+        "type": "int"
+      }
+    }
+  },
   "pingCount": "Number of connection checks",
   "@pingCount": {
     "description": "Settings row title for the ping repeat count."
@@ -333,7 +386,7 @@
   "@settingsNetwork": {
     "description": "Category for local network scan settings."
   },
-  "settingsNetworkDesc": "Choose the device range and connection timeout",
+  "settingsNetworkDesc": "Device range, timeouts, concurrency, ping method and mDNS",
   "@settingsNetworkDesc": {
     "description": "Settings index subtitle describing network scanning options."
   },

@@ -10,6 +10,7 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
+import 'package:vernet/services/host_scan_behavior_service.dart';
 import 'package:vernet/services/scanner_service.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
@@ -210,7 +211,7 @@ class DeviceScannerService extends ScannerService {
 
         // mDNS discovery does not depend on the ICMP/ARP sweep; overlapping
         // them keeps the overall scan as short as the slower of the two.
-        final mdnsSearch = globals.testingActive
+        final mdnsSearch = globals.testingActive || !appSettings.mdnsEnabled
             ? Future<List<ActiveHost>>.value(const [])
             : _searchMdnsDevicesSafely();
 
@@ -231,18 +232,15 @@ class DeviceScannerService extends ScannerService {
           'Scanning host ids ${effectiveRange.first}..${effectiveRange.last} '
           'on subnet $subnet',
         );
-        hostSubscription = HostScannerService.instance
-            .getAllPingableDevices(
-          subnet,
+        hostSubscription = HostScanBehaviorService()
+            .scan(
+          subnet: subnet,
           firstHostId: effectiveRange.first,
           lastHostId: effectiveRange.last,
-          progressCallback: onProgress,
-          // On Android the sweep is a system-ping-per-host process storm; the
-          // ascending-order gate delays each row until every lower host id has
-          // resolved. Unordered streams hosts as they are found. Trade-off: the
-          // package emits no per-host progress in this mode, so the UI falls
-          // back to its indeterminate state (already handled in host_scan_widget).
-          resultsInAddressAscendingOrder: false,
+          timeoutSeconds: appSettings.scanTimeout,
+          concurrency: appSettings.scanConcurrency,
+          pingMethod: appSettings.pingMethod,
+          onProgress: onProgress,
         )
             .listen(
           (ActiveHost activeHost) {
