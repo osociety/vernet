@@ -2949,6 +2949,22 @@
   "@scoreSecurityUnknownTip": {
     "description": "Advice shown when devices are unidentified."
   },
+  "scoreSecurityUntrustedDevices": "✗ {count} untrusted device(s) on network (-{points} points)",
+  "@scoreSecurityUntrustedDevices": {
+    "description": "Security factor counting devices the user marked untrusted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreSecurityUntrustedTip": "Tip: Review them in Settings → Trusted devices, or mark them trusted from the scan results",
+  "@scoreSecurityUntrustedTip": {
+    "description": "Advice shown when untrusted devices are on the network."
+  },
   "scoreSecurityAllIdentified": "✓ All {count} device(s) identified",
   "@scoreSecurityAllIdentified": {
     "description": "Security factor confirming every device is known.",
@@ -3650,7 +3666,7 @@
   "@scoreVulnActionPorts": {
     "description": "Third remediation step."
   },
-  "scoreVulnActionTrust": "• Consider enabling device trust features",
+  "scoreVulnActionTrust": "• Review untrusted devices and mark the ones you recognize as trusted",
   "@scoreVulnActionTrust": {
     "description": "Fourth remediation step."
   },

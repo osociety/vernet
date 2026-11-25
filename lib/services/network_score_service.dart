@@ -7,6 +7,7 @@ import 'package:vernet/models/wifi_metrics.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
+import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/utils/app_strings.dart';
 
@@ -16,12 +17,14 @@ class NetworkScoreService {
     required this.scanRepository,
     required this.deviceRepository,
     required this.scoreRepository,
+    required this.deviceTrustService,
   }) : serverMonitorService = ServerMonitorService();
 
   final ScanRepository scanRepository;
   final DeviceRepository deviceRepository;
   final ServerMonitorService serverMonitorService;
   final NetworkScoreRepository scoreRepository;
+  final DeviceTrustService deviceTrustService;
 
   static const _securityWeight = 0.25;
   static const _healthWeight = 0.25;
@@ -148,6 +151,24 @@ class NetworkScoreService {
         factors.add(l10n.scoreSecurityUnknownTip);
       } else {
         factors.add(l10n.scoreSecurityAllIdentified('${devices.length}'));
+      }
+
+      // Untrusted devices cost 5 points each, capped at 25 so a network the
+      // user marked as hostile never collapses the whole dimension.
+      final knownDevices = await deviceTrustService.getAll();
+      final untrustedCount = devices
+          .where((device) =>
+              DeviceTrustService.knownDeviceFor(knownDevices, device)
+                  ?.trusted ==
+              false)
+          .length;
+      if (untrustedCount > 0) {
+        final deduction = untrustedCount > 5 ? 25 : untrustedCount * 5;
+        score -= deduction;
+        factors.add(
+          l10n.scoreSecurityUntrustedDevices('$untrustedCount', '$deduction'),
+        );
+        factors.add(l10n.scoreSecurityUntrustedTip);
       }
 
       if (latestScan.onGoing == true) {
