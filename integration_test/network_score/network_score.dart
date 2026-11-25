@@ -10,14 +10,24 @@ import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
+import 'package:vernet/l10n/app_localizations_en.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
 import 'package:vernet/pages/network_score/network_score_detail_page.dart';
+import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
+import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_score_service.dart';
+import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
 import '../settings/test_utils.dart';
+import '../wifi_test/wifi_test_runner.dart' show clearDatabase;
+
+/// The resource bundle the app renders: these suites run in English.
+final _en = AppLocalizationsEn();
 
 void main() {
   globals.testingActive = true;
@@ -421,6 +431,45 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(NetworkScoreDetailPage), findsOneWidget);
+    });
+
+    testWidgets('security dimension deducts points for untrusted devices',
+        (tester) async {
+      await clearDatabase();
+      final scanRepository = getIt<ScanRepository>();
+      final deviceRepository = getIt<DeviceRepository>();
+      final trustService = getIt<DeviceTrustService>();
+
+      final start = DateTime.now().subtract(const Duration(minutes: 10));
+      final scan = await scanRepository.put(ScanData(
+        id: 901,
+        gatewayIp: '192.168.0',
+        startTime: start,
+        endTime: start.add(const Duration(seconds: 40)),
+      ));
+      final device = await deviceRepository.put(DeviceData(
+        id: 9101,
+        scanId: scan.id,
+        internetAddress: '192.168.0.5',
+        currentDeviceIp: '192.168.0.10',
+        gatewayIp: '192.168.0',
+        macAddress: '00:03:93:AA:BB:01',
+        hostMake: 'Kitchen Speaker',
+      ));
+      await trustService.setTrusted(device, false);
+      addTearDown(() async {
+        await trustService.forget(DeviceUtil.deviceKey(device));
+        await clearDatabase();
+      });
+
+      final score = await getIt<NetworkScoreService>().computeScore();
+
+      expect(score.security.value, 95);
+      expect(
+        score.security.factors,
+        contains(_en.scoreSecurityUntrustedDevices('1', '5')),
+      );
+      expect(score.security.factors, contains(_en.scoreSecurityUntrustedTip));
     });
   });
 }
