@@ -60,18 +60,41 @@ void main() {
       expect(reloaded.mdnsEnabled, isFalse);
     });
 
-    test('resetScanDefaults restores the recommended values', () async {
+    test('resetAllSettings restores every default', () async {
+      await settings.setFirstSubnet(10);
+      await settings.setLastSubnet(200);
+      await settings.setSocketTimeout(250);
+      await settings.setPingCount(7);
+      await settings.setInAppInternet(false);
+      await settings.setRunScanOnStartup(true);
+      await settings.setCustomSubnet('192.168.1.0');
+      await settings.setBetaUpdates(true);
       await settings.setScanTimeout(10);
       await settings.setScanConcurrency(16);
       await settings.setPingMethod(ScanPingMethod.icmp);
       await settings.setMdnsEnabled(false);
+      await settings.setAutoTrustNewDevices(true);
+      await settings.setNotifyUntrustedDevices(false);
+      await settings.setTrustBaselineEstablished(true);
 
-      await settings.resetScanDefaults();
+      await settings.resetAllSettings();
+      await settings.load();
 
+      expect(settings.firstSubnet, 1);
+      expect(settings.lastSubnet, 254);
+      expect(settings.socketTimeout, 500);
+      expect(settings.pingCount, 5);
+      expect(settings.inAppInternet, isTrue);
+      expect(settings.runScanOnStartup, isFalse);
+      expect(settings.customSubnet, isEmpty);
+      expect(settings.betaUpdates, isFalse);
       expect(settings.scanTimeout, 2);
       expect(settings.scanConcurrency, AppSettings.recommendedScanConcurrency);
       expect(settings.pingMethod, ScanPingMethod.tcpFallback);
       expect(settings.mdnsEnabled, isTrue);
+      expect(settings.autoTrustNewDevices, isFalse);
+      expect(settings.notifyUntrustedDevices, isTrue);
+      expect(settings.trustBaselineEstablished, isFalse);
     });
 
     test('trims spaces around a saved custom subnet', () async {
