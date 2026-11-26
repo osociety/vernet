@@ -199,6 +199,27 @@ class TestUtils {
     await tester.pumpAndSettle();
   }
 
+  /// Scrolls [target] into view inside the pane rooted at [within].
+  ///
+  /// [scrollUntilVisibleByWidgetKey] falls back to the first `Scrollable` in the
+  /// tree, which on a desktop window is the sidebar rather than the page, so a
+  /// caller that knows its pane has to name the scrollable itself.
+  static Future<void> revealWithin(
+    WidgetTester tester,
+    Finder target, {
+    required Finder within,
+    double scrollDelta = 200,
+  }) async {
+    final scrollable =
+        find.descendant(of: within, matching: find.byType(Scrollable)).first;
+    await tester.scrollUntilVisible(
+      target,
+      scrollDelta,
+      scrollable: scrollable,
+    );
+    await tester.pumpAndSettle();
+  }
+
   static Future<void> waitForWidget(
     WidgetTester tester,
     Finder finder, {

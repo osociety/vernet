@@ -12,7 +12,9 @@ import 'package:vernet/values/globals.dart' as globals;
 
 import 'dark_theme.dart' as dark_theme_test;
 import 'in_app_internet.dart' as in_app_internet_test;
+import 'reset_all_settings.dart' as reset_all_settings_test;
 import 'scan_behavior.dart' as scan_behavior_test;
+import 'settings_layout.dart' as settings_layout_test;
 import 'subnet_tests.dart' as subnet_test;
 import 'test_utils.dart';
 import 'trusted_devices.dart' as trusted_devices_test;
@@ -42,6 +44,8 @@ void main() {
   dark_theme_test.main();
   subnet_test.main();
   scan_behavior_test.main();
+  settings_layout_test.main();
+  reset_all_settings_test.main();
   trusted_devices_test.main();
   in_app_internet_test.main();
 }

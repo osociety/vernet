@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/database_service.dart';
 import 'package:vernet/database/drift/drift_database.dart';
@@ -15,13 +16,17 @@ import 'package:vernet/models/network_score.dart';
 import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/network_score_card.dart';
 import 'package:vernet/pages/network_score/network_score_detail_page.dart';
+import 'package:vernet/pages/trusted_devices_page.dart';
+import 'package:vernet/providers/dark_theme_provider.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
+import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/network_score_service.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
+import 'package:vernet/values/keys.dart';
 
 import '../settings/test_utils.dart';
 import '../wifi_test/wifi_test_runner.dart' show clearDatabase;
@@ -431,6 +436,104 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(NetworkScoreDetailPage), findsOneWidget);
+    });
+
+    /// Shows [score] on the detail page for sure.
+    ///
+    /// The bloc is a singleton and the page prefers its success state over
+    /// `initialScore`, so an earlier suite test that computed a score would
+    /// leave the page showing that score instead of this one. Seeding the
+    /// repository and re-reading it pins the bloc to [score]; the provider the
+    /// trust page's list tile reads comes from the app, so it is mounted here
+    /// as well.
+    Future<void> pumpDetail(WidgetTester tester, NetworkScore score) async {
+      await getIt<NetworkScoreRepository>().saveScore(score);
+      final bloc = getIt<NetworkScoreBloc>();
+      bloc.add(const NetworkScoreEvent.loadCached());
+      await bloc.stream
+          .firstWhere(
+            (state) => state.maybeWhen(
+              success: (s) =>
+                  s.overallScore == score.overallScore &&
+                  s.security.value == score.security.value,
+              orElse: () => false,
+            ),
+          )
+          .timeout(const Duration(seconds: 10));
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => DarkThemeProvider(),
+          child: TestUtils.wrapWithLocalizations(
+            child: NetworkScoreDetailPage(initialScore: score),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('security actions offer the trust registry below a full score',
+        (tester) async {
+      final testScore = NetworkScore(
+        overallScore: 86,
+        computedAt: DateTime(2024),
+        security: const DimensionScore(
+            name: 'Security', value: 95, description: 'Good'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 80, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+      );
+
+      await pumpDetail(tester, testScore);
+
+      final trustAction = find.text(_en.scoreActionTrustTitle);
+      await TestUtils.revealWithin(
+        tester,
+        trustAction,
+        within: find.byType(NetworkScoreDetailPage),
+      );
+      await tester.tap(trustAction);
+      await tester.pumpAndSettle();
+
+      await TestUtils.waitForWidget(
+        tester,
+        find.byKey(WidgetKey.trustedDevicesAddManuallyButton.key),
+      );
+      expect(find.byType(TrustedDevicesPage), findsOneWidget);
+    });
+
+    testWidgets('a full security score offers neither scan nor trust',
+        (tester) async {
+      final testScore = NetworkScore(
+        overallScore: 88,
+        computedAt: DateTime(2024),
+        security: const DimensionScore(
+            name: 'Security', value: 100, description: 'Excellent'),
+        health: const DimensionScore(
+            name: 'Health', value: 70, description: 'Good'),
+        reliability: const DimensionScore(
+            name: 'Reliability', value: 80, description: 'Good'),
+        speed:
+            const DimensionScore(name: 'Speed', value: 85, description: 'Good'),
+        vulnerabilities: const DimensionScore(
+            name: 'Vulnerabilities', value: 65, description: 'Moderate'),
+      );
+
+      await pumpDetail(tester, testScore);
+
+      // The action that follows the security block has to be built for the
+      // absence to mean anything.
+      await TestUtils.revealWithin(
+        tester,
+        find.text(_en.scoreActionWifiTitle),
+        within: find.byType(NetworkScoreDetailPage),
+      );
+      expect(find.text(_en.scoreActionTrustTitle), findsNothing);
+      expect(find.text(_en.scoreActionScanTitle), findsNothing);
     });
 
     testWidgets('security dimension deducts points for untrusted devices',
