@@ -2817,6 +2817,152 @@
       }
     }
   },
+  "securityFindingsTitle": "Security findings",
+  "@securityFindingsTitle": {
+    "description": "Heading of the security findings card on device detail."
+  },
+  "securityFindingsSubtitle": "Based on the ports this device exposes on your local network.",
+  "@securityFindingsSubtitle": {
+    "description": "Explains where the security findings come from."
+  },
+  "securityFindingsNone": "No obvious risks on the open ports.",
+  "@securityFindingsNone": {
+    "description": "Security card state when no rule matched."
+  },
+  "securitySeverityCritical": "Critical",
+  "@securitySeverityCritical": {
+    "description": "Severity chip for a finding that needs immediate attention."
+  },
+  "securitySeverityWarning": "Warning",
+  "@securitySeverityWarning": {
+    "description": "Severity chip for a finding that should be addressed."
+  },
+  "securitySeverityInfo": "Info",
+  "@securitySeverityInfo": {
+    "description": "Severity chip for an observation without urgent risk."
+  },
+  "securityFindingTelnetTitle": "Telnet is enabled",
+  "@securityFindingTelnetTitle": {
+    "description": "Title of the Telnet finding."
+  },
+  "securityFindingTelnetBody": "Telnet sends everything, including passwords, without encryption. Disable it and use SSH instead.",
+  "@securityFindingTelnetBody": {
+    "description": "Why an open Telnet port matters."
+  },
+  "securityFindingFtpTitle": "FTP is open",
+  "@securityFindingFtpTitle": {
+    "description": "Title of the FTP finding."
+  },
+  "securityFindingFtpBody": "FTP sends files and credentials in plain text. Prefer SFTP or FTPS.",
+  "@securityFindingFtpBody": {
+    "description": "Why an open FTP port matters."
+  },
+  "securityFindingSmbTitle": "File sharing is exposed",
+  "@securityFindingSmbTitle": {
+    "description": "Title of the SMB finding."
+  },
+  "securityFindingSmbBody": "SMB is reachable from the local network. Keep it limited to trusted devices and turn off SMBv1.",
+  "@securityFindingSmbBody": {
+    "description": "Why an open SMB port matters on a LAN."
+  },
+  "securityFindingNetbiosTitle": "NetBIOS is exposed",
+  "@securityFindingNetbiosTitle": {
+    "description": "Title of the NetBIOS finding."
+  },
+  "securityFindingNetbiosBody": "NetBIOS is reachable from the local network. Windows file sharing needs it, but it widens the attack surface.",
+  "@securityFindingNetbiosBody": {
+    "description": "Why an open NetBIOS port matters on a LAN."
+  },
+  "securityFindingTftpTitle": "TFTP is open",
+  "@securityFindingTftpTitle": {
+    "description": "Title of the TFTP finding."
+  },
+  "securityFindingTftpBody": "TFTP has no authentication. Disable it unless a device on the network needs it.",
+  "@securityFindingTftpBody": {
+    "description": "Why an open TFTP port matters."
+  },
+  "securityFindingRdpTitle": "Remote Desktop is exposed",
+  "@securityFindingRdpTitle": {
+    "description": "Title of the RDP finding."
+  },
+  "securityFindingRdpBody": "RDP allows remote control of this device. Restrict it to trusted hosts and use strong credentials.",
+  "@securityFindingRdpBody": {
+    "description": "Why an open RDP port matters."
+  },
+  "securityFindingVncTitle": "VNC is open",
+  "@securityFindingVncTitle": {
+    "description": "Title of the VNC finding."
+  },
+  "securityFindingVncBody": "VNC often allows remote control with weak or no authentication. Set a password and restrict access.",
+  "@securityFindingVncBody": {
+    "description": "Why an open VNC port matters."
+  },
+  "securityFindingDatabaseTitle": "{service} is reachable",
+  "@securityFindingDatabaseTitle": {
+    "description": "Title of a database finding.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFindingDatabaseBody": "A database port is reachable from the local network. Bind it to localhost or restrict it with a firewall.",
+  "@securityFindingDatabaseBody": {
+    "description": "Why an open database port matters."
+  },
+  "securityFindingSnmpTitle": "SNMP is enabled",
+  "@securityFindingSnmpTitle": {
+    "description": "Title of the SNMP finding."
+  },
+  "securityFindingSnmpBody": "SNMP versions 1 and 2c send community strings in plain text. Use SNMPv3 or disable it.",
+  "@securityFindingSnmpBody": {
+    "description": "Why an open SNMP port matters."
+  },
+  "securityFindingWebTitle": "Web interface without encryption",
+  "@securityFindingWebTitle": {
+    "description": "Title of the plain HTTP finding."
+  },
+  "securityFindingWebBody": "HTTP sends traffic in plain text. Use HTTPS when the device supports it.",
+  "@securityFindingWebBody": {
+    "description": "Why an open HTTP port matters."
+  },
+  "securityFindingSshOutdatedTitle": "SSH server looks outdated",
+  "@securityFindingSshOutdatedTitle": {
+    "description": "Title of the outdated SSH finding."
+  },
+  "securityFindingSshOutdatedBody": "The server reports {version}. Vernet recommends {minimum} or newer.",
+  "@securityFindingSshOutdatedBody": {
+    "description": "Why an old SSH version matters.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "minimum": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFindingAlternateTitle": "Possible {service} on a non-standard port",
+  "@securityFindingAlternateTitle": {
+    "description": "Title of a finding for a common service on an alternate port.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFindingAlternateBody": "Port {port} is commonly used for {service}. Confirm the service is intended and secured.",
+  "@securityFindingAlternateBody": {
+    "description": "Why an alternate service port is worth checking.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
   "portDescFtp": "FTP - File Transfer Protocol",
   "@portDescFtp": {
     "description": "Service behind ports 20 and 21."
