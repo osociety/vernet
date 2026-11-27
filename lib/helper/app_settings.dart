@@ -119,11 +119,22 @@ class AppSettings {
         .setBool(_trustBaselineKey, _trustBaselineEstablished);
   }
 
-  Future<void> resetScanDefaults() async {
+  Future<void> resetAllSettings() async {
+    await setFirstSubnet(1);
+    await setLastSubnet(254);
+    await setSocketTimeout(500);
+    await setPingCount(5);
+    await setInAppInternet(true);
+    await setRunScanOnStartup(false);
+    await setCustomSubnet('');
+    await setBetaUpdates(false);
     await setScanTimeout(2);
     await setScanConcurrency(recommendedScanConcurrency);
     await setPingMethod(ScanPingMethod.tcpFallback);
     await setMdnsEnabled(true);
+    await setAutoTrustNewDevices(false);
+    await setNotifyUntrustedDevices(true);
+    await setTrustBaselineEstablished(false);
   }
 
   String get gatewayIP => _customSubnet.contains('.')

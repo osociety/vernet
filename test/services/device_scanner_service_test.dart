@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:network_tools_flutter/network_tools_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
@@ -77,6 +78,30 @@ void main() {
       });
 
       expect(subnetMask, equals('255.255.255.0'));
+    });
+
+    test('mDNS search passes results through when it answers in time',
+        () async {
+      final hosts = await mdnsWithinBudget(
+        Future<List<ActiveHost>>.value([
+          ActiveHost.buildWithAddress(address: '192.168.1.5'),
+        ]),
+        budget: const Duration(milliseconds: 100),
+      );
+
+      expect(hosts.map((host) => host.address), ['192.168.1.5']);
+    });
+
+    test('mDNS search gives up on its budget instead of holding the scan',
+        () async {
+      // The plugin can leave discovery pending forever on a physical iOS
+      // device; the scan has to finish without it rather than stay on 100%.
+      final hosts = await mdnsWithinBudget(
+        Completer<List<ActiveHost>>().future,
+        budget: const Duration(milliseconds: 20),
+      );
+
+      expect(hosts, isEmpty);
     });
 
     test('can be instantiated', () {

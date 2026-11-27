@@ -10,6 +10,7 @@ import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/pages/network_score/score_display.dart';
 import 'package:vernet/pages/server_checker_page.dart';
 import 'package:vernet/pages/speed_test/speed_test_page.dart';
+import 'package:vernet/pages/trusted_devices_page.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_circular_progress_bar.dart';
 import 'package:vernet/utils/localization.dart';
@@ -431,7 +432,7 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
         ),
         const SizedBox(height: 12),
         // Security actions
-        if (currentScore.security.value < 100)
+        if (currentScore.security.value < 100) ...[
           _ActionTile(
             icon: Icons.wifi_find,
             title: l10n.scoreActionScanTitle,
@@ -441,6 +442,15 @@ class _NetworkScoreDetailViewState extends State<_NetworkScoreDetailView> {
             color: colors.primary,
             onTap: () => _navigateAndRefresh(context, HostScanPage()),
           ),
+          _ActionTile(
+            icon: Icons.verified_user,
+            title: l10n.scoreActionTrustTitle,
+            subtitle: l10n.scoreActionTrustSubtitle,
+            color: Colors.green,
+            onTap: () =>
+                _navigateAndRefresh(context, const TrustedDevicesPage()),
+          ),
+        ],
         // Health actions
         if (currentScore.health.value < 100)
           _ActionTile(
