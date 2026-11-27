@@ -99,7 +99,9 @@ Responsibilities:
 -   ip-to-mac key migration when a later scan resolves the MAC
 -   local notification when a scan finds a device outside the registry
 -   security dimension of the network score deducts five points per
-    untrusted device in the latest scan, capped at 25
+    untrusted device in the latest scan, capped at 25; the score's
+    Vulnerabilities breakdown repeats the untrusted and unidentified
+    counts as its Device trust factor without charging them twice
 -   review, revoke, forget, and add-ahead-by-MAC from
     `lib/pages/trusted_devices_page.dart`
 
@@ -215,6 +217,35 @@ the report and saves the snapshot, `lib/repository/drift/health_report_repositor
 owns the table, and `lib/pages/health_report/network_health_report_page.dart`
 renders it. The scan report opens the page from its app bar, and a finished
 host scan stores its snapshot without waiting for the page.
+
+------------------------------------------------------------------------
+
+### Network Score
+
+One 0-100 score across Security, Health, Reliability, Speed and
+Vulnerabilities, shown on the home card and the detail page.
+
+The Security and Vulnerabilities dimensions read a `NetworkScanAnalysis`
+(`lib/models/network_scan_analysis.dart`) built from the latest scan's
+device rows. The score service can also receive that analysis through the
+BLoC: a finished host scan dispatches it after its trust pass, so the
+verdicts it just stored are part of the score straight away.
+
+-   Security subtracts 5 per unidentified device and 5 per untrusted
+    device in the registry, the latter capped at 25
+-   Vulnerabilities starts at 100 and subtracts 25 per critical finding,
+    10 per warning and 3 per info, plus up to 20 for service hygiene: the
+    share of exposed services that was flagged
+-   findings are keyed by address and service, so two ports of the same
+    service count once
+-   the breakdown lists every flagged service with its deduction, the
+    hygiene share, and the device-trust counts the Security dimension
+    already charged
+
+Because the dimensions are rebuilt from whatever the latest scan stored,
+resolving an exposure raises the score on the next scan without extra
+state. Service location: `lib/services/network_score_service.dart`; the
+`NetworkScoreBloc` singleton lives under `lib/pages/network_score/bloc/`.
 
 ------------------------------------------------------------------------
 

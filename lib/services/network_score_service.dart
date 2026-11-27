@@ -1,5 +1,9 @@
 import 'package:injectable/injectable.dart';
+import 'package:vernet/database/drift/drift_database.dart';
+import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/network_connection_status.dart';
+import 'package:vernet/models/network_finding.dart';
+import 'package:vernet/models/network_scan_analysis.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/server_monitor.dart';
 import 'package:vernet/models/wifi_info.dart';
@@ -8,6 +12,7 @@ import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/network_score_repository.dart';
 import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_analysis/port_risk_analyzer.dart';
 import 'package:vernet/services/server_monitor_service.dart';
 import 'package:vernet/utils/app_strings.dart';
 
@@ -35,15 +40,32 @@ class NetworkScoreService {
   Future<NetworkScore> computeScore({
     WifiInfo? liveWifiInfo,
     NetworkConnectionStatus? liveConnectivityStatus,
+    NetworkScanAnalysis? scanAnalysis,
   }) async {
-    final security = await _computeSecurityDimension();
+    NetworkScanAnalysis? analysis = scanAnalysis;
+    var scanError = false;
+    if (analysis == null) {
+      try {
+        analysis = await _loadScanAnalysis();
+      } on Object {
+        scanError = true;
+      }
+    }
+
+    final security = _computeSecurityDimension(
+      analysis,
+      scanError: scanError,
+    );
     final health = _computeHealthDimension(
       wifiInfo: liveWifiInfo,
       connectivityStatus: liveConnectivityStatus,
     );
     final reliability = await _computeReliabilityDimension();
     final speed = await _computeSpeedDimension();
-    final vulnerabilities = _computeVulnerabilitiesDimension(security);
+    final vulnerabilities = _computeVulnerabilitiesDimension(
+      analysis,
+      scanError: scanError,
+    );
 
     var overallScore = _computeWeightedAverage([
       _WeightedScore(security.value, _securityWeight),
@@ -107,83 +129,99 @@ class NetworkScoreService {
     return _StalenessInfo(decay: decay, reason: reason);
   }
 
-  Future<DimensionScore> _computeSecurityDimension() async {
+  /// The scan the score should read, or null when none has ever finished.
+  Future<NetworkScanAnalysis?> _loadScanAnalysis() async {
+    final recentScans = await scanRepository.getRecentScans(limit: 1);
+    if (recentScans.isEmpty) return null;
+    final scan = recentScans.first;
+    final devices = await deviceRepository.getListForScan(scan.id);
+    final knownDevices = await deviceTrustService.getAll();
+    return analyzeDevices(
+      devices,
+      l10n: appStrings(),
+      knownDevices: knownDevices,
+      scanInProgress: scan.onGoing == true,
+    );
+  }
+
+  /// Builds the score's view of a scan.
+  ///
+  /// Findings are keyed by address and service, so two ports of the same
+  /// service on one device count once and the dimension is not punished twice
+  /// for a single exposure. Localized titles are dropped here; the breakdown is
+  /// worded when the score renders, in the language active then.
+  static NetworkScanAnalysis analyzeDevices(
+    Iterable<DeviceData> devices, {
+    required AppLocalizations l10n,
+    List<KnownDeviceData> knownDevices = const [],
+    bool scanInProgress = false,
+  }) {
+    final findings = <String, NetworkServiceFinding>{};
+    var deviceCount = 0;
+    var unidentified = 0;
+    var untrusted = 0;
+    var exposed = 0;
+
+    for (final device in devices) {
+      deviceCount++;
+      final hasMac = device.macAddress != null && device.macAddress!.isNotEmpty;
+      final hasName = (device.hostMake != null &&
+              device.hostMake!.isNotEmpty) ||
+          (device.mdnsDomainName != null && device.mdnsDomainName!.isNotEmpty);
+      if (!hasMac && !hasName) unidentified++;
+      if (DeviceTrustService.knownDeviceFor(knownDevices, device)?.trusted ==
+          false) {
+        untrusted++;
+      }
+
+      final ports = PortRiskAnalyzer.parsePorts(device.openPorts);
+      exposed += ports.length;
+      for (final finding in PortRiskAnalyzer.analyze(
+        ports,
+        l10n: l10n,
+        deviceAddress: device.internetAddress,
+      )) {
+        findings.putIfAbsent(
+          '${device.internetAddress}|${finding.service}',
+          () => NetworkServiceFinding(
+            severity: finding.severity,
+            port: finding.port,
+            service: finding.service,
+            deviceAddress: device.internetAddress,
+          ),
+        );
+      }
+    }
+
+    final sorted = findings.values.toList()
+      ..sort((left, right) {
+        final bySeverity = left.severity.index.compareTo(right.severity.index);
+        if (bySeverity != 0) return bySeverity;
+        final byAddress =
+            (left.deviceAddress ?? '').compareTo(right.deviceAddress ?? '');
+        if (byAddress != 0) return byAddress;
+        return left.port.compareTo(right.port);
+      });
+
+    return NetworkScanAnalysis(
+      deviceCount: deviceCount,
+      unidentifiedDeviceCount: unidentified,
+      untrustedDeviceCount: untrusted,
+      exposedServiceCount: exposed,
+      findings: sorted,
+      scanInProgress: scanInProgress,
+    );
+  }
+
+  DimensionScore _computeSecurityDimension(
+    NetworkScanAnalysis? analysis, {
+    bool scanError = false,
+  }) {
     const name = 'Security';
     final l10n = appStrings();
     final factors = <String>[];
-    var score = 100;
 
-    try {
-      final recentScans = await scanRepository.getRecentScans(limit: 5);
-      if (recentScans.isEmpty) {
-        return DimensionScore(
-          name: name,
-          value: 50,
-          description: l10n.scoreSecurityNoScansDesc,
-          factors: [
-            l10n.scoreSecurityNoScans,
-            l10n.scoreSecurityNoScansTip,
-          ],
-        );
-      }
-
-      final latestScan = recentScans.first;
-      final devices = await deviceRepository.getListForScan(latestScan.id);
-
-      var unknownDeviceCount = 0;
-      for (final device in devices) {
-        final hasMac =
-            device.macAddress != null && device.macAddress!.isNotEmpty;
-        final hasName =
-            (device.hostMake != null && device.hostMake!.isNotEmpty) ||
-                (device.mdnsDomainName != null &&
-                    device.mdnsDomainName!.isNotEmpty);
-        if (!hasMac && !hasName) {
-          unknownDeviceCount++;
-        }
-      }
-
-      if (unknownDeviceCount > 0) {
-        final deduction = unknownDeviceCount * 5;
-        score -= deduction;
-        factors.add(l10n.scoreSecurityUnknownDevices(
-            '$unknownDeviceCount', '$deduction'));
-        factors.add(l10n.scoreSecurityUnknownTip);
-      } else {
-        factors.add(l10n.scoreSecurityAllIdentified('${devices.length}'));
-      }
-
-      // Untrusted devices cost 5 points each, capped at 25 so a network the
-      // user marked as hostile never collapses the whole dimension.
-      final knownDevices = await deviceTrustService.getAll();
-      final untrustedCount = devices
-          .where((device) =>
-              DeviceTrustService.knownDeviceFor(knownDevices, device)
-                  ?.trusted ==
-              false)
-          .length;
-      if (untrustedCount > 0) {
-        final deduction = untrustedCount > 5 ? 25 : untrustedCount * 5;
-        score -= deduction;
-        factors.add(
-          l10n.scoreSecurityUntrustedDevices('$untrustedCount', '$deduction'),
-        );
-        factors.add(l10n.scoreSecurityUntrustedTip);
-      }
-
-      if (latestScan.onGoing == true) {
-        factors.add(l10n.scoreSecurityScanRunning);
-      }
-
-      score = score.clamp(0, 100);
-
-      return DimensionScore(
-        name: name,
-        value: score,
-        description: _securityDescription(score),
-        factors: factors.isEmpty ? [l10n.scoreSecuritySecure] : factors,
-      );
-    } on Object {
+    if (scanError) {
       return DimensionScore(
         name: name,
         value: 50,
@@ -191,6 +229,59 @@ class NetworkScoreService {
         factors: [l10n.scoreSecurityError],
       );
     }
+
+    if (analysis == null) {
+      return DimensionScore(
+        name: name,
+        value: 50,
+        description: l10n.scoreSecurityNoScansDesc,
+        factors: [
+          l10n.scoreSecurityNoScans,
+          l10n.scoreSecurityNoScansTip,
+        ],
+      );
+    }
+
+    var score = 100;
+
+    if (analysis.unidentifiedDeviceCount > 0) {
+      final deduction = analysis.unidentifiedDeviceCount * 5;
+      score -= deduction;
+      factors.add(l10n.scoreSecurityUnknownDevices(
+          '${analysis.unidentifiedDeviceCount}', '$deduction'));
+      factors.add(l10n.scoreSecurityUnknownTip);
+    } else {
+      factors.add(l10n.scoreSecurityAllIdentified('${analysis.deviceCount}'));
+    }
+
+    // Untrusted devices cost 5 points each, capped at 25 so a network the
+    // user marked as hostile never collapses the whole dimension.
+    if (analysis.untrustedDeviceCount > 0) {
+      final deduction = analysis.untrustedDeviceCount > 5
+          ? 25
+          : analysis.untrustedDeviceCount * 5;
+      score -= deduction;
+      factors.add(
+        l10n.scoreSecurityUntrustedDevices(
+          '${analysis.untrustedDeviceCount}',
+          '$deduction',
+        ),
+      );
+      factors.add(l10n.scoreSecurityUntrustedTip);
+    }
+
+    if (analysis.scanInProgress) {
+      factors.add(l10n.scoreSecurityScanRunning);
+    }
+
+    score = score.clamp(0, 100);
+
+    return DimensionScore(
+      name: name,
+      value: score,
+      description: _securityDescription(score),
+      factors: factors.isEmpty ? [l10n.scoreSecuritySecure] : factors,
+    );
   }
 
   String _securityDescription(int score) {
@@ -595,65 +686,96 @@ class NetworkScoreService {
     return l10n.scoreSpeedDescImprove;
   }
 
-  DimensionScore _computeVulnerabilitiesDimension(DimensionScore security) {
+  /// Turns the findings of the latest scan into the vulnerabilities score.
+  ///
+  /// Every flagged service costs by severity, and the share of exposed services
+  /// that is risky costs again on a smaller scale. The next scan rebuilds this
+  /// from scratch, so fixing an exposure raises the dimension straight away.
+  DimensionScore _computeVulnerabilitiesDimension(
+    NetworkScanAnalysis? analysis, {
+    bool scanError = false,
+  }) {
     const name = 'Vulnerabilities';
     final l10n = appStrings();
 
-    if (security.value >= 95) {
-      // Near-perfect security - minimal baseline risk
+    if (scanError) {
       return DimensionScore(
         name: name,
-        value: 98,
-        description: l10n.scoreVulnExcellentDesc,
-        factors: [
-          l10n.scoreVulnStrongPosture,
-          l10n.scoreVulnAllIdentified,
-          l10n.scoreVulnNoVulnerabilities,
-          l10n.scoreVulnMinimalBaseline,
-        ],
-      );
-    } else if (security.value >= 80) {
-      // Good security - small baseline risk
-      return DimensionScore(
-        name: name,
-        value: 95,
-        description: l10n.scoreVulnLowDesc,
-        factors: [
-          l10n.scoreVulnStrongPosture,
-          l10n.scoreVulnAllIdentified,
-          l10n.scoreVulnNoVulnerabilities,
-          l10n.scoreVulnSmallBaseline,
-        ],
-      );
-    } else if (security.value >= 50) {
-      return DimensionScore(
-        name: name,
-        value: 60,
-        description: l10n.scoreVulnSomeDesc,
-        factors: [
-          l10n.scoreVulnModerateScore('${security.value}'),
-          l10n.scoreVulnPartialIdentification,
-          l10n.scoreVulnScanTip,
-          l10n.scoreVulnReviewTip,
-        ],
-      );
-    } else {
-      return DimensionScore(
-        name: name,
-        value: 30,
-        description: l10n.scoreVulnAttentionDesc,
-        factors: [
-          l10n.scoreVulnLowScore('${security.value}'),
-          l10n.scoreVulnUnknownDevices,
-          l10n.scoreVulnExposedServices,
-          l10n.scoreVulnActionRequired,
-          l10n.scoreVulnActionScan,
-          l10n.scoreVulnActionVerify,
-          l10n.scoreVulnActionPorts,
-          l10n.scoreVulnActionTrust,
-        ],
+        value: 50,
+        description: l10n.scoreVulnUnableDesc,
+        factors: [l10n.scoreVulnUnable, l10n.scoreVulnUnableTip],
       );
     }
+
+    if (analysis == null) {
+      return DimensionScore(
+        name: name,
+        value: 50,
+        description: l10n.scoreVulnNoScanDesc,
+        factors: [l10n.scoreVulnNoScan, l10n.scoreVulnNoScanTip],
+      );
+    }
+
+    final factors = <String>[];
+    for (final finding in analysis.findings) {
+      factors.add(_serviceFindingLine(l10n, finding));
+    }
+
+    final hygieneDeduction = analysis.hygieneDeduction;
+    if (analysis.exposedServiceCount == 0) {
+      factors.add(l10n.scoreVulnNoExposedServices);
+    } else if (analysis.findings.isEmpty) {
+      factors.add(l10n.scoreVulnNoFindings('${analysis.exposedServiceCount}'));
+    } else {
+      factors.add(l10n.scoreVulnHygiene(
+        '${analysis.riskyServiceCount}',
+        '${analysis.exposedServiceCount}',
+        '${analysis.riskyServicePercent}',
+        '$hygieneDeduction',
+      ));
+    }
+
+    if (analysis.untrustedDeviceCount == 0 &&
+        analysis.unidentifiedDeviceCount == 0) {
+      factors.add(l10n.scoreVulnDeviceTrustClean);
+    } else {
+      factors.add(l10n.scoreVulnDeviceTrust(
+        '${analysis.untrustedDeviceCount}',
+        '${analysis.unidentifiedDeviceCount}',
+      ));
+    }
+
+    final score = analysis.vulnerabilityScore;
+    return DimensionScore(
+      name: name,
+      value: score,
+      description: _vulnerabilitiesDescription(score),
+      factors: factors,
+    );
+  }
+
+  String _serviceFindingLine(
+    AppLocalizations l10n,
+    NetworkServiceFinding finding,
+  ) {
+    final address = finding.deviceAddress ?? '';
+    final points = '${finding.deduction}';
+    return switch (finding.severity) {
+      NetworkFindingSeverity.critical =>
+        l10n.scoreVulnCriticalFinding(finding.service, address, points),
+      NetworkFindingSeverity.warning =>
+        l10n.scoreVulnWarningFinding(finding.service, address, points),
+      NetworkFindingSeverity.info =>
+        l10n.scoreVulnInfoFinding(finding.service, address, points),
+    };
+  }
+
+  String _vulnerabilitiesDescription(int score) {
+    final l10n = appStrings();
+    if (score >= 90) return l10n.scoreVulnExcellentDesc;
+    if (score >= 70) return l10n.scoreVulnLowDesc;
+    if (score >= 40) return l10n.scoreVulnSomeDesc;
+    return l10n.scoreVulnAttentionDesc;
   }
 
   int _computeWeightedAverage(List<_WeightedScore> scores) {

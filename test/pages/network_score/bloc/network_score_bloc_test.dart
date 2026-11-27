@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:vernet/models/network_connection_status.dart';
+import 'package:vernet/models/network_scan_analysis.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/models/wifi_metrics.dart';
@@ -38,6 +39,14 @@ WifiInfo _createTestWifiInfo() => WifiInfo(
       true,
       WifiNetworkMetrics.disconnected(),
     );
+
+const _testAnalysis = NetworkScanAnalysis(
+  deviceCount: 1,
+  unidentifiedDeviceCount: 0,
+  untrustedDeviceCount: 0,
+  exposedServiceCount: 1,
+  findings: [],
+);
 
 NetworkConnectionStatus _createTestConnectivity() =>
     const NetworkConnectionStatus(
@@ -109,6 +118,7 @@ void main() {
           when(() => mockService.computeScore(
                 liveWifiInfo: any(named: 'liveWifiInfo'),
                 liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: any(named: 'scanAnalysis'),
               )).thenAnswer((_) async => _createTestScore());
           return bloc;
         },
@@ -136,6 +146,7 @@ void main() {
           when(() => mockService.computeScore(
                 liveWifiInfo: any(named: 'liveWifiInfo'),
                 liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: any(named: 'scanAnalysis'),
               )).thenThrow(Exception('Test error'));
           return bloc;
         },
@@ -165,6 +176,7 @@ void main() {
           when(() => mockService.computeScore(
                 liveWifiInfo: any(named: 'liveWifiInfo'),
                 liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: any(named: 'scanAnalysis'),
               )).thenAnswer((_) async => _createTestScore());
           return bloc;
         },
@@ -189,6 +201,7 @@ void main() {
           when(() => mockService.computeScore(
                 liveWifiInfo: any(named: 'liveWifiInfo'),
                 liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: any(named: 'scanAnalysis'),
               )).thenThrow(Exception('Refresh error'));
           return bloc;
         },
@@ -206,6 +219,28 @@ void main() {
           ),
         ],
       );
+
+      blocTest<NetworkScoreBloc, NetworkScoreState>(
+        'hands the scan analysis to the service',
+        build: () {
+          when(() => mockService.computeScore(
+                liveWifiInfo: any(named: 'liveWifiInfo'),
+                liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: any(named: 'scanAnalysis'),
+              )).thenAnswer((_) async => _createTestScore());
+          return bloc;
+        },
+        act: (bloc) => bloc.add(
+          const NetworkScoreEvent.refresh(scanAnalysis: _testAnalysis),
+        ),
+        verify: (_) {
+          verify(() => mockService.computeScore(
+                liveWifiInfo: any(named: 'liveWifiInfo'),
+                liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: _testAnalysis,
+              )).called(1);
+        },
+      );
     });
 
     group('updateCache', () {
@@ -215,6 +250,7 @@ void main() {
           when(() => mockService.computeScore(
                 liveWifiInfo: any(named: 'liveWifiInfo'),
                 liveConnectivityStatus: any(named: 'liveConnectivityStatus'),
+                scanAnalysis: any(named: 'scanAnalysis'),
               )).thenAnswer((_) async => _createTestScore());
           return bloc;
         },
