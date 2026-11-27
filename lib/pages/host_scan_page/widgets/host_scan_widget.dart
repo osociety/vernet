@@ -15,6 +15,7 @@ import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/network_analysis/device_risk_analyzer.dart';
 import 'package:vernet/services/network_analysis/device_risk_service.dart';
+import 'package:vernet/services/network_analysis/network_health_report_service.dart';
 import 'package:vernet/services/network_analysis/port_risk_analyzer.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
@@ -64,6 +65,18 @@ class _HostScanWidgetState extends State<HostScanWidget> {
     setState(() => _riskAssessments = assessments);
   }
 
+  /// Keeps the health report snapshot for the scan that just finished, so the
+  /// report page can show a trend even if it is never opened.
+  Future<void> _saveHealthReport(List<DeviceData> hosts) async {
+    if (!getIt.isRegistered<NetworkHealthReportService>()) return;
+    try {
+      await getIt<NetworkHealthReportService>()
+          .saveForCurrentScan(hosts, context.l10n);
+    } catch (error) {
+      debugPrint('Health report snapshot failed: $error');
+    }
+  }
+
   DeviceRiskAssessment _riskOf(DeviceData host) =>
       _riskAssessments[DeviceUtil.deviceKey(host)] ??
       DeviceRiskAnalyzer.assess(
@@ -94,6 +107,7 @@ class _HostScanWidgetState extends State<HostScanWidget> {
         if (state is LoadSuccess) {
           final deviceCount = state.activeHosts.length;
           unawaited(_loadRiskAssessments(state.activeHosts.toList()));
+          unawaited(_saveHealthReport(state.activeHosts.toList()));
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(

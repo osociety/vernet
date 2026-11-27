@@ -186,6 +186,38 @@ colors.
 
 ------------------------------------------------------------------------
 
+### Network Health Report
+
+Turn one scan's findings into a graded, full-page report.
+
+Scoring is a product baseline:
+
+-   score starts at 100 and subtracts 25 per critical finding, 10 per
+    warning, 3 per info, 10 per high-risk device and 3 per medium-risk
+    device, clamped at 0
+-   grades: A 90+, B 80+, C 70+, D 60+, F below 60
+-   sections: critical issues, warnings, info, and a device summary
+    counting each risk tier and naming the high-risk devices
+
+Each scan's summary (score, grade, counts, scan start) is stored in the
+`health_report` drift table. The report compares against the most recent
+earlier scan that has a row; five points or more reads as improving or
+degrading, anything smaller as stable.
+
+The page rebuilds its finding lists from the scan's stored device rows, so
+only the snapshot is persisted. The export is the report as text on the
+clipboard, matching how the app copies other values.
+
+Service location:
+
+`lib/services/network_analysis/network_health_report_service.dart` builds
+the report and saves the snapshot, `lib/repository/drift/health_report_repository.dart`
+owns the table, and `lib/pages/health_report/network_health_report_page.dart`
+renders it. The scan report opens the page from its app bar, and a finished
+host scan stores its snapshot without waiting for the page.
+
+------------------------------------------------------------------------
+
 ### DNS Tools
 
 Network lookup utilities.

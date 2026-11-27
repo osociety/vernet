@@ -3,12 +3,13 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vernet/models/drift/device.dart';
+import 'package:vernet/models/drift/health_report.dart';
 import 'package:vernet/models/drift/known_device.dart';
 import 'package:vernet/models/drift/scan.dart';
 
 part 'drift_database.g.dart';
 
-@DriftDatabase(tables: [Device, Scan, KnownDevice])
+@DriftDatabase(tables: [Device, Scan, KnownDevice, HealthReport])
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
   // and a constructor telling drift where the database should be stored.
@@ -16,7 +17,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -61,6 +62,15 @@ class AppDatabase extends _$AppDatabase {
           debugPrint('Adding missing known_device table');
           await migrator.createTable(knownDevice);
         }
+
+        // The same repair for stores that recorded version 6 before the health
+        // report table existed.
+        try {
+          await customStatement('SELECT 1 FROM health_report LIMIT 0');
+        } catch (_) {
+          debugPrint('Adding missing health_report table');
+          await migrator.createTable(healthReport);
+        }
       },
       onUpgrade: (m, from, to) async {
         debugPrint('Database upgrade from version $from to $to');
@@ -91,6 +101,13 @@ class AppDatabase extends _$AppDatabase {
             await customStatement('SELECT 1 FROM known_device LIMIT 0');
           } catch (_) {
             await m.createTable(knownDevice);
+          }
+        }
+        if (from < 6) {
+          try {
+            await customStatement('SELECT 1 FROM health_report LIMIT 0');
+          } catch (_) {
+            await m.createTable(healthReport);
           }
         }
       },

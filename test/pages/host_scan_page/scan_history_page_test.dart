@@ -8,9 +8,12 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/health_report_repository.dart';
 import 'package:vernet/repository/drift/known_device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_analysis/device_risk_service.dart';
+import 'package:vernet/services/network_analysis/network_health_report_service.dart';
 import 'package:vernet/ui/device_risk_chip.dart';
 import 'package:vernet/ui/device_trust_badge.dart';
 
@@ -179,6 +182,32 @@ void main() {
     expect(find.text('192.168.0.5'), findsOneWidget);
     expect(find.text('192.168.0.12 • 00:11:22:33:44:55 • CIMSYS Inc'),
         findsOneWidget);
+  });
+
+  testWidgets('opens the health report from a scan report', (tester) async {
+    final database = _InMemoryDatabaseService(db);
+    getIt.registerSingleton<NetworkHealthReportService>(
+      NetworkHealthReportService(
+        deviceRepo,
+        scanRepo,
+        HealthReportRepository(database),
+        DeviceRiskService(deviceRepo, scanRepo),
+      ),
+    );
+    addTearDown(() => getIt.unregister<NetworkHealthReportService>());
+
+    await pumpHistory(tester);
+    await tester.tap(find.text('Network 192.168.0'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Health report'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Network health report'), findsOneWidget);
+    expect(find.text('Critical issues'), findsOneWidget);
+    expect(find.text('Device summary'), findsOneWidget);
+    expect(find.text('No earlier report to compare'), findsOneWidget);
+
+    await disposeTree(tester);
   });
 
   testWidgets('shows scan activity and a table on desktop', (tester) async {
