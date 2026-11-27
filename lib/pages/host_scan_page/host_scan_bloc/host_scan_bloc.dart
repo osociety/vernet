@@ -12,10 +12,13 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/utils_helper.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/pages/network_score/bloc/network_score_bloc.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
+import 'package:vernet/services/network_score_service.dart';
+import 'package:vernet/utils/app_strings.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/values/globals.dart' as globals;
 
@@ -287,6 +290,28 @@ class HostScanBloc extends Bloc<HostScanEvent, HostScanState> {
       }
     } catch (error) {
       debugPrint('Device trust evaluation failed: $error');
+    }
+
+    // Hand the score the scan the user just finished, after the trust pass so
+    // the verdicts it just stored are part of the analysis. A rogue arrival
+    // then lowers the score straight away instead of at the next recompute.
+    if (getIt.isRegistered<NetworkScoreBloc>()) {
+      try {
+        final knownDevices = getIt.isRegistered<DeviceTrustService>()
+            ? await getIt<DeviceTrustService>().getAll()
+            : const <KnownDeviceData>[];
+        getIt<NetworkScoreBloc>().add(
+          NetworkScoreEvent.refresh(
+            scanAnalysis: NetworkScoreService.analyzeDevices(
+              devicesSet.toList(),
+              l10n: appStrings(),
+              knownDevices: knownDevices,
+            ),
+          ),
+        );
+      } catch (error) {
+        debugPrint('Network score refresh failed: $error');
+      }
     }
   }
 

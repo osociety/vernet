@@ -3975,6 +3975,122 @@
   "@scoreVulnActionTrust": {
     "description": "Fourth remediation step."
   },
+  "scoreVulnCriticalFinding": "✗ {service} exposed on {address} (-{points} points)",
+  "@scoreVulnCriticalFinding": {
+    "description": "Breakdown line for one critical service finding from the latest scan.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnWarningFinding": "~ {service} exposed on {address} (-{points} points)",
+  "@scoreVulnWarningFinding": {
+    "description": "Breakdown line for one warning service finding from the latest scan.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnInfoFinding": "~ {service} exposed on {address} (-{points} points)",
+  "@scoreVulnInfoFinding": {
+    "description": "Breakdown line for one informational service finding from the latest scan.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnHygiene": "~ {risky} of {total} exposed service(s) are risky ({percent}%) (-{points} points)",
+  "@scoreVulnHygiene": {
+    "description": "Service-hygiene factor naming how much of the exposed surface is risky.",
+    "placeholders": {
+      "risky": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnNoFindings": "✓ No risky services found among {total} exposed service(s)",
+  "@scoreVulnNoFindings": {
+    "description": "Vulnerability factor when the scan exposed services but flagged none.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnNoExposedServices": "✓ No open services were reported by the last scan",
+  "@scoreVulnNoExposedServices": {
+    "description": "Vulnerability factor when the scan found no open ports at all."
+  },
+  "scoreVulnDeviceTrust": "~ Device trust: {untrusted} untrusted, {unidentified} unidentified device(s)",
+  "@scoreVulnDeviceTrust": {
+    "description": "Device-trust factor listing the counts the Security dimension already charged.",
+    "placeholders": {
+      "untrusted": {
+        "type": "String"
+      },
+      "unidentified": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnDeviceTrustClean": "✓ Every device is identified and trusted",
+  "@scoreVulnDeviceTrustClean": {
+    "description": "Device-trust factor when every device is identified and trusted."
+  },
+  "scoreVulnNoScanDesc": "Run a network scan to check for exposed services",
+  "@scoreVulnNoScanDesc": {
+    "description": "Vulnerability description when no scan has finished yet."
+  },
+  "scoreVulnNoScan": "✗ No network scan found (-50 points)",
+  "@scoreVulnNoScan": {
+    "description": "Vulnerability factor when no scan has finished yet."
+  },
+  "scoreVulnNoScanTip": "Tip: Run a network scan from the home screen",
+  "@scoreVulnNoScanTip": {
+    "description": "Advice shown when no scan has finished yet."
+  },
+  "scoreVulnUnableDesc": "Unable to read the last scan",
+  "@scoreVulnUnableDesc": {
+    "description": "Vulnerability description when the stored scan could not be read."
+  },
+  "scoreVulnUnable": "✗ Last scan could not be read",
+  "@scoreVulnUnable": {
+    "description": "Vulnerability factor when the stored scan could not be read."
+  },
+  "scoreVulnUnableTip": "Tip: Run a network scan again",
+  "@scoreVulnUnableTip": {
+    "description": "Advice shown when the stored scan could not be read."
+  },
   "scoreDimSecurity": "Security",
   "@scoreDimSecurity": {
     "description": "Display name of the security dimension."
