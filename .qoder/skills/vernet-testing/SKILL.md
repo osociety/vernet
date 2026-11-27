@@ -142,11 +142,22 @@ setUp(() async {
   assertion must fail with the same error CI reported.
 - Always clear the database in `setUp` and `tearDown`; suites share one app
   process and one database file.
+- A pushed route does not unmount the page below it, so a text on both pages
+  matches twice. Scope page-level finders with
+  `find.descendant(of: find.byType(ThePage), matching: ...)`; this is how a
+  device's host make on the scan report collided with the same name on the
+  health report pushed over it.
+- Health reports have no foreign key to scans, so `clearDatabase()` leaves
+  their snapshots behind. Delete `database.healthReport` as well, or a later
+  suite's trend compares against a report it never seeded.
 
 The scan report suite is the reference implementation:
 `integration_test/scan_report/scan_report.dart` covers empty history, desktop
 table, phone cards, report navigation, in-progress and zero-device reports, and
-a live scan end to end.
+a live scan end to end. `integration_test/scan_insights/scan_insights.dart`
+covers the scan-insight surfaces: port findings on the device page, risk tiers
+next to the report rows, the health report's grade, sections, trend and copy
+action, and the score's vulnerabilities dimension before and after a rescan.
 
 ## Windows and test-mode guards
 
