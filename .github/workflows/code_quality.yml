@@ -1,0 +1,69 @@
+name: Code quality
+
+# Complements Flutter main pipeline. That workflow already runs format, analyze
+# (`--no-fatal-infos`), and tests. This file adds a fatal-info analyze gate, a
+# coverage artifact, and a non-blocking dependency audit.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: code-quality-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  static_analysis_and_tests:
+    name: Static analysis and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      # Stable Flutter, pub cache, `flutter pub get --enforce-lockfile`,
+      # build_runner, and gen-l10n. Analyze and tests need the generated
+      # sources; a bare `flutter pub get` leaves them missing.
+      - name: Bootstrap Flutter
+        uses: ./.github/actions/flutter-bootstrap
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run analyzer
+        run: flutter analyze --fatal-infos
+
+      - name: Run unit and widget tests
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: error
+
+  dependency_audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.23.0
+        with:
+          channel: stable
+          cache: true
+
+      - name: Download dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Report outdated dependencies
+        continue-on-error: true
+        run: dart pub outdated --no-dev-dependencies
