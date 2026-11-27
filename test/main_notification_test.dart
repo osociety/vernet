@@ -64,11 +64,15 @@ void main() {
     scanRepository = MockScanRepository();
     deviceRepository = MockDeviceRepository();
     when(() => scanRepository.get(any())).thenAnswer((_) async => null);
+    when(() => scanRepository.getList())
+        .thenAnswer((_) async => const <ScanData>[]);
     when(
       () => scanRepository.getRecentScans(limit: any(named: 'limit')),
     ).thenAnswer((_) async => [otherScan]);
     when(() => deviceRepository.getListForScan(any()))
         .thenAnswer((_) async => const <DeviceData>[]);
+    when(() => deviceRepository.scanIdsByDeviceKey())
+        .thenAnswer((_) async => const <String, Set<int>>{});
 
     di.getIt.pushNewScope();
     di.getIt.registerSingleton<ScanRepository>(scanRepository);

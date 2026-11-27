@@ -154,6 +154,38 @@ internet-facing host; Telnet is critical everywhere.
 
 ------------------------------------------------------------------------
 
+### Device Risk
+
+Sort each discovered device into the Low, Medium and High tiers its chip
+shows.
+
+Responsibilities:
+
+-   low: a known device type, standard ports only
+-   medium: unknown device type, alternate-service ports or ports no
+    local table can name
+-   high: a critical or warning finding, a globally administered MAC whose
+    OUI resolved no vendor, or a device absent from at least half the scans
+    that ran while it was known
+-   one chip on the live scan row, the report rows and the device detail
+    header
+
+Service location:
+
+lib/services/network_analysis/device_risk_analyzer.dart (pure per-device
+assessment) and `device_risk_service.dart` (adds the scan-history signal).
+
+`DeviceRiskService` reads the stored device rows and scans once per report
+page. Live scan rows call the analyzer directly and show their tier without
+the history flag, because their scan is still running. Locally administered
+MACs are exempt from the unrecognized-vendor rule: phones rotate them by
+design, so an unmatched OUI says nothing there. The model lives in
+`lib/models/device_risk.dart` and renders through
+`lib/ui/device_risk_chip.dart`, using the green, amber and red semantic
+colors.
+
+------------------------------------------------------------------------
+
 ### DNS Tools
 
 Network lookup utilities.
