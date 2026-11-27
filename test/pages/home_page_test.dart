@@ -166,6 +166,60 @@ void main() {
       expect(find.text('CUSTOM'), findsNothing);
     });
 
+    testWidgets('shows the DHCP server when it leased the address elsewhere',
+        (tester) async {
+      // #683: Android answered the gateway query with the DHCP lease, so a
+      // network that splits router and lease server had no honest place to show
+      // the leasing host. It now gets its own row.
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          '192.168.1.10',
+          '00:11:22:33:44:55',
+          'Mock WiFi',
+          false,
+          '192.168.1.1',
+          true,
+          const WifiNetworkMetrics(
+            rawRssi: -50,
+            normalizedLevel: 3,
+            quality: WifiSignalQuality.excellent,
+          ),
+          dhcpServerIp: '192.168.1.2',
+        ),
+      );
+
+      expect(find.text('DHCP SERVER'), findsOneWidget);
+      expect(find.text('192.168.1.2'), findsOneWidget);
+    });
+
+    testWidgets('hides the DHCP server row when it is the gateway',
+        (tester) async {
+      // The two addresses coincide on a home router that leases its own
+      // addresses; repeating the same number under a second label is noise.
+      await pumpHomePage(
+        tester,
+        size: const Size(900, 800),
+        wifiInfoLoader: ({bool force = false}) async => WifiInfo(
+          '192.168.1.10',
+          '00:11:22:33:44:55',
+          'Mock WiFi',
+          false,
+          '192.168.1.1',
+          true,
+          const WifiNetworkMetrics(
+            rawRssi: -50,
+            normalizedLevel: 3,
+            quality: WifiSignalQuality.excellent,
+          ),
+          dhcpServerIp: '192.168.1.1',
+        ),
+      );
+
+      expect(find.text('DHCP SERVER'), findsNothing);
+    });
+
     testWidgets('names a missing signal reading as missing', (tester) async {
       await pumpHomePage(
         tester,

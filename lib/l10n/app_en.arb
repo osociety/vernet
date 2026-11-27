@@ -798,6 +798,10 @@
   "@homeGateway": {
     "description": "Label for the router address on the home dashboard, rendered in small caps"
   },
+  "homeDhcpServer": "DHCP SERVER",
+  "@homeDhcpServer": {
+    "description": "Label for the host that leased this device's address on the home dashboard, rendered in small caps; shown only when it is not the gateway"
+  },
   "homeAccessPoint": "ACCESS POINT",
   "@homeAccessPoint": {
     "description": "Label for the access point MAC address on the home dashboard, rendered in small caps"

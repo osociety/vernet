@@ -218,6 +218,7 @@
   "homeStatusNotConnected": "NICHT VERBUNDEN",
   "homeDeviceIp": "GERÄTE-IP",
   "homeGateway": "GATEWAY",
+  "homeDhcpServer": "DHCP-SERVER",
   "homeAccessPoint": "ACCESS POINT",
   "homeCustomBadge": "MANUELL",
   "homeLocationHint": "Erlaube den Standortzugriff, um den WLAN-Namen anzuzeigen.",
