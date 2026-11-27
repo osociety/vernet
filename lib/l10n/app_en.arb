@@ -2856,6 +2856,311 @@
       }
     }
   },
+  "securityFindingsTitle": "Security findings",
+  "@securityFindingsTitle": {
+    "description": "Heading of the security findings card on device detail."
+  },
+  "securityFindingsSubtitle": "Based on the ports this device exposes on your local network.",
+  "@securityFindingsSubtitle": {
+    "description": "Explains where the security findings come from."
+  },
+  "securityFindingsNone": "No obvious risks on the open ports.",
+  "@securityFindingsNone": {
+    "description": "Security card state when no rule matched."
+  },
+  "securitySeverityCritical": "Critical",
+  "@securitySeverityCritical": {
+    "description": "Severity chip for a finding that needs immediate attention."
+  },
+  "securitySeverityWarning": "Warning",
+  "@securitySeverityWarning": {
+    "description": "Severity chip for a finding that should be addressed."
+  },
+  "securitySeverityInfo": "Info",
+  "@securitySeverityInfo": {
+    "description": "Severity chip for an observation without urgent risk."
+  },
+  "securityFindingTelnetTitle": "Telnet is enabled",
+  "@securityFindingTelnetTitle": {
+    "description": "Title of the Telnet finding."
+  },
+  "securityFindingTelnetBody": "Telnet sends everything, including passwords, without encryption. Disable it and use SSH instead.",
+  "@securityFindingTelnetBody": {
+    "description": "Why an open Telnet port matters."
+  },
+  "securityFindingFtpTitle": "FTP is open",
+  "@securityFindingFtpTitle": {
+    "description": "Title of the FTP finding."
+  },
+  "securityFindingFtpBody": "FTP sends files and credentials in plain text. Prefer SFTP or FTPS.",
+  "@securityFindingFtpBody": {
+    "description": "Why an open FTP port matters."
+  },
+  "securityFindingSmbTitle": "File sharing is exposed",
+  "@securityFindingSmbTitle": {
+    "description": "Title of the SMB finding."
+  },
+  "securityFindingSmbBody": "SMB is reachable from the local network. Keep it limited to trusted devices and turn off SMBv1.",
+  "@securityFindingSmbBody": {
+    "description": "Why an open SMB port matters on a LAN."
+  },
+  "securityFindingNetbiosTitle": "NetBIOS is exposed",
+  "@securityFindingNetbiosTitle": {
+    "description": "Title of the NetBIOS finding."
+  },
+  "securityFindingNetbiosBody": "NetBIOS is reachable from the local network. Windows file sharing needs it, but it widens the attack surface.",
+  "@securityFindingNetbiosBody": {
+    "description": "Why an open NetBIOS port matters on a LAN."
+  },
+  "securityFindingTftpTitle": "TFTP is open",
+  "@securityFindingTftpTitle": {
+    "description": "Title of the TFTP finding."
+  },
+  "securityFindingTftpBody": "TFTP has no authentication. Disable it unless a device on the network needs it.",
+  "@securityFindingTftpBody": {
+    "description": "Why an open TFTP port matters."
+  },
+  "securityFindingRdpTitle": "Remote Desktop is exposed",
+  "@securityFindingRdpTitle": {
+    "description": "Title of the RDP finding."
+  },
+  "securityFindingRdpBody": "RDP allows remote control of this device. Restrict it to trusted hosts and use strong credentials.",
+  "@securityFindingRdpBody": {
+    "description": "Why an open RDP port matters."
+  },
+  "securityFindingVncTitle": "VNC is open",
+  "@securityFindingVncTitle": {
+    "description": "Title of the VNC finding."
+  },
+  "securityFindingVncBody": "VNC often allows remote control with weak or no authentication. Set a password and restrict access.",
+  "@securityFindingVncBody": {
+    "description": "Why an open VNC port matters."
+  },
+  "securityFindingDatabaseTitle": "{service} is reachable",
+  "@securityFindingDatabaseTitle": {
+    "description": "Title of a database finding.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFindingDatabaseBody": "A database port is reachable from the local network. Bind it to localhost or restrict it with a firewall.",
+  "@securityFindingDatabaseBody": {
+    "description": "Why an open database port matters."
+  },
+  "securityFindingSnmpTitle": "SNMP is enabled",
+  "@securityFindingSnmpTitle": {
+    "description": "Title of the SNMP finding."
+  },
+  "securityFindingSnmpBody": "SNMP versions 1 and 2c send community strings in plain text. Use SNMPv3 or disable it.",
+  "@securityFindingSnmpBody": {
+    "description": "Why an open SNMP port matters."
+  },
+  "securityFindingWebTitle": "Web interface without encryption",
+  "@securityFindingWebTitle": {
+    "description": "Title of the plain HTTP finding."
+  },
+  "securityFindingWebBody": "HTTP sends traffic in plain text. Use HTTPS when the device supports it.",
+  "@securityFindingWebBody": {
+    "description": "Why an open HTTP port matters."
+  },
+  "securityFindingSshOutdatedTitle": "SSH server looks outdated",
+  "@securityFindingSshOutdatedTitle": {
+    "description": "Title of the outdated SSH finding."
+  },
+  "securityFindingSshOutdatedBody": "The server reports {version}. Vernet recommends {minimum} or newer.",
+  "@securityFindingSshOutdatedBody": {
+    "description": "Why an old SSH version matters.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "minimum": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFindingAlternateTitle": "Possible {service} on a non-standard port",
+  "@securityFindingAlternateTitle": {
+    "description": "Title of a finding for a common service on an alternate port.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "securityFindingAlternateBody": "Port {port} is commonly used for {service}. Confirm the service is intended and secured.",
+  "@securityFindingAlternateBody": {
+    "description": "Why an alternate service port is worth checking.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceRiskLevelLow": "Low",
+  "@deviceRiskLevelLow": {
+    "description": "Risk tier chip for a device with no risk factors."
+  },
+  "deviceRiskLevelMedium": "Medium",
+  "@deviceRiskLevelMedium": {
+    "description": "Risk tier chip for a device with unknown identity or unusual ports."
+  },
+  "deviceRiskLevelHigh": "High",
+  "@deviceRiskLevelHigh": {
+    "description": "Risk tier chip for a device exposing risky services or with an unknown identity."
+  },
+  "deviceRiskLowDescription": "Known device type with only standard ports.",
+  "@deviceRiskLowDescription": {
+    "description": "Tooltip of the low risk chip."
+  },
+  "deviceRiskReasonVulnerableService": "Exposes a service with known weaknesses",
+  "@deviceRiskReasonVulnerableService": {
+    "description": "Risk reason for a device with a critical or warning finding."
+  },
+  "deviceRiskReasonUnknownVendor": "Hardware vendor is unrecognized",
+  "@deviceRiskReasonUnknownVendor": {
+    "description": "Risk reason for a globally administered MAC that resolved no vendor."
+  },
+  "deviceRiskReasonIntermittent": "Comes and goes between scans",
+  "@deviceRiskReasonIntermittent": {
+    "description": "Risk reason for a device absent from many scans while it was known."
+  },
+  "deviceRiskReasonUnknownDeviceType": "Device type is unknown",
+  "@deviceRiskReasonUnknownDeviceType": {
+    "description": "Risk reason for a device whose type could not be inferred."
+  },
+  "deviceRiskReasonUnusualPorts": "Uses unusual ports",
+  "@deviceRiskReasonUnusualPorts": {
+    "description": "Risk reason for alternate or unnamed open ports."
+  },
+  "healthReportTitle": "Network health report",
+  "@healthReportTitle": {
+    "description": "Title of the full-page report and the copied text."
+  },
+  "healthReportOpenTooltip": "Health report",
+  "@healthReportOpenTooltip": {
+    "description": "Tooltip of the scan report action that opens the health report."
+  },
+  "healthReportCopyTooltip": "Copy report",
+  "@healthReportCopyTooltip": {
+    "description": "Tooltip of the action that copies the report as text."
+  },
+  "healthReportCopied": "Report copied to the clipboard",
+  "@healthReportCopied": {
+    "description": "Confirmation after copying the health report."
+  },
+  "healthReportLoadError": "Could not build the health report",
+  "@healthReportLoadError": {
+    "description": "Failure message when the report cannot be built."
+  },
+  "healthReportScoreOf": "{score} / 100",
+  "@healthReportScoreOf": {
+    "description": "Score under the grade letter.",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReportTextGrade": "Grade {grade} ({score}/100)",
+  "@healthReportTextGrade": {
+    "description": "Grade line of the copied text report.",
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReportTextDevices": "Devices: {total} ({low} low, {medium} medium, {high} high)",
+  "@healthReportTextDevices": {
+    "description": "Device line of the copied text report.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "medium": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReportTrendImproving": "Improving since the last scan",
+  "@healthReportTrendImproving": {
+    "description": "Trend when the score rose by five points or more."
+  },
+  "healthReportTrendDegrading": "Degrading since the last scan",
+  "@healthReportTrendDegrading": {
+    "description": "Trend when the score fell by five points or more."
+  },
+  "healthReportTrendStable": "Stable since the last scan",
+  "@healthReportTrendStable": {
+    "description": "Trend when the score moved less than five points."
+  },
+  "healthReportTrendUnknown": "No earlier report to compare",
+  "@healthReportTrendUnknown": {
+    "description": "Trend when no previous report exists."
+  },
+  "healthReportCriticalTitle": "Critical issues",
+  "@healthReportCriticalTitle": {
+    "description": "Section of findings that need immediate attention."
+  },
+  "healthReportWarningTitle": "Warnings",
+  "@healthReportWarningTitle": {
+    "description": "Section of potential risks to address."
+  },
+  "healthReportInfoTitle": "Info",
+  "@healthReportInfoTitle": {
+    "description": "Section of general observations."
+  },
+  "healthReportNoFindings": "Nothing found",
+  "@healthReportNoFindings": {
+    "description": "Empty state of a finding section."
+  },
+  "healthReportDeviceSummary": "Device summary",
+  "@healthReportDeviceSummary": {
+    "description": "Title of the section that counts devices by risk tier."
+  },
+  "healthReportNotableDevices": "High-risk devices",
+  "@healthReportNotableDevices": {
+    "description": "Subtitle listing the devices in the high risk tier."
+  },
+  "healthReportNoHighRisk": "No device is rated high risk",
+  "@healthReportNoHighRisk": {
+    "description": "Empty state of the high-risk device list."
+  },
+  "healthReportGradeA": "Excellent",
+  "@healthReportGradeA": {
+    "description": "Word shown beside grade A."
+  },
+  "healthReportGradeB": "Good",
+  "@healthReportGradeB": {
+    "description": "Word shown beside grade B."
+  },
+  "healthReportGradeC": "Fair",
+  "@healthReportGradeC": {
+    "description": "Word shown beside grade C."
+  },
+  "healthReportGradeD": "Poor",
+  "@healthReportGradeD": {
+    "description": "Word shown beside grade D."
+  },
+  "healthReportGradeF": "Critical",
+  "@healthReportGradeF": {
+    "description": "Word shown beside grade F."
+  },
   "portDescFtp": "FTP - File Transfer Protocol",
   "@portDescFtp": {
     "description": "Service behind ports 20 and 21."
@@ -3708,6 +4013,122 @@
   "scoreVulnActionTrust": "• Review untrusted devices and mark the ones you recognize as trusted",
   "@scoreVulnActionTrust": {
     "description": "Fourth remediation step."
+  },
+  "scoreVulnCriticalFinding": "✗ {service} exposed on {address} (-{points} points)",
+  "@scoreVulnCriticalFinding": {
+    "description": "Breakdown line for one critical service finding from the latest scan.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnWarningFinding": "~ {service} exposed on {address} (-{points} points)",
+  "@scoreVulnWarningFinding": {
+    "description": "Breakdown line for one warning service finding from the latest scan.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnInfoFinding": "~ {service} exposed on {address} (-{points} points)",
+  "@scoreVulnInfoFinding": {
+    "description": "Breakdown line for one informational service finding from the latest scan.",
+    "placeholders": {
+      "service": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnHygiene": "~ {risky} of {total} exposed service(s) are risky ({percent}%) (-{points} points)",
+  "@scoreVulnHygiene": {
+    "description": "Service-hygiene factor naming how much of the exposed surface is risky.",
+    "placeholders": {
+      "risky": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      },
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnNoFindings": "✓ No risky services found among {total} exposed service(s)",
+  "@scoreVulnNoFindings": {
+    "description": "Vulnerability factor when the scan exposed services but flagged none.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnNoExposedServices": "✓ No open services were reported by the last scan",
+  "@scoreVulnNoExposedServices": {
+    "description": "Vulnerability factor when the scan found no open ports at all."
+  },
+  "scoreVulnDeviceTrust": "~ Device trust: {untrusted} untrusted, {unidentified} unidentified device(s)",
+  "@scoreVulnDeviceTrust": {
+    "description": "Device-trust factor listing the counts the Security dimension already charged.",
+    "placeholders": {
+      "untrusted": {
+        "type": "String"
+      },
+      "unidentified": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreVulnDeviceTrustClean": "✓ Every device is identified and trusted",
+  "@scoreVulnDeviceTrustClean": {
+    "description": "Device-trust factor when every device is identified and trusted."
+  },
+  "scoreVulnNoScanDesc": "Run a network scan to check for exposed services",
+  "@scoreVulnNoScanDesc": {
+    "description": "Vulnerability description when no scan has finished yet."
+  },
+  "scoreVulnNoScan": "✗ No network scan found (-50 points)",
+  "@scoreVulnNoScan": {
+    "description": "Vulnerability factor when no scan has finished yet."
+  },
+  "scoreVulnNoScanTip": "Tip: Run a network scan from the home screen",
+  "@scoreVulnNoScanTip": {
+    "description": "Advice shown when no scan has finished yet."
+  },
+  "scoreVulnUnableDesc": "Unable to read the last scan",
+  "@scoreVulnUnableDesc": {
+    "description": "Vulnerability description when the stored scan could not be read."
+  },
+  "scoreVulnUnable": "✗ Last scan could not be read",
+  "@scoreVulnUnable": {
+    "description": "Vulnerability factor when the stored scan could not be read."
+  },
+  "scoreVulnUnableTip": "Tip: Run a network scan again",
+  "@scoreVulnUnableTip": {
+    "description": "Advice shown when the stored scan could not be read."
   },
   "scoreDimSecurity": "Security",
   "@scoreDimSecurity": {

@@ -8,9 +8,13 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/pages/host_scan_page/scan_history/scan_history_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
+import 'package:vernet/repository/drift/health_report_repository.dart';
 import 'package:vernet/repository/drift/known_device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_analysis/device_risk_service.dart';
+import 'package:vernet/services/network_analysis/network_health_report_service.dart';
+import 'package:vernet/ui/device_risk_chip.dart';
 import 'package:vernet/ui/device_trust_badge.dart';
 
 import '../../helpers/test_helpers.dart';
@@ -180,6 +184,32 @@ void main() {
         findsOneWidget);
   });
 
+  testWidgets('opens the health report from a scan report', (tester) async {
+    final database = _InMemoryDatabaseService(db);
+    getIt.registerSingleton<NetworkHealthReportService>(
+      NetworkHealthReportService(
+        deviceRepo,
+        scanRepo,
+        HealthReportRepository(database),
+        DeviceRiskService(deviceRepo, scanRepo),
+      ),
+    );
+    addTearDown(() => getIt.unregister<NetworkHealthReportService>());
+
+    await pumpHistory(tester);
+    await tester.tap(find.text('Network 192.168.0'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Health report'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Network health report'), findsOneWidget);
+    expect(find.text('Critical issues'), findsOneWidget);
+    expect(find.text('Device summary'), findsOneWidget);
+    expect(find.text('No earlier report to compare'), findsOneWidget);
+
+    await disposeTree(tester);
+  });
+
   testWidgets('shows scan activity and a table on desktop', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(1400, 900);
@@ -255,6 +285,36 @@ void main() {
       find.text('192.168.0.12 • 00:11:22:33:44:55 • CIMSYS Inc'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('marks each report row with its risk tier', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1400, 900);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await deviceRepo.put(
+      const DeviceData(
+        id: 13,
+        internetAddress: '192.168.0.20',
+        currentDeviceIp: '192.168.0.100',
+        gatewayIp: '192.168.0.1',
+        macAddress: '00:11:22:33:44:66',
+        vendorName: 'CIMSYS Inc',
+        hostMake: 'Legacy box',
+        deviceType: 'Printer',
+        openPorts: '631',
+        scanId: 1,
+      ),
+    );
+
+    await pumpHistory(tester);
+    await tester.tap(find.text('Network 192.168.0'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DeviceRiskChip), findsNWidgets(3));
+    expect(find.text('Low'), findsOneWidget);
+    expect(find.text('Medium'), findsNWidgets(2));
   });
 
   testWidgets('shows an empty state when no scans exist', (tester) async {

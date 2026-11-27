@@ -99,7 +99,9 @@ Responsibilities:
 -   ip-to-mac key migration when a later scan resolves the MAC
 -   local notification when a scan finds a device outside the registry
 -   security dimension of the network score deducts five points per
-    untrusted device in the latest scan, capped at 25
+    untrusted device in the latest scan, capped at 25; the score's
+    Vulnerabilities breakdown repeats the untrusted and unidentified
+    counts as its Device trust factor without charging them twice
 -   review, revoke, forget, and add-ahead-by-MAC from
     `lib/pages/trusted_devices_page.dart`
 
@@ -125,6 +127,125 @@ Responsibilities:
 Service location:
 
 lib/services/port_scanner/
+
+------------------------------------------------------------------------
+
+### Vulnerability Analysis
+
+Turn the ports a scan already stored into local security findings.
+
+Responsibilities:
+
+-   offline rule table mapping well-known ports to a critical, warning
+    or info finding, plus a hint for common alternate port numbers
+-   per-device analysis that merges the stored `openPorts` with ports a
+    quick scan found in the same visit
+-   optional OpenSSH version read, only when port 22 is known open and
+    only from the device detail page
+-   no request leaves the device to decide what an open port means
+
+Service location:
+
+lib/services/network_analysis/
+
+Findings are `NetworkFinding` values in `lib/models/network_finding.dart`
+and render through `lib/ui/network_finding_tile.dart`. The device detail
+page shows them in its security findings card. Host scans are LAN-only, so
+SMB and NetBIOS are warnings rather than the critical they would be on an
+internet-facing host; Telnet is critical everywhere.
+
+------------------------------------------------------------------------
+
+### Device Risk
+
+Sort each discovered device into the Low, Medium and High tiers its chip
+shows.
+
+Responsibilities:
+
+-   low: a known device type, standard ports only
+-   medium: unknown device type, alternate-service ports or ports no
+    local table can name
+-   high: a critical or warning finding, a globally administered MAC whose
+    OUI resolved no vendor, or a device absent from at least half the scans
+    that ran while it was known
+-   one chip on the live scan row, the report rows and the device detail
+    header
+
+Service location:
+
+lib/services/network_analysis/device_risk_analyzer.dart (pure per-device
+assessment) and `device_risk_service.dart` (adds the scan-history signal).
+
+`DeviceRiskService` reads the stored device rows and scans once per report
+page. Live scan rows call the analyzer directly and show their tier without
+the history flag, because their scan is still running. Locally administered
+MACs are exempt from the unrecognized-vendor rule: phones rotate them by
+design, so an unmatched OUI says nothing there. The model lives in
+`lib/models/device_risk.dart` and renders through
+`lib/ui/device_risk_chip.dart`, using the green, amber and red semantic
+colors.
+
+------------------------------------------------------------------------
+
+### Network Health Report
+
+Turn one scan's findings into a graded, full-page report.
+
+Scoring is a product baseline:
+
+-   score starts at 100 and subtracts 25 per critical finding, 10 per
+    warning, 3 per info, 10 per high-risk device and 3 per medium-risk
+    device, clamped at 0
+-   grades: A 90+, B 80+, C 70+, D 60+, F below 60
+-   sections: critical issues, warnings, info, and a device summary
+    counting each risk tier and naming the high-risk devices
+
+Each scan's summary (score, grade, counts, scan start) is stored in the
+`health_report` drift table. The report compares against the most recent
+earlier scan that has a row; five points or more reads as improving or
+degrading, anything smaller as stable.
+
+The page rebuilds its finding lists from the scan's stored device rows, so
+only the snapshot is persisted. The export is the report as text on the
+clipboard, matching how the app copies other values.
+
+Service location:
+
+`lib/services/network_analysis/network_health_report_service.dart` builds
+the report and saves the snapshot, `lib/repository/drift/health_report_repository.dart`
+owns the table, and `lib/pages/health_report/network_health_report_page.dart`
+renders it. The scan report opens the page from its app bar, and a finished
+host scan stores its snapshot without waiting for the page.
+
+------------------------------------------------------------------------
+
+### Network Score
+
+One 0-100 score across Security, Health, Reliability, Speed and
+Vulnerabilities, shown on the home card and the detail page.
+
+The Security and Vulnerabilities dimensions read a `NetworkScanAnalysis`
+(`lib/models/network_scan_analysis.dart`) built from the latest scan's
+device rows. The score service can also receive that analysis through the
+BLoC: a finished host scan dispatches it after its trust pass, so the
+verdicts it just stored are part of the score straight away.
+
+-   Security subtracts 5 per unidentified device and 5 per untrusted
+    device in the registry, the latter capped at 25
+-   Vulnerabilities starts at 100 and subtracts 25 per critical finding,
+    10 per warning and 3 per info, plus up to 20 for service hygiene: the
+    share of exposed services that was flagged
+-   findings are keyed by address and service, so two ports of the same
+    service count once
+-   the breakdown lists every flagged service with its deduction, the
+    hygiene share, and the device-trust counts the Security dimension
+    already charged
+
+Because the dimensions are rebuilt from whatever the latest scan stored,
+resolving an exposure raises the score on the next scan without extra
+state. Service location: `lib/services/network_score_service.dart`; the
+`NetworkScoreBloc` singleton lives under `lib/pages/network_score/bloc/`.
 
 ------------------------------------------------------------------------
 

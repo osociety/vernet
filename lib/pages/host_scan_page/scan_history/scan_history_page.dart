@@ -1,14 +1,21 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
+import 'package:vernet/models/device_risk.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
+import 'package:vernet/pages/health_report/network_health_report_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_analysis/device_risk_analyzer.dart';
+import 'package:vernet/services/network_analysis/device_risk_service.dart';
+import 'package:vernet/services/network_analysis/port_risk_analyzer.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/device_risk_chip.dart';
 import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
@@ -710,7 +717,16 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.scanReportTitle)),
+      appBar: AppBar(
+        title: Text(context.l10n.scanReportTitle),
+        actions: [
+          IconButton(
+            tooltip: context.l10n.healthReportOpenTooltip,
+            icon: const Icon(Icons.health_and_safety_outlined),
+            onPressed: _openHealthReport,
+          ),
+        ],
+      ),
       body: SafeArea(
           child: FutureBuilder<List<DeviceData>>(
         future: _devicesFuture,
@@ -768,6 +784,15 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
       context,
       MaterialPageRoute<void>(
         builder: (context) => DeviceDetailPage(device: device),
+      ),
+    );
+  }
+
+  void _openHealthReport() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => NetworkHealthReportPage(scan: widget.scan),
       ),
     );
   }
@@ -1081,6 +1106,9 @@ class _DeviceResultsPanel extends StatefulWidget {
 
 class _DeviceResultsPanelState extends State<_DeviceResultsPanel> {
   Stream<List<KnownDeviceData>>? _knownDevices;
+  DeviceRiskService? _riskService;
+  Map<String, DeviceRiskAssessment> _riskAssessments = const {};
+  bool _riskRequested = false;
 
   @override
   void initState() {
@@ -1088,7 +1116,45 @@ class _DeviceResultsPanelState extends State<_DeviceResultsPanel> {
     if (getIt.isRegistered<DeviceTrustService>()) {
       _knownDevices = getIt<DeviceTrustService>().watchAll();
     }
+    if (getIt.isRegistered<DeviceRiskService>()) {
+      _riskService = getIt<DeviceRiskService>();
+    }
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // l10n needs the inherited widgets, so the history-aware pass waits until
+    // dependencies are available instead of running in initState.
+    if (!_riskRequested) {
+      _riskRequested = true;
+      unawaited(_loadRiskAssessments());
+    }
+  }
+
+  Future<void> _loadRiskAssessments() async {
+    final service = _riskService;
+    if (service == null) return;
+    final assessments = await service.assessDevices(
+      widget.devices,
+      context.l10n,
+    );
+    if (!mounted) return;
+    setState(() => _riskAssessments = assessments);
+  }
+
+  /// The single-device tier, used until the history-aware pass lands and when
+  /// the page is mounted without the DI graph.
+  DeviceRiskAssessment _riskOf(DeviceData device) =>
+      _riskAssessments[DeviceUtil.deviceKey(device)] ??
+      DeviceRiskAnalyzer.assess(
+        device,
+        findings: PortRiskAnalyzer.analyze(
+          PortRiskAnalyzer.parsePorts(device.openPorts),
+          l10n: context.l10n,
+          deviceAddress: device.internetAddress,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -1166,6 +1232,7 @@ class _DeviceResultsPanelState extends State<_DeviceResultsPanel> {
               if (isWide)
                 _DesktopDeviceRow(
                   device: devices[index],
+                  risk: _riskOf(devices[index]),
                   knownDevice: DeviceTrustService.knownDeviceFor(
                     knownDevices,
                     devices[index],
@@ -1175,6 +1242,7 @@ class _DeviceResultsPanelState extends State<_DeviceResultsPanel> {
               else
                 _MobileDeviceRow(
                   device: devices[index],
+                  risk: _riskOf(devices[index]),
                   knownDevice: DeviceTrustService.knownDeviceFor(
                     knownDevices,
                     devices[index],
@@ -1245,11 +1313,13 @@ class _DeviceTableHeader extends StatelessWidget {
 class _DesktopDeviceRow extends StatelessWidget {
   const _DesktopDeviceRow({
     required this.device,
+    required this.risk,
     required this.onTap,
     this.knownDevice,
   });
 
   final DeviceData device;
+  final DeviceRiskAssessment risk;
   final VoidCallback onTap;
   final KnownDeviceData? knownDevice;
 
@@ -1287,6 +1357,11 @@ class _DesktopDeviceRow extends StatelessWidget {
                             style: textTheme.titleSmall,
                             overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                        const SizedBox(width: 6),
+                        DeviceRiskChip(
+                          level: risk.level,
+                          reasons: risk.reasons,
                         ),
                         if (knownDevice != null) ...[
                           const SizedBox(width: 6),
@@ -1340,11 +1415,13 @@ class _DesktopDeviceRow extends StatelessWidget {
 class _MobileDeviceRow extends StatelessWidget {
   const _MobileDeviceRow({
     required this.device,
+    required this.risk,
     required this.onTap,
     this.knownDevice,
   });
 
   final DeviceData device;
+  final DeviceRiskAssessment risk;
   final VoidCallback onTap;
   final KnownDeviceData? knownDevice;
 
@@ -1370,6 +1447,8 @@ class _MobileDeviceRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 6),
+          DeviceRiskChip(level: risk.level, reasons: risk.reasons),
           if (knownDevice != null) ...[
             const SizedBox(width: 6),
             DeviceTrustBadge(trusted: knownDevice!.trusted),

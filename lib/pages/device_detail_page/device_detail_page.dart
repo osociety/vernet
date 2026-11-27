@@ -8,14 +8,23 @@ import 'package:vernet/helper/port_desc_loader.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/models/device_risk.dart';
+import 'package:vernet/models/network_finding.dart';
 import 'package:vernet/models/port.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/ping_page/ping_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_analysis/device_risk_analyzer.dart';
+import 'package:vernet/services/network_analysis/device_risk_service.dart';
+import 'package:vernet/services/network_analysis/port_risk_analyzer.dart';
+import 'package:vernet/services/network_analysis/vulnerability_analysis_service.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
+import 'package:vernet/ui/device_risk_chip.dart';
 import 'package:vernet/ui/device_trust_badge.dart';
+import 'package:vernet/ui/network_finding_tile.dart';
+import 'package:vernet/ui/semantic_colors.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/keys.dart';
@@ -38,13 +47,18 @@ class DeviceDetailPage extends StatefulWidget {
 
 class _DeviceDetailPageState extends State<DeviceDetailPage> {
   final Set<OpenPort> _openPorts = {};
+  final Set<int> _quickScannedPorts = {};
   bool _portScanRunning = false;
   bool _portScanCompleted = false;
   StreamSubscription<ActiveHost>? _portScanSubscription;
+  String? _sshVersion;
 
   DeviceTrustService? _trustService;
   StreamSubscription<List<KnownDeviceData>>? _trustSubscription;
   KnownDeviceData? _knownDevice;
+  DeviceRiskService? _riskService;
+  DeviceRiskAssessment? _riskAssessment;
+  bool _riskRequested = false;
   bool _trustBusy = false;
 
   @override
@@ -60,6 +74,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
       _trustSubscription =
           _trustService!.watchAll().listen(_onKnownDevicesChanged);
     }
+    if (_knownPorts().contains(22)) unawaited(_probeSshVersion());
   }
 
   void _onKnownDevicesChanged(List<KnownDeviceData> knownDevices) {
@@ -67,6 +82,30 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     setState(() {
       _knownDevice =
           DeviceTrustService.knownDeviceFor(knownDevices, widget.device);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_riskRequested) return;
+    _riskRequested = true;
+    if (getIt.isRegistered<DeviceRiskService>()) {
+      _riskService = getIt<DeviceRiskService>();
+    }
+    unawaited(_loadRiskAssessment());
+  }
+
+  /// The history-aware tier, so an intermittent device does not read as low
+  /// here while the scan list flags it.
+  Future<void> _loadRiskAssessment() async {
+    final service = _riskService;
+    if (service == null) return;
+    final assessments =
+        await service.assessDevices([widget.device], context.l10n);
+    if (!mounted) return;
+    setState(() {
+      _riskAssessment = assessments[DeviceUtil.deviceKey(widget.device)];
     });
   }
 
@@ -98,6 +137,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
   void _startQuickPortScan() {
     setState(() {
       _openPorts.clear();
+      _quickScannedPorts.clear();
+      _sshVersion = null;
       _portScanRunning = true;
       _portScanCompleted = false;
     });
@@ -113,6 +154,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
         if (host.openPorts.isNotEmpty) {
           setState(() {
             _openPorts.addAll(host.openPorts);
+            _quickScannedPorts.addAll(host.openPorts.map((port) => port.port));
           });
         }
       },
@@ -121,15 +163,50 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           _portScanRunning = false;
           _portScanCompleted = true;
         });
+        if (_knownPorts().contains(22)) unawaited(_probeSshVersion());
       },
     );
   }
+
+  /// Every port the page knows about: the ones the last scan stored plus any
+  /// the quick scan found in this visit.
+  Set<int> _knownPorts() => {
+        ...PortRiskAnalyzer.parsePorts(widget.device.openPorts),
+        ..._quickScannedPorts,
+      };
+
+  Future<void> _probeSshVersion() async {
+    if (!getIt.isRegistered<VulnerabilityAnalysisService>()) return;
+    final version = await getIt<VulnerabilityAnalysisService>()
+        .readSshVersion(widget.device.internetAddress);
+    if (!mounted || version == null) return;
+    setState(() => _sshVersion = version);
+  }
+
+  List<NetworkFinding> _findings(AppLocalizations l10n) =>
+      PortRiskAnalyzer.analyze(
+        _knownPorts(),
+        l10n: l10n,
+        sshVersion: _sshVersion,
+        deviceAddress: widget.device.internetAddress,
+      );
 
   void _copyToClipboard(String text, String label) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.l10n.deviceDetailCopied(label))),
     );
+  }
+
+  DeviceRiskAssessment _riskOf() {
+    final live = DeviceRiskAnalyzer.assess(
+      widget.device,
+      findings: _findings(context.l10n),
+    );
+    // A quick scan or SSH probe can surface ports the stored history lacks,
+    // so the overview tier must follow the live findings then.
+    if (_quickScannedPorts.isNotEmpty || _sshVersion != null) return live;
+    return _riskAssessment ?? live;
   }
 
   @override
@@ -140,6 +217,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     final iconData = DeviceUtil.getIconData(device);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final portsKnown = _knownPorts().isNotEmpty;
+    final findings = _findings(context.l10n);
 
     return Scaffold(
       appBar: AppBar(
@@ -161,6 +240,12 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           // Network information card
           _buildNetworkInfoCard(device, theme, colorScheme),
           const SizedBox(height: 12),
+
+          // Security findings for the ports this device exposes
+          if (portsKnown) ...[
+            _buildSecurityFindingsCard(context, findings),
+            const SizedBox(height: 12),
+          ],
 
           // Open ports card
           if (device.openPorts != null && device.openPorts!.isNotEmpty)
@@ -219,6 +304,16 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                         const SizedBox(width: 8),
                         DeviceTrustBadge(trusted: _knownDevice!.trusted),
                       ],
+                      const SizedBox(width: 8),
+                      Builder(
+                        builder: (context) {
+                          final risk = _riskOf();
+                          return DeviceRiskChip(
+                            level: risk.level,
+                            reasons: risk.reasons,
+                          );
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -358,6 +453,75 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
               label: context.l10n.deviceDetailGateway,
               value: device.gatewayIp,
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecurityFindingsCard(
+    BuildContext context,
+    List<NetworkFinding> findings,
+  ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Card(
+      key: WidgetKey.deviceDetailSecurityFindings.key,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.shield_outlined,
+                        size: 20,
+                        color: colors.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.securityFindingsTitle,
+                          style: theme.textTheme.titleMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    context.l10n.securityFindingsSubtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            if (findings.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 22,
+                      color: colors.success,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(context.l10n.securityFindingsNone)),
+                  ],
+                ),
+              )
+            else
+              ...findings
+                  .map((finding) => NetworkFindingTile(finding: finding)),
           ],
         ),
       ),

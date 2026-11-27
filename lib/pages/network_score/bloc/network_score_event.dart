@@ -7,15 +7,18 @@ class NetworkScoreEvent with _$NetworkScoreEvent {
   const factory NetworkScoreEvent.compute({
     WifiInfo? wifiInfo,
     NetworkConnectionStatus? connectivityStatus,
+    NetworkScanAnalysis? scanAnalysis,
   }) = _Compute;
 
   const factory NetworkScoreEvent.refresh({
     WifiInfo? wifiInfo,
     NetworkConnectionStatus? connectivityStatus,
+    NetworkScanAnalysis? scanAnalysis,
   }) = _Refresh;
 
   const factory NetworkScoreEvent.updateCache({
     required WifiInfo wifiInfo,
     required NetworkConnectionStatus connectivityStatus,
+    NetworkScanAnalysis? scanAnalysis,
   }) = _UpdateCache;
 }

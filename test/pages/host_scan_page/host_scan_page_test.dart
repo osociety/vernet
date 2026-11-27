@@ -11,6 +11,7 @@ import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
+import 'package:vernet/models/device_risk.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_page.dart';
 import 'package:vernet/providers/dark_theme_provider.dart';
@@ -20,6 +21,7 @@ import 'package:vernet/services/device_trust_service.dart';
 import 'package:vernet/services/impls/device_scanner_service.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/shell_chrome.dart';
+import 'package:vernet/ui/device_risk_chip.dart';
 import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/values/globals.dart' as globals;
 import 'package:vernet/values/keys.dart';
@@ -186,6 +188,11 @@ void main() {
   DeviceTrustBadge badgeIn(WidgetTester tester, Finder tile) =>
       tester.widget<DeviceTrustBadge>(
         find.descendant(of: tile, matching: find.byType(DeviceTrustBadge)),
+      );
+
+  DeviceRiskChip riskChipIn(WidgetTester tester, Finder tile) =>
+      tester.widget<DeviceRiskChip>(
+        find.descendant(of: tile, matching: find.byType(DeviceRiskChip)),
       );
 
   testWidgets('starts the scan only after the route transition completes',
@@ -508,6 +515,62 @@ void main() {
     expect(find.byType(DeviceTrustBadge), findsNWidgets(2));
     expect(badgeIn(tester, tileOf('Trusted host')).trusted, isTrue);
     expect(badgeIn(tester, tileOf('Untrusted host')).trusted, isFalse);
+
+    await disposeTree(tester);
+  });
+
+  testWidgets('shows each device risk tier as a chip', (tester) async {
+    await runScan(
+      tester,
+      _FakeScannerService(devices: const [
+        DeviceData(
+          id: 1,
+          scanId: 1,
+          internetAddress: '192.168.1.42',
+          macAddress: '00:03:93:AA:BB:01',
+          vendorName: 'Acme',
+          hostMake: 'Office printer',
+          deviceType: 'Printer',
+          openPorts: '631',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+        ),
+        DeviceData(
+          id: 2,
+          scanId: 1,
+          internetAddress: '192.168.1.43',
+          macAddress: '00:03:93:AA:BB:02',
+          vendorName: 'Acme',
+          hostMake: 'Legacy box',
+          deviceType: 'Printer',
+          openPorts: '23',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+        ),
+        DeviceData(
+          id: 3,
+          scanId: 1,
+          internetAddress: '192.168.1.44',
+          macAddress: '00:03:93:AA:BB:03',
+          vendorName: 'Acme',
+          hostMake: 'Mystery box',
+          currentDeviceIp: '192.168.1.10',
+          gatewayIp: '192.168.1.1',
+        ),
+      ]),
+    );
+    await tester.pumpAndSettle();
+
+    expect(riskChipIn(tester, tileOf('Office printer')).level,
+        DeviceRiskLevel.low);
+    expect(
+        riskChipIn(tester, tileOf('Legacy box')).level, DeviceRiskLevel.high);
+    expect(riskChipIn(tester, tileOf('Mystery box')).level,
+        DeviceRiskLevel.medium);
+
+    // The chips have to fit the row on a phone as well as on a desktop.
+    tester.view.physicalSize = const Size(390, 844);
+    await tester.pumpAndSettle();
 
     await disposeTree(tester);
   });

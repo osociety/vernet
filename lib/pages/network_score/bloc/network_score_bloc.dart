@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:vernet/models/network_connection_status.dart';
+import 'package:vernet/models/network_scan_analysis.dart';
 import 'package:vernet/models/network_score.dart';
 import 'package:vernet/models/wifi_info.dart';
 import 'package:vernet/repository/network_score_repository.dart';
@@ -58,6 +59,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
         liveWifiInfo: event.wifiInfo ?? _lastWifiInfo,
         liveConnectivityStatus:
             event.connectivityStatus ?? _lastConnectivityStatus,
+        scanAnalysis: event.scanAnalysis,
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
@@ -82,6 +84,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
         liveWifiInfo: event.wifiInfo ?? _lastWifiInfo,
         liveConnectivityStatus:
             event.connectivityStatus ?? _lastConnectivityStatus,
+        scanAnalysis: event.scanAnalysis,
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {
@@ -102,6 +105,7 @@ class NetworkScoreBloc extends Bloc<NetworkScoreEvent, NetworkScoreState> {
       final score = await scoreService.computeScore(
         liveWifiInfo: event.wifiInfo,
         liveConnectivityStatus: event.connectivityStatus,
+        scanAnalysis: event.scanAnalysis,
       );
       emit(NetworkScoreState.success(score));
     } catch (e) {

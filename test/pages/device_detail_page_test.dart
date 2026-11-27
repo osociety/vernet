@@ -181,6 +181,45 @@ void main() {
     });
   });
 
+  group('security findings', () {
+    const deviceWithPorts = DeviceData(
+      id: 1,
+      scanId: 1,
+      internetAddress: '192.168.1.42',
+      currentDeviceIp: '192.168.1.10',
+      gatewayIp: '192.168.1.1',
+      macAddress: 'AA:BB:CC:DD:EE:FF',
+      openPorts: '23,80,445',
+    );
+
+    testWidgets('lists findings for the ports stored by the last scan',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 2600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(createWidgetUnderTest(deviceWithPorts));
+
+      expect(find.byKey(WidgetKey.deviceDetailSecurityFindings.key),
+          findsOneWidget);
+      expect(find.text('Security findings'), findsOneWidget);
+      expect(find.text('Telnet is enabled'), findsOneWidget);
+      expect(find.text('Critical'), findsOneWidget);
+      expect(find.text('File sharing is exposed'), findsOneWidget);
+      expect(find.text('Web interface without encryption'), findsOneWidget);
+    });
+
+    testWidgets('omits the card when no port is known yet', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(testDevice));
+
+      expect(
+          find.byKey(WidgetKey.deviceDetailSecurityFindings.key), findsNothing);
+    });
+  });
+
   group('device trust', () {
     late AppDatabase db;
     late DeviceTrustService service;
