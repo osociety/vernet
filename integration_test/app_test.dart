@@ -18,6 +18,7 @@ import 'home_page/home_page.dart' as home_page_test;
 import 'network_score/network_score.dart' as network_score_test;
 import 'network_troubleshooting_test/ping_test/ping.dart' as ping_test;
 import 'port_scan/ipv6_port_scan.dart' as ipv6_port_scan_test;
+import 'scan_insights/scan_insights.dart' as scan_insights_test;
 import 'scan_report/scan_report.dart' as scan_report_test;
 import 'server_checker/server_checker_test.dart' as server_checker_test;
 import 'settings/settings.dart' as settings_test;
@@ -71,6 +72,7 @@ void main() {
   server_checker_test.main();
   device_detail_test.main();
   scan_report_test.main();
+  scan_insights_test.main();
   speed_test_test.main();
   network_score_test.main();
   subnet_calculator_test.main();
