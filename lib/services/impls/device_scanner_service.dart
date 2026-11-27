@@ -30,6 +30,29 @@ Future<String> getWifiSubnetMaskOrDefault(
   }
 }
 
+/// How long the scan waits for mDNS before finishing without it.
+@visibleForTesting
+const Duration mdnsBudget = Duration(seconds: 10);
+
+/// Caps the mDNS search so it can never hold the scan open.
+///
+/// mDNS only enriches names for hosts the sweep already found. The plugin
+/// starts with service-type enumeration, which iOS refuses without Apple's
+/// multicast entitlement and which can leave the call pending forever on a
+/// physical device, leaving the scan stuck on its last percent.
+@visibleForTesting
+Future<List<ActiveHost>> mdnsWithinBudget(
+  Future<List<ActiveHost>> search, {
+  Duration budget = mdnsBudget,
+}) =>
+    search.timeout(budget, onTimeout: () {
+      debugPrint(
+        'mDNS discovery did not finish within ${budget.inSeconds}s; '
+        'finishing the scan without it',
+      );
+      return const <ActiveHost>[];
+    });
+
 @Injectable()
 class DeviceScannerService extends ScannerService {
   static final _scanRepository = getIt<ScanRepository>();
@@ -213,7 +236,7 @@ class DeviceScannerService extends ScannerService {
         // them keeps the overall scan as short as the slower of the two.
         final mdnsSearch = globals.testingActive || !appSettings.mdnsEnabled
             ? Future<List<ActiveHost>>.value(const [])
-            : _searchMdnsDevicesSafely();
+            : mdnsWithinBudget(_searchMdnsDevicesSafely());
 
         final subnetMask = await getWifiSubnetMaskOrDefault(
           NetworkInfo().getWifiSubmask,

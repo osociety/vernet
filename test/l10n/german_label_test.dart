@@ -52,6 +52,7 @@ const Set<String> kGermanKeepsTheEnglish = {
   'portScanChipHttps',
   'deviceTypeNas',
   'deviceDetailPing',
+  'settingsSectionPing',
 
   // Labels German networking uses as-is.
   'homeInternet',

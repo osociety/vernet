@@ -42,7 +42,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   scanConcurrencyTile('scanConcurrencyTile'),
   pingMethodTile('pingMethodTile'),
   mdnsDiscoveryTile('mdnsDiscoveryTile'),
-  resetScanDefaultsButton('resetScanDefaultsButton'),
+  resetAllSettingsButton('resetAllSettingsButton'),
   pingTimeoutTile('pingTimeoutTile'),
   settingsButton('settingsButton'),
   settingsTextField('settingsTextField'),

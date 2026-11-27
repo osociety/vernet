@@ -26,4 +26,4 @@ Use this for GitHub Actions failures, workflow changes, branch protection or bra
 - Check `git status` and preserve all existing edits; do not reset, checkout over, or clean user work.
 - Never print, commit, or replace signing keys, tokens, or secret values. Refer to secret names only.
 - Do not commit, push, delete branches, alter branch protection, or deploy unless the user explicitly asks for that action.
-- If GitHub logs are unavailable, say so and request the smallest relevant log excerpt rather than guessing.
+- If GitHub logs are unavailable, say so and request the smallest relevant log excerpt rather than guessing — except when the job record itself reports `steps: []`, where no excerpt exists: that leg never executed a step, so rerun it (`gh run rerun <run> --failed`) and judge the new attempt before calling it a failure.

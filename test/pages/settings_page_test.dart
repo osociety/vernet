@@ -177,17 +177,61 @@ void main() {
       mdnsSwitch.onChanged?.call(false);
       await tester.pumpAndSettle();
       expect(AppSettings.instance.mdnsEnabled, isFalse);
+    });
 
-      final resetButton = find.byKey(WidgetKey.resetScanDefaultsButton.key);
-      await tester.scrollUntilVisible(resetButton, 120);
+    testWidgets('reset all settings restores every default', (tester) async {
+      await pumpAtWidth(tester, const Size(800, 1000));
+      final settingsContext = tester.element(find.byType(SettingsPage));
+      final theme = Provider.of<DarkThemeProvider>(
+        settingsContext,
+        listen: false,
+      );
+      final locale = Provider.of<LocaleProvider>(
+        settingsContext,
+        listen: false,
+      );
+
+      await AppSettings.instance.setFirstSubnet(20);
+      await AppSettings.instance.setSocketTimeout(250);
+      await AppSettings.instance.setPingCount(9);
+      await AppSettings.instance.setInAppInternet(false);
+      await AppSettings.instance.setCustomSubnet('10.0.0.1');
+      await AppSettings.instance.setScanTimeout(10);
+      await AppSettings.instance.setPingMethod(ScanPingMethod.icmp);
+      await AppSettings.instance.setMdnsEnabled(false);
+      await AppSettings.instance.setAutoTrustNewDevices(true);
+      await AppSettings.instance.setNotifyUntrustedDevices(false);
+      theme.themePref = ThemePreference.dark;
+      locale.locale = const Locale('de');
       await tester.pumpAndSettle();
-      await tester.tap(resetButton);
+
+      final resetTile = find.byKey(WidgetKey.resetAllSettingsButton.key);
+      await tester.scrollUntilVisible(resetTile, 120);
       await tester.pumpAndSettle();
-      expect(AppSettings.instance.scanTimeout, 2);
-      expect(AppSettings.instance.scanConcurrency,
-          AppSettings.recommendedScanConcurrency);
-      expect(AppSettings.instance.pingMethod, ScanPingMethod.tcpFallback);
-      expect(AppSettings.instance.mdnsEnabled, isTrue);
+      await tester.tap(resetTile);
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10nEn().resetAllSettingsConfirmTitle), findsOneWidget);
+      await tester.tap(
+        find.widgetWithText(TextButton, l10nEn().resetAllSettings),
+      );
+      await tester.pumpAndSettle();
+
+      final settings = AppSettings.instance;
+      expect(settings.firstSubnet, 1);
+      expect(settings.lastSubnet, 254);
+      expect(settings.socketTimeout, 500);
+      expect(settings.pingCount, 5);
+      expect(settings.inAppInternet, isTrue);
+      expect(settings.customSubnet, isEmpty);
+      expect(settings.scanTimeout, 2);
+      expect(settings.scanConcurrency, AppSettings.recommendedScanConcurrency);
+      expect(settings.pingMethod, ScanPingMethod.tcpFallback);
+      expect(settings.mdnsEnabled, isTrue);
+      expect(settings.autoTrustNewDevices, isFalse);
+      expect(settings.notifyUntrustedDevices, isTrue);
+      expect(theme.themePref, ThemePreference.system);
+      expect(locale.locale, isNull);
     });
 
     testWidgets('lays out the scan behavior rows at phone width',
@@ -207,12 +251,88 @@ void main() {
         tester.getRect(pingMethodTile).right,
         lessThanOrEqualTo(phone.width),
       );
+    });
 
-      final resetTile = find.byKey(WidgetKey.resetScanDefaultsButton.key);
-      await tester.scrollUntilVisible(resetTile, 120);
+    testWidgets('groups the network category under section headings',
+        (tester) async {
+      await pumpAtWidth(tester, const Size(800, 1200));
+
+      await tester.tap(find.byKey(WidgetKey.settingsNetworkCategory.key));
       await tester.pumpAndSettle();
 
-      expect(tester.getRect(resetTile).right, lessThanOrEqualTo(phone.width));
+      final l10n = l10nEn();
+      expect(find.text(l10n.settingsSectionDeviceRange), findsOneWidget);
+      expect(find.text(l10n.settingsSectionScanBehavior), findsOneWidget);
+      expect(find.text(l10n.settingsSectionDiscovery), findsOneWidget);
+
+      await tester.scrollUntilVisible(
+        find.text(l10n.settingsSectionDeviceTrust),
+        200,
+      );
+      expect(find.text(l10n.settingsSectionDeviceTrust), findsOneWidget);
+      expect(find.byKey(WidgetKey.trustedDevicesTile.key), findsOneWidget);
+    });
+
+    testWidgets('groups the other categories under section headings',
+        (tester) async {
+      await pumpAtWidth(tester, const Size(800, 1200));
+      final l10n = l10nEn();
+      final back = find.byKey(WidgetKey.settingsCategoryBackButton.key);
+
+      await tester.tap(find.byKey(WidgetKey.settingsGeneralCategory.key));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.settingsSectionAppearance), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text(l10n.settingsSectionAbout),
+        200,
+      );
+      expect(find.text(l10n.settingsSectionAbout), findsOneWidget);
+      await tester.tap(back);
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(WidgetKey.settingsOnlineFeaturesCategory.key),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.settingsSectionInternetAccess), findsOneWidget);
+      await tester.tap(back);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(WidgetKey.settingsAdvancedCategory.key));
+      await tester.pumpAndSettle();
+      expect(find.text(l10n.settingsSectionPing), findsOneWidget);
+      expect(find.text(l10n.settingsSectionNetworkTarget), findsOneWidget);
+    });
+
+    // The compact shell already paints an AppBar above this pane, so drawing the
+    // inline header as well stacked two headings on Android.
+    testWidgets('opens a category as a pushed page at phone width',
+        (tester) async {
+      await pumpAtWidth(tester, const Size(390, 844));
+
+      final settingsRoute = ModalRoute.of(
+        tester.element(find.byType(SettingsPage)),
+      );
+      await tester.tap(find.byKey(WidgetKey.settingsNetworkCategory.key));
+      await tester.pumpAndSettle();
+
+      expect(
+        ModalRoute.of(tester.element(find.byType(SettingsCategoryPage))),
+        isNot(same(settingsRoute)),
+      );
+      expect(
+        find.byKey(WidgetKey.settingsCategoryBackButton.key),
+        findsOneWidget,
+      );
+      expect(find.text(l10nEn().settingsNetwork), findsOneWidget);
+
+      await tester.tap(find.byKey(WidgetKey.settingsCategoryBackButton.key));
+      await tester.pumpAndSettle();
+      expect(find.byType(SettingsCategoryPage), findsNothing);
+      expect(
+        find.byKey(WidgetKey.settingsNetworkCategory.key),
+        findsOneWidget,
+      );
     });
 
     testWidgets('choosing a language re-renders the page in it',
@@ -313,7 +433,8 @@ void main() {
         return;
       }
 
-      await tester.ensureVisible(tile);
+      await tester.scrollUntilVisible(tile, 120);
+      await tester.pumpAndSettle();
       await tester.tap(tile);
       await tester.pumpAndSettle();
 

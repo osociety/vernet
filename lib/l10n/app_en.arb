@@ -64,18 +64,21 @@
   "@mdnsDiscoveryDesc": {
     "description": "Settings row subtitle for mDNS neighbor discovery."
   },
-  "resetScanDefaults": "Reset to defaults",
-  "@resetScanDefaults": {
-    "description": "Button label to reset host scanning settings."
+  "resetAllSettings": "Reset all settings",
+  "@resetAllSettings": {
+    "description": "Settings index action that restores every app setting."
   },
-  "recommendedScanDefaults": "Restores 2 seconds, {concurrency} concurrency, TCP + ICMP fallback, and mDNS.",
-  "@recommendedScanDefaults": {
-    "description": "Subtitle describing recommended host scan defaults.",
-    "placeholders": {
-      "concurrency": {
-        "type": "int"
-      }
-    }
+  "resetAllSettingsDesc": "Restores appearance, language, network and feature defaults",
+  "@resetAllSettingsDesc": {
+    "description": "Subtitle of the reset-all-settings action."
+  },
+  "resetAllSettingsConfirmTitle": "Reset all settings?",
+  "@resetAllSettingsConfirmTitle": {
+    "description": "Title of the confirmation dialog before resetting every setting."
+  },
+  "resetAllSettingsConfirmBody": "Theme, language, scan range, timeouts, ping, device trust and online features return to their defaults.",
+  "@resetAllSettingsConfirmBody": {
+    "description": "Body of the reset-all-settings confirmation dialog."
   },
   "pingCount": "Number of connection checks",
   "@pingCount": {
@@ -389,6 +392,42 @@
   "settingsNetworkDesc": "Device range, timeouts, concurrency, ping method and mDNS",
   "@settingsNetworkDesc": {
     "description": "Settings index subtitle describing network scanning options."
+  },
+  "settingsSectionDeviceRange": "Device range",
+  "@settingsSectionDeviceRange": {
+    "description": "Group heading for the scan start and end addresses."
+  },
+  "settingsSectionScanBehavior": "Scan behavior",
+  "@settingsSectionScanBehavior": {
+    "description": "Group heading for timeout, concurrency and ping settings."
+  },
+  "settingsSectionDiscovery": "Discovery",
+  "@settingsSectionDiscovery": {
+    "description": "Group heading for name discovery settings."
+  },
+  "settingsSectionDeviceTrust": "Device trust",
+  "@settingsSectionDeviceTrust": {
+    "description": "Group heading for trust registry and alert settings."
+  },
+  "settingsSectionAppearance": "Appearance & language",
+  "@settingsSectionAppearance": {
+    "description": "Group heading for theme and language preferences."
+  },
+  "settingsSectionAbout": "About & support",
+  "@settingsSectionAbout": {
+    "description": "Group heading for app information, updates and support."
+  },
+  "settingsSectionInternetAccess": "Internet access",
+  "@settingsSectionInternetAccess": {
+    "description": "Group heading for the optional online feature toggle."
+  },
+  "settingsSectionPing": "Ping",
+  "@settingsSectionPing": {
+    "description": "Group heading for the ping count setting."
+  },
+  "settingsSectionNetworkTarget": "Network target",
+  "@settingsSectionNetworkTarget": {
+    "description": "Group heading for the custom subnet setting."
   },
   "settingsAdvanced": "Advanced options",
   "@settingsAdvanced": {
@@ -4228,6 +4267,14 @@
   "scoreActionScanSubtitle": "Discover devices and assess security",
   "@scoreActionScanSubtitle": {
     "description": "Subtitles for the host-scan remediation card."
+  },
+  "scoreActionTrustTitle": "Review Trusted Devices",
+  "@scoreActionTrustTitle": {
+    "description": "Remediation card that opens the device trust registry."
+  },
+  "scoreActionTrustSubtitle": "Mark the devices that belong on your network as trusted",
+  "@scoreActionTrustSubtitle": {
+    "description": "Subtitle for the device-trust remediation card."
   },
   "scoreActionWifiTitle": "Check Wi-Fi Connection",
   "@scoreActionWifiTitle": {

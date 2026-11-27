@@ -31,12 +31,15 @@ enum SettingsCategory { general, network, features, advanced }
 class SettingsCategoryPage extends StatefulWidget {
   const SettingsCategoryPage({
     required this.category,
-    required this.onBack,
+    this.onBack,
     super.key,
   });
 
   final SettingsCategory category;
-  final VoidCallback onBack;
+
+  /// Switches the embedded pane back to the category list. Null when the page
+  /// was pushed on a compact window, where it owns an `AppBar` and pops instead.
+  final VoidCallback? onBack;
 
   @override
   State<SettingsCategoryPage> createState() => _SettingsCategoryPageState();
@@ -52,6 +55,38 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
       SettingsCategory.features => l10n.settingsFeatures,
       SettingsCategory.advanced => l10n.settingsAdvanced,
     };
+    final settings = switch (widget.category) {
+      SettingsCategory.general => _generalSettings(context),
+      SettingsCategory.network => _networkSettings(context),
+      SettingsCategory.features => _featureSettings(context),
+      SettingsCategory.advanced => _advancedSettings(context),
+    };
+
+    final onBack = widget.onBack;
+    if (onBack == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            key: WidgetKey.settingsCategoryBackButton.key,
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            onPressed: () => Navigator.maybePop(context),
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: Text(title),
+        ),
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: settings,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return SafeArea(
       child: Center(
@@ -67,7 +102,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
                       key: WidgetKey.settingsCategoryBackButton.key,
                       tooltip:
                           MaterialLocalizations.of(context).backButtonTooltip,
-                      onPressed: widget.onBack,
+                      onPressed: onBack,
                       icon: const Icon(Icons.arrow_back),
                     ),
                     const SizedBox(width: 8),
@@ -83,12 +118,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.all(16),
-                  children: switch (widget.category) {
-                    SettingsCategory.general => _generalSettings(context),
-                    SettingsCategory.network => _networkSettings(context),
-                    SettingsCategory.features => _featureSettings(context),
-                    SettingsCategory.advanced => _advancedSettings(context),
-                  },
+                  children: settings,
                 ),
               ),
             ],
@@ -103,6 +133,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
     final themeChange = Provider.of<DarkThemeProvider>(context);
     final localeChange = Provider.of<LocaleProvider>(context);
     return [
+      _sectionHeader(context, l10n.settingsSectionAppearance),
       Card(
         child: ListTile(
           key: WidgetKey.changeThemeTile.key,
@@ -167,6 +198,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           ],
         ),
       ),
+      _sectionHeader(context, l10n.settingsSectionAbout),
       Card(
         child: ListTile(
           title: Text(l10n.aboutTitle),
@@ -193,6 +225,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
   List<Widget> _networkSettings(BuildContext context) {
     final l10n = context.l10n;
     return [
+      _sectionHeader(context, l10n.settingsSectionDeviceRange),
       Card(
         child: ListTile(
           key: WidgetKey.firstSubnetTile.key,
@@ -211,6 +244,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           onTap: () => _showSettingDialog(context, const LastSubnetDialog()),
         ),
       ),
+      _sectionHeader(context, l10n.settingsSectionScanBehavior),
       Card(
         child: ListTile(
           key: WidgetKey.socketTimeoutTile.key,
@@ -250,6 +284,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
         },
         onSelected: appSettings.setPingMethod,
       ),
+      _sectionHeader(context, l10n.settingsSectionDiscovery),
       Card(
         child: SwitchListTile(
           key: WidgetKey.mdnsDiscoveryTile.key,
@@ -262,6 +297,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           },
         ),
       ),
+      _sectionHeader(context, l10n.settingsSectionDeviceTrust),
       Card(
         child: AdaptiveListTile(
           key: WidgetKey.trustedDevicesTile.key,
@@ -304,28 +340,13 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           },
         ),
       ),
-      Card(
-        child: ListTile(
-          key: WidgetKey.resetScanDefaultsButton.key,
-          leading: const Icon(Icons.restart_alt),
-          title: Text(l10n.resetScanDefaults),
-          subtitle: Text(
-            l10n.recommendedScanDefaults(
-              AppSettings.recommendedScanConcurrency,
-            ),
-          ),
-          onTap: () async {
-            await appSettings.resetScanDefaults();
-            if (mounted) setState(() {});
-          },
-        ),
-      ),
     ];
   }
 
   List<Widget> _featureSettings(BuildContext context) {
     final l10n = context.l10n;
     return [
+      _sectionHeader(context, l10n.settingsSectionInternetAccess),
       Card(
         child: ListTile(
           title: Text(l10n.inAppInternetTitle),
@@ -402,6 +423,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
   List<Widget> _advancedSettings(BuildContext context) {
     final l10n = context.l10n;
     return [
+      _sectionHeader(context, l10n.settingsSectionPing),
       Card(
         child: ListTile(
           key: WidgetKey.pingCountTile.key,
@@ -411,6 +433,7 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
           onTap: () => _showSettingDialog(context, const PingCountDialog()),
         ),
       ),
+      _sectionHeader(context, l10n.settingsSectionNetworkTarget),
       Card(
         child: ListTile(
           key: WidgetKey.customSubnetTile.key,
@@ -421,6 +444,22 @@ class _SettingsCategoryPageState extends State<SettingsCategoryPage> {
         ),
       ),
     ];
+  }
+
+  Widget _sectionHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      ),
+    );
   }
 
   Widget _settingValue(BuildContext context, String value) {

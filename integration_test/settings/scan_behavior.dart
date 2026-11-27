@@ -10,6 +10,7 @@ import 'package:vernet/helper/app_settings.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/main.dart';
 import 'package:vernet/pages/settings_category_page.dart';
+import 'package:vernet/pages/settings_page.dart';
 import 'package:vernet/repository/notification_service.dart';
 import 'package:vernet/utils/localization.dart';
 import 'package:vernet/values/globals.dart' as globals;
@@ -166,6 +167,7 @@ void main() {
       await appSettings.setScanConcurrency(16);
       await appSettings.setPingMethod(ScanPingMethod.icmp);
       await appSettings.setMdnsEnabled(false);
+      await appSettings.setPingCount(9);
 
       await openSettings(tester);
       await openNetworkCategory(tester);
@@ -177,17 +179,30 @@ void main() {
         ScanPingMethod.icmp,
       );
 
+      // The reset lives on the settings index and covers every setting, so the
+      // category is left first and the confirmation accepted.
+      await TestUtils.tapByWidgetKey(
+        WidgetKey.settingsCategoryBackButton,
+        tester,
+        find,
+      );
       await TestUtils.scrollUntilVisibleByWidgetKey(
-        WidgetKey.resetScanDefaultsButton,
+        WidgetKey.resetAllSettingsButton,
         tester,
         find,
         200.0,
       );
       await TestUtils.tapByWidgetKey(
-        WidgetKey.resetScanDefaultsButton,
+        WidgetKey.resetAllSettingsButton,
         tester,
         find,
       );
+      await tester.pumpAndSettle();
+      final l10n = tester.element(find.byType(SettingsPage)).l10n;
+      await tester.tap(
+        find.widgetWithText(TextButton, l10n.resetAllSettings),
+      );
+      await tester.pumpAndSettle();
 
       expect(appSettings.scanTimeout, 2);
       expect(
@@ -196,17 +211,10 @@ void main() {
       );
       expect(appSettings.pingMethod, ScanPingMethod.tcpFallback);
       expect(appSettings.mdnsEnabled, isTrue);
-      // The mDNS row sits directly above the reset row, so it is still built
-      // and shows the rebuilt value without scrolling back up.
-      expect(shownMdns(tester), isTrue);
+      expect(appSettings.pingCount, 5);
 
-      // Reopening the category checks the rows above the fold against what was
-      // persisted, through a fresh build of the page.
-      await TestUtils.tapByWidgetKey(
-        WidgetKey.settingsCategoryBackButton,
-        tester,
-        find,
-      );
+      // Reopening the category checks the rows against what was persisted,
+      // through a fresh build of the page.
       await openNetworkCategory(tester);
       expect(await shownValue<int>(tester, WidgetKey.scanTimeoutTile), 2);
       expect(
