@@ -96,6 +96,23 @@ class DeviceRepository extends Repository<DeviceData> {
     return _sortByIpAddress(devices);
   }
 
+  /// Every scan in which each device identity appears, keyed the way the trust
+  /// registry keys devices.
+  ///
+  /// One query and one pass in Dart, because the risk pass asks for the whole
+  /// report at once instead of one device at a time.
+  Future<Map<String, Set<int>>> scanIdsByDeviceKey() async {
+    final database = await _database.open();
+    final rows = await database!.select(database.device).get();
+    final scans = <String, Set<int>>{};
+    for (final row in rows) {
+      final key = DeviceUtil.macDeviceKey(row.macAddress) ??
+          DeviceUtil.addressDeviceKey(row.internetAddress);
+      scans.putIfAbsent(key, () => <int>{}).add(row.scanId);
+    }
+    return scans;
+  }
+
   Future<int> countByScanId(int scanId) async {
     final database = await _database.open();
     // Use a proper count query on the scanId column and read it as an int.

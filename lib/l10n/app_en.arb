@@ -2963,6 +2963,42 @@
       }
     }
   },
+  "deviceRiskLevelLow": "Low",
+  "@deviceRiskLevelLow": {
+    "description": "Risk tier chip for a device with no risk factors."
+  },
+  "deviceRiskLevelMedium": "Medium",
+  "@deviceRiskLevelMedium": {
+    "description": "Risk tier chip for a device with unknown identity or unusual ports."
+  },
+  "deviceRiskLevelHigh": "High",
+  "@deviceRiskLevelHigh": {
+    "description": "Risk tier chip for a device exposing risky services or with an unknown identity."
+  },
+  "deviceRiskLowDescription": "Known device type with only standard ports.",
+  "@deviceRiskLowDescription": {
+    "description": "Tooltip of the low risk chip."
+  },
+  "deviceRiskReasonVulnerableService": "Exposes a service with known weaknesses",
+  "@deviceRiskReasonVulnerableService": {
+    "description": "Risk reason for a device with a critical or warning finding."
+  },
+  "deviceRiskReasonUnknownVendor": "Hardware vendor is unrecognized",
+  "@deviceRiskReasonUnknownVendor": {
+    "description": "Risk reason for a globally administered MAC that resolved no vendor."
+  },
+  "deviceRiskReasonIntermittent": "Comes and goes between scans",
+  "@deviceRiskReasonIntermittent": {
+    "description": "Risk reason for a device absent from many scans while it was known."
+  },
+  "deviceRiskReasonUnknownDeviceType": "Device type is unknown",
+  "@deviceRiskReasonUnknownDeviceType": {
+    "description": "Risk reason for a device whose type could not be inferred."
+  },
+  "deviceRiskReasonUnusualPorts": "Uses unusual ports",
+  "@deviceRiskReasonUnusualPorts": {
+    "description": "Risk reason for alternate or unnamed open ports."
+  },
   "portDescFtp": "FTP - File Transfer Protocol",
   "@portDescFtp": {
     "description": "Service behind ports 20 and 21."

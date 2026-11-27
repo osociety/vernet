@@ -1,20 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vernet/database/drift/drift_database.dart';
 import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/main.dart';
+import 'package:vernet/models/device_risk.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
 import 'package:vernet/pages/host_scan_page/host_scan_bloc/host_scan_bloc.dart';
 import 'package:vernet/pages/host_scan_page/widgets/scan_history_button.dart';
 import 'package:vernet/pages/network_troubleshoot/port_scan_page.dart';
 import 'package:vernet/pages/wake_on_lan_page/wake_on_lan_page.dart';
 import 'package:vernet/services/device_trust_service.dart';
+import 'package:vernet/services/network_analysis/device_risk_analyzer.dart';
+import 'package:vernet/services/network_analysis/device_risk_service.dart';
+import 'package:vernet/services/network_analysis/port_risk_analyzer.dart';
 import 'package:vernet/services/wake_on_lan_service.dart';
 import 'package:vernet/store/inline_adaptive_banner.dart';
 import 'package:vernet/store/store_ad_slot.dart';
 import 'package:vernet/ui/adaptive/adaptive_list.dart';
 import 'package:vernet/ui/adaptive/shell_chrome.dart';
+import 'package:vernet/ui/device_risk_chip.dart';
 import 'package:vernet/ui/device_trust_badge.dart';
 import 'package:vernet/utils/device_util.dart';
 import 'package:vernet/utils/localization.dart';
@@ -28,7 +35,9 @@ class HostScanWidget extends StatefulWidget {
 
 class _HostScanWidgetState extends State<HostScanWidget> {
   DeviceTrustService? _trustService;
+  DeviceRiskService? _riskService;
   Stream<List<KnownDeviceData>>? _knownDevices;
+  Map<String, DeviceRiskAssessment> _riskAssessments = const {};
 
   @override
   void initState() {
@@ -39,7 +48,32 @@ class _HostScanWidgetState extends State<HostScanWidget> {
       _trustService = getIt<DeviceTrustService>();
       _knownDevices = _trustService!.watchAll();
     }
+    if (getIt.isRegistered<DeviceRiskService>()) {
+      _riskService = getIt<DeviceRiskService>();
+    }
   }
+
+  /// Loads the history-aware tiers once a scan finishes. Rows fall back to the
+  /// single-device assessment until this lands, which has every signal except
+  /// whether the device keeps disappearing between scans.
+  Future<void> _loadRiskAssessments(List<DeviceData> hosts) async {
+    final service = _riskService;
+    if (service == null || hosts.isEmpty) return;
+    final assessments = await service.assessDevices(hosts, context.l10n);
+    if (!mounted) return;
+    setState(() => _riskAssessments = assessments);
+  }
+
+  DeviceRiskAssessment _riskOf(DeviceData host) =>
+      _riskAssessments[DeviceUtil.deviceKey(host)] ??
+      DeviceRiskAnalyzer.assess(
+        host,
+        findings: PortRiskAnalyzer.analyze(
+          PortRiskAnalyzer.parsePorts(host.openPorts),
+          l10n: context.l10n,
+          deviceAddress: host.internetAddress,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +93,7 @@ class _HostScanWidgetState extends State<HostScanWidget> {
       listener: (context, state) {
         if (state is LoadSuccess) {
           final deviceCount = state.activeHosts.length;
+          unawaited(_loadRiskAssessments(state.activeHosts.toList()));
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -214,6 +249,7 @@ class _HostScanWidgetState extends State<HostScanWidget> {
               final isCurrentDevice = DeviceUtil.isCurrentDevice(host);
               final knownDevice =
                   DeviceTrustService.knownDeviceFor(knownDevices, host);
+              final risk = _riskOf(host);
               return AdaptiveListTile(
                 //TODO: fix below errors
                 leading: Icon(DeviceUtil.getIconData(host)),
@@ -244,6 +280,8 @@ class _HostScanWidgetState extends State<HostScanWidget> {
                         visualDensity: VisualDensity.compact,
                       ),
                     ],
+                    const SizedBox(width: 8),
+                    DeviceRiskChip(level: risk.level, reasons: risk.reasons),
                     if (knownDevice != null) ...[
                       const SizedBox(width: 8),
                       DeviceTrustBadge(trusted: knownDevice.trusted),
