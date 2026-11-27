@@ -7,6 +7,7 @@ import 'package:vernet/injection.dart';
 import 'package:vernet/l10n/app_localizations.dart';
 import 'package:vernet/models/device_risk.dart';
 import 'package:vernet/pages/device_detail_page/device_detail_page.dart';
+import 'package:vernet/pages/health_report/network_health_report_page.dart';
 import 'package:vernet/repository/drift/device_repository.dart';
 import 'package:vernet/repository/drift/scan_repository.dart';
 import 'package:vernet/services/device_trust_service.dart';
@@ -716,7 +717,16 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.scanReportTitle)),
+      appBar: AppBar(
+        title: Text(context.l10n.scanReportTitle),
+        actions: [
+          IconButton(
+            tooltip: context.l10n.healthReportOpenTooltip,
+            icon: const Icon(Icons.health_and_safety_outlined),
+            onPressed: _openHealthReport,
+          ),
+        ],
+      ),
       body: SafeArea(
           child: FutureBuilder<List<DeviceData>>(
         future: _devicesFuture,
@@ -774,6 +784,15 @@ class _ScanDetailPageState extends State<ScanDetailPage> {
       context,
       MaterialPageRoute<void>(
         builder: (context) => DeviceDetailPage(device: device),
+      ),
+    );
+  }
+
+  void _openHealthReport() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) => NetworkHealthReportPage(scan: widget.scan),
       ),
     );
   }

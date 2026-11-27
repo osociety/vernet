@@ -2999,6 +2999,129 @@
   "@deviceRiskReasonUnusualPorts": {
     "description": "Risk reason for alternate or unnamed open ports."
   },
+  "healthReportTitle": "Network health report",
+  "@healthReportTitle": {
+    "description": "Title of the full-page report and the copied text."
+  },
+  "healthReportOpenTooltip": "Health report",
+  "@healthReportOpenTooltip": {
+    "description": "Tooltip of the scan report action that opens the health report."
+  },
+  "healthReportCopyTooltip": "Copy report",
+  "@healthReportCopyTooltip": {
+    "description": "Tooltip of the action that copies the report as text."
+  },
+  "healthReportCopied": "Report copied to the clipboard",
+  "@healthReportCopied": {
+    "description": "Confirmation after copying the health report."
+  },
+  "healthReportLoadError": "Could not build the health report",
+  "@healthReportLoadError": {
+    "description": "Failure message when the report cannot be built."
+  },
+  "healthReportScoreOf": "{score} / 100",
+  "@healthReportScoreOf": {
+    "description": "Score under the grade letter.",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReportTextGrade": "Grade {grade} ({score}/100)",
+  "@healthReportTextGrade": {
+    "description": "Grade line of the copied text report.",
+    "placeholders": {
+      "grade": {
+        "type": "String"
+      },
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReportTextDevices": "Devices: {total} ({low} low, {medium} medium, {high} high)",
+  "@healthReportTextDevices": {
+    "description": "Device line of the copied text report.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "medium": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "healthReportTrendImproving": "Improving since the last scan",
+  "@healthReportTrendImproving": {
+    "description": "Trend when the score rose by five points or more."
+  },
+  "healthReportTrendDegrading": "Degrading since the last scan",
+  "@healthReportTrendDegrading": {
+    "description": "Trend when the score fell by five points or more."
+  },
+  "healthReportTrendStable": "Stable since the last scan",
+  "@healthReportTrendStable": {
+    "description": "Trend when the score moved less than five points."
+  },
+  "healthReportTrendUnknown": "No earlier report to compare",
+  "@healthReportTrendUnknown": {
+    "description": "Trend when no previous report exists."
+  },
+  "healthReportCriticalTitle": "Critical issues",
+  "@healthReportCriticalTitle": {
+    "description": "Section of findings that need immediate attention."
+  },
+  "healthReportWarningTitle": "Warnings",
+  "@healthReportWarningTitle": {
+    "description": "Section of potential risks to address."
+  },
+  "healthReportInfoTitle": "Info",
+  "@healthReportInfoTitle": {
+    "description": "Section of general observations."
+  },
+  "healthReportNoFindings": "Nothing found",
+  "@healthReportNoFindings": {
+    "description": "Empty state of a finding section."
+  },
+  "healthReportDeviceSummary": "Device summary",
+  "@healthReportDeviceSummary": {
+    "description": "Title of the section that counts devices by risk tier."
+  },
+  "healthReportNotableDevices": "High-risk devices",
+  "@healthReportNotableDevices": {
+    "description": "Subtitle listing the devices in the high risk tier."
+  },
+  "healthReportNoHighRisk": "No device is rated high risk",
+  "@healthReportNoHighRisk": {
+    "description": "Empty state of the high-risk device list."
+  },
+  "healthReportGradeA": "Excellent",
+  "@healthReportGradeA": {
+    "description": "Word shown beside grade A."
+  },
+  "healthReportGradeB": "Good",
+  "@healthReportGradeB": {
+    "description": "Word shown beside grade B."
+  },
+  "healthReportGradeC": "Fair",
+  "@healthReportGradeC": {
+    "description": "Word shown beside grade C."
+  },
+  "healthReportGradeD": "Poor",
+  "@healthReportGradeD": {
+    "description": "Word shown beside grade D."
+  },
+  "healthReportGradeF": "Critical",
+  "@healthReportGradeF": {
+    "description": "Word shown beside grade F."
+  },
   "portDescFtp": "FTP - File Transfer Protocol",
   "@portDescFtp": {
     "description": "Service behind ports 20 and 21."
