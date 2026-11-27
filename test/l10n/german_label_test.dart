@@ -78,6 +78,7 @@ const Set<String> kGermanKeepsTheEnglish = {
   'scoreFactorsInfo',
   'updatesChannelBeta',
   'speedCapGaming',
+  'securitySeverityInfo',
 
   // Nothing but a placeholder and a label German abbreviates the same way.
   'pingSummaryMin',

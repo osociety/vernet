@@ -128,6 +128,32 @@ lib/services/port_scanner/
 
 ------------------------------------------------------------------------
 
+### Vulnerability Analysis
+
+Turn the ports a scan already stored into local security findings.
+
+Responsibilities:
+
+-   offline rule table mapping well-known ports to a critical, warning
+    or info finding, plus a hint for common alternate port numbers
+-   per-device analysis that merges the stored `openPorts` with ports a
+    quick scan found in the same visit
+-   optional OpenSSH version read, only when port 22 is known open and
+    only from the device detail page
+-   no request leaves the device to decide what an open port means
+
+Service location:
+
+lib/services/network_analysis/
+
+Findings are `NetworkFinding` values in `lib/models/network_finding.dart`
+and render through `lib/ui/network_finding_tile.dart`. The device detail
+page shows them in its security findings card. Host scans are LAN-only, so
+SMB and NetBIOS are warnings rather than the critical they would be on an
+internet-facing host; Telnet is critical everywhere.
+
+------------------------------------------------------------------------
+
 ### DNS Tools
 
 Network lookup utilities.

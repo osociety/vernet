@@ -89,6 +89,7 @@ enum WidgetKey implements Comparable<WidgetKey> {
   deviceDetailPingButton('deviceDetailPingButton'),
   deviceDetailWolButton('deviceDetailWolButton'),
   deviceDetailTrustSwitch('deviceDetailTrustSwitch'),
+  deviceDetailSecurityFindings('deviceDetailSecurityFindings'),
   deviceTrustBadge('deviceTrustBadge'),
   trustedDevicesTile('trustedDevicesTile'),
   trustedDevicesList('trustedDevicesList'),
